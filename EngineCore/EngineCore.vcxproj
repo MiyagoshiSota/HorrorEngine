@@ -18,6 +18,51 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
+    <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
+    <ClCompile Include="src\Scene\GameObject\Model\Model.cpp" />
+    <ClCompile Include="src\Scene\GameObject\GameObjectBase.cpp" />
+    <ClCompile Include="src\Core\App.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Renderer\Assimp\AssimpLoader.cpp" />
+    <ClCompile Include="src\Renderer\Engine.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\Buffer\ConstantBuffer.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\Buffer\IndexBuffer.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\Buffer\VertexBuffer.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\PipelineState.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\RootSignature.cpp" />
+    <ClCompile Include="src\Renderer\StandardShader\Struct\SharedStruct.cpp" />
+    <ClCompile Include="src\Renderer\Texture\Texture2D.cpp" />
+    <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
+    <ClCompile Include="src\Scene\Renderer\SceneRenderer.cpp" />
+    <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
+    <ClCompile Include="src\Scene\SceneBase.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
+    <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
+    <ClInclude Include="src\Scene\GameObject\Model\Model.h" />
+    <ClInclude Include="src\Scene\GameObject\GameObjectBase.h" />
+    <ClInclude Include="src\Core\App.h" />
+    <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\Modules\ComPtr.h" />
+    <ClInclude Include="src\Renderer\Assimp\AssimpLoader.h" />
+    <ClInclude Include="src\Renderer\Engine.h" />
+    <ClInclude Include="src\Renderer\Graphics\Buffer\ConstantBuffer.h" />
+    <ClInclude Include="src\Renderer\Graphics\Buffer\IndexBuffer.h" />
+    <ClInclude Include="src\Renderer\Graphics\Buffer\VertexBuffer.h" />
+    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap.h" />
+    <ClInclude Include="src\Renderer\Graphics\PipelineState.h" />
+    <ClInclude Include="src\Renderer\Graphics\RootSignature.h" />
+    <ClInclude Include="src\Renderer\StandardShader\Struct\SharedStruct.h" />
+    <ClInclude Include="src\Renderer\Texture\Texture2D.h" />
+    <ClInclude Include="src\Scene\Camera\SceneCamera.h" />
+    <ClInclude Include="src\Scene\Renderer\SceneRenderer.h" />
+    <ClInclude Include="src\Scene\ResourceManager\SceneResourceManager.h" />
+    <ClInclude Include="src\Scene\SceneBase.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -28,26 +73,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -71,6 +116,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -78,7 +129,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -95,7 +146,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,7 +162,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -129,7 +180,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

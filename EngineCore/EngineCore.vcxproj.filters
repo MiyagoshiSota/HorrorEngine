@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\Core\App.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Renderer\Assimp\AssimpLoader.cpp" />
+    <ClCompile Include="src\Renderer\Engine.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\Buffer\ConstantBuffer.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\Buffer\IndexBuffer.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\Buffer\VertexBuffer.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\PipelineState.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\RootSignature.cpp" />
+    <ClCompile Include="src\Renderer\StandardShader\Struct\SharedStruct.cpp" />
+    <ClCompile Include="src\Renderer\Texture\Texture2D.cpp" />
+    <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
+    <ClCompile Include="src\Scene\Renderer\SceneRenderer.cpp" />
+    <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
+    <ClCompile Include="src\Scene\SceneBase.cpp" />
+    <ClCompile Include="src\Scene\GameObject\GameObjectBase.cpp" />
+    <ClCompile Include="src\Scene\GameObject\Model\Model.cpp" />
+    <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
+    <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Core\App.h" />
+    <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\Modules\ComPtr.h" />
+    <ClInclude Include="src\Renderer\Assimp\AssimpLoader.h" />
+    <ClInclude Include="src\Renderer\Engine.h" />
+    <ClInclude Include="src\Renderer\Graphics\Buffer\ConstantBuffer.h" />
+    <ClInclude Include="src\Renderer\Graphics\Buffer\IndexBuffer.h" />
+    <ClInclude Include="src\Renderer\Graphics\Buffer\VertexBuffer.h" />
+    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap.h" />
+    <ClInclude Include="src\Renderer\Graphics\PipelineState.h" />
+    <ClInclude Include="src\Renderer\Graphics\RootSignature.h" />
+    <ClInclude Include="src\Renderer\StandardShader\Struct\SharedStruct.h" />
+    <ClInclude Include="src\Renderer\Texture\Texture2D.h" />
+    <ClInclude Include="src\Scene\Camera\SceneCamera.h" />
+    <ClInclude Include="src\Scene\Renderer\SceneRenderer.h" />
+    <ClInclude Include="src\Scene\ResourceManager\SceneResourceManager.h" />
+    <ClInclude Include="src\Scene\SceneBase.h" />
+    <ClInclude Include="src\Scene\GameObject\GameObjectBase.h" />
+    <ClInclude Include="src\Scene\GameObject\Model\Model.h" />
+    <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
+    <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
+  </ItemGroup>
+</Project>
