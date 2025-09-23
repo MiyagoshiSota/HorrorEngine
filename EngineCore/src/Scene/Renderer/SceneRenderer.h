@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene/GameObject/GameObjectBase.h"
+#include "Scene/GameObject/IGameObjectBase.h"
 #include "Renderer/Graphics/RootSignature.h"
 #include "Renderer/Graphics/PipelineState.h"
 #include "Renderer/Engine.h"
@@ -12,7 +12,7 @@ public:
 	void BeginFrame();
 	void UpdateFrame();
 	void EndFrame();
-	void DrawGameObject(ID3D12GraphicsCommandList* commandList, std::shared_ptr<GameObjectBase> obj);
+	void DrawGameObject(ID3D12GraphicsCommandList* commandList, std::shared_ptr<IGameObjectBase> obj);
 
 	ID3D12RootSignature* GetRootSignature() { return rootSignature->Get(); }
 	ID3D12PipelineState* GetPipelineState() { return pipelineState->Get(); }

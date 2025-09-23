@@ -1,12 +1,10 @@
 #include "App.h"
 #include "Renderer/Engine.h"
-#include "Scene/SampleScene.h"
-#include "Scene/SceneBase.h"
 
 HINSTANCE g_hInst;
 HWND g_hWnd = NULL;
 
-SampleScene* g_DemoScene;
+std::shared_ptr<ISceneBase> g_Scene;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) 
 {
@@ -88,11 +86,6 @@ void MainLoop() {
 		}
 		else
 		{
-			//g_DemoScene->Update();
-			//g_Engine->BeginRender();
-			//g_DemoScene->Draw();
-			//g_Engine->EndRender();
-
 			g_Scene->Update();
 			g_Engine->BeginRender();
 			g_Scene->Draw();
@@ -101,7 +94,7 @@ void MainLoop() {
 	}
 }
 
-void StartApp(const TCHAR* appName) {
+void StartApp(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 	// Windowの初期化
 	InitWindow(appName);
 
@@ -113,12 +106,7 @@ void StartApp(const TCHAR* appName) {
 	}
 
 	// シーンの初期化
-	//g_DemoScene = new SampleScene();
-	//if (!g_DemoScene->Init())
-	//{
-	//	return;
-	//}
-	g_Scene = new SceneBase();
+	g_Scene = scene;
 	if (!g_Scene->Init())
 	{
 		return;

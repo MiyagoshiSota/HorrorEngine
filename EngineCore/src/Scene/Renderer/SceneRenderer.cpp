@@ -1,6 +1,7 @@
 #include "SceneRenderer.h"
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
 #include "Renderer/Graphics/DescriptorHeap.h"
+#include "Scene/GameObject/IGameObjectBase.h"
 
 SceneRenderer::SceneRenderer(std::wstring vsfilePath, std::wstring psfilePath)
 {
@@ -37,21 +38,21 @@ void SceneRenderer::EndFrame()
 }
 
 // 引数から currentIndex と constantBuffer を削除
-void SceneRenderer::DrawGameObject(ID3D12GraphicsCommandList* commandList, std::shared_ptr<GameObjectBase> obj)
+void SceneRenderer::DrawGameObject(ID3D12GraphicsCommandList* commandList, std::shared_ptr<IGameObjectBase> obj)
 {
-	auto materialHeap = obj->m_Model->m_Material->m_DescriptorHeap->GetHeap();
-	for (size_t i = 0; i < obj->m_Model->m_InputMesh.size(); i++)
+	auto materialHeap = obj->GetModel()->m_Material->m_DescriptorHeap->GetHeap();
+	for (size_t i = 0; i < obj->GetModel()->m_InputMesh.size(); i++)
 	{
-		auto vbView = obj->m_Model->m_Meshes->m_VertexBuffer[i]->View();
-		auto ibView = obj->m_Model->m_Meshes->m_IndexBuffers[i]->View();
+		auto vbView = obj->GetModel()->m_Meshes->m_VertexBuffer[i]->View();
+		auto ibView = obj->GetModel()->m_Meshes->m_IndexBuffers[i]->View();
 
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandList->IASetVertexBuffers(0, 1, &vbView);
 		commandList->IASetIndexBuffer(&ibView);
 
 		commandList->SetDescriptorHeaps(1, &materialHeap);
-		commandList->SetGraphicsRootDescriptorTable(1, obj->m_Model->m_Material->m_MaterialHandles[i]->HandleGPU);
+		commandList->SetGraphicsRootDescriptorTable(1, obj->GetModel()->m_Material->m_MaterialHandles[i]->HandleGPU);
 
-		commandList->DrawIndexedInstanced(obj->m_Model->m_InputMesh[i].Indeices.size(), 1, 0, 0, 0);
+		commandList->DrawIndexedInstanced(obj->GetModel()->m_InputMesh[i].Indeices.size(), 1, 0, 0, 0);
 	}
 }

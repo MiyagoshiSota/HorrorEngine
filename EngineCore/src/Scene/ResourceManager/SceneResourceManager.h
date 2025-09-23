@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene/GameObject/GameObjectBase.h"
+#include "Scene/GameObject/IGameObjectBase.h"
 
 class SceneResourceManager
 {
@@ -8,7 +8,7 @@ public:
 	/// GameObjectのリソースを読み込んでバッファを確保
 	/// </summary>
 	/// <param name="obj"></param>
-	void InitializeGpuResourcesFor(std::shared_ptr<GameObjectBase> obj);
+	void InitializeGpuResourcesFor(std::shared_ptr<IGameObjectBase> obj);
 
 private:
 	void CreateVertexBuffer(std::shared_ptr<Model> meshes);

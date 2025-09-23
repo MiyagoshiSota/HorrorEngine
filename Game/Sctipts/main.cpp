@@ -2,8 +2,10 @@
 #include "Core/App.h"
 #include <stdio.h>
 #include <DirectXTex.h>
+#include "Scene/DefaultScene.h"
 
 int main() {
-	StartApp(TEXT("Hello DirectX12!"));
+	std::shared_ptr<ISceneBase> scene = std::make_shared<DefaultScene>();
+	StartApp(TEXT("Hello DirectX12!"), scene);
 	return 0;
 }

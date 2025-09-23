@@ -1,5 +1,5 @@
 #include "SceneResourceManager.h"
-#include "Scene/GameObject/GameObjectBase.h"
+#include "Scene/GameObject/IGameObjectBase.h"
 #include "Renderer/Graphics/Buffer/IndexBuffer.h"
 #include "Renderer/Graphics/DescriptorHeap.h"
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
@@ -13,11 +13,11 @@ std::wstring ReplaceExtension(const std::wstring& origin, const char* ext)
 	return p.replace_extension(ext).c_str();
 }
 
-void SceneResourceManager::InitializeGpuResourcesFor(std::shared_ptr<GameObjectBase> obj)
+void SceneResourceManager::InitializeGpuResourcesFor(std::shared_ptr<IGameObjectBase> obj)
 {
-	CreateVertexBuffer(obj->m_Model);
-	CreateIndexBuffer(obj->m_Model);
-	ReadMaterial(obj->m_Model);
+	CreateVertexBuffer(obj->GetModel());
+	CreateIndexBuffer(obj->GetModel());
+	ReadMaterial(obj->GetModel());
 }
 
 void SceneResourceManager::CreateVertexBuffer(std::shared_ptr<Model> model)

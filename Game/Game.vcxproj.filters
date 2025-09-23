@@ -2,9 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Sctipts\main.cpp" />
+    <ClCompile Include="Sctipts\Scene\DefaultScene.cpp" />
+    <ClCompile Include="Sctipts\GameObject\DefaultGameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sctipts\main.h" />
+    <ClInclude Include="Sctipts\Scene\DefaultScene.h" />
+    <ClInclude Include="Sctipts\GameObject\DefaultGameObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
