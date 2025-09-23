@@ -19,8 +19,9 @@
     <ClCompile Include="src\Scene\SceneBase.cpp" />
     <ClCompile Include="src\Scene\GameObject\GameObjectBase.cpp" />
     <ClCompile Include="src\Scene\GameObject\Model\Model.cpp" />
-    <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
+    <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
+    <ClCompile Include="src\Scene\SampleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -42,7 +43,8 @@
     <ClInclude Include="src\Scene\SceneBase.h" />
     <ClInclude Include="src\Scene\GameObject\GameObjectBase.h" />
     <ClInclude Include="src\Scene\GameObject\Model\Model.h" />
-    <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
     <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
+    <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
+    <ClInclude Include="src\Scene\SampleScene.h" />
   </ItemGroup>
 </Project>

@@ -19,8 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
+    <ClCompile Include="src\Scene\SampleScene.cpp" />
     <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
+    <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
     <ClCompile Include="src\Scene\GameObject\Model\Model.cpp" />
     <ClCompile Include="src\Scene\GameObject\GameObjectBase.cpp" />
     <ClCompile Include="src\Core\App.cpp" />
@@ -41,8 +42,9 @@
     <ClCompile Include="src\Scene\SceneBase.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
+    <ClInclude Include="src\Scene\SampleScene.h" />
     <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
+    <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
     <ClInclude Include="src\Scene\GameObject\Model\Model.h" />
     <ClInclude Include="src\Scene\GameObject\GameObjectBase.h" />
     <ClInclude Include="src\Core\App.h" />
@@ -136,6 +138,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\lib\x64\v140\Debug\assimp-vc140-mt.lib;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -155,6 +161,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\lib\x64\v140\Debug\assimp-vc140-mt.lib;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -170,6 +180,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\lib\x64\v140\Debug\assimp-vc140-mt.lib;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -189,6 +203,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\lib\x64\v140\Debug\assimp-vc140-mt.lib;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

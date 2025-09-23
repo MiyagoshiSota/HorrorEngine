@@ -91,7 +91,7 @@ bool AssimpLoader::Load(ImportSettings settings)
     return true;
 }
 
-void AssimpLoader::LoadMesh(Mesh& dst, const aiMesh* src, bool inverseU, bool inverseV)
+void AssimpLoader::LoadMesh(SharedStruct::Mesh& dst, const aiMesh* src, bool inverseU, bool inverseV)
 {
     aiVector3D zero3D(0.0f, 0.0f, 0.0f);
     aiColor4D zeroColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -116,8 +116,9 @@ void AssimpLoader::LoadMesh(Mesh& dst, const aiMesh* src, bool inverseU, bool in
             uv->y = 1 - uv->y;
         }
 
-        Vertex vertex = {};
+        SharedStruct::Vertex vertex = {};
         vertex.Position = DirectX::XMFLOAT3(position->x, position->y, position->z);
+        // TODO:法線ベクトルないモデルも存在するから注意
         vertex.Normal = DirectX::XMFLOAT3(normal->x, normal->y, normal->z);
         vertex.UV = DirectX::XMFLOAT2(uv->x, uv->y);
         vertex.Tangent = DirectX::XMFLOAT3(tangent->x, tangent->y, tangent->z);
@@ -138,7 +139,7 @@ void AssimpLoader::LoadMesh(Mesh& dst, const aiMesh* src, bool inverseU, bool in
     }
 }
 
-void AssimpLoader::LoadTexture(const wchar_t* filename, Mesh& dst, const aiMaterial* src)
+void AssimpLoader::LoadTexture(const wchar_t* filename, SharedStruct::Mesh& dst, const aiMaterial* src)
 {
     aiString path;
     if (src->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)

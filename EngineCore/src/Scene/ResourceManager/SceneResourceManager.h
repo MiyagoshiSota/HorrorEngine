@@ -8,10 +8,10 @@ public:
 	/// GameObjectのリソースを読み込んでバッファを確保
 	/// </summary>
 	/// <param name="obj"></param>
-	void InitializeGpuResourcesFor(GameObjectBase& obj);
+	void InitializeGpuResourcesFor(std::shared_ptr<GameObjectBase> obj);
 
 private:
-	void CreateVertexBuffer(std::vector<Mesh> meshes);
-	void CreateIndexBuffer(GameObjectBase& obj);
-	void ReadMaterial(GameObjectBase& obj);
+	void CreateVertexBuffer(std::shared_ptr<Model> meshes);
+	void CreateIndexBuffer(std::shared_ptr<Model> model);
+	void ReadMaterial(std::shared_ptr<Model> model);
 };

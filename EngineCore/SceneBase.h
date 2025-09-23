@@ -9,7 +9,7 @@ public:
 	void Draw(); // 描画処理
 
 private:
-	std::unique
+	//std::unique
 };
 
 extern SceneBase* g_Scene;

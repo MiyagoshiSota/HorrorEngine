@@ -6,8 +6,8 @@
 #include <vector>
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
 
-struct Mesh;
-struct Vertex;
+struct SharedStruct::Mesh;
+struct SharedStruct::Vertex;
 
 struct aiMesh;
 struct aiMaterial;
@@ -26,7 +26,7 @@ public:
     bool Load(ImportSettings setting); // モデルをロードする
 
 private:
-    void LoadMesh(Mesh& dst, const aiMesh* src, bool inverseU, bool inverseV);
-    void LoadTexture(const wchar_t* filename, Mesh& dst, const aiMaterial* src);
+    void LoadMesh(SharedStruct::Mesh& dst, const aiMesh* src, bool inverseU, bool inverseV);
+    void LoadTexture(const wchar_t* filename, SharedStruct::Mesh& dst, const aiMaterial* src);
 };
 

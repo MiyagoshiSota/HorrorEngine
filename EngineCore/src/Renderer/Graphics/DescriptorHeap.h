@@ -18,12 +18,12 @@ class DescriptorHeap
 public:
 	DescriptorHeap(); // コンストラクタで生成する
 	ID3D12DescriptorHeap* GetHeap(); // ディスクリプタヒープを返す
-	DescriptorHandle* Register(Texture2D* texture); // テクスチャーをディスクリプタヒープに登録し、ハンドルを返す
+	std::shared_ptr<DescriptorHandle> Register(Texture2D* texture); // テクスチャーをディスクリプタヒープに登録し、ハンドルを返す
 
 private:
 	bool m_IsValid = false; // 生成に成功したかどうか
 	UINT m_IncrementSize = 0;
 	ComPtr<ID3D12DescriptorHeap> m_pHeap = nullptr; // ディスクリプタヒープ本体
-	std::vector<DescriptorHandle*> m_pHandles; // 登録されているハンドル
+	std::vector<std::shared_ptr<DescriptorHandle>> m_pHandles; // 登録されているハンドル
 };
 

@@ -2,6 +2,7 @@
 #include "Renderer/Texture/Texture2D.h"
 #include <d3dx12.h>
 #include "Renderer/Engine.h"
+#include "Modules/ComPtr.h"
 
 const UINT HANDLE_MAX = 512;
 
@@ -38,7 +39,7 @@ ID3D12DescriptorHeap* DescriptorHeap::GetHeap()
 	return m_pHeap.Get();
 }
 
-DescriptorHandle* DescriptorHeap::Register(Texture2D* texture)
+std::shared_ptr<DescriptorHandle> DescriptorHeap::Register(Texture2D* texture)
 {
 	auto count = m_pHandles.size();
 	if (HANDLE_MAX <= count)
@@ -46,7 +47,7 @@ DescriptorHandle* DescriptorHeap::Register(Texture2D* texture)
 		return nullptr;
 	}
 
-	DescriptorHandle* pHandle = new DescriptorHandle();
+	std::shared_ptr<DescriptorHandle> pHandle = std::make_unique<DescriptorHandle>();
 
 	auto handleCPU = m_pHeap->GetCPUDescriptorHandleForHeapStart(); // ディスクリプタヒープの最初のアドレス
 	handleCPU.ptr += m_IncrementSize * count; // 最初のアドレスからcount番目が今回追加されたリソースのハンドル
@@ -62,6 +63,6 @@ DescriptorHandle* DescriptorHeap::Register(Texture2D* texture)
 	auto desc = texture->ViewDesc();
 	device->CreateShaderResourceView(resource, &desc, pHandle->HandleCPU); // シェーダーリソースビュー作成
 
-	m_pHandles.push_back(pHandle);
-	return pHandle; // ハンドルを返す
+	m_pHandles.insert(m_pHandles.begin(), pHandle);
+	return std::move(pHandle); // ハンドルを返す
 }

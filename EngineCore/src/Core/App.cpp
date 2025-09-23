@@ -1,9 +1,12 @@
 #include "App.h"
 #include "Renderer/Engine.h"
-#include "Scene/Scene.h"
+#include "Scene/SampleScene.h"
+#include "Scene/SceneBase.h"
 
 HINSTANCE g_hInst;
 HWND g_hWnd = NULL;
+
+SampleScene* g_DemoScene;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) 
 {
@@ -85,6 +88,11 @@ void MainLoop() {
 		}
 		else
 		{
+			//g_DemoScene->Update();
+			//g_Engine->BeginRender();
+			//g_DemoScene->Draw();
+			//g_Engine->EndRender();
+
 			g_Scene->Update();
 			g_Engine->BeginRender();
 			g_Scene->Draw();
@@ -105,7 +113,12 @@ void StartApp(const TCHAR* appName) {
 	}
 
 	// シーンの初期化
-	g_Scene = new Scene();
+	//g_DemoScene = new SampleScene();
+	//if (!g_DemoScene->Init())
+	//{
+	//	return;
+	//}
+	g_Scene = new SceneBase();
 	if (!g_Scene->Init())
 	{
 		return;
