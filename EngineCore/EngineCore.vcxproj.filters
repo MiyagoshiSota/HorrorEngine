@@ -19,6 +19,8 @@
     <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Scene\SampleScene.cpp" />
     <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
+    <ClCompile Include="PipelineManager.cpp" />
+    <ClCompile Include="src\Renderer\RenderTarget\RenderTarget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -42,5 +44,9 @@
     <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
     <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
     <ClInclude Include="src\Scene\SampleScene.h" />
+    <ClInclude Include="src\Renderer\RenderPass\IRenderPass.h" />
+    <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
+    <ClInclude Include="src\Renderer\RenderTarget\RenderTarget.h" />
+    <ClInclude Include="PipelineManager.h" />
   </ItemGroup>
 </Project>

@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PipelineManager.cpp" />
+    <ClCompile Include="src\Renderer\RenderTarget\RenderTarget.cpp" />
     <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
     <ClCompile Include="src\Scene\SampleScene.cpp" />
     <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
@@ -39,6 +41,10 @@
     <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PipelineManager.h" />
+    <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
+    <ClInclude Include="src\Renderer\RenderPass\IRenderPass.h" />
+    <ClInclude Include="src\Renderer\RenderTarget\RenderTarget.h" />
     <ClInclude Include="src\Scene\SampleScene.h" />
     <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
     <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
