@@ -7,8 +7,13 @@
 class Mesh
 {
 public:
-    std::vector<std::unique_ptr<IndexBuffer>> m_IndexBuffers;
-    std::vector<std::unique_ptr<VertexBuffer>> m_VertexBuffer;
+    std::vector<std::shared_ptr<IndexBuffer>> m_IndexBuffers;
+    std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffer;
+
+    ~Mesh()
+    {
+
+    }
 
     int m_MaterialIndex;
 };

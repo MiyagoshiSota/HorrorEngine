@@ -1,0 +1,2 @@
+﻿#include "IPipelineManager.h"
+

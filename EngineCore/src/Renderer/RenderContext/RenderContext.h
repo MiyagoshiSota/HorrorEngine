@@ -2,9 +2,11 @@
 
 #include <map>
 #include <string>
-#include "Renderer/RenderTarget/RenderTarget.h" 
+#include "Renderer/Target/RenderTarget.h" 
 #include "Scene/Camera/SceneCamera.h"
 #include "memory"
+#include "Scene/GameObject/IGameObjectBase.h"
+#include "Scene/Renderer/SceneRenderer.h"
 
 struct ID3D12GraphicsCommandList;
 
@@ -12,9 +14,11 @@ class RenderContext
 {
 public:
     // フレーム開始時に、パイプラインマネージャーが生成する
-    RenderContext(ID3D12GraphicsCommandList* cmdList, SceneCamera* camera, float width, float height)
+    RenderContext(ID3D12GraphicsCommandList* cmdList, std::shared_ptr<SceneCamera> camera,std::shared_ptr<SceneRenderer> renderer, std::vector<std::shared_ptr <IGameObjectBase>> gameObjects, float width, float height)
         : CommandList(cmdList)
         , Camera(camera)
+        , GameObjects(gameObjects)
+        , Renderer(renderer)
         , ScreenWidth(width)
         , ScreenHeight(height)
     {
@@ -22,29 +26,29 @@ public:
 
     // --- 各パスが必要とする情報 ---
     ID3D12GraphicsCommandList* CommandList;
-    SceneCamera* Camera;
+    std::shared_ptr<SceneCamera> Camera;
+    std::shared_ptr<SceneRenderer>  Renderer;
+    std::vector<std::shared_ptr <IGameObjectBase>> GameObjects;
     float ScreenWidth;
     float ScreenHeight;
 
-    // --- レンダーターゲットの管理機能 ---
-
     // 名前を指定してレンダーターゲットを取得する
-    RenderTarget* GetRenderTarget(const std::string& name)
+    ITargetBase* GetRenderTarget(const std::string& name)
     {
-        if (m_RenderTargetPool.count(name)) {
-            return m_RenderTargetPool[name].get();
+        if (m_TargetPool.count(name)) {
+            return m_TargetPool[name].get();
         }
         return nullptr;
     }
 
     // パイプラインマネージャーがレンダーターゲットを登録するのに使う
-    void AddRenderTarget(const std::string& name, std::unique_ptr<RenderTarget> target)
+    void AddRenderTarget(const std::string& name, std::shared_ptr<ITargetBase> target)
     {
-        m_RenderTargetPool[name] = std::move(target);
+        m_TargetPool[name] = target;
     }
 
+    
+
 private:
-    // このフレームで利用可能なレンダーターゲットの一覧
-    // 名前でアクセスできるようにmapで管理するのが非常に便利
-    std::map<std::string, std::unique_ptr<RenderTarget>> m_RenderTargetPool;
+    std::map<std::string, std::shared_ptr<ITargetBase>> m_TargetPool;
 };

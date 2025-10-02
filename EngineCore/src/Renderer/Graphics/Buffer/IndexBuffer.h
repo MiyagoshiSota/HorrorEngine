@@ -7,6 +7,10 @@ class IndexBuffer
 {
 public:
 	IndexBuffer(size_t size, const uint32_t* pInitData = nullptr);
+	~IndexBuffer()
+	{
+		
+	}
 	bool IsValid();
 	D3D12_INDEX_BUFFER_VIEW View() const;
 

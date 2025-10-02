@@ -47,6 +47,6 @@
     <ClInclude Include="src\Renderer\RenderPass\IRenderPass.h" />
     <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
     <ClInclude Include="src\Renderer\RenderTarget\RenderTarget.h" />
-    <ClInclude Include="PipelineManager.h" />
+    <ClInclude Include="src\Renderer\PipelineManager\IPipelineManager.h" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,8 @@
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_4.h>
+
+#include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
 #include "Modules/ComPtr.h"
 
 #pragma comment(lib,"d3d12.lib") // d3d12ライブラリをリンクする
@@ -17,11 +19,20 @@ public:
 
 	void BeginRender(); // 描画の開始処理
 	void EndRender(); // 描画の終了処理
+	void MoveToNextFrame();
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHeap() { return m_pRtvHeap->GetCPUDescriptorHandleForHeapStart(); }
+	std::shared_ptr<SrvDescriptorHeap> GetSrvHeap() { return m_SRVHeap; }
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDsvHeap() { return m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(); }
+
+	D3D12_CPU_DESCRIPTOR_HANDLE AllocateRtvHandle();
 
 public:
 	ID3D12Device6* Device();
 	ID3D12GraphicsCommandList* CommandList();
 	UINT CurrentBackBufferIndex();
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentRtvHandle() const;
 
 private:
 	bool CreateDevice();
@@ -37,6 +48,7 @@ private:
 	UINT m_FrameBufferWidth = 0;
 	UINT m_FrameBufferHeight = 0;
 	UINT m_CurrentBackBufferIndex = 0;
+	UINT mFrameCount = 0ull;
 
 	ComPtr<ID3D12Device6> m_pDevice = nullptr; // デバイス
 	ComPtr<ID3D12CommandQueue> m_pQueue = nullptr; // コマンドキュー
@@ -51,8 +63,9 @@ private:
 
 private: // 描画に使うオブジェクトとその生成関数たち
 	bool CreateRenderTarget(); // レンダーターゲットを作成
+	bool CreateShaderResourceViewHeap(); // SRVヒープを作成
 	bool CreateDepthStencil(); // 深度ステンシルバッファを生成
-		
+
 	UINT m_RtvDescriptorSize = 0; // レンダーターゲットビューのディスクリプタサイズ
 	ComPtr<ID3D12DescriptorHeap> m_pRtvHeap = nullptr; // レンダーターゲットのディスクリプタヒープ
 	ComPtr<ID3D12Resource> m_pRenderTargets[FRAME_BUFFER_COUNT] = { nullptr }; // レンダーターゲット(ダブルバッファリングするので2個)
@@ -61,8 +74,12 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	ComPtr<ID3D12DescriptorHeap> m_pDsvHeap = nullptr; // 深度ステンシルのディスクリプタヒープ
 	ComPtr<ID3D12Resource> m_pDepthStencilBuffer = nullptr; // 深度ステンシルバッファ(こっちは1つでいい)
 
+	std::shared_ptr<SrvDescriptorHeap> m_SRVHeap;
+
+	UINT m_rtvHeapOffset;
+
 private:
-	ID3D12Resource* m_currentRenderTarget = nullptr; // 現在のフレームのレンダーターゲットを一時的に保存しておく関数
+	ComPtr < ID3D12Resource > m_currentRenderTarget = nullptr; // 現在のフレームのレンダーターゲットを一時的に保存しておく関数
 	void WaitRender(); // 描画完了を待つ関数
 };
 

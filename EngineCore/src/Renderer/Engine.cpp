@@ -5,6 +5,8 @@
 #include <Windows.h>
 #include <DirectXTex.h>
 
+#include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
+
 Engine* g_Engine;
 
 bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
@@ -27,6 +29,26 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
         printf("デバイスの初期化に失敗");
         return false;
     }
+
+    // CreateDevice()内、デバイス作成が成功した後に追加
+#if defined(_DEBUG)
+    ID3D12InfoQueue* pInfoQueue = nullptr;
+    if (SUCCEEDED(m_pDevice->QueryInterface(IID_PPV_ARGS(&pInfoQueue))))
+    {
+        // 重大なエラーが発生した場合、プログラムを停止させる
+        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+
+        // 特定のエラーメッセージを抑制する例（必要に応じて）
+        // D3D12_MESSAGE_ID messageIds[] = { ... };
+        // D3D12_INFO_QUEUE_FILTER filter = {};
+        // filter.DenyList.NumIDs = _countof(messageIds);
+        // filter.DenyList.pIDList = messageIds;
+        // pInfoQueue->AddStorageFilterEntries(&filter);
+
+        pInfoQueue->Release();
+    }
+#endif
 
     if (!CreateCommandQueue())
     {
@@ -51,6 +73,12 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 
     CreateViewPort();
     CreateScissorRect();
+
+    if (!CreateShaderResourceViewHeap())
+    {
+        printf("SRVHeapの作成に失敗");
+        return false;
+    }
 
     if (!CreateRenderTarget()) {
         printf("レンダーターゲットの作成に失敗");
@@ -87,24 +115,24 @@ void Engine::BeginRender()
     auto currentDsvHandle = m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
 
     // レンダーターゲットが使用可能になるまで待つ
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
     m_pCommandList->ResourceBarrier(1, &barrier);
 
     // レンダーターゲットを設定
     m_pCommandList->OMSetRenderTargets(1, &currentRtvHandle, FALSE, &currentDsvHandle);
 
-    // レンダーターゲットをクリア
-    const float clearColor[] = { 1.0f,0.25f,0.25f,1.0f };
+    //// レンダーターゲットをクリア
+    const float clearColor[] = { .5f,0.25f,0.25f,1.0f };
     m_pCommandList->ClearRenderTargetView(currentRtvHandle, clearColor, 0, nullptr);
 
-    // 深度ステンシルビューをクリア
-    m_pCommandList->ClearDepthStencilView(currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    //// 深度ステンシルビューをクリア
+    //m_pCommandList->ClearDepthStencilView(currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
 void Engine::EndRender()
 {
     // レンダーターゲットに書き込み終わるまで待つ
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
     m_pCommandList->ResourceBarrier(1, &barrier);
 
     // コマンドの記録を終了
@@ -116,12 +144,20 @@ void Engine::EndRender()
 
     // スワップチェインを切り替える
     m_pSwapChain->Present(1, 0);
+}
 
-    // 描画完了を待つ
-    WaitRender();
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::AllocateRtvHandle()
+{
+    // ヒープの先頭ハンドルを取得
+    auto handle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
 
-    // バックバッファ番号更新
-    m_CurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+    // 現在のオフセットを使ってアドレスを計算
+    handle.ptr += m_rtvHeapOffset * m_RtvDescriptorSize;
+
+    // 次の呼び出しのためにオフセットを1つ進める
+    m_rtvHeapOffset++;
+
+    return handle;
 }
 
 ID3D12Device6* Engine::Device()
@@ -286,7 +322,9 @@ bool Engine::CreateRenderTarget()
 {
     // RTV用のディスクリプタヒープを作成する
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-    desc.NumDescriptors = FRAME_BUFFER_COUNT;
+
+    // HACK:格納できるHeap数注意
+    desc.NumDescriptors = FRAME_BUFFER_COUNT + 10;
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     auto hr = m_pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pRtvHeap.ReleaseAndGetAddressOf()));
@@ -306,6 +344,14 @@ bool Engine::CreateRenderTarget()
         rtvHandle.ptr += m_RtvDescriptorSize;
     }
 
+    m_rtvHeapOffset = FRAME_BUFFER_COUNT;
+
+    return true;
+}
+
+bool Engine::CreateShaderResourceViewHeap()
+{
+    m_SRVHeap = std::make_shared<SrvDescriptorHeap>(2048);
     return true;
 }
 
@@ -364,26 +410,30 @@ bool Engine::CreateDepthStencil()
     return true;
 }
 
-void Engine::WaitRender()
+void Engine::MoveToNextFrame()
 {
-    // 描画終了待ち
-    const UINT64 fenceValue = m_fenceValue[m_CurrentBackBufferIndex];
-    m_pQueue->Signal(m_pFence.Get(), fenceValue);
-    m_fenceValue[m_CurrentBackBufferIndex]++;
+    // 1. 今まさにGPUに投げた描画処理の完了を予約する
+    const UINT64 currentFenceValue = m_fenceValue[m_CurrentBackBufferIndex];
+    m_pQueue->Signal(m_pFence.Get(), currentFenceValue);
 
-    // 次のフレームの描画準備がまだであれば待機する
-    if (m_pFence->GetCompletedValue() < fenceValue) {
-        // 完了時にイベントを設定
-        auto hr = m_pFence->SetEventOnCompletion(fenceValue, m_fenceEvent);
-        if (FAILED(hr))
-        {
-            return;
-        }
+    // 2. 次のフレームで使うバックバッファのインデックスを取得
+    m_CurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
-        // 待機処理
-        if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_fenceEvent,INFINITE,FALSE))
-        {
-            return;
-        }
+    // 3. GPUが、"次のフレームで使うリソース"をまだ使い終わっているかチェック
+    if (m_pFence->GetCompletedValue() < m_fenceValue[m_CurrentBackBufferIndex])
+    {
+        // 4. もし終わっていなければ、完了するまで待機する
+        m_pFence->SetEventOnCompletion(m_fenceValue[m_CurrentBackBufferIndex], m_fenceEvent);
+        WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
     }
+
+    // 5. 次回、このバックバッファの完了をチェックするためのフェンス値を設定する
+    m_fenceValue[m_CurrentBackBufferIndex] = currentFenceValue + 1;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::GetCurrentRtvHandle() const
+{
+    auto rtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
+    rtvHandle.ptr += m_CurrentBackBufferIndex * m_RtvDescriptorSize;
+    return rtvHandle;
 }

@@ -145,11 +145,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
     <ClCompile Include="Sctipts\GameObject\DefaultGameObject.cpp" />
     <ClCompile Include="Sctipts\main.cpp" />
     <ClCompile Include="Sctipts\Scene\DefaultScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="Sctipts\GameObject\DefaultGameObject.h" />
     <ClInclude Include="Sctipts\main.h" />
     <ClInclude Include="Sctipts\Scene\DefaultScene.h" />

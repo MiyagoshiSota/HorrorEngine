@@ -84,14 +84,15 @@ void MainLoop() {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		else
+		else 
 		{
 			g_Scene->Update();
 			g_Engine->BeginRender();
 			g_Scene->Draw();
 			g_Engine->EndRender();
-		}
-	}
+			g_Engine->MoveToNextFrame();
+		} 
+}
 }
 
 void StartApp(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {

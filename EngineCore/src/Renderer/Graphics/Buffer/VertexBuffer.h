@@ -6,6 +6,10 @@ class VertexBuffer
 {
 public:
 	VertexBuffer(size_t size, size_t stride, const void* pInitData); // コンストラクタでバッファを作成
+	~VertexBuffer()
+	{
+		
+	}
 	D3D12_VERTEX_BUFFER_VIEW View() const; // 頂点バッファビューを取得
 	bool IsValid(); // バッファの作成に成功したかを取得
 

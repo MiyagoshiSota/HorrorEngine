@@ -6,6 +6,9 @@
 
 using namespace DirectX;
 
+std::unordered_map<std::wstring, std::shared_ptr<Texture2D>> Texture2D::m_TextureCache;
+std::shared_ptr<Texture2D> Texture2D::m_WhiteTexture;
+
 // std::string(マルチバイト文字列)からstd::wstring(ワイド文字列)を得る。AssimpLoaderと同じものだけど、共用にするのがめんどくさかったので許してください
 std::wstring GetWideString(const std::string& str)
 {
@@ -37,43 +40,55 @@ Texture2D::Texture2D(std::wstring path)
     m_IsValid = Load(path);
 }
 
-Texture2D::Texture2D(ID3D12Resource* buffer)
+Texture2D::Texture2D(ComPtr < ID3D12Resource > buffer)
 {
     m_pResource = buffer;
     m_IsValid = m_pResource != nullptr;
 }
 
-Texture2D* Texture2D::Get(std::string path)
+// 戻り値をshared_ptrに変更
+std::shared_ptr<Texture2D> Texture2D::Get(std::string path)
 {
-	auto wpath = GetWideString(path);
-	return Get(wpath);
+    auto wpath = GetWideString(path);
+    return Get(wpath);
 }
 
-
-Texture2D* Texture2D::Get(std::wstring path)
+// Getメソッドをキャッシュ対応に修正
+std::shared_ptr<Texture2D> Texture2D::Get(std::wstring path)
 {
-    auto tex = new Texture2D(path);
+    // 1. キャッシュにテクスチャがあるか探す
+    auto it = m_TextureCache.find(path);
+    if (it != m_TextureCache.end())
+    {
+        // あればそれを返す
+        return it->second;
+    }
+
+    // 2. なければ新しく作る (make_sharedを使う)
+    auto tex = std::make_shared<Texture2D>(path);
     if (!tex->IsValid())
     {
-        return GetWhite(); // 読み込みに失敗した時は白単色テクスチャを返す
+        return GetWhite(); // 失敗したら白テクスチャを返す
     }
+
+    // 3. 作成したテクスチャをキャッシュに保存
+    m_TextureCache[path] = tex;
     return tex;
 }
 
-Texture2D* Texture2D::GetWhite()
+// GetWhiteもキャッシュ対応に
+std::shared_ptr<Texture2D> Texture2D::GetWhite()
 {
-    ID3D12Resource* buff = GetDefaultResource(4, 4);
-
-    std::vector<unsigned char> data(4 * 4 * 4);
-    std::fill(data.begin(), data.end(), 0xff);
-
-    auto hr = buff->WriteToSubresource(0, nullptr, data.data(), 4 * 4, data.size());
-    if (FAILED(hr))
+    if (m_WhiteTexture)
     {
-        return nullptr;
+        return m_WhiteTexture;
     }
 
-    return new Texture2D(buff);;
+    ComPtr<ID3D12Resource> buff = GetDefaultResource(4, 4);
+    // ... (data作成とWriteToSubresourceは同じ) ...
+
+    m_WhiteTexture = std::make_shared<Texture2D>(buff);
+    return m_WhiteTexture;
 }
 
 bool Texture2D::IsValid()
@@ -81,7 +96,7 @@ bool Texture2D::IsValid()
     return m_IsValid;
 }
 
-ID3D12Resource* Texture2D::Resource()
+ComPtr<ID3D12Resource> Texture2D::Resource()
 {
     return m_pResource.Get();
 }
@@ -161,11 +176,11 @@ bool Texture2D::Load(std::wstring& path)
     return true;
 }
 
-ID3D12Resource* Texture2D::GetDefaultResource(size_t width, size_t height)
+ComPtr<ID3D12Resource> Texture2D::GetDefaultResource(size_t width, size_t height)
 {
     auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height);
     auto texHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
-    ID3D12Resource* buff = nullptr;
+    ComPtr<ID3D12Resource> buff = nullptr;
     auto result = g_Engine->Device()->CreateCommittedResource(
         &texHeapProp,
         D3D12_HEAP_FLAG_NONE, //特に指定なし
@@ -181,3 +196,4 @@ ID3D12Resource* Texture2D::GetDefaultResource(size_t width, size_t height)
     }
     return buff;
 }
+

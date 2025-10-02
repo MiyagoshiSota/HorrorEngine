@@ -2,14 +2,18 @@
 #include "Scene/GameObject/Mesh/Mesh.h"
 #include "Scene/GameObject/Material/Material.h"
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
-#include "Renderer/Graphics/DescriptorHeap.h"
+#include "Renderer/Graphics/DescriptorHeap//SrvDescriptorHeap.h"
 
 class Model
 {
 public:
     Model();
+    ~Model()
+    {
+	    
+    }
 
-    std::unique_ptr<Mesh> m_Meshes;
-    std::unique_ptr<Material> m_Material;
+    std::shared_ptr<Mesh> m_Meshes;
+    std::shared_ptr<Material> m_Material;
     std::vector<SharedStruct::Mesh> m_InputMesh;
 };

@@ -2,10 +2,6 @@
 #include "Renderer/Engine.h" // g_Engine を使う場合
 
 RenderTarget::RenderTarget()
-    : m_CurrentState(D3D12_RESOURCE_STATE_COMMON)
-    , m_Width(0)
-    , m_Height(0)
-    , m_Format(DXGI_FORMAT_UNKNOWN)
 {
     m_hRtv.ptr = 0;
     m_hSrv.ptr = 0;
@@ -40,9 +36,9 @@ void RenderTarget::Create(
     // クリア時の色を設定
     D3D12_CLEAR_VALUE clearValue;
     clearValue.Format = m_Format;
-    clearValue.Color[0] = 0.0f; // R
-    clearValue.Color[1] = 0.0f; // G
-    clearValue.Color[2] = 0.0f; // B
+    clearValue.Color[0] = 1.0f; // R
+    clearValue.Color[1] = 1.0f; // G
+    clearValue.Color[2] = 1.0f; // B
     clearValue.Color[3] = 1.0f; // A
 
     // ヒープのプロパティを設定
