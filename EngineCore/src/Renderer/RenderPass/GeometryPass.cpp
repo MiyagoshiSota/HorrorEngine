@@ -46,18 +46,18 @@ void GeometryPass::Execute(ID3D12GraphicsCommandList* cmdList,RenderContext& con
 
     if (!context.GameObjects.empty())
     {
-        auto materialHeap = context.GameObjects[0]->GetModel()->m_Material->m_DescriptorHeap->GetHeap();
+        auto materialHeap = context.GameObjects[0]->get_model()->m_Material->m_DescriptorHeap->GetHeap();
         cmdList->SetDescriptorHeaps(1, &materialHeap);
     }
 
     for (auto& obj : context.GameObjects)
     {
         // フレームインデックスを渡して、現在のフレーム用の定数バッファを取得します
-        auto constantBuffer = obj->GetConstantBuffer(frameIndex);
+        auto constantBuffer = obj->get_constant_buffer(frameIndex);
 
         // 取得したバッファを更新します
         auto pTransform = constantBuffer->GetPtr<SharedStruct::Transform>();
-        pTransform->World = obj->GetTransform();
+        pTransform->World = obj->get_transform();
         pTransform->View = view;
         pTransform->Proj = proj;
 
@@ -65,18 +65,19 @@ void GeometryPass::Execute(ID3D12GraphicsCommandList* cmdList,RenderContext& con
         cmdList->SetGraphicsRootConstantBufferView(0, constantBuffer->GetAddress());
 
         // オブジェクトを描画
-        for (size_t i = 0; i < obj->GetModel()->m_InputMesh.size(); i++)
+        auto model = obj->get_model();
+        for (size_t i = 0; i < model->m_InputMesh.size(); i++)
         {
-            auto vbView = obj->GetModel()->m_Meshes->m_VertexBuffer[i]->View();
-            auto ibView = obj->GetModel()->m_Meshes->m_IndexBuffers[i]->View();
+            auto vbView = model->m_Meshes->m_VertexBuffer[i]->View();
+            auto ibView = model->m_Meshes->m_IndexBuffers[i]->View();
 
             cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmdList->IASetVertexBuffers(0, 1, &vbView);
             cmdList->IASetIndexBuffer(&ibView);
 
-            cmdList->SetGraphicsRootDescriptorTable(1, obj->GetModel()->m_Material->m_MaterialHandles[i]->gpuHandle);
+            cmdList->SetGraphicsRootDescriptorTable(1, model->m_Material->m_MaterialHandles[i]->gpuHandle);
 
-            cmdList->DrawIndexedInstanced(obj->GetModel()->m_InputMesh[i].Indeices.size(), 1, 0, 0, 0);
+            cmdList->DrawIndexedInstanced(model->m_InputMesh[i].Indeices.size(), 1, 0, 0, 0);
         }
     }
 

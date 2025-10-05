@@ -3,18 +3,17 @@
   <ItemGroup>
     <ClCompile Include="Sctipts\main.cpp" />
     <ClCompile Include="Sctipts\Scene\DefaultScene.cpp" />
-    <ClCompile Include="Sctipts\GameObject\DefaultGameObject.cpp" />
     <ClCompile Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
     <ClCompile Include="Sctipts\Renderer\Pass\MonochromePass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sctipts\main.h" />
     <ClInclude Include="Sctipts\Scene\DefaultScene.h" />
-    <ClInclude Include="Sctipts\GameObject\DefaultGameObject.h" />
     <ClInclude Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="Sctipts\Renderer\Pass\MonochromePass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="assets\scene.json" />
   </ItemGroup>
 </Project>

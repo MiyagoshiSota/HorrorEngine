@@ -1,0 +1,25 @@
+{
+	"scene_name": "Test Level 1",
+	"gameObjects": [
+		{
+			"name": "Player",
+			"position": [ 0.0, 1.0, 0.0 ],
+			"components": [
+				{
+					"type": "MeshRenderer",
+					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX"
+				}
+			]
+		},
+		{
+			"name": "Enemy",
+			"position": [ 2.0, 3.0, 0.0 ],
+			"components": [
+				{
+					"type": "MeshRenderer",
+					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX"
+				}
+			]
+		}
+	]
+}

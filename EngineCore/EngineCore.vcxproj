@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Scene\GameObject\Loader\GameObjectLoader.cpp" />
     <ClCompile Include="src\Renderer\Graphics\RootSignatureBuilder.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\PipelineStateManager.cpp" />
     <ClCompile Include="src\Modules\Renderer\RendereUtility.cpp" />
@@ -181,6 +182,7 @@
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
     <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
+    <ClCompile Include="src\Scene\GameObject\GameObject.cpp" />
     <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
     <ClCompile Include="src\Scene\GameObject\Model\Model.cpp" />
@@ -197,6 +199,10 @@
     <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Modules\Other\engineString.h" />
+    <ClInclude Include="src\Scene\GameObject\Loader\GameObjectLoader.h" />
+    <ClInclude Include="src\Scene\GameObject\Component\ComponentFactory.h" />
+    <ClInclude Include="src\Scene\GameObject\Component\MeshRenderer.h" />
     <ClInclude Include="src\Renderer\Graphics\RootSignatureBuilder.h" />
     <ClInclude Include="src\Renderer\PipelineManager\PipelineStateManager.h" />
     <ClInclude Include="src\Modules\Renderer\RendereUtility.h" />
@@ -211,10 +217,11 @@
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
     <ClInclude Include="src\Renderer\Target\RenderTarget.h" />
+    <ClInclude Include="src\Scene\GameObject\Component\Component.h" />
     <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
     <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
     <ClInclude Include="src\Scene\GameObject\Model\Model.h" />
-    <ClInclude Include="src\Scene\GameObject\IGameObjectBase.h" />
+    <ClInclude Include="src\Scene\GameObject\GameObject.h" />
     <ClInclude Include="src\Core\App.h" />
     <ClInclude Include="src\Modules\ComPtr.h" />
     <ClInclude Include="src\Renderer\Assimp\AssimpLoader.h" />
@@ -318,7 +325,7 @@
       <PreprocessorDefinitions>NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -339,7 +346,7 @@
       <PreprocessorDefinitions>NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -359,7 +366,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -381,7 +388,7 @@
       <PreprocessorDefinitions>NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

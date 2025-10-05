@@ -1,5 +1,5 @@
 #include "SceneResourceManager.h"
-#include "Scene/GameObject/IGameObjectBase.h"
+#include "Scene/GameObject/GameObject.h"
 #include "Renderer/Graphics/Buffer/IndexBuffer.h"
 #include "Renderer/Graphics/DescriptorHeap/SrvDescriptorHeap.h"
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
@@ -15,14 +15,16 @@ std::wstring ReplaceExtension(const std::wstring& origin, const char* ext)
 	return p.replace_extension(ext).c_str();
 }
 
-void SceneResourceManager::InitializeGpuResourcesFor(std::shared_ptr<IGameObjectBase> obj)
+void SceneResourceManager::initialize_gpu_resources_for(std::shared_ptr<GameObject> obj)
 {
-	CreateVertexBuffer(obj->GetModel());
-	CreateIndexBuffer(obj->GetModel());
-	ReadMaterial(obj->GetModel());
+	auto model = obj->get_model();
+
+	create_vertex_buffer(model);
+	create_index_buffer(model);
+	read_material(model);
 }
 
-void SceneResourceManager::CreateVertexBuffer(std::shared_ptr<Model> model)
+void SceneResourceManager::create_vertex_buffer(std::shared_ptr<Model> model)
 {
 	// すでに生成済みだったら早期リーターン
 	if (!model->m_Meshes->m_VertexBuffer.empty() && model->m_Meshes->m_VertexBuffer[0] != nullptr)
@@ -47,7 +49,7 @@ void SceneResourceManager::CreateVertexBuffer(std::shared_ptr<Model> model)
 	}
 }
 
-void SceneResourceManager::CreateIndexBuffer(std::shared_ptr<Model> model)
+void SceneResourceManager::create_index_buffer(std::shared_ptr<Model> model)
 {
 	// すでに生成済みだったら早期リーターン
 	if (!model->m_Meshes->m_IndexBuffers.empty() && model->m_Meshes->m_IndexBuffers[0] != nullptr)
@@ -75,7 +77,7 @@ void SceneResourceManager::CreateIndexBuffer(std::shared_ptr<Model> model)
 /// Textureを読み込んでヒープを確保
 /// </summary>
 /// <param name="obj"></param>
-void SceneResourceManager::ReadMaterial(std::shared_ptr<Model> model)
+void SceneResourceManager::read_material(std::shared_ptr<Model> model)
 {
 	model->m_Material->m_DescriptorHeap = g_Engine->GetSrvHeap();
 	model->m_Material->m_MaterialHandles.clear();

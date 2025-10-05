@@ -5,7 +5,7 @@
 #include "Renderer/Target/RenderTarget.h" 
 #include "Scene/Camera/SceneCamera.h"
 #include "memory"
-#include "Scene/GameObject/IGameObjectBase.h"
+#include "Scene/GameObject/GameObject.h"
 
 struct ID3D12GraphicsCommandList;
 
@@ -13,7 +13,7 @@ class RenderContext
 {
 public:
     // フレーム開始時に、パイプラインマネージャーが生成する
-    RenderContext(ID3D12GraphicsCommandList* cmdList, std::shared_ptr<SceneCamera> camera, std::vector<std::shared_ptr <IGameObjectBase>> gameObjects, float width, float height)
+    RenderContext(ID3D12GraphicsCommandList* cmdList, std::shared_ptr<SceneCamera> camera, std::vector<std::shared_ptr <GameObject>> gameObjects, float width, float height)
         : CommandList(cmdList)
         , Camera(camera)
         , GameObjects(gameObjects)
@@ -25,7 +25,7 @@ public:
     // --- 各パスが必要とする情報 ---
     ID3D12GraphicsCommandList* CommandList;
     std::shared_ptr<SceneCamera> Camera;
-    std::vector<std::shared_ptr <IGameObjectBase>> GameObjects;
+    std::vector<std::shared_ptr <GameObject>> GameObjects;
     float ScreenWidth;
     float ScreenHeight;
 
