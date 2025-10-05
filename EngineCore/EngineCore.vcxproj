@@ -315,10 +315,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -336,10 +336,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -357,9 +357,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -378,10 +378,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
