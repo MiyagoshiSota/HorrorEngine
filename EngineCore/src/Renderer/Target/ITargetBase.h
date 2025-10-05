@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include <d3d12.h>
+#include <memory>
 
 #include "Modules/ComPtr.h"
+#include "Renderer/Graphics/DescriptorHeap/DescriptorHandle.h"
 
 class ITargetBase
 {
@@ -15,7 +17,7 @@ public:
         DXGI_FORMAT dsvFormat,
         DXGI_FORMAT srvFormat,
         D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
-        D3D12_CPU_DESCRIPTOR_HANDLE srvHandle
+        std::shared_ptr<DescriptorHandle> srvHandle
     ) = 0;
     D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle() const { return m_hDsv; }
 
@@ -26,12 +28,12 @@ public:
         UINT height,
         DXGI_FORMAT format,
         D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
-        D3D12_CPU_DESCRIPTOR_HANDLE srvHandle
+        std::shared_ptr<DescriptorHandle> srvHandle
     )= 0;
     D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle() const { return m_hRtv; }
 
     // SRV用
-    D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle() const { return m_hSrv; }
+    std::shared_ptr<DescriptorHandle> GetSRVHandle() const { return m_hSrv; }
     
 public:
     void SetCurrentState(D3D12_RESOURCE_STATES state) { m_CurrentState = state; }
@@ -43,7 +45,7 @@ protected:
     D3D12_RESOURCE_STATES m_CurrentState;
 
     D3D12_CPU_DESCRIPTOR_HANDLE m_hRtv; // RTVのCPUハンドル
-    D3D12_CPU_DESCRIPTOR_HANDLE m_hSrv; // SRVのCPUハンドル
+    std::shared_ptr<DescriptorHandle> m_hSrv; // SRVのCPUハンドル
     D3D12_CPU_DESCRIPTOR_HANDLE m_hDsv; // DSVのCPUハンドル
 
     UINT m_Width;

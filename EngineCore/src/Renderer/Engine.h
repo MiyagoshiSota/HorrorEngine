@@ -5,6 +5,7 @@
 
 #include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
 #include "Modules/ComPtr.h"
+#include "PipelineManager/PipelineStateManager.h"
 
 #pragma comment(lib,"d3d12.lib") // d3d12ライブラリをリンクする
 #pragma comment(lib,"dxgi.lib") // dxgiライブラリをリンクする
@@ -21,10 +22,12 @@ public:
 	void EndRender(); // 描画の終了処理
 	void MoveToNextFrame();
 
+	// 各種ゲッター
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHeap() { return m_pRtvHeap->GetCPUDescriptorHandleForHeapStart(); }
 	std::shared_ptr<SrvDescriptorHeap> GetSrvHeap() { return m_SRVHeap; }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDsvHeap() { return m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(); }
 
+	// 各種アロケーター
 	D3D12_CPU_DESCRIPTOR_HANDLE AllocateRtvHandle();
 
 public:

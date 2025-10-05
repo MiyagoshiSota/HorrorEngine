@@ -12,9 +12,6 @@
 class RenderTarget: public ITargetBase
 {
 public:
-    // コンストラクタ
-    RenderTarget();
-
     // レンダーターゲットを生成する
     void Create(
         ID3D12Device* pDevice,
@@ -22,7 +19,7 @@ public:
         UINT height,
         DXGI_FORMAT format,
         D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle,
-        D3D12_CPU_DESCRIPTOR_HANDLE srvHandle
+        std::shared_ptr<DescriptorHandle> srvHandle
     ) override;
 
     void Create(
@@ -33,7 +30,7 @@ public:
         DXGI_FORMAT dsvFormat,
         DXGI_FORMAT srvFormat,
         D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
-        D3D12_CPU_DESCRIPTOR_HANDLE srvHandle
+        std::shared_ptr<DescriptorHandle> srvHandle
     ) override {};
     
 private:

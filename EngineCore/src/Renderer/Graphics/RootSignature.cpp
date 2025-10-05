@@ -1,37 +1,20 @@
 #include "RootSignature.h"
 #include "Renderer/Engine.h"
+#include "RootSignatureBuilder.h"
 #include <d3dx12.h>
 
-RootSignature::RootSignature()
+bool RootSignature::create(ID3D12Device* device, const std::shared_ptr<RootSignatureBuilder>& builder)
 {
-	auto flag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT; // アプリケーションの入力アセンブラを使用する
-	flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS; // ドメインシェーダーのルートシグネチャへアクセスを拒否する
-	flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS; //  ハルシェーダーのルートシグネチャへんアクセスを拒否する
-	flag |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS; // ジオメトリシェーダーのルートシグネチャへんアクセスを拒否する
-
-
-	CD3DX12_ROOT_PARAMETER rootParam[2] = {}; // 定数バッファとテクスチャの2
-	rootParam[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
-
-	CD3DX12_DESCRIPTOR_RANGE tableRange[1] = {}; // ディスクリプタテーブル
-	tableRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // シェーダーリソースビュー
-	rootParam[1].InitAsDescriptorTable(std::size(tableRange), tableRange, D3D12_SHADER_VISIBILITY_ALL);
-
-	// スタティックサンプラー設定
-	auto sampler = CD3DX12_STATIC_SAMPLER_DESC(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-
-	// ルートシグネチャの設定(定設したいルートパラメータとスタティックサンプラーを入れる)
 	D3D12_ROOT_SIGNATURE_DESC desc = {};
-	desc.NumParameters = std::size(rootParam); // ルートパラメータの個数を入れる
-	desc.NumStaticSamplers = 1; // サンプラーの個数を入れる
-	desc.pParameters = rootParam; // ルートパラメータのポインタを入れる
-	desc.pStaticSamplers = &sampler; // サンプラーのポインタを入れる
-	desc.Flags = flag; // フラグを設定
+	desc.NumParameters = static_cast<UINT>(builder->m_RootParameters.size());
+	desc.pParameters = builder->m_RootParameters.data();
+	desc.NumStaticSamplers = static_cast<UINT>(builder->m_StaticSamplers.size());
+	desc.pStaticSamplers = builder->m_StaticSamplers.data();
+	desc.Flags = builder->m_Flags;
 
 	ComPtr<ID3DBlob> pBlob;
 	ComPtr<ID3DBlob> pErrorBlob;
 
-	// シリアライズ
 	auto hr = D3D12SerializeRootSignature(
 		&desc,
 		D3D_ROOT_SIGNATURE_VERSION_1_0,
@@ -40,11 +23,11 @@ RootSignature::RootSignature()
 	);
 	if (FAILED(hr))
 	{
-		printf("ルートシグネチャシリアライズ失敗");
-		return;
+		// エラー処理
+		return false;
 	}
 
-	hr = g_Engine->Device()->CreateRootSignature(
+	hr = device->CreateRootSignature(
 		0,
 		pBlob->GetBufferPointer(),
 		pBlob->GetBufferSize(),
@@ -52,19 +35,20 @@ RootSignature::RootSignature()
 	);
 	if (FAILED(hr))
 	{
-		printf("ルートシグネチャの生成に失敗");
-		return;
+		// エラー処理
+		return false;
 	}
 
 	m_IsValid = true;
+	return true;
 }
 
-bool RootSignature::IsValid()
+bool RootSignature::is_valid() const
 {
 	return m_IsValid;
 }
 
-ID3D12RootSignature* RootSignature::Get()
+ID3D12RootSignature* RootSignature::get() const
 {
 	return m_pRootSignature.Get();
 }

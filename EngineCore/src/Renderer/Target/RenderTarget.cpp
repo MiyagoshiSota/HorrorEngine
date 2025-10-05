@@ -1,19 +1,14 @@
 #include "RenderTarget.h"
 #include "Renderer/Engine.h" // g_Engine を使う場合
 
-RenderTarget::RenderTarget()
-{
-    m_hRtv.ptr = 0;
-    m_hSrv.ptr = 0;
-}
-
 void RenderTarget::Create(
     ID3D12Device* pDevice,
     UINT width,
     UINT height,
     DXGI_FORMAT format,
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle,
-    D3D12_CPU_DESCRIPTOR_HANDLE srvHandle)
+	std::shared_ptr<DescriptorHandle> srvHandle
+)
 {
     m_Width = width;
     m_Height = height;
@@ -71,5 +66,5 @@ void RenderTarget::Create(
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.Texture2D.MipLevels = 1;
-    pDevice->CreateShaderResourceView(m_pResource.Get(), &srvDesc, m_hSrv);
+    pDevice->CreateShaderResourceView(m_pResource.Get(), &srvDesc, m_hSrv->cpuHandle);
 }

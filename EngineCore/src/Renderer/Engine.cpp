@@ -125,8 +125,8 @@ void Engine::BeginRender()
     const float clearColor[] = { .5f,0.25f,0.25f,1.0f };
     m_pCommandList->ClearRenderTargetView(currentRtvHandle, clearColor, 0, nullptr);
 
-    //// 深度ステンシルビューをクリア
-    //m_pCommandList->ClearDepthStencilView(currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    // 深度ステンシルビューをクリア
+    m_pCommandList->ClearDepthStencilView(currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
 void Engine::EndRender()

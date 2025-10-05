@@ -14,7 +14,7 @@ void DepthStencilTarget::Create(
     DXGI_FORMAT dsvFormat,
     DXGI_FORMAT srvFormat,
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
-    D3D12_CPU_DESCRIPTOR_HANDLE srvHandle)
+    std::shared_ptr<DescriptorHandle> srvHandle)
 {
     m_Width = width;
     m_Height = height;
@@ -40,7 +40,7 @@ void DepthStencilTarget::Create(
     clearValue.DepthStencil.Stencil = 0;
 
     // ヒープのプロパティを設定
-    auto heapProps =CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
     // リソースを生成
     HRESULT hr = pDevice->CreateCommittedResource(
@@ -70,10 +70,9 @@ void DepthStencilTarget::Create(
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.Texture2D.MipLevels = 1;
-    pDevice->CreateShaderResourceView(m_pResource.Get(),&srvDesc,m_hSrv);
+    pDevice->CreateShaderResourceView(m_pResource.Get(),&srvDesc,m_hSrv->cpuHandle);
 }
 
-void DepthStencilTarget::Create(ID3D12Device* pDevice, UINT width, UINT height, DXGI_FORMAT format,
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle, D3D12_CPU_DESCRIPTOR_HANDLE srvHandle)
+void DepthStencilTarget::Create(ID3D12Device* pDevice, UINT width, UINT height, DXGI_FORMAT format, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle, std::shared_ptr<DescriptorHandle> srvHandle)
 {
 }
