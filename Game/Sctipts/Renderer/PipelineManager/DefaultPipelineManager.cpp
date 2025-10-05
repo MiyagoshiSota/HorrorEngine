@@ -11,7 +11,7 @@ DefaultPipelineManager::DefaultPipelineManager()
     // Passを追加
     AddRenderPass(std::make_shared<SceneSetupPass>());
     AddRenderPass(std::make_shared<GeometryPass>());
-	//AddRenderPass(std::make_shared<MonochromePass>());
+	AddRenderPass(std::make_shared<MonochromePass>());
 
     // ターゲットの生成
     m_sceneColor = std::make_shared<RenderTarget>();

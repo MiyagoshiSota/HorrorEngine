@@ -26,6 +26,8 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHeap() { return m_pRtvHeap->GetCPUDescriptorHandleForHeapStart(); }
 	std::shared_ptr<SrvDescriptorHeap> GetSrvHeap() { return m_SRVHeap; }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDsvHeap() { return m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(); }
+	D3D12_VIEWPORT GetViewPort() { return m_Viewport; }
+	D3D12_RECT GetScissorRect() { return m_Scissor; }
 
 	// 各種アロケーター
 	D3D12_CPU_DESCRIPTOR_HANDLE AllocateRtvHandle();

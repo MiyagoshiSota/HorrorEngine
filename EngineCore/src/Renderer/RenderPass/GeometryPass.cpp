@@ -85,9 +85,9 @@ void GeometryPass::Execute(ID3D12GraphicsCommandList* cmdList,RenderContext& con
     std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriersOld = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
 
 	RendererUtility::simple_change_target_state(barriersOld, sceneColorRT, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	RendererUtility::simple_change_target_state(barriersOld, sceneDepthRT, D3D12_RESOURCE_STATE_DEPTH_READ);
+	//RendererUtility::simple_change_target_state(barriersOld, sceneDepthRT, D3D12_RESOURCE_STATE_DEPTH_READ);
     cmdList->ResourceBarrier(barriersOld->size(), barriersOld->data());
 
     sceneColorRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    sceneDepthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_READ);
+    //sceneDepthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_READ);
 }
