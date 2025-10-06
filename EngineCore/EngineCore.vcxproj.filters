@@ -68,6 +68,7 @@
     <ClInclude Include="src\Scene\GameObject\Component\ComponentFactory.h" />
     <ClInclude Include="src\Scene\GameObject\Loader\GameObjectLoader.h" />
     <ClInclude Include="src\Modules\Other\engineString.h" />
+    <ClInclude Include="src\Physics\Component\Rigidbody.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromePS.hlsl" />

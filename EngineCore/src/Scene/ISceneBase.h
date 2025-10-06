@@ -5,7 +5,7 @@
 #include "Scene/Camera/SceneCamera.h"
 #include "Scene/ResourceManager/SceneResourceManager.h"
 #include "Scene/GameObject/GameObject.h"
-#include "Renderer/StandardShader/Struct/SharedStruct.h"
+#include <reactphysics3d/reactphysics3d.h>
 
 class ISceneBase
 {
@@ -44,6 +44,7 @@ public:
 	std::unique_ptr<SceneResourceManager> get_scene_resource_manager() { return std::move(m_SceneResourceManager); }
 	std::vector<std::shared_ptr <GameObject>> get_game_objects() { return m_GameObjects; }
 	std::map<std::string, std::shared_ptr<Model>> get_models() { return m_models; }
+	reactphysics3d::PhysicsWorld* get_physics_world() const { return m_physicsWorld; }
 	std::shared_ptr<Model> get_model(const std::string& path)
 	{
 		if (m_models.find(path) != m_models.end()) {
@@ -53,10 +54,19 @@ public:
 	}
 
 protected:
+	// Manager
 	std::unique_ptr<IPipelineManager> m_PipelineManager;
-	std::shared_ptr<SceneCamera> m_Camera;
 	std::shared_ptr<PipelineStateManager> m_PipelineStateManager;
 	std::unique_ptr<SceneResourceManager> m_SceneResourceManager;
+
+	// Object
+	// TODO:CameraはGameObjectにしようかな...
+	std::shared_ptr<SceneCamera> m_Camera;
 	std::vector<std::shared_ptr <GameObject>> m_GameObjects;
+
+	// Model
 	std::map<std::string ,std::shared_ptr<Model>> m_models;
+
+	// Physics
+	reactphysics3d::PhysicsWorld* m_physicsWorld;
 };

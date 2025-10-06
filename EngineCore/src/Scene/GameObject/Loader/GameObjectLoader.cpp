@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "Physics/Component/Rigidbody.h"
 #include "Scene/GameObject/Component/ComponentFactory.h"
 #include "Scene/GameObject/Component/MeshRenderer.h"
 
@@ -9,6 +10,7 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::load_from_file(const 
 {
 	auto gameObjects = std::vector<std::shared_ptr<GameObject>>();
 	ComponentFactory::Register<MeshRenderer>("MeshRenderer");
+	ComponentFactory::Register<Rigidbody>("Rigidbody");
 
 	std::ifstream file(filePath);
 	if (!file.is_open())

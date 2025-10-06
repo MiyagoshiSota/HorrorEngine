@@ -8,12 +8,16 @@
 				{
 					"type": "MeshRenderer",
 					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX"
-				}
+				},
+				{
+					"type": "Rigidbody",
+					"isGravityEnabled": true
+				}	
 			]
 		},
 		{
 			"name": "Enemy",
-			"position": [ 2.0, 3.0, 0.0 ],
+			"position": [ 20.0, 3.0, 0.0 ],
 			"components": [
 				{
 					"type": "MeshRenderer",

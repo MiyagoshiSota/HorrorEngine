@@ -14,15 +14,6 @@ using namespace DirectX;
 
 bool DefaultScene::Init()
 {
-	// ゲームオブジェクトの読み込み
-	m_GameObjects = GameObjectLoader::load_from_file("assets/scene.json");
-
-	// リソースの確保
-	for (auto& obj : m_GameObjects)
-	{
-		m_SceneResourceManager->initialize_gpu_resources_for(obj);
-	}
-
 	// カメラの初期化
 	m_Camera = std::make_unique<SceneCamera>();
 	m_Camera->Init();
@@ -58,7 +49,20 @@ bool DefaultScene::Init()
 	// PipelineManagerの初期化
 	m_PipelineManager = std::make_unique<DefaultPipelineManager>();
 
+	// PhysicsWorldの初期化
+	reactphysics3d::PhysicsCommon physics_common;
+	m_physicsWorld = physics_common.createPhysicsWorld();
+
 	printf("シーンの初期化に成功\n");
+
+	// ゲームオブジェクトの読み込み
+	m_GameObjects = GameObjectLoader::load_from_file("assets/scene.json");
+
+	// リソースの確保
+	for (auto& obj : m_GameObjects)
+	{
+		m_SceneResourceManager->initialize_gpu_resources_for(obj);
+	}
 	
 	// ゲームオブジェクトのInitを実行
 	for (auto& obj : m_GameObjects)
@@ -74,6 +78,11 @@ bool DefaultScene::Init()
 void DefaultScene::Update()
 {
 	ISceneBase::Update();
+
+	for (auto obj : m_GameObjects)
+	{
+		obj->update();
+	}
 }
 
 void DefaultScene::Draw()
