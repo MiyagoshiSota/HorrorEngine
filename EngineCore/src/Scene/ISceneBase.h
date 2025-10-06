@@ -25,7 +25,7 @@ public:
 	/// <summary>
 	/// 毎フレーム実行
 	/// </summary>
-	virtual void Update() {
+	virtual void Update(float delta_time) {
 		// GameObjectのUpdate処理
 		for (auto& obj : m_GameObjects)
 		{
@@ -68,5 +68,6 @@ protected:
 	std::map<std::string ,std::shared_ptr<Model>> m_models;
 
 	// Physics
+	reactphysics3d::PhysicsCommon physics_common;
 	reactphysics3d::PhysicsWorld* m_physicsWorld;
 };

@@ -50,7 +50,6 @@ bool DefaultScene::Init()
 	m_PipelineManager = std::make_unique<DefaultPipelineManager>();
 
 	// PhysicsWorldの初期化
-	reactphysics3d::PhysicsCommon physics_common;
 	m_physicsWorld = physics_common.createPhysicsWorld();
 
 	printf("シーンの初期化に成功\n");
@@ -72,13 +71,18 @@ bool DefaultScene::Init()
 	
 	printf("ゲームオブジェクトの初期化を設定");
 
+	g_lastFrameTime = std::chrono::steady_clock::now();
+
 	return true;
 }
 
-void DefaultScene::Update()
+void DefaultScene::Update(float delta_time)
 {
-	ISceneBase::Update();
+	ISceneBase::Update(delta_time);
 
+	m_physicsWorld->update(delta_time);
+
+	// ゲームオブジェクトの更新
 	for (auto obj : m_GameObjects)
 	{
 		obj->update();

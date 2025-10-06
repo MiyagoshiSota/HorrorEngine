@@ -5,6 +5,7 @@ HINSTANCE g_hInst;
 HWND g_hWnd = NULL;
 
 std::shared_ptr<ISceneBase> g_Scene;
+std::chrono::steady_clock::time_point g_lastFrameTime;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) 
 {
@@ -19,7 +20,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	return DefWindowProc(hWnd, msg, wp,lp);
 }
 
-void InitWindow(const TCHAR* appName) 
+void init_window(const TCHAR* appName)
 {
 	g_hInst = GetModuleHandle(nullptr);
 	if (g_hInst == nullptr) 
@@ -75,18 +76,27 @@ void InitWindow(const TCHAR* appName)
 	SetFocus(g_hWnd);
 }
 
-void MainLoop() {
+void main_loop() {
 	MSG msg = {};
 
 	while (WM_QUIT != msg.message)
 	{
+		// 現在の時刻を取得
+		auto currentTime = std::chrono::steady_clock::now();
+
+		// 前のフレームからの経過時間を計算
+		std::chrono::duration<float> deltaTime = currentTime - g_lastFrameTime;
+
+		// 次のフレームのために、現在の時刻を「最後の時刻」として保存
+		g_lastFrameTime = currentTime;
+
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE == TRUE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 		else 
 		{
-			g_Scene->Update();
+			g_Scene->Update(deltaTime.count());
 			g_Engine->BeginRender();
 			g_Scene->Draw();
 			g_Engine->EndRender();
@@ -95,9 +105,9 @@ void MainLoop() {
 }
 }
 
-void StartApp(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
+void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 	// Windowの初期化
-	InitWindow(appName);
+	init_window(appName);
 
 	// 描画エンジンの初期化
 	g_Engine = new Engine();
@@ -114,5 +124,5 @@ void StartApp(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 	}
 
 	// メイン処理のループ
-	MainLoop();
+	main_loop();
 }

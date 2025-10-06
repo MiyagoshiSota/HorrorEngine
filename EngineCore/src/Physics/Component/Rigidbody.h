@@ -6,7 +6,15 @@ class Rigidbody : public Component
 {
 public:
 	Rigidbody() = default;
-	~Rigidbody() override = default;
+	~Rigidbody() override {
+		// このコンポーネントが破棄される時に、物理ボディも確実に破棄する
+		if (m_RigidBody) {
+			if (g_Scene && g_Scene->get_physics_world()) {
+				g_Scene->get_physics_world()->destroyRigidBody(m_RigidBody);
+			}
+			m_RigidBody = nullptr;
+		}
+	}
 
 	void start() override {
 	}
@@ -29,21 +37,19 @@ public:
 		reactphysics3d::Quaternion rot = reactphysics3d::Quaternion::identity();
 		reactphysics3d::Transform transform = reactphysics3d::Transform(pos, rot);
 
-		reactphysics3d::RigidBody* rb = world->createRigidBody(transform);
-		m_RigidBody = rb;
-
+		m_RigidBody = world->createRigidBody(transform);
 
 		if (jsonData.contains("isGravityEnabled"))
 		{
-			rb->enableGravity(true);
+			m_RigidBody->enableGravity(true);
 		}
 
-		rb->setType(reactphysics3d::BodyType::DYNAMIC);
+		m_RigidBody->setType(reactphysics3d::BodyType::DYNAMIC);
 
 		reactphysics3d::Vector3 force(2.0, 0.0, 0.0);
 
 		// Apply a force to the center of the body
-		rb->applyWorldForceAtCenterOfMass(force);
+		m_RigidBody->applyWorldForceAtCenterOfMass(force);
 	}
 
 private:
