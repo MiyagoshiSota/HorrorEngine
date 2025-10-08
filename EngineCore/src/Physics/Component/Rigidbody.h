@@ -27,34 +27,60 @@ public:
 	}
 
 	void deserialize(const nlohmann::json& jsonData, std::shared_ptr<GameObject> obj) override {
+		// 親のGameObjectを保存
 		m_GameObject = obj;
 
+		// PhysicsWorldの取得
 		auto world = g_Scene->get_physics_world();
 
+		// PositionをReactPhysics3DのVector3型に変換
 		auto fl_pos = obj->get_position();
 		reactphysics3d::Vector3 pos = reactphysics3d::Vector3(fl_pos.x, fl_pos.y, fl_pos.z);
 
 		// TODO:これもGameObjectから持ってくるべき
+		// ReactPhysics3DのTransform型を作成
 		reactphysics3d::Quaternion rot = reactphysics3d::Quaternion::identity();
 		reactphysics3d::Transform transform = reactphysics3d::Transform(pos, rot);
 
+		// RigidBodyの作成
 		m_RigidBody = world->createRigidBody(transform);
 
+		// HACK:以下rbに関する設定をjsonから読み込む処理だがハードコーディングされているから直す
+
+		// 重力を有効化するかどうか
 		if (jsonData.contains("isGravityEnabled"))
 		{
 			m_RigidBody->enableGravity(true);
 		}
 
-		m_RigidBody->setType(reactphysics3d::BodyType::DYNAMIC);
+		//　Dynamicな剛体にするかどうか
+		if (jsonData.contains("isDynamic"))
+		{
+			m_RigidBody->setType(reactphysics3d::BodyType::DYNAMIC);
+		}
 
-		reactphysics3d::Vector3 force(2.0, 0.0, 0.0);
+		// Kinematicな剛体にするかどうか
+		if (jsonData.contains("isKinematic"))
+		{
+			m_RigidBody->setType(reactphysics3d::BodyType::KINEMATIC);
+		}
 
-		// Apply a force to the center of the body
-		m_RigidBody->applyWorldForceAtCenterOfMass(force);
+		// Colliderの生成
+		if (jsonData.contains("isCollider"))
+		{
+			// EngineColliderの生成
+			m_collider = std::make_shared<engine_collider>();
+
+			// Colliderの生成に失敗したらエラーを出す
+			if (!m_collider->create_collider(jsonData, m_RigidBody))
+			{
+				printf("Colliderの生成に失敗");
+			}
+		}
 	}
 
 private:
 	std::shared_ptr<GameObject> m_GameObject;
 	reactphysics3d::RigidBody* m_RigidBody = nullptr;
-	EngineCollider engine_collider_;
+	std::shared_ptr<engine_collider> m_collider;
 };

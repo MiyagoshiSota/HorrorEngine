@@ -11,7 +11,13 @@
 				},
 				{
 					"type": "Rigidbody",
-					"isGravityEnabled": true
+					"isGravityEnabled": true,
+					"isDynamic": true,
+					"isCollider": {
+						"shape": "Capsule",
+						"height": 2.0,
+						"radius": 0.5
+					}
 				}	
 			]
 		},
