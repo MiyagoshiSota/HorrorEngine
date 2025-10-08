@@ -201,6 +201,7 @@
   <ItemGroup>
     <ClInclude Include="src\Modules\Other\engineString.h" />
     <ClInclude Include="src\Physics\Component\Rigidbody.h" />
+    <ClInclude Include="src\Physics\EngineCollider.h" />
     <ClInclude Include="src\Scene\GameObject\Loader\GameObjectLoader.h" />
     <ClInclude Include="src\Scene\GameObject\Component\ComponentFactory.h" />
     <ClInclude Include="src\Scene\GameObject\Component\MeshRenderer.h" />

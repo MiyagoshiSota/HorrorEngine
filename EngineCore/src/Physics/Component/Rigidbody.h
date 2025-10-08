@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/App.h"
+#include "Physics/EngineCollider.h"
 #include "Scene/GameObject/Component/Component.h"
 
 class Rigidbody : public Component
@@ -55,4 +56,5 @@ public:
 private:
 	std::shared_ptr<GameObject> m_GameObject;
 	reactphysics3d::RigidBody* m_RigidBody = nullptr;
+	EngineCollider engine_collider_;
 };

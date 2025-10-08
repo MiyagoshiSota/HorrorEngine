@@ -45,6 +45,7 @@ public:
 	std::vector<std::shared_ptr <GameObject>> get_game_objects() { return m_GameObjects; }
 	std::map<std::string, std::shared_ptr<Model>> get_models() { return m_models; }
 	reactphysics3d::PhysicsWorld* get_physics_world() const { return m_physicsWorld; }
+	reactphysics3d::PhysicsCommon& get_physics_common() { return physics_common; }
 	std::shared_ptr<Model> get_model(const std::string& path)
 	{
 		if (m_models.find(path) != m_models.end()) {
