@@ -26,6 +26,7 @@ public:
     void draw(ID3D12GraphicsCommandList* cmdList);
 
     // 各種Getter
+	std::string get_name() const { return name; }
     DirectX::XMMATRIX get_transform() const { return m_Transform; }
     DirectX::XMFLOAT3 get_position() const { return m_Position; }
     std::shared_ptr<Model> get_model() const { return m_Model; }
@@ -34,6 +35,17 @@ public:
 	// 各種Setter
     void set_position(float x, float y, float z) { m_Position = { x, y, z }; }
 	void set_model(std::shared_ptr<Model> model) { m_Model = model; }
+
+    // 各種Find
+    template<typename T>
+    std::shared_ptr<T> find_component() {
+        for (const auto& comp : components) {
+            if (auto casted_comp = std::dynamic_pointer_cast<T>(comp)) {
+                return casted_comp;
+            }
+        }
+        return nullptr;
+    }
 
 public:
     /// <summary>

@@ -47,22 +47,29 @@ public:
 
 		// HACK:以下rbに関する設定をjsonから読み込む処理だがハードコーディングされているから直す
 
-		// 重力を有効化するかどうか
+		// 重力の設定
 		if (jsonData.contains("isGravityEnabled"))
 		{
-			m_RigidBody->enableGravity(true);
+			auto data = jsonData["isGravityEnabled"].get<bool>();
+			m_RigidBody->enableGravity(data);
 		}
 
-		//　Dynamicな剛体にするかどうか
-		if (jsonData.contains("isDynamic"))
+		//　剛体のTypeをどうするか
+		if (jsonData.contains("bodyType"))
 		{
-			m_RigidBody->setType(reactphysics3d::BodyType::DYNAMIC);
-		}
-
-		// Kinematicな剛体にするかどうか
-		if (jsonData.contains("isKinematic"))
-		{
-			m_RigidBody->setType(reactphysics3d::BodyType::KINEMATIC);
+			auto body_type = jsonData["bodyType"].get<std::string>();
+			if (body_type == "STATIC")
+			{
+				m_RigidBody->setType(reactphysics3d::BodyType::STATIC);
+			}
+			else if (body_type == "DYNAMIC")
+			{
+				m_RigidBody->setType(reactphysics3d::BodyType::DYNAMIC);
+			}
+			else if (body_type == "KINEMATIC")
+			{
+				m_RigidBody->setType(reactphysics3d::BodyType::KINEMATIC);
+			}
 		}
 
 		// Colliderの生成
@@ -71,13 +78,19 @@ public:
 			// EngineColliderの生成
 			m_collider = std::make_shared<engine_collider>();
 
+			const auto is_collider_nlohmann = jsonData["isCollider"];
+
 			// Colliderの生成に失敗したらエラーを出す
-			if (!m_collider->create_collider(jsonData, m_RigidBody))
+			if (!m_collider->create_collider(is_collider_nlohmann, m_RigidBody))
 			{
 				printf("Colliderの生成に失敗");
 			}
 		}
 	}
+
+public:
+	reactphysics3d::RigidBody* get_rigidbody() const { return m_RigidBody; }
+	std::shared_ptr<engine_collider> get_collider() const { return m_collider; }
 
 private:
 	std::shared_ptr<GameObject> m_GameObject;

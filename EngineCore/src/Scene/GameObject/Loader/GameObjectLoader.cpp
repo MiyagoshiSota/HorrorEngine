@@ -34,12 +34,11 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::load_from_file(const 
 			for (const auto& compJson : objJson["components"])
 			{
 				std::string type = compJson["type"];
-				auto newComponent = ComponentFactory::create(type);
-				if (newComponent)
+				if (auto new_component = ComponentFactory::create(type))
 				{
-					newComponent->gameObject = go;
-					newComponent->deserialize(compJson,go);
-					go->components.push_back(std::move(newComponent));
+					new_component->gameObject = go;
+					new_component->deserialize(compJson,go);
+					go->components.push_back(std::move(new_component));
 				}
 			}
 		}

@@ -38,11 +38,8 @@ public:
 	bool create_collider(const nlohmann::json& jsonData,reactphysics3d::RigidBody* rb)
 	{
 		// ShapeTypeの取得(未設定だったらemptyのオブジェクトを返す)
-		const auto shape_type_nlohmann = jsonData.find("shapeType");
-		if (shape_type_nlohmann == jsonData.end()) return false;
-
-		// 文字列として値を取得
-		const std::string shape_type = shape_type_nlohmann->get<std::string>();
+		const auto shape_type = jsonData["shape"].get<std::string>();
+		if (shape_type == "") return false;
 
 		// Transformはとりあえずidentityで初期化
 		auto transform = reactphysics3d::Transform::identity();
@@ -127,7 +124,7 @@ private:
 	/// <param name="radius"></param>
 	void create_capsule_shape_collider(reactphysics3d::RigidBody* rb, const reactphysics3d::Transform& transform, const float height, const float radius)
 	{
-		reactphysics3d::CapsuleShape* shape = g_Scene->get_physics_common().createCapsuleShape(height, height);
+		reactphysics3d::CapsuleShape* shape = g_Scene->get_physics_common().createCapsuleShape(height, radius);
 		add_collision(rb, shape, transform);
 	}
 
@@ -139,14 +136,16 @@ private:
 	/// <returns></returns>
 	reactphysics3d::Vector3 deserialize_box_shape_collider(const nlohmann::json& jsonData)
 	{
-		const auto shape_type_nlohmann = jsonData.find("Direction");
-		const reactphysics3d::Vector3 direction = shape_type_nlohmann != jsonData.end() ?
-			reactphysics3d::Vector3(
-				shape_type_nlohmann->at(0).get<float>(),
-				shape_type_nlohmann->at(1).get<float>(),
-				shape_type_nlohmann->at(2).get<float>()
-			) : reactphysics3d::Vector3(1.0f, 1.0f, 1.0f);
+		const auto shape_type_nlohmann = jsonData["direction"].get<std::vector<float>>();
 
+		// Directionをreactphysics3d::Vector3にキャスト
+		reactphysics3d::Vector3 direction;
+		if (shape_type_nlohmann.size() == 3) {
+			direction = reactphysics3d::Vector3(shape_type_nlohmann[0], shape_type_nlohmann[1], shape_type_nlohmann[2]);
+		}
+		else {
+			direction = reactphysics3d::Vector3(0.5f, 0.5f, 0.5f);
+		}
 		return direction;
 	}
 
@@ -157,8 +156,7 @@ private:
 	/// <returns></returns>
 	float deserialize_sphere_shape_collider(const nlohmann::json& jsonData)
 	{
-		const auto shape_type_nlohmann = jsonData.find("Radius");
-		const float radius = shape_type_nlohmann != jsonData.end() ? shape_type_nlohmann->get<float>() : 0.5f;
+		const auto radius = jsonData["radius"].get<float>();
 		return radius;
 	}
 
@@ -169,10 +167,8 @@ private:
 	/// <returns></returns>
 	engine_collider::capsule_object deserialize_capsule_shape_collider(const nlohmann::json& jsonData)
 	{
-		const auto height_nlohmann = jsonData.find("Height");
-		const float height = height_nlohmann != jsonData.end() ? height_nlohmann->get<float>() : 1.0f;
-		const auto radius_nlohmann = jsonData.find("Radius");
-		const float radius = radius_nlohmann != jsonData.end() ? radius_nlohmann->get<float>() : 0.5f;
+		const auto height = jsonData["height"].get<float>();
+		const auto radius = jsonData["radius"].get<float>();
 
 		capsule_object capsule(height, radius);
 		return capsule;

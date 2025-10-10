@@ -2,13 +2,11 @@
 #include "Core/App.h"
 #include "Renderer/Engine.h"
 #include "Renderer/Assimp/AssimpLoader.h"
-#include "Renderer/StandardShader/Struct/SharedStruct.h"
 #include "Scene/ResourceManager/SceneResourceManager.h"
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Renderer/Graphics/RootSignatureBuilder.h"
 #include "Scene/GameObject/GameObject.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
-#include "Scene/GameObject/Model/Model.h"
 
 using namespace DirectX;
 

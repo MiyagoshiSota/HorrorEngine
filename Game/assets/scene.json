@@ -3,7 +3,7 @@
 	"gameObjects": [
 		{
 			"name": "Player",
-			"position": [ 0.0, 1.0, 0.0 ],
+			"position": [ 0.0, 100.0, 0.0 ],
 			"components": [
 				{
 					"type": "MeshRenderer",
@@ -12,22 +12,32 @@
 				{
 					"type": "Rigidbody",
 					"isGravityEnabled": true,
-					"isDynamic": true,
+					"bodyType": "DYNAMIC",
 					"isCollider": {
 						"shape": "Capsule",
-						"height": 2.0,
-						"radius": 0.5
+						"height": 10,
+						"radius": 30
 					}
 				}	
 			]
 		},
 		{
 			"name": "Enemy",
-			"position": [ 20.0, 3.0, 0.0 ],
+			"position": [0.0, -100.0, 0.0 ],
 			"components": [
 				{
 					"type": "MeshRenderer",
 					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX"
+				},
+				{
+					"type": "Rigidbody",
+					"isGravityEnabled": false,
+					"bodyType": "STATIC",
+					"isCollider": {
+						"shape": "Capsule",
+						"height": 10,
+						"radius": 30
+					}
 				}
 			]
 		}
