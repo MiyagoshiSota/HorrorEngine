@@ -94,6 +94,19 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
     return true;
 }
 
+void Engine::Shutdown()
+{
+	// GPUの処理が終わるまで待つ
+	for (int i = 0; i < FRAME_BUFFER_COUNT; i++) {
+		MoveToNextFrame();
+	}
+	if (m_fenceEvent) {
+		CloseHandle(m_fenceEvent);
+		m_fenceEvent = nullptr;
+	}
+	printf("描画エンジンの終了処理完了\n");
+}
+
 void Engine::BeginRender()
 {
     // 現在のレンダーターゲットを更新

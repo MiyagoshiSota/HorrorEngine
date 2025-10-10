@@ -102,7 +102,7 @@ void main_loop() {
 			g_Engine->EndRender();
 			g_Engine->MoveToNextFrame();
 		} 
-}
+	}
 }
 
 void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
@@ -125,4 +125,26 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 
 	// メイン処理のループ
 	main_loop();
+}
+
+
+void shutdown_app() {
+	// シーンの終了処理
+	g_Scene->shutdown();
+
+	// 描画エンジンの終了処理
+	if (g_Engine)
+	{
+		g_Engine->Shutdown();
+		delete g_Engine;
+		g_Engine = nullptr;
+	}
+	// ウィンドウの破棄
+	if (g_hWnd)
+	{
+		DestroyWindow(g_hWnd);
+		g_hWnd = nullptr;
+	}
+	// ウィンドウクラスの登録解除
+	UnregisterClass(TEXT("Hello DirectX12!"), g_hInst);
 }

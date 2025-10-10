@@ -7,6 +7,8 @@
 #include "Scene/GameObject/GameObject.h"
 #include <reactphysics3d/reactphysics3d.h>
 
+#include "Audio/AudioManager.h"
+
 class ISceneBase
 {
 public:
@@ -21,6 +23,11 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	virtual bool Init() = 0;
+
+	/// <summary>
+	/// 終了処理
+	/// </summary>
+	virtual void shutdown() = 0;
 
 	/// <summary>
 	/// 毎フレーム実行
@@ -42,6 +49,7 @@ public:
 	std::shared_ptr<SceneCamera> get_scene_camera() { return m_Camera; }
 	std::shared_ptr<PipelineStateManager> get_pipeline_state_manager() { return m_PipelineStateManager; }
 	std::unique_ptr<SceneResourceManager> get_scene_resource_manager() { return std::move(m_SceneResourceManager); }
+	std::unique_ptr<AudioManager> get_audio_manager() { return std::move(m_AudioManager); }
 	std::vector<std::shared_ptr <GameObject>> get_game_objects() { return m_GameObjects; }
 	std::map<std::string, std::shared_ptr<Model>> get_models() { return m_models; }
 	reactphysics3d::PhysicsWorld* get_physics_world() const { return m_physicsWorld; }
@@ -59,6 +67,7 @@ protected:
 	std::unique_ptr<IPipelineManager> m_PipelineManager;
 	std::shared_ptr<PipelineStateManager> m_PipelineStateManager;
 	std::unique_ptr<SceneResourceManager> m_SceneResourceManager;
+	std::unique_ptr<AudioManager> m_AudioManager;
 
 	// Object
 	// TODO:CameraはGameObjectにしようかな...

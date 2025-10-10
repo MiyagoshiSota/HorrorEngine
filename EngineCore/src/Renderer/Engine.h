@@ -16,7 +16,13 @@ public:
 	enum{ FRAME_BUFFER_COUNT = 2 }; // ダブルバッファリングするので2
 
 public:
+	~Engine()
+	{
+		Shutdown();
+	};
+
 	bool Init(HWND hwnd, UINT windowWidth, UINT windowHeight); // エンジン初期化
+	void Shutdown(); // エンジン終了処理
 
 	void BeginRender(); // 描画の開始処理
 	void EndRender(); // 描画の終了処理

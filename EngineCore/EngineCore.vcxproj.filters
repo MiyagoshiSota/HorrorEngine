@@ -29,6 +29,7 @@
     <ClCompile Include="src\Renderer\Graphics\RootSignatureBuilder.cpp" />
     <ClCompile Include="src\Scene\GameObject\GameObject.cpp" />
     <ClCompile Include="src\Scene\GameObject\Loader\GameObjectLoader.cpp" />
+    <ClCompile Include="src\Audio\AudioManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -72,6 +73,7 @@
     <ClInclude Include="src\Physics\EngineCollider.h" />
     <ClInclude Include="src\Scene\GameObject\Find\GameObjectFInder.h" />
     <ClInclude Include="src\Physics\Debug\PhysicsDebug.h" />
+    <ClInclude Include="src\Audio\AudioManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromePS.hlsl" />

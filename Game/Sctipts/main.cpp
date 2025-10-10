@@ -7,5 +7,6 @@
 int main() {
 	std::shared_ptr<ISceneBase> scene = std::make_shared<DefaultScene>();
 	start_app(TEXT("Hello DirectX12!"), scene);
+	shutdown_app();
 	return 0;
 }

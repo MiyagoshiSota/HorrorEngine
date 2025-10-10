@@ -50,6 +50,10 @@ bool DefaultScene::Init()
 	// PhysicsWorldの初期化
 	m_physicsWorld = physics_common.createPhysicsWorld();
 
+	// AudioManagerの初期化
+	m_AudioManager = std::make_unique<AudioManager>();
+	m_AudioManager->init();
+
 	printf("シーンの初期化に成功\n");
 
 	// ゲームオブジェクトの読み込み
@@ -71,6 +75,9 @@ bool DefaultScene::Init()
 
 	g_lastFrameTime = std::chrono::steady_clock::now();
 
+	// デバッグ処理
+	m_AudioManager->play_sfx3d("asano.wav");
+
 	return true;
 }
 
@@ -90,4 +97,12 @@ void DefaultScene::Update(float delta_time)
 void DefaultScene::Draw()
 {
 	m_PipelineManager->Execute();
+}
+
+void DefaultScene::shutdown()
+{
+	// AudioManagerの終了処理
+	if (m_AudioManager) {
+		m_AudioManager->shutdown();
+	}
 }
