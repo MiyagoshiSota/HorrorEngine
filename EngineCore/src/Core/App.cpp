@@ -1,4 +1,7 @@
 #include "App.h"
+
+#include "imgui_impl_dx12.h"
+#include "imgui_impl_win32.h"
 #include "Renderer/Engine.h"
 
 HINSTANCE g_hInst;
@@ -9,6 +12,8 @@ std::chrono::steady_clock::time_point g_lastFrameTime;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) 
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wp, lp)) return true;
+
 	switch (msg) {
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -125,6 +130,8 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 		return;
 	}
 
+
+
 	// シーンの初期化
 	g_Scene = scene;
 	if (!g_Scene->Init())
@@ -144,7 +151,6 @@ void shutdown_app() {
 	// 描画エンジンの終了処理
 	if (g_Engine)
 	{
-		g_Engine->Shutdown();
 		delete g_Engine;
 		g_Engine = nullptr;
 	}

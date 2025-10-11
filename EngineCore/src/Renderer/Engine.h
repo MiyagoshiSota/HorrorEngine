@@ -53,6 +53,7 @@ private:
 	bool CreateFence();
 	void CreateViewPort();
 	void CreateScissorRect();
+	bool InitImGui();
 
 private:
 	HWND m_hWnd;
@@ -83,7 +84,8 @@ private: // 描画に使うオブジェクトとその生成関数たち
 
 	UINT m_DsvDescriptorSize = 0; // 深度ステンシルのディスクリプタサイズ
 	ComPtr<ID3D12DescriptorHeap> m_pDsvHeap = nullptr; // 深度ステンシルのディスクリプタヒープ
-	ComPtr<ID3D12Resource> m_pDepthStencilBuffer = nullptr; // 深度ステンシルバッファ(こっちは1つでいい)
+	ComPtr<ID3D12DescriptorHeap> m_ImGuiSrvHeap; // ImGui専用のSRVヒープ
+	ComPtr<ID3D12Resource> m_pDepthStencilBuffer = nullptr; // 深度ステンシルバッファ
 
 	std::shared_ptr<SrvDescriptorHeap> m_SRVHeap;
 

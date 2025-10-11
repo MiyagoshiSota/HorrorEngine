@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <Windows.h>
 #include <DirectXTex.h>
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx12.h"
 
 #include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
 
@@ -90,6 +93,12 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
         return false;
     }
 
+    if (!InitImGui())
+    {
+        printf("ImGuiの初期化に失敗");
+		return false;
+    }
+
     printf("描画エンジンの初期化成功\n");
     return true;
 }
@@ -100,6 +109,12 @@ void Engine::Shutdown()
 	for (int i = 0; i < FRAME_BUFFER_COUNT; i++) {
 		MoveToNextFrame();
 	}
+
+	// ImGuiの終了処理
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 	if (m_fenceEvent) {
 		CloseHandle(m_fenceEvent);
 		m_fenceEvent = nullptr;
@@ -148,12 +163,57 @@ void Engine::EndRender()
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
     m_pCommandList->ResourceBarrier(1, &barrier);
 
-    // コマンドの記録を終了
-    m_pCommandList->Close();
+	// ImGuiの描画コマンドを積む
+    UINT frameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+    ID3D12Resource* backBuffer = m_pRenderTargets[frameIndex].Get();
 
-    // コマンドを実行
-    ID3D12CommandList* ppCmdLists[] = { m_pCommandList.Get() };
-    m_pQueue->ExecuteCommandLists(1, ppCmdLists);
+    // 🔹 1. PRESENT → RENDER_TARGET へ遷移
+    D3D12_RESOURCE_BARRIER imGuibarrier = {};
+    imGuibarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    imGuibarrier.Transition.pResource = backBuffer;
+    imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+    imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    imGuibarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    m_pCommandList->ResourceBarrier(1, &imGuibarrier);
+
+    // 🔹 2. Render target view 設定
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
+    rtvHandle.ptr += frameIndex * m_RtvDescriptorSize;
+    m_pCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+    // 🔹 3. ImGui 描画前の準備
+    ID3D12DescriptorHeap* heaps[] = { m_ImGuiSrvHeap.Get() };
+    m_pCommandList->SetDescriptorHeaps(_countof(heaps), heaps);
+
+    ImGui_ImplDX12_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    // --- ImGui ウィンドウ作成など ---
+    ImGui::Begin("Example");
+    ImGui::Text("Hello, DirectX12 + ImGui!");
+    ImGui::End();
+    ImGui::Render();
+
+    // 🔹 4. ImGui の描画実行
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
+
+    // 🔹 5. RENDER_TARGET → PRESENT に戻す
+    imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+    m_pCommandList->ResourceBarrier(1, &imGuibarrier);
+
+    // 🔹 6. コマンドを完了して送信
+    m_pCommandList->Close();
+    ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
+    m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+
+    //// コマンドの記録を終了
+    //m_pCommandList->Close();
+
+    //// コマンドを実行
+    //ID3D12CommandList* ppCmdLists[] = { m_pCommandList.Get() };
+    //m_pQueue->ExecuteCommandLists(1, ppCmdLists);
 
     // スワップチェインを切り替える
     m_pSwapChain->Present(1, 0);
@@ -329,6 +389,53 @@ void Engine::CreateScissorRect()
     m_Scissor.right = m_FrameBufferWidth;
     m_Scissor.top = 0;
     m_Scissor.bottom = m_FrameBufferHeight;
+}
+
+bool Engine::InitImGui()
+{
+    // 1. SRVヒープ作成
+    D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+    heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    heapDesc.NumDescriptors = 64; // ← フォント＋テクスチャ用に余裕を持たせる
+    heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    HRESULT hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_ImGuiSrvHeap));
+    if (FAILED(hr)) return false;
+
+    // 2. ImGuiコンテキスト作成
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGui::StyleColorsDark();
+
+    // 3. バックエンド初期化 (新API)
+    ImGui_ImplWin32_Init(m_hWnd);
+
+    ImGui_ImplDX12_InitInfo init_info = {};
+    init_info.Device = m_pDevice.Get();
+    init_info.CommandQueue = m_pQueue.Get();
+    init_info.NumFramesInFlight = FRAME_BUFFER_COUNT;
+    init_info.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    init_info.DSVFormat = DXGI_FORMAT_D32_FLOAT; // ← あれば設定
+    init_info.SrvDescriptorHeap = m_ImGuiSrvHeap.Get();
+    init_info.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* info,
+        D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle,
+        D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle)
+    {
+        auto heap = info->SrvDescriptorHeap;
+        auto device = info->Device;
+        UINT size = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        *out_cpu_handle = heap->GetCPUDescriptorHandleForHeapStart();
+        *out_gpu_handle = heap->GetGPUDescriptorHandleForHeapStart();
+    };
+    init_info.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE) {};
+
+    ImGui_ImplDX12_Init(&init_info);
+
+    // 4. フォント読み込み（省略可能）
+    io.Fonts->AddFontDefault();
+
+    return true;
 }
 
 bool Engine::CreateRenderTarget()
