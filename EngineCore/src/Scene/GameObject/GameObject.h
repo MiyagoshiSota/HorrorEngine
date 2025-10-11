@@ -22,9 +22,9 @@ public:
         }
     };
 	void init();
-    void update();
-    void draw(ID3D12GraphicsCommandList* cmdList);
-
+    void transform_update();
+    void component_update();
+    
     // 各種Getter
 	std::string get_name() const { return name; }
     DirectX::XMMATRIX get_transform() const { return m_Transform; }

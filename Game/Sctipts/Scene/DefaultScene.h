@@ -14,5 +14,8 @@ public:
 	void Update(float delta_time) override;
 	void Draw() override;
 	void shutdown() override;
+
+public:
+	void EditorUpdate();
 };
 

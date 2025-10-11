@@ -36,7 +36,19 @@ public:
 		// GameObjectのUpdate処理
 		for (auto& obj : m_GameObjects)
 		{
-			obj->update();
+			obj->transform_update();
+			obj->component_update();
+		}
+	};
+
+	/// <summary>
+	/// Editorモード時の毎フレーム実行
+	/// </summary>
+	virtual void EditorUpdate() {
+		// GameObjectのUpdate処理
+		for (auto& obj : m_GameObjects)
+		{
+			obj->transform_update();
 		}
 	};
 

@@ -7,21 +7,25 @@ void GameObject::init()
 	{
 		comp->start();
 	}
+
+	// 初期位置に基づいて変換行列を計算
+	DirectX::XMMATRIX transMatrix = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+
+	m_Transform = transMatrix;
 }
 
-void GameObject::update()
+void GameObject::transform_update()
 {
     DirectX::XMMATRIX transMatrix = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 
     m_Transform = transMatrix;
+}
 
-	// コンポーネントのUpdate処理
+void GameObject::component_update()
+{
+		// コンポーネントのUpdate処理
 	for (auto& comp : components)
 	{
 		comp->update(0);
 	}
-}
-
-void GameObject::draw(ID3D12GraphicsCommandList* cmdList)
-{
 }

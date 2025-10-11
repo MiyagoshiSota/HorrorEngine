@@ -75,9 +75,6 @@ bool DefaultScene::Init()
 
 	g_lastFrameTime = std::chrono::steady_clock::now();
 
-	// デバッグ処理
-	m_AudioManager->play_sfx3d("asano.wav");
-
 	return true;
 }
 
@@ -86,12 +83,11 @@ void DefaultScene::Update(float delta_time)
 	ISceneBase::Update(delta_time);
 
 	m_physicsWorld->update(delta_time);
+}	
 
-	// ゲームオブジェクトの更新
-	for (auto obj : m_GameObjects)
-	{
-		obj->update();
-	}
+void DefaultScene::EditorUpdate()
+{
+	
 }
 
 void DefaultScene::Draw()

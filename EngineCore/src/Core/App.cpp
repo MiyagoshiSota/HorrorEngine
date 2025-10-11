@@ -96,7 +96,16 @@ void main_loop() {
 		}
 		else 
 		{
-			g_Scene->Update(deltaTime.count());
+			// SceneTypeに応じて更新処理を分岐
+			if (g_scene_type == scene_type::play_mode)
+			{
+				g_Scene->Update(deltaTime.count());
+			}
+			else if (g_scene_type == scene_type::editor_mode)
+			{
+				g_Scene->EditorUpdate();
+			}
+
 			g_Engine->BeginRender();
 			g_Scene->Draw();
 			g_Engine->EndRender();
