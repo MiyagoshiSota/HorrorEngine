@@ -77,6 +77,7 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	bool CreateRenderTarget(); // レンダーターゲットを作成
 	bool CreateShaderResourceViewHeap(); // SRVヒープを作成
 	bool CreateDepthStencil(); // 深度ステンシルバッファを生成
+	void DrawImGui(); // ImGuiの描画
 
 	UINT m_RtvDescriptorSize = 0; // レンダーターゲットビューのディスクリプタサイズ
 	ComPtr<ID3D12DescriptorHeap> m_pRtvHeap = nullptr; // レンダーターゲットのディスクリプタヒープ

@@ -5,7 +5,7 @@ void SceneCamera::Init()
 {
 	SetEyePos(0.0f, 120.0, 100.0, 0.0f);
 	SetTargetPos(0.0f, 50.0, 0.0, 0.0f);
-	SetFOV(60);
+	SetFOV(30);
 
 	m_Upward = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 

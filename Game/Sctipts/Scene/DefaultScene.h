@@ -15,6 +15,9 @@ public:
 	void Draw() override;
 	void shutdown() override;
 
+	void RebuidPhysicsWorld() override;
+	void InitializeGameObject();
+
 public:
 	void EditorUpdate();
 };

@@ -4,6 +4,7 @@
 #include "Renderer/Assimp/AssimpLoader.h"
 #include "Scene/ResourceManager/SceneResourceManager.h"
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
+#include "Physics/Component/Rigidbody.h"
 #include "Renderer/Graphics/RootSignatureBuilder.h"
 #include "Scene/GameObject/GameObject.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
@@ -48,29 +49,16 @@ bool DefaultScene::Init()
 	m_PipelineManager = std::make_unique<DefaultPipelineManager>();
 
 	// PhysicsWorldの初期化
-	m_physicsWorld = physics_common.createPhysicsWorld();
+	RebuidPhysicsWorld();
 
 	// AudioManagerの初期化
-	m_AudioManager = std::make_unique<AudioManager>();
+	m_AudioManager = std::make_shared<AudioManager>();
 	m_AudioManager->init();
 
 	printf("シーンの初期化に成功\n");
 
-	// ゲームオブジェクトの読み込み
-	m_GameObjects = GameObjectLoader::load_from_file("assets/scene.json");
+	InitializeGameObject();
 
-	// リソースの確保
-	for (auto& obj : m_GameObjects)
-	{
-		m_SceneResourceManager->initialize_gpu_resources_for(obj);
-	}
-	
-	// ゲームオブジェクトのInitを実行
-	for (auto& obj : m_GameObjects)
-	{
-		obj->init();
-	}
-	
 	printf("ゲームオブジェクトの初期化を設定");
 
 	g_lastFrameTime = std::chrono::steady_clock::now();
@@ -87,7 +75,7 @@ void DefaultScene::Update(float delta_time)
 
 void DefaultScene::EditorUpdate()
 {
-	
+	ISceneBase::EditorUpdate();
 }
 
 void DefaultScene::Draw()
@@ -100,5 +88,32 @@ void DefaultScene::shutdown()
 	// AudioManagerの終了処理
 	if (m_AudioManager) {
 		m_AudioManager->shutdown();
+	}
+}
+
+void DefaultScene::RebuidPhysicsWorld()
+{
+	if (m_physicsWorld) {
+		physics_common.destroyPhysicsWorld(m_physicsWorld);
+	}
+	m_physicsWorld = physics_common.createPhysicsWorld();
+	m_physicsWorld->setGravity(reactphysics3d::Vector3(0, -9.81f, 0));
+}
+
+void DefaultScene::InitializeGameObject()
+{
+	// ゲームオブジェクトの読み込み
+	m_GameObjects = GameObjectLoader::load_from_file("assets/scene.json");
+
+	// リソースの確保
+	for (auto& obj : m_GameObjects)
+	{
+		m_SceneResourceManager->initialize_gpu_resources_for(obj);
+	}
+
+	// ゲームオブジェクトのInitを実行
+	for (auto& obj : m_GameObjects)
+	{
+		obj->init();
 	}
 }

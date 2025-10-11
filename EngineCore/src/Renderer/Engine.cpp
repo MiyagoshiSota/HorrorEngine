@@ -7,8 +7,10 @@
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
+#include "Core/App.h"
 
 #include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
+#include "Scene/GameObject/Loader/GameObjectLoader.h"
 
 Engine* g_Engine;
 
@@ -163,11 +165,11 @@ void Engine::EndRender()
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
     m_pCommandList->ResourceBarrier(1, &barrier);
 
-	// ImGuiの描画コマンドを積む
+	// BackBufferを取得
     UINT frameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
     ID3D12Resource* backBuffer = m_pRenderTargets[frameIndex].Get();
 
-    // 🔹 1. PRESENT → RENDER_TARGET へ遷移
+    // BackBufferをPRESENT → RENDER_TARGET へ遷移
     D3D12_RESOURCE_BARRIER imGuibarrier = {};
     imGuibarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     imGuibarrier.Transition.pResource = backBuffer;
@@ -176,44 +178,27 @@ void Engine::EndRender()
     imGuibarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
     m_pCommandList->ResourceBarrier(1, &imGuibarrier);
 
-    // 🔹 2. Render target view 設定
+    // Render target view 設定
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
     rtvHandle.ptr += frameIndex * m_RtvDescriptorSize;
     m_pCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
-    // 🔹 3. ImGui 描画前の準備
+    // ImGui 描画前の準備
     ID3D12DescriptorHeap* heaps[] = { m_ImGuiSrvHeap.Get() };
     m_pCommandList->SetDescriptorHeaps(_countof(heaps), heaps);
 
-    ImGui_ImplDX12_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
+    // ImGuiの描画
+    DrawImGui();
 
-    // --- ImGui ウィンドウ作成など ---
-    ImGui::Begin("Example");
-    ImGui::Text("Hello, DirectX12 + ImGui!");
-    ImGui::End();
-    ImGui::Render();
-
-    // 🔹 4. ImGui の描画実行
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
-
-    // 🔹 5. RENDER_TARGET → PRESENT に戻す
+    // BackBufferをRENDER_TARGET → PRESENT に戻す
     imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
     imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
     m_pCommandList->ResourceBarrier(1, &imGuibarrier);
 
-    // 🔹 6. コマンドを完了して送信
+    // コマンドを完了して送信
     m_pCommandList->Close();
     ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
     m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
-
-    //// コマンドの記録を終了
-    //m_pCommandList->Close();
-
-    //// コマンドを実行
-    //ID3D12CommandList* ppCmdLists[] = { m_pCommandList.Get() };
-    //m_pQueue->ExecuteCommandLists(1, ppCmdLists);
 
     // スワップチェインを切り替える
     m_pSwapChain->Present(1, 0);
@@ -528,6 +513,62 @@ bool Engine::CreateDepthStencil()
     m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), nullptr, dsvHandle);
 
     return true;
+}
+
+static GameObject* s_SelectedObject = nullptr;
+
+void Engine::DrawImGui()
+{
+    ImGui_ImplDX12_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    // ImGui ウィンドウ作成
+    ImGui::Begin("Example");
+    static char text1[8] = "";
+
+	// シーン切り替えボタン
+    if (ImGui::Button("ChangeMode")) {
+	    if (g_scene_type == scene_type::editor_mode)
+	    {
+            change_scene_type(scene_type::play_mode);
+
+			// g_Scene->SaveStateJson(); // 状態を保存
+		}
+        else
+        {
+            change_scene_type(scene_type::editor_mode);
+        }
+
+		// シーン切り替え時の初期化処理
+		// TODO:一部冗長な初期化処理が入ってる気がするので整理する
+        g_Scene->RebuidPhysicsWorld(); // 物理ワールドを再構築
+        g_Scene->InitializeGameObject(); // ゲームオブジェクトの初期化
+        g_Scene->get_audio_manager()->init(); // オーディオマネージャのリセット
+
+        printf("ゲームオブジェクトの初期化");
+    }
+
+	// 現在のシーンモード表示
+	ImGui::Text("CurrentMode:%s", g_scene_type == scene_type::editor_mode ? "EditorMode" : "PlayMode");
+
+    for (const auto& obj : g_Scene->get_game_objects())
+    {
+        // オブジェクトのIDや名前を使って、ユニークなラベルを作成
+        std::string label = obj->get_name();
+
+        // Selectableを使うと、選択状態を管理できる
+        if (ImGui::Selectable(label.c_str(), s_SelectedObject == obj.get()))
+        {
+            s_SelectedObject = obj.get();
+        }
+    }
+
+    ImGui::End();
+    ImGui::Render();
+
+    // ImGui の描画実行
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
 }
 
 void Engine::MoveToNextFrame()

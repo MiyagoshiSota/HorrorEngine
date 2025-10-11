@@ -130,8 +130,6 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 		return;
 	}
 
-
-
 	// シーンの初期化
 	g_Scene = scene;
 	if (!g_Scene->Init())
