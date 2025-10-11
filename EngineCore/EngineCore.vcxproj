@@ -19,6 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="external\imgui\imgui.cpp" />
+    <ClCompile Include="external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="external\imgui\imgui_impl_dx12.cpp" />
+    <ClCompile Include="external\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Scene\GameObject\Loader\GameObjectLoader.cpp" />
     <ClCompile Include="src\Renderer\Graphics\RootSignatureBuilder.cpp" />
@@ -200,6 +206,14 @@
     <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="external\imgui\imconfig.h" />
+    <ClInclude Include="external\imgui\imgui.h" />
+    <ClInclude Include="external\imgui\imgui_impl_dx12.h" />
+    <ClInclude Include="external\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="external\imgui\imgui_internal.h" />
+    <ClInclude Include="external\imgui\imstb_rectpack.h" />
+    <ClInclude Include="external\imgui\imstb_textedit.h" />
+    <ClInclude Include="external\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Modules\Other\engineString.h" />
     <ClInclude Include="src\Physics\Component\Rigidbody.h" />
@@ -331,7 +345,7 @@
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui-master\imgui-master;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -352,7 +366,7 @@
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui-master\imgui-master;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -372,7 +386,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui-master\imgui-master;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -394,7 +408,7 @@
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui-master\imgui-master;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
