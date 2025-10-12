@@ -25,9 +25,21 @@ public:
 			return false;
 		}
 
-		// MainTexture分のSRV生成
-		auto texPath = engine_string::replace_extension(deff_path, "tga"); // もともとはpsdになっていてちょっとめんどかったので、同梱されているtgaを読み込む
-		auto mainTex = Texture2D::Get(texPath);
+		std::shared_ptr<Texture2D> mainTex;
+
+		if (deff_path.empty())
+		{
+			// テクスチャが指定されていない場合は白テクスチャを設定
+			mainTex = Texture2D::GetWhite();
+		}
+		else
+		{
+			// MainTexture分のSRV生成
+			// TODO:わざわざ拡張子をtgaに変えているけど問題ありそう.
+			auto texPath = engine_string::replace_extension(deff_path, "tga");
+			mainTex = Texture2D::Get(texPath);
+		}
+
 		auto desc = mainTex->ViewDesc();
 
 		// SRVの作成

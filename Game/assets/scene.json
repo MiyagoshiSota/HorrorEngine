@@ -23,11 +23,31 @@
 		},
 		{
 			"name": "Enemy",
-			"position": [0.0, -100.0, 0.0 ],
+			"position": [ 0.0, -100.0, 0.0 ],
 			"components": [
 				{
 					"type": "MeshRenderer",
 					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX"
+				},
+				{
+					"type": "Rigidbody",
+					"isGravityEnabled": false,
+					"bodyType": "STATIC",
+					"isCollider": {
+						"shape": "Capsule",
+						"height": 10,
+						"radius": 30
+					}
+				}
+			]
+		},
+		{
+			"name": "Block",
+			"position": [ 0.0, 20.0, 0.0 ],
+			"components": [
+				{
+					"type": "MeshRenderer",
+					"model_path": "primitive/cube"
 				},
 				{
 					"type": "Rigidbody",

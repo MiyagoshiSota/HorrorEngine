@@ -220,6 +220,7 @@
     <ClInclude Include="src\Physics\Component\Rigidbody.h" />
     <ClInclude Include="src\Physics\Debug\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\EngineCollider.h" />
+    <ClInclude Include="src\Scene\GameObject\DefaultMesh\DefaultMeshes.h" />
     <ClInclude Include="src\Scene\GameObject\Find\GameObjectFInder.h" />
     <ClInclude Include="src\Scene\GameObject\Loader\GameObjectLoader.h" />
     <ClInclude Include="src\Scene\GameObject\Component\ComponentFactory.h" />

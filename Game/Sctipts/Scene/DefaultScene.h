@@ -10,6 +10,7 @@ public:
 		DefaultScene::shutdown();
 	};
 
+	void CreatePrimitiveObjects() override;
 	bool Init() override;
 	void Update(float delta_time) override;
 	void Draw() override;

@@ -7,6 +7,7 @@
 #include "Physics/Component/Rigidbody.h"
 #include "Renderer/Graphics/RootSignatureBuilder.h"
 #include "Scene/GameObject/GameObject.h"
+#include "Scene/GameObject/DefaultMesh/DefaultMeshes.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
 
 using namespace DirectX;
@@ -54,6 +55,9 @@ bool DefaultScene::Init()
 	// AudioManagerの初期化
 	m_AudioManager = std::make_shared<AudioManager>();
 	m_AudioManager->init();
+
+	// Primitiveな3Dモデルの初期化
+	CreatePrimitiveObjects();
 
 	printf("シーンの初期化に成功\n");
 
@@ -116,4 +120,17 @@ void DefaultScene::InitializeGameObject()
 	{
 		obj->init();
 	}
+}
+
+void DefaultScene::CreatePrimitiveObjects()
+{
+	// 平面
+	auto quad_model = std::make_shared<Model>();
+	quad_model->m_InputMesh.push_back(DefaultMeshes::create_quad());
+	m_models["primitive/quad"] = quad_model;
+
+	// 立方体
+	auto cube_model = std::make_shared<Model>();
+	cube_model->m_InputMesh.push_back(DefaultMeshes::create_cube());
+	m_models["primitive/cube"] = cube_model;
 }

@@ -62,6 +62,8 @@ public:
 
 	virtual void InitializeGameObject() = 0;
 
+	virtual void CreatePrimitiveObjects() = 0;
+
 	// Getter
 	std::shared_ptr<SceneCamera> get_scene_camera() { return m_Camera; }
 	std::shared_ptr<PipelineStateManager> get_pipeline_state_manager() { return m_PipelineStateManager; }

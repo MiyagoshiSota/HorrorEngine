@@ -17,5 +17,6 @@ float4 main(VSOutput input) : SV_TARGET
     float grayscale = dot(color.rgb, float3(0.299, 0.587, 0.114));
     
     // 3. RGBをすべて同じ値(grayscale)にし、アルファ値は元のままにして出力
-    return float4(grayscale, grayscale, grayscale, color.a);
+    // return float4(grayscale, grayscale, grayscale, color.a);
+    return color;
 }

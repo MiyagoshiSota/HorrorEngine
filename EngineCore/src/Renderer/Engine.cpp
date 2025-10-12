@@ -543,6 +543,7 @@ void Engine::DrawImGui()
 		// シーン切り替え時の初期化処理
 		// TODO:一部冗長な初期化処理が入ってる気がするので整理する
         g_Scene->RebuidPhysicsWorld(); // 物理ワールドを再構築
+		g_Scene->CreatePrimitiveObjects(); // プリミティブオブジェクトの再生成
         g_Scene->InitializeGameObject(); // ゲームオブジェクトの初期化
         g_Scene->get_audio_manager()->init(); // オーディオマネージャのリセット
 
