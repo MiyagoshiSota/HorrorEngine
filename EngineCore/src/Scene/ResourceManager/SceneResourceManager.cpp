@@ -7,69 +7,59 @@
 // 拡張子を置き換える処理
 #include <filesystem>
 
+#include "Modules/Other/engineString.h"
 #include "Renderer/Engine.h"
-namespace fs = std::filesystem;
-std::wstring ReplaceExtension(const std::wstring& origin, const char* ext)
-{
-	fs::path p = origin.c_str();
-	return p.replace_extension(ext).c_str();
-}
 
 void SceneResourceManager::initialize_gpu_resources_for(std::shared_ptr<GameObject> obj)
 {
 	auto model = obj->get_model();
 
+	// モデル分のMesh,Materialクラスを生成
+	create_mesh_classes(model);
+
+	// 頂点バッファ、インデックスバッファの生成
 	create_vertex_buffer(model);
 	create_index_buffer(model);
+
+	// マテリアルの読み込み
 	read_material(model);
 }
 
 void SceneResourceManager::create_vertex_buffer(std::shared_ptr<Model> model)
 {
-	// すでに生成済みだったら早期リーターン
-	if (!model->m_Meshes->m_VertexBuffer.empty() && model->m_Meshes->m_VertexBuffer[0] != nullptr)
-	{
-		return;
-	}
+	// TODO:すでに生成済みだったら早期リーターン
 
-	model->m_Meshes->m_VertexBuffer.resize(model->m_InputMesh.size());
 	for (size_t i = 0; i < model->m_InputMesh.size(); i++)
 	{
-		auto size = sizeof(SharedStruct:: Vertex) * model->m_InputMesh[i].Vertices.size();
-		auto stride = sizeof(SharedStruct::Vertex);
-		auto vertices = model->m_InputMesh[i].Vertices.data();
-		auto pVB = std::make_shared<VertexBuffer>(size, stride, vertices);
-		if (!pVB->IsValid())
+		auto mesh = model->m_Meshes[i];
+		auto size = sizeof(SharedStruct::Vertex) * model->m_InputMesh[i].Vertices.size();
+		auto data = model->m_InputMesh[i].Vertices.data();
+
+		if (!mesh->create_vertex_buffer(size, data))
 		{
 			printf("頂点バッファの生成に失敗\n");
 			return;
 		}
 
-		model->m_Meshes->m_VertexBuffer[i] = pVB;
+		model->m_Meshes.push_back(mesh);
 	}
 }
 
 void SceneResourceManager::create_index_buffer(std::shared_ptr<Model> model)
 {
-	// すでに生成済みだったら早期リーターン
-	if (!model->m_Meshes->m_IndexBuffers.empty() && model->m_Meshes->m_IndexBuffers[0] != nullptr)
-	{
-		return;
-	}
+	// TODO:すでに生成済みだったら早期リーターン
 
-	model->m_Meshes->m_IndexBuffers.resize(model->m_InputMesh.size());
 	for (size_t i = 0; i < model->m_InputMesh.size(); i++)
 	{
+		auto mesh = model->m_Meshes[i];
 		auto size = sizeof(uint32_t) * model->m_InputMesh[i].Indeices.size();
-		auto indices = model->m_InputMesh[i].Indeices.data();
-		auto pIB = std::make_shared<IndexBuffer>(size, indices);
-		if (!pIB->IsValid())
+		auto data = model->m_InputMesh[i].Indeices.data();
+
+		if (!mesh->create_index_buffer(size, data))
 		{
-			printf("インデックスバッファの生成に失敗\n");
+			printf("頂点バッファの生成に失敗\n");
 			return;
 		}
-
-		model->m_Meshes->m_IndexBuffers[i] = pIB;
 	}
 }
 
@@ -79,23 +69,30 @@ void SceneResourceManager::create_index_buffer(std::shared_ptr<Model> model)
 /// <param name="obj"></param>
 void SceneResourceManager::read_material(std::shared_ptr<Model> model)
 {
-	model->m_Material->m_DescriptorHeap = g_Engine->GetSrvHeap();
-	model->m_Material->m_MaterialHandles.clear();
-
 	for (size_t i = 0; i < model->m_InputMesh.size(); i++)
 	{
-		// ハンドル確保し取得
-		auto m_SrvHandle = g_Engine->GetSrvHeap()->Allocate();
-		if (m_SrvHandle == nullptr) {
-			// ハンドル確保失敗
-			return;
-		}
+		auto material = model->m_Materials[i];
+		material->create_material(model->m_InputMesh[i].DiffuseMap);
+		model->m_Materials.push_back(material);
+	}
+}
 
-		// MainTexture分のSRV生成
-		auto texPath = ReplaceExtension(model->m_InputMesh[i].DiffuseMap, "tga"); // もともとはpsdになっていてちょっとめんどかったので、同梱されているtgaを読み込む
-		auto mainTex = Texture2D::Get(texPath);
-		auto desc = mainTex->ViewDesc();
-		g_Engine->Device()->CreateShaderResourceView(mainTex->Resource().Get(), &desc, m_SrvHandle->cpuHandle); // シェーダーリソースビュー作成
-		model->m_Material->m_MaterialHandles.push_back(m_SrvHandle);
+void SceneResourceManager::create_mesh_classes(std::shared_ptr<Model> meshes)
+{
+	meshes->m_Meshes.clear();
+	meshes->m_Materials.clear();
+
+	// メッシュの数だけMeshクラスを生成
+	for (size_t i = 0; i < meshes->m_InputMesh.size(); i++)
+	{
+		auto mesh = std::make_shared<Mesh>();
+		meshes->m_Meshes.push_back(mesh);
+	}
+
+	//	マテリアルの数だけMaterialクラスを生成
+	for (size_t i = 0; i < meshes->m_InputMesh.size(); i++)
+	{
+		auto material = std::make_shared<Material>();
+		meshes->m_Materials.push_back(material);
 	}
 }

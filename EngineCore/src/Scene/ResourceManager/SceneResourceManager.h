@@ -14,4 +14,5 @@ private:
 	void create_vertex_buffer(std::shared_ptr<Model> meshes);
 	void create_index_buffer(std::shared_ptr<Model> model);
 	void read_material(std::shared_ptr<Model> model);
+	void create_mesh_classes(std::shared_ptr<Model> meshes);
 };

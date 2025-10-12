@@ -46,7 +46,8 @@ void GeometryPass::Execute(ID3D12GraphicsCommandList* cmdList,RenderContext& con
 
     if (!context.GameObjects.empty())
     {
-        auto materialHeap = context.GameObjects[0]->get_model()->m_Material->m_DescriptorHeap->GetHeap();
+        //auto materialHeap = context.GameObjects[0]->get_model()->m_Material->m_DescriptorHeap->GetHeap();
+		auto materialHeap = g_Engine->GetSrvHeap()->GetHeap();
         cmdList->SetDescriptorHeaps(1, &materialHeap);
     }
 
@@ -68,14 +69,14 @@ void GeometryPass::Execute(ID3D12GraphicsCommandList* cmdList,RenderContext& con
         auto model = obj->get_model();
         for (size_t i = 0; i < model->m_InputMesh.size(); i++)
         {
-            auto vbView = model->m_Meshes->m_VertexBuffer[i]->View();
-            auto ibView = model->m_Meshes->m_IndexBuffers[i]->View();
+            auto vbView = model->m_Meshes[i]->get_vertex_buffer()->View();
+            auto ibView = model->m_Meshes[i]->get_index_buffer()->View();
 
             cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmdList->IASetVertexBuffers(0, 1, &vbView);
             cmdList->IASetIndexBuffer(&ibView);
 
-            cmdList->SetGraphicsRootDescriptorTable(1, model->m_Material->m_MaterialHandles[i]->gpuHandle);
+            cmdList->SetGraphicsRootDescriptorTable(1, model->m_Materials[i]->get_srv_handle()->gpuHandle);
 
             cmdList->DrawIndexedInstanced(model->m_InputMesh[i].Indeices.size(), 1, 0, 0, 0);
         }

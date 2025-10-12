@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 #include <string>
 
 class engine_string
@@ -84,5 +85,11 @@ public:
         );
 
         return result;
+    }
+
+    static std::wstring replace_extension(const std::wstring& origin, const char* ext)
+    {
+        std::filesystem::path p = origin.c_str();
+        return p.replace_extension(ext).c_str();
     }
 };

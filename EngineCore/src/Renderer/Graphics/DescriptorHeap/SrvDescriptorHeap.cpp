@@ -42,7 +42,7 @@ std::shared_ptr<DescriptorHandle> SrvDescriptorHeap::Allocate()
 	}
 
 	// ハンドルを作成
-	auto handle = new DescriptorHandle();
+	auto handle = std::make_shared<DescriptorHandle>();
 	handle->index = index;
 	handle->pOwnerHeap = this;
 
@@ -56,13 +56,7 @@ std::shared_ptr<DescriptorHandle> SrvDescriptorHeap::Allocate()
     
 	// カスタムデリータ付きのshared_ptrを作成して返す
 	// これにより、このshared_ptrの参照が全て無くなった時に自動でFreeが呼ばれる
-	return std::shared_ptr<DescriptorHandle>(
-		handle,
-		[this](DescriptorHandle* ptr) {
-			this->Free(ptr->index);
-			delete ptr;
-		}
-	);
+	return handle;
 }
 
 ID3D12DescriptorHeap* SrvDescriptorHeap::GetHeap() const

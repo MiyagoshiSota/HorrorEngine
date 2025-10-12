@@ -1,6 +1,7 @@
 #pragma once
 #include "Modules/ComPtr.h"
 #include <d3dx12.h>
+#include <mutex>
 #include <vector>
 #include "DescriptorHandle.h"
 

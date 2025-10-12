@@ -2,6 +2,6 @@
 
 Model::Model()
 {
-	m_Meshes = std::make_unique<Mesh>();
-	m_Material = std::make_unique<Material>();
+	m_Meshes.clear();
+	m_Materials.clear();
 }

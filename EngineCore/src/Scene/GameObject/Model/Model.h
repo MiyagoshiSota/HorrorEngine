@@ -13,7 +13,7 @@ public:
 	    
     }
 
-    std::shared_ptr<Mesh> m_Meshes;
-    std::shared_ptr<Material> m_Material;
+    std::vector<std::shared_ptr<Mesh>> m_Meshes;
+    std::vector<std::shared_ptr<Material>> m_Materials;
     std::vector<SharedStruct::Mesh> m_InputMesh;
 };
