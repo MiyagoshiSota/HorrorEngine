@@ -24,32 +24,10 @@
 			]
 		},
 		{
-			"name": "Enemy",
-			"position": [ 0.0, -100.0, 0.0 ],
-			"scale": [ 1.0, 1.0, 1.0 ],
-			"rotation": [ 0.0, 0.0, 0.0 ],
-			"components": [
-				{
-					"type": "MeshRenderer",
-					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX"
-				},
-				{
-					"type": "Rigidbody",
-					"isGravityEnabled": false,
-					"bodyType": "STATIC",
-					"isCollider": {
-						"shape": "Capsule",
-						"height": 10,
-						"radius": 30
-					}
-				}
-			]
-		},
-		{
 			"name": "Block",
 			"position": [ 0.0, 20.0, 0.0 ],
-			"scale": [ 5.0, 1.0, 1.0 ],
-			"rotation": [ 120.0, 0.0, 0.0 ],
+			"scale": [ 10.0, 1.0, 10.0 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
 			"components": [
 				{
 					"type": "MeshRenderer",
@@ -60,9 +38,8 @@
 					"isGravityEnabled": false,
 					"bodyType": "STATIC",
 					"isCollider": {
-						"shape": "Capsule",
-						"height": 10,
-						"radius": 30
+						"shape": "Box",
+						"direction": [ 20.0, 5.0, 20.0 ]
 					}
 				}
 			]
