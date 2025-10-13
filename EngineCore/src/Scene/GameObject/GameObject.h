@@ -29,11 +29,15 @@ public:
 	std::string get_name() const { return name; }
     DirectX::XMMATRIX get_transform() const { return m_Transform; }
     DirectX::XMFLOAT3 get_position() const { return m_Position; }
+	DirectX::XMFLOAT3 get_rotation() const { return m_Rotation; }
+	DirectX::XMFLOAT3 get_scale() const { return m_Scale; }
     std::shared_ptr<Model> get_model() const { return m_Model; }
     std::shared_ptr<ConstantBuffer> get_constant_buffer() const { return  constantBuffer; }
 
 	// 各種Setter
     void set_position(float x, float y, float z) { m_Position = { x, y, z }; }
+	void set_rotation(float x, float y, float z) { m_Rotation = { x, y, z }; }
+	void set_scale(float x, float y, float z) { m_Scale = { x, y, z }; }
 	void set_model(std::shared_ptr<Model> model) { m_Model = model; }
 
     // 各種Find
@@ -70,5 +74,7 @@ private:
     std::vector<std::shared_ptr<ConstantBuffer>> m_ConstantBuffers;
 
     DirectX::XMMATRIX m_Transform;
+	DirectX::XMFLOAT3 m_Rotation = { 0.0f, 0.0f, 0.0f };
+	DirectX::XMFLOAT3 m_Scale = { 1.0f, 1.0f, 1.0f };
     DirectX::XMFLOAT3 m_Position = { 0.0f, 0.0f, 0.0f }; 
 };

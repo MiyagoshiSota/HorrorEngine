@@ -8,17 +8,40 @@ void GameObject::init()
 		comp->start();
 	}
 
-	// 初期位置に基づいて変換行列を計算
+	// Scale, Rotation, PositionからTransform行列を計算
+
+	// Scale
+	DirectX::XMMATRIX scaleMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+
+	// Rotation
+	DirectX::XMMATRIX rotXMat = DirectX::XMMatrixRotationRollPitchYaw(
+		DirectX::XMConvertToRadians(m_Rotation.x),
+		DirectX::XMConvertToRadians(m_Rotation.y),
+		DirectX::XMConvertToRadians(m_Rotation.z)
+	);
+
+	// Position
 	DirectX::XMMATRIX transMatrix = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 
-	m_Transform = transMatrix;
+	m_Transform = scaleMat * rotXMat * transMatrix;
 }
 
 void GameObject::transform_update()
 {
-    DirectX::XMMATRIX transMatrix = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+	// Scale
+	DirectX::XMMATRIX scaleMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
 
-    m_Transform = transMatrix;
+	// Rotation
+	DirectX::XMMATRIX rotXMat = DirectX::XMMatrixRotationRollPitchYaw(
+		DirectX::XMConvertToRadians(m_Rotation.x),
+		DirectX::XMConvertToRadians(m_Rotation.y),
+		DirectX::XMConvertToRadians(m_Rotation.z)
+	);
+
+	// Position
+	DirectX::XMMATRIX transMatrix = DirectX::XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+
+	m_Transform = scaleMat * rotXMat * transMatrix;
 }
 
 void GameObject::component_update()

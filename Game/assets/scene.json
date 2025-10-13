@@ -4,6 +4,8 @@
 		{
 			"name": "Player",
 			"position": [ 0.0, 100.0, 0.0 ],
+			"scale": [ 1.0, 1.0, 1.0 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
 			"components": [
 				{
 					"type": "MeshRenderer",
@@ -18,12 +20,14 @@
 						"height": 10,
 						"radius": 30
 					}
-				}	
+				}
 			]
 		},
 		{
 			"name": "Enemy",
 			"position": [ 0.0, -100.0, 0.0 ],
+			"scale": [ 1.0, 1.0, 1.0 ],
+			"rotation": [ 0.0, 0.0, 0.0 ],
 			"components": [
 				{
 					"type": "MeshRenderer",
@@ -44,6 +48,8 @@
 		{
 			"name": "Block",
 			"position": [ 0.0, 20.0, 0.0 ],
+			"scale": [ 5.0, 1.0, 1.0 ],
+			"rotation": [ 120.0, 0.0, 0.0 ],
 			"components": [
 				{
 					"type": "MeshRenderer",

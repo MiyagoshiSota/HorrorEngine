@@ -28,6 +28,14 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::load_from_file(const 
 		const auto& positionJson = objJson["position"];
 		go->set_position(positionJson[0], positionJson[1], positionJson[2]);
 
+		// rotationの設定
+		const auto& rotationJson = objJson["rotation"];
+		go->set_rotation(rotationJson[0], rotationJson[1], rotationJson[2]);
+
+		// scaleの設定
+		const auto& scaleJson = objJson["scale"];
+		go->set_scale(scaleJson[0], scaleJson[1], scaleJson[2]);
+
 		// コンポーネントの設定
 		if (objJson.contains("components"))
 		{
