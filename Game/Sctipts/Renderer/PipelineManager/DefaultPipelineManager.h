@@ -1,7 +1,6 @@
 #pragma once
+#include "Renderer/Pass/PostProcess/Manager/PostProcessManager.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
-#include "Renderer/RenderPass/GeometryPass.h"
-#include "Renderer/RenderPass/SceneSetupPass.h"
 #include "Renderer/Target/RenderTarget.h"
 #include "Renderer/Target/DepthStencilTarget.h"
 
@@ -15,5 +14,8 @@ public:
 private:
     std::shared_ptr<RenderTarget> m_sceneColor;
 	std::shared_ptr<DepthStencilTarget> m_sceneDepth;
+	std::shared_ptr<RenderTarget> m_tmpColorA;
+    std::shared_ptr<RenderTarget> m_tmpColorB;
+    std::shared_ptr<PostProcessManager> m_postProcessManager;
 };
 

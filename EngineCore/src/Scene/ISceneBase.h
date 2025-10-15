@@ -9,6 +9,7 @@
 
 #include "Audio/AudioManager.h"
 #include "GameObject/Loader/GameObjectLoader.h"
+#include "Time/TimeManager.h"
 
 class ISceneBase
 {
@@ -40,6 +41,9 @@ public:
 			obj->transform_update();
 			obj->component_update();
 		}
+
+		// TimeManagerの更新
+		m_TimeManager->update();
 	};
 
 	/// <summary>
@@ -51,6 +55,9 @@ public:
 		{
 			obj->transform_update();
 		}
+
+		// TimeManagerの更新
+		m_TimeManager->update();
 	};
 
 	/// <summary>
@@ -68,6 +75,7 @@ public:
 	std::shared_ptr<SceneCamera> get_scene_camera() { return m_Camera; }
 	std::shared_ptr<PipelineStateManager> get_pipeline_state_manager() { return m_PipelineStateManager; }
 	std::unique_ptr<SceneResourceManager> get_scene_resource_manager() { return std::move(m_SceneResourceManager); }
+	std::shared_ptr<TimeManager> get_time_manager() { return m_TimeManager; }
 	std::shared_ptr<AudioManager> get_audio_manager() { return m_AudioManager; }
 	std::vector<std::shared_ptr <GameObject>> get_game_objects() { return m_GameObjects; }
 	std::map<std::string, std::shared_ptr<Model>> get_models() { return m_models; }
@@ -87,6 +95,7 @@ protected:
 	std::shared_ptr<PipelineStateManager> m_PipelineStateManager;
 	std::unique_ptr<SceneResourceManager> m_SceneResourceManager;
 	std::shared_ptr<AudioManager> m_AudioManager;
+	std::shared_ptr<TimeManager> m_TimeManager;
 
 	// Object
 	// TODO:CameraはGameObjectにしようかな...

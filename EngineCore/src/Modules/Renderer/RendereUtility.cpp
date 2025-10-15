@@ -4,7 +4,7 @@
 
 void RendererUtility::simple_change_target_state(
 	std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers, 
-	ITargetBase* target, 
+	std::shared_ptr<ITargetBase> target,
 	D3D12_RESOURCE_STATES change_state)
 {
 	if (target->GetCurrentState() != change_state)

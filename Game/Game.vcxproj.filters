@@ -16,5 +16,6 @@
     <None Include="packages.config" />
     <None Include="assets\scene.json" />
     <None Include="assets\pos_definitions.json" />
+    <None Include="assets\postprocess_presets.json" />
   </ItemGroup>
 </Project>

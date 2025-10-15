@@ -26,6 +26,9 @@
     <ClCompile Include="external\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.cpp" />
+    <ClCompile Include="src\Renderer\Pass\PostProcess\Pass\VHSFilterPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.cpp" />
     <ClCompile Include="src\Renderer\Loader\PSOLoader.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Scene\GameObject\Loader\GameObjectLoader.cpp" />
@@ -185,8 +188,7 @@
       <LibCompiled>true</LibCompiled>
     </ClCompile>
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
-    <ClCompile Include="src\Renderer\RenderPass\GeometryPass.cpp" />
-    <ClCompile Include="src\Renderer\RenderPass\SceneSetupPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
@@ -206,6 +208,7 @@
     <ClCompile Include="src\Renderer\StandardShader\Struct\SharedStruct.cpp" />
     <ClCompile Include="src\Renderer\Texture\Texture2D.cpp" />
     <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
+    <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\imconfig.h" />
@@ -216,12 +219,17 @@
     <ClInclude Include="external\imgui\imstb_rectpack.h" />
     <ClInclude Include="external\imgui\imstb_textedit.h" />
     <ClInclude Include="external\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VHSFilterPass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\PostProcessPassBase.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.h" />
     <ClInclude Include="src\Renderer\Loader\PSOLoader.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Modules\Other\engineString.h" />
     <ClInclude Include="src\Physics\Component\Rigidbody.h" />
     <ClInclude Include="src\Physics\Debug\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\EngineCollider.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\SceneRenderPassBase.h" />
     <ClInclude Include="src\Scene\GameObject\DefaultMesh\DefaultMeshes.h" />
     <ClInclude Include="src\Scene\GameObject\Find\GameObjectFInder.h" />
     <ClInclude Include="src\Scene\GameObject\Loader\GameObjectLoader.h" />
@@ -235,9 +243,8 @@
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\SrvDescriptorHeap.h" />
     <ClInclude Include="src\Renderer\PipelineManager\IPipelineManager.h" />
     <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
-    <ClInclude Include="src\Renderer\RenderPass\IRenderPass.h" />
-    <ClInclude Include="src\Renderer\RenderPass\GeometryPass.h" />
-    <ClInclude Include="src\Renderer\RenderPass\SceneSetupPass.h" />
+    <ClInclude Include="src\Renderer\Pass\IRenderPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
     <ClInclude Include="src\Renderer\Target\RenderTarget.h" />
@@ -260,6 +267,7 @@
     <ClInclude Include="src\Scene\Camera\SceneCamera.h" />
     <ClInclude Include="src\Scene\ResourceManager\SceneResourceManager.h" />
     <ClInclude Include="src\Scene\ISceneBase.h" />
+    <ClInclude Include="src\Scene\Time\TimeManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromePS.hlsl">
@@ -273,6 +281,22 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromeVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\VHSFilterPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\VHSFilterVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>

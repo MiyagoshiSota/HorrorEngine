@@ -546,6 +546,7 @@ void Engine::DrawImGui()
 		g_Scene->CreatePrimitiveObjects(); // プリミティブオブジェクトの再生成
         g_Scene->InitializeGameObject(); // ゲームオブジェクトの初期化
         g_Scene->get_audio_manager()->init(); // オーディオマネージャのリセット
+		g_Scene->get_time_manager()->reset(); // タイムマネージャのリセット
 
         printf("ゲームオブジェクトの初期化");
     }

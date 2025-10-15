@@ -10,6 +10,7 @@ void MonochromePass::Execute(ID3D12GraphicsCommandList* cmdList, RenderContext& 
 
 {
 	auto sceneColorRT = context.GetRenderTarget("SceneColor");
+	auto tmpColorRT = context.GetRenderTarget("TmpColor");
 	if (sceneColorRT == nullptr)
 	{
 		printf("RenderTargetが見つかりませんでした。");
@@ -18,7 +19,7 @@ void MonochromePass::Execute(ID3D12GraphicsCommandList* cmdList, RenderContext& 
 
 
 	// 出力先としてバックバッファを指定
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[] = { g_Engine->GetCurrentRtvHandle() };
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[] = { tmpColorRT->GetRTVHandle() };
 	cmdList->OMSetRenderTargets(1, rtvHandles, FALSE, nullptr);
 
 	auto rsignature_name = "PostProcess_SingleTexture";

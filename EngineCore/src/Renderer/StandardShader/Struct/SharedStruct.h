@@ -20,6 +20,12 @@ public:
 		static const D3D12_INPUT_ELEMENT_DESC InputElements[InputElementCount];
 	};
 
+	struct alignas(256) TimeData
+	{
+		float DeltaTime;
+		float TotalTime;
+	};
+
 	struct alignas(256) Transform
 	{
 		DirectX::XMMATRIX World; // ワールド行列

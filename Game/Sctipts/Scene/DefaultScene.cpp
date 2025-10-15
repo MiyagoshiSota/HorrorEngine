@@ -10,6 +10,7 @@
 #include "Scene/GameObject/GameObject.h"
 #include "Scene/GameObject/DefaultMesh/DefaultMeshes.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
+#include "Scene/Time/TimeManager.h"
 
 using namespace DirectX;
 
@@ -34,6 +35,10 @@ bool DefaultScene::Init()
 
 	// Primitiveな3Dモデルの初期化
 	CreatePrimitiveObjects();
+
+	// TimeManagerの初期化
+	m_TimeManager = std::make_unique<TimeManager>();
+	m_TimeManager->init();
 
 	printf("PSOの生成");
 

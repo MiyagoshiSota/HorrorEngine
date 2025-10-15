@@ -1,9 +1,9 @@
 #pragma once
-#include "Renderer/RenderPass/IRenderPass.h"
+#include "Renderer/Pass/IRenderPass.h"
 
 class MonochromePass : public IRenderPass
 {
 public:
-	void Execute(ID3D12GraphicsCommandList* cmdList, RenderContext& context) override;
+	void Execute(ID3D12GraphicsCommandList* cmdList, RenderContext& context);
 };
 

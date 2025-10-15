@@ -19,8 +19,7 @@
     <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\RtvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\SrvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
-    <ClCompile Include="src\Renderer\RenderPass\GeometryPass.cpp" />
-    <ClCompile Include="src\Renderer\RenderPass\SceneSetupPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
@@ -38,6 +37,10 @@
     <ClCompile Include="external\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\Renderer\Loader\PSOLoader.cpp" />
+    <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
+    <ClCompile Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.cpp" />
+    <ClCompile Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.cpp" />
+    <ClCompile Include="src\Renderer\Pass\PostProcess\Pass\VHSFilterPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -58,14 +61,13 @@
     <ClInclude Include="src\Scene\GameObject\Model\Model.h" />
     <ClInclude Include="src\Scene\GameObject\Material\Material.h" />
     <ClInclude Include="src\Scene\GameObject\Mesh\Mesh.h" />
-    <ClInclude Include="src\Renderer\RenderPass\IRenderPass.h" />
+    <ClInclude Include="src\Renderer\Pass\IRenderPass.h" />
     <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
     <ClInclude Include="src\Renderer\PipelineManager\IPipelineManager.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHandle.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\RtvDescriptorHeap.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\SrvDescriptorHeap.h" />
-    <ClInclude Include="src\Renderer\RenderPass\GeometryPass.h" />
-    <ClInclude Include="src\Renderer\RenderPass\SceneSetupPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
     <ClInclude Include="src\Renderer\Target\RenderTarget.h" />
@@ -92,9 +94,17 @@
     <ClInclude Include="external\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Scene\GameObject\DefaultMesh\DefaultMeshes.h" />
     <ClInclude Include="src\Renderer\Loader\PSOLoader.h" />
+    <ClInclude Include="src\Scene\Time\TimeManager.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VHSFilterPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\SceneRenderPassBase.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\PostProcessPassBase.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromePS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromeVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\VHSFilterPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\VHSFilterVS.hlsl" />
   </ItemGroup>
 </Project>

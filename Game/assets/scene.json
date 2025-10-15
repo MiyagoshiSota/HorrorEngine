@@ -9,7 +9,15 @@
 			"components": [
 				{
 					"type": "MeshRenderer",
-					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX"
+					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX",
+					"materials": [
+						{
+							"pso": "DefaultPipelinePass",
+							"textures": {
+								"albedo": "assets/Alicia/Textures/Alicia_body_diffuse.png"
+							}
+						}
+					]
 				},
 				{
 					"type": "Rigidbody",

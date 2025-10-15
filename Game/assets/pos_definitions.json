@@ -46,6 +46,29 @@
 			"flags": [
 				"ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
 			]
+		},
+		"PostProcess_TextureAndCBV": {
+			"constantBufferViews": [
+				{
+					"shaderRegister": 0,
+					"space": 0
+				}
+			],
+			"descriptorTables": [
+				{
+					"type": "SRV",
+					"num": 1,
+					"shaderRegister": 0,
+					"space": 0
+				}
+			],
+			"staticSamplers": [
+				{
+					"shaderRegister": 0,
+					"filter": "LINEAR",
+					"addressMode": "WRAP"
+				}
+			]
 		}
 	},
 	"PipelineStates": {
@@ -57,10 +80,10 @@
 			"inputLayoutEnable": true,
 			"cullMode": "BACK"
 		},
-		"Monochrome": {
-			"rootSignature": "PostProcess_SingleTexture",
-			"vertexShader": "../x64/Debug/SimpleMonochromeVS.cso",
-			"pixelShader": "../x64/Debug/SimpleMonochromePS.cso",
+		"VHSFilter": {
+			"rootSignature": "PostProcess_TextureAndCBV",
+			"vertexShader": "../x64/Debug/VHSFilterVS.cso",
+			"pixelShader": "../x64/Debug/VHSFilterPS.cso",
 			"depthEnable": false
 		}
 	}

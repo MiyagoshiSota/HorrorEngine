@@ -101,7 +101,7 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
             std::wstring vsPath = engine_string::to_wstring(psoJson["vertexShader"]);
             std::wstring psPath = engine_string::to_wstring(psoJson["pixelShader"]);
             bool depthEnable = psoJson.value("depthEnable", true);
-			bool inputLayout = psoJson.value("inputLayoutEnable", true);
+			bool inputLayout = psoJson.value("inputLayoutEnable", false);
 
             // マネージャーにPSOを生成・登録させる
             manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, inputLayout, depthEnable);
