@@ -1,0 +1,67 @@
+{
+	"RootSignatures": {
+		"Geometry_Default": {
+			"constantBufferViews": [
+				{
+					"shaderRegister": 0,
+					"space": 0
+				}
+			],
+			"descriptorTables": [
+				{
+					"type": "SRV",
+					"num": 1,
+					"shaderRegister": 0,
+					"space": 0
+				}
+			],
+			"staticSamplers": [
+				{
+					"shaderRegister": 0,
+					"filter": "LINEAR",
+					"addressMode": "WRAP"
+				}
+			],
+			"flags": [
+				"ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT",
+				"DENY_HULL_SHADER_ROOT_ACCESS",
+				"DENY_DOMAIN_SHADER_ROOT_ACCESS",
+				"DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+			]
+		},
+		"PostProcess_SingleTexture": {
+			"descriptorTables": [
+				{
+					"type": "SRV",
+					"num": 1,
+					"baseRegister": 0
+				}
+			],
+			"staticSamplers": [
+				{
+					"filter": "LINEAR",
+					"addressMode": "WRAP"
+				}
+			],
+			"flags": [
+				"ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
+			]
+		}
+	},
+	"PipelineStates": {
+		"DefaultPipelinePass": {
+			"rootSignature": "Geometry_Default",
+			"vertexShader": "../x64/Debug/SimpleVS.cso",
+			"pixelShader": "../x64/Debug/SimplePS.cso",
+			"depthEnable": true,
+			"inputLayoutEnable": true,
+			"cullMode": "BACK"
+		},
+		"Monochrome": {
+			"rootSignature": "PostProcess_SingleTexture",
+			"vertexShader": "../x64/Debug/SimpleMonochromeVS.cso",
+			"pixelShader": "../x64/Debug/SimpleMonochromePS.cso",
+			"depthEnable": false
+		}
+	}
+}

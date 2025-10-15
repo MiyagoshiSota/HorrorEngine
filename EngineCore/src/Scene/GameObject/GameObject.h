@@ -18,6 +18,7 @@ public:
         m_ConstantBuffers.resize(g_Engine->FRAME_BUFFER_COUNT);
         for (int i = 0; i < g_Engine->FRAME_BUFFER_COUNT; ++i)
         {
+            // TODO:野生のConstantBufferを作ってる,Heapで管理したい感ある
             m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
         }
     };

@@ -15,5 +15,6 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="assets\scene.json" />
+    <None Include="assets\pos_definitions.json" />
   </ItemGroup>
 </Project>

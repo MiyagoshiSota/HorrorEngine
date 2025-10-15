@@ -88,9 +88,9 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	ComPtr<ID3D12DescriptorHeap> m_ImGuiSrvHeap; // ImGui専用のSRVヒープ
 	ComPtr<ID3D12Resource> m_pDepthStencilBuffer = nullptr; // 深度ステンシルバッファ
 
-	std::shared_ptr<SrvDescriptorHeap> m_SRVHeap;
+	std::shared_ptr<SrvDescriptorHeap> m_SRVHeap; // SRVヒープ
 
-	UINT m_rtvHeapOffset;
+	UINT m_rtvHeapOffset; // RTVヒープのオフセット管理用
 
 private:
 	ComPtr < ID3D12Resource > m_currentRenderTarget = nullptr; // 現在のフレームのレンダーターゲットを一時的に保存しておく関数

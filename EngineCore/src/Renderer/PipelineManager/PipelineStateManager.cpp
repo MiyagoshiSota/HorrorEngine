@@ -2,68 +2,93 @@
 
 #include <utility>
 
-#include "Renderer/Engine.h"
+#include "Renderer/Engine.h" 
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
+#include "Renderer/Graphics/RootSignatureBuilder.h"
 
-void PipelineStateManager::new_create(std::wstring vsfilePath, std::wstring psfilePath,bool isInputLayout,bool isDepthFormat ,const std::shared_ptr<RootSignatureBuilder>& builder, const std::string& name)
+void PipelineStateManager::create_root_signature(
+    const std::string& name,
+    const std::shared_ptr<RootSignatureBuilder>& builder)
 {
-	auto rootSignature = get_root_signature(name);
-	auto pipelineState = get_pipeline_state(name);
+    // 作成済みなら何もしない
+    if (rootSignatureMap.count(name)) {
+        return;
+    }
 
-	// 作成済みなら何もしない
-	if (rootSignature != nullptr && pipelineState != nullptr)
-	{
-		return;
-	}
+    auto rootSignature = std::make_shared<RootSignature>();
+    rootSignature->create(g_Engine->Device(), builder);
 
-	rootSignature = std::make_shared<RootSignature>();
-	rootSignature->create(g_Engine->Device(),builder);
-	if (!rootSignature->is_valid())
-	{
-		printf("ルートシグネチャの生成に失敗");
-		return;
-	}
+    if (!rootSignature->is_valid()) {
+        printf("ルートシグネチャの生成に失敗: %s\n", name.c_str());
+        return;
+    }
 
-	pipelineState = std::make_shared<PipelineState>();
+    // マップに保存
+    rootSignatureMap[name] = rootSignature;
+}
 
-	// Inputレイアウトを設定
-	if (isInputLayout) pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
+void PipelineStateManager::create_pipeline_state(
+    const std::string& name,
+    const std::string& rootSignatureName,
+    const std::wstring& vsFilePath,
+    const std::wstring& psFilePath,
+    bool useInputLayout,
+    bool useDepthFormat)
+{
+    // 作成済みなら何もしない
+    if (pipelineStateMap.count(name)) {
+        return;
+    }
 
-	pipelineState->SetRootSignature(rootSignature->get());
-	pipelineState->SetVS(vsfilePath);
-	pipelineState->SetPS(psfilePath);
+    // 指定されたルートシグネチャを取得
+    auto rootSignature = get_root_signature(rootSignatureName);
+    if (rootSignature == nullptr) {
+        printf("指定されたルートシグネチャが見つかりません: %s\n", rootSignatureName.c_str());
+        return;
+    }
 
-	pipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+    auto pipelineState = std::make_shared<PipelineState>();
 
-	// 深度ステンシルのフォーマットを設定
-	if (isDepthFormat) pipelineState->SetDepthStencilFormat(DXGI_FORMAT_D32_FLOAT);
-	else  pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
+    // Inputレイアウトを設定
+    if (useInputLayout) {
+        pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
+    }
 
+    pipelineState->SetRootSignature(rootSignature->get());
+    pipelineState->SetVS(vsFilePath);
+    pipelineState->SetPS(psFilePath);
+    pipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 
-	pipelineState->Create();
-	if (!pipelineState->IsValid())
-	{
-		printf("パイプラインステートの生成に失敗\n");
-		return;
-	}
+    // 深度ステンシルのフォーマットを設定
+    if (useDepthFormat) {
+        pipelineState->SetDepthStencilFormat(DXGI_FORMAT_D32_FLOAT);
+    }
+    else {
+        pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
+    }
 
-	// マップに保存
-	rootSignatureMap[name] = rootSignature;
-	pipelineStateMap[name] = pipelineState;
+    pipelineState->Create();
+    if (!pipelineState->IsValid()) {
+        printf("パイプラインステートの生成に失敗: %s\n", name.c_str());
+        return;
+    }
+
+    // マップに保存
+    pipelineStateMap[name] = pipelineState;
 }
 
 std::shared_ptr<RootSignature> PipelineStateManager::get_root_signature(const std::string& name)
 {
-	if (rootSignatureMap.count(name)) {
-		return rootSignatureMap[name];
-	}
-	return nullptr;
+    if (rootSignatureMap.count(name)) {
+        return rootSignatureMap[name];
+    }
+    return nullptr;
 }
 
 std::shared_ptr<PipelineState> PipelineStateManager::get_pipeline_state(const std::string& name)
 {
-	if (pipelineStateMap.count(name)) {
-		return pipelineStateMap[name];
-	}
-	return nullptr;
+    if (pipelineStateMap.count(name)) {
+        return pipelineStateMap[name];
+    }
+    return nullptr;
 }

@@ -166,6 +166,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\pos_definitions.json" />
     <None Include="assets\scene.json" />
     <None Include="packages.config" />
   </ItemGroup>

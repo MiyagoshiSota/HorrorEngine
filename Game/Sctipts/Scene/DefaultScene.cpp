@@ -6,6 +6,7 @@
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Physics/Component/Rigidbody.h"
 #include "Renderer/Graphics/RootSignatureBuilder.h"
+#include "Renderer/Loader/PSOLoader.h"
 #include "Scene/GameObject/GameObject.h"
 #include "Scene/GameObject/DefaultMesh/DefaultMeshes.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
@@ -20,32 +21,7 @@ bool DefaultScene::Init()
 
 	// PipelineStateの初期化
 	m_PipelineStateManager = std::make_unique<PipelineStateManager>();
-	auto name = "DefaultPipelinePass";
 
-	// RootSignatureの生成・初期化
-	auto builder = std::make_shared<RootSignatureBuilder>();
-
-	// ディスクリプタレンジを定義
-	CD3DX12_DESCRIPTOR_RANGE tableRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-
-	// スタティックサンプラーを定義
-	auto sampler = CD3DX12_STATIC_SAMPLER_DESC(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
-
-	// フラグを定義
-	auto flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-
-	// ビルダーを使ってルートシグネチャを定義
-	builder->add_constant_buffer_view(0) // b0
-		.add_descriptor_table(1, &tableRange)
-		.add_static_sampler(sampler)
-		.set_flags(flags);
-
-	// POSの生成・初期化
-	m_PipelineStateManager->new_create(L"../x64/Debug/SimpleVS.cso", L"../x64/Debug/SimplePS.cso",true, true, builder, name);
-	
 	// PipelineManagerの初期化
 	m_PipelineManager = std::make_unique<DefaultPipelineManager>();
 
@@ -58,6 +34,10 @@ bool DefaultScene::Init()
 
 	// Primitiveな3Dモデルの初期化
 	CreatePrimitiveObjects();
+
+	printf("PSOの生成");
+
+	PSOLoader::load_from_file("assets/pos_definitions.json", m_PipelineStateManager);
 
 	printf("シーンの初期化に成功\n");
 

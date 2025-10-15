@@ -26,6 +26,7 @@
     <ClCompile Include="external\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Renderer\Loader\PSOLoader.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Scene\GameObject\Loader\GameObjectLoader.cpp" />
     <ClCompile Include="src\Renderer\Graphics\RootSignatureBuilder.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="external\imgui\imstb_rectpack.h" />
     <ClInclude Include="external\imgui\imstb_textedit.h" />
     <ClInclude Include="external\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Renderer\Loader\PSOLoader.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Modules\Other\engineString.h" />
     <ClInclude Include="src\Physics\Component\Rigidbody.h" />
