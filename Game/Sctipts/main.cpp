@@ -1,12 +1,13 @@
 #include "main.h"
 #include "Core/App.h"
-#include <stdio.h>
 #include <DirectXTex.h>
+
 #include "Scene/DefaultScene.h"
+#include "Modules/PublicConst/const_name_pref.h"
 
 int main() {
 	std::shared_ptr<ISceneBase> scene = std::make_shared<DefaultScene>();
-	start_app(TEXT("Hello DirectX12!"), scene);
+	start_app(TEXT(const_name_pref::WindowName), scene);
 	shutdown_app();
 	return 0;
 }

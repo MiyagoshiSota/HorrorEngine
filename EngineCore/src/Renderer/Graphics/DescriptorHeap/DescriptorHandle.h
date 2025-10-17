@@ -2,6 +2,8 @@
 #include <d3d12.h>
 #include <memory>
 
+#include "CbvDescriptorHeap.h"
+
 class SrvDescriptorHeap;
 
 struct DescriptorHandle

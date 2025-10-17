@@ -1,28 +1,34 @@
 {
 	"presets": {
 		"Normal": {
-			"Vignette": {
-				"intensity": 0.2,
-				"smoothness": 0.5
-			},
-			"ChromaticAberration": { "offset": 0.0 },
-			"FilmGrain": { "intensity": 0.05 }
+			"order": [ "Monochrome", "VHS" ],
+			"settings": {
+				"Monochrome": { "intensity": 0.5 },
+				"VHS": {
+					"scanline_intensity": 0.3,
+					"noise_intensity": 0.5
+				}
+			}
 		},
 		"Scary": {
-			"Vignette": {
-				"intensity": 0.9,
-				"smoothness": 0.2
-			},
-			"ChromaticAberration": { "offset": 0.008 },
-			"FilmGrain": { "intensity": 0.4 }
+          "order": [ "Monochrome", "VHS" ],
+          "settings": {
+            "Monochrome": { "intensity": 0 },
+            "VHS": {
+              "scanline_intensity": 0.3,
+              "noise_intensity": 0.5
+            }
+          }
 		},
-		"Flashback": {
-			"Monochrome": { "intensity": 1.0 },
-			"VHS": {
-				"scanline_intensity": 0.3,
-				"noise_intensity": 0.5
-			},
-			"Vignette": { "intensity": 0.7 }
+          "Flashback": {
+			"order": [ "Monochrome", "VHS" ],
+			"settings": {
+				"Monochrome": { "intensity": 1 },
+				"VHS": {
+					"scanline_intensity": 0.3,
+					"noise_intensity": 0.5
+				}
+			}
 		}
 	}
 }

@@ -20,9 +20,18 @@ public:
     // 描画時に呼び出す
     void ExecutePasses(RenderContext& context);
 
+public:
+	std::list<std::string> get_preset_names() const {
+		std::list<std::string> names;
+		for (const auto& pair : m_Presets) {
+			names.push_back(pair.first);
+		}
+		return names;
+	}
+	
 private:
     std::map<std::string, PostProcessPreset> m_Presets; // ロードした全プリセット
-	std::vector<std::shared_ptr<PostProcessPassBase>> m_AvailablePasses; // 利用可能な全ポストプロセスパス
+	std::map<std::string, std::shared_ptr<PostProcessPassBase>> m_AvailablePasses; // 利用可能な全ポストプロセスパス
 
     // ブレンド中の状態
     bool m_IsBlending = false;
@@ -33,4 +42,5 @@ private:
 
     // 現在のフレームで適用すべき、最終的なパラメータ
     PostProcessPassSettings m_CurrentSettings;
+	std::string m_CurrentPresetName;
 };

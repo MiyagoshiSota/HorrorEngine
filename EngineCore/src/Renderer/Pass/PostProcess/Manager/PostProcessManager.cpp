@@ -1,10 +1,8 @@
 #include "PostProcessManager.h"
 
-#include <fstream>
-#include <nlohmann/json.hpp>
-#include <algorithm> // for std::min
-
-#include "Renderer/Pass/PostProcess/Pass/VHSFilterPass.h"
+#include "Modules/PublicConst/const_render_pref.h"
+#include "Renderer/Pass/PostProcess/Pass/MonochromePass.h"
+#include "Renderer/Pass/PostProcess/Pass/VHSPass.h"
 
 using json = nlohmann::json;
 
@@ -16,14 +14,16 @@ float lerp(float a, float b, float t)
 
 PostProcessManager::PostProcessManager()
 {
-	m_AvailablePasses.push_back(std::make_shared<VHSFilterPass>());
+    m_AvailablePasses["VHS"] = std::make_shared<VHSPass>();
+    m_AvailablePasses["Monochrome"] = std::make_shared<MonochromePass>();
 }
 
 void PostProcessManager::Init()
 {
-    // 初期状態として "Normal" プリセットを直接設定
-    if (m_Presets.count("Normal")) {
-        m_CurrentSettings = m_Presets["Normal"].settings;
+	// TEST:デフォルトプリセットを"Flashback"に設定
+    if (m_Presets.count("Flashback")) {
+        m_CurrentSettings = m_Presets["Flashback"].settings;
+        m_CurrentPresetName = "Flashback";
     }
 }
 
@@ -40,12 +40,21 @@ void PostProcessManager::LoadPresets(const std::string& filePath)
 
     if (!presetJson.contains("presets")) return;
 
+    // JSONからプリセットを読み込む
     for (auto& [presetName, presetData] : presetJson["presets"].items())
     {
         PostProcessPreset preset;
         preset.name = presetName;
 
-        for (auto& [passName, passData] : presetData.items())
+		// パスの順序を読み込む
+        if (presetData.contains("order")) {
+            for (const auto& passName : presetData["order"]) {
+                preset.order.push_back(passName.get<std::string>());
+            }
+        }
+
+		// 各パスのパラメータを読み込む
+        for (auto& [passName, passData] : presetData["settings"].items())
         {
             PostProcessParameter params;
             for (auto& [paramName, paramValue] : passData.items())
@@ -66,16 +75,16 @@ void PostProcessManager::BlendToPreset(const std::string& presetName, float dura
         printf("Preset '%s' not found.\n", presetName.c_str());
         return;
     }
-
-    // 現在のパラメータ状態をブレンド元として保存
+	// 現在のプリセット名を更新
     m_SourcePreset.settings = m_CurrentSettings;
     m_TargetPreset = m_Presets[presetName];
 
+	// ブレンドの初期化
     m_BlendDuration = (duration > 0.0f) ? duration : 0.0f;
     m_BlendTimer = 0.0f;
 
+	// BlendDurationが0なら即座に切り替え
     if (m_BlendDuration == 0.0f) {
-        // durationが0なら即座に適用
         m_CurrentSettings = m_TargetPreset.settings;
         m_IsBlending = false;
     }
@@ -88,25 +97,27 @@ void PostProcessManager::Update(float deltaTime)
 {
     if (!m_IsBlending) return;
 
-    m_BlendTimer += deltaTime;
+	m_BlendTimer += deltaTime;
     float alpha = std::min(m_BlendTimer / m_BlendDuration, 1.0f);
 
-    // ターゲットプリセットに含まれる全てのパスとパラメータを線形補間する
+	// 各パスの各パラメータを線形補間
     for (const auto& [passName, passParams] : m_TargetPreset.settings)
     {
         for (const auto& [paramName, targetValue] : passParams)
         {
-            // ブレンド元の値を取得（存在しなければ0.0f）
             float sourceValue = 0.0f;
+
+			// ソースプリセットに値があればそれを使う
             if (m_SourcePreset.settings.count(passName) && m_SourcePreset.settings[passName].count(paramName)) {
                 sourceValue = m_SourcePreset.settings[passName][paramName];
             }
 
-            // 線形補間して現在の設定値を更新
+			// 現在の設定を更新
             m_CurrentSettings[passName][paramName] = lerp(sourceValue, targetValue, alpha);
         }
     }
 
+	// ブレンドが完了したらフラグを下ろす
     if (alpha >= 1.0f) {
         m_IsBlending = false;
     }
@@ -114,42 +125,56 @@ void PostProcessManager::Update(float deltaTime)
 
 void PostProcessManager::ExecutePasses(RenderContext& context)
 {
+    // 現在のプリセット（ブレンド中ならターゲットプリセット）で有効なパスのリストを取得
+    const auto& activePassesOrder = m_IsBlending ? m_TargetPreset.order : m_Presets[m_CurrentPresetName].order;
+    if (activePassesOrder.empty()) return;
+
     // 最初の入力はGeometryPassの結果である"SceneColor"
-    std::shared_ptr<ITargetBase> sourceRT = context.GetRenderTarget("SceneColor");
+    std::shared_ptr<ITargetBase> sourceRT = context.GetRenderTarget(const_render_pref::SceneColor);
 
     // 中間バッファを2つ用意
-    std::shared_ptr<ITargetBase> bufferA = context.GetRenderTarget("PostProcessA");
-    std::shared_ptr<ITargetBase> bufferB = context.GetRenderTarget("PostProcessB");
+    std::shared_ptr<ITargetBase> bufferA = context.GetRenderTarget(const_render_pref::TmpColorA);
+    std::shared_ptr<ITargetBase> bufferB = context.GetRenderTarget(const_render_pref::TmpColorB);
 
-	// 最終出力はバックバッファ
-    D3D12_CPU_DESCRIPTOR_HANDLE backBufferRTV = g_Engine->GetCurrentRtvHandle();
-
-	// TODO: 各パスに対してm_CurrentSettingsからパラメータを適用する処理を追加する
-    for (size_t i = 0; i < m_AvailablePasses.size(); ++i)
+    for (size_t i = 0; i < activePassesOrder.size(); ++i)
     {
+        const std::string& passName = activePassesOrder[i];
+
+        // 実行すべきパスオブジェクトを取得
+        if (!m_AvailablePasses.count(passName)) continue;
+        auto& pass = m_AvailablePasses[passName];
+
+        // 現在のブレンド状態から、このパス用のパラメータを取得
+        const auto& params = m_CurrentSettings[passName];
+        pass->SetParameters(params);
+
         // 最後のパスなら出力先はバックバッファ、そうでなければ中間バッファ
-        if (i == m_AvailablePasses.size() - 1)
+        bool isLastPass = (i == activePassesOrder.size() - 1);
+        if (isLastPass)
         {
-			auto destRT = backBufferRTV;
+			// バックバッファのRTVハンドルを取得
+            D3D12_CPU_DESCRIPTOR_HANDLE backBufferRTV = g_Engine->GetCurrentRtvHandle();
 
             // Contextに入力元と出力先を教える
             context.SetSourceRT(sourceRT);
 
             // パスを実行
-            m_AvailablePasses[i]->LastExecute(context,backBufferRTV);
-        }else
+            pass->LastExecute(context, backBufferRTV);
+        }
+        else
         {
-			auto destRT = (i % 2 == 0) ? bufferA : bufferB;
-
-            // Contextに入力元と出力先を教える
+            // 出力先のtmpを決定
+            std::shared_ptr<ITargetBase> destRT = (i % 2 == 0) ? bufferA : bufferB;
             context.SetSourceRT(sourceRT);
             context.SetDestRT(destRT);
 
-            // パスを実行
-            m_AvailablePasses[i]->Execute(context);
+			// パスを実行
+			pass->Execute(context);
+        }
 
-            // 次のパスのために、今書き込んだ出力先を次の入力元にする
-            sourceRT = destRT;
+        // 次のパスのために、今書き込んだ出力先を次の入力元にする
+        if (!isLastPass) {
+            sourceRT = context.GetDestRT();
         }
     }
 }

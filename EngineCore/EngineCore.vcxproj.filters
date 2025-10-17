@@ -40,7 +40,7 @@
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.cpp" />
     <ClCompile Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.cpp" />
-    <ClCompile Include="src\Renderer\Pass\PostProcess\Pass\VHSFilterPass.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -97,14 +97,23 @@
     <ClInclude Include="src\Scene\Time\TimeManager.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.h" />
-    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VHSFilterPass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VHSPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\SceneRenderPassBase.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\PostProcessPassBase.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_render_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\MonochromePass.h" />
+    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromePS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromeVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\VHSFilterPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\VHSFilterVS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

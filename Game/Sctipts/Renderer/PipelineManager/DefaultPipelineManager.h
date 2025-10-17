@@ -11,11 +11,16 @@ public:
     
     void Execute() override;
 
+public:
+    std::shared_ptr<PostProcessManager> get_post_process_manager() { return m_postProcessManager; };
+
 private:
     std::shared_ptr<RenderTarget> m_sceneColor;
 	std::shared_ptr<DepthStencilTarget> m_sceneDepth;
 	std::shared_ptr<RenderTarget> m_tmpColorA;
     std::shared_ptr<RenderTarget> m_tmpColorB;
+
+private:
     std::shared_ptr<PostProcessManager> m_postProcessManager;
 };
 

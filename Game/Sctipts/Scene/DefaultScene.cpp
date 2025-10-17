@@ -1,11 +1,10 @@
 #include "DefaultScene.h"
 #include "Core/App.h"
-#include "Renderer/Engine.h"
 #include "Renderer/Assimp/AssimpLoader.h"
 #include "Scene/ResourceManager/SceneResourceManager.h"
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
+#include "Modules/PublicConst/const_path_pref.h"
 #include "Physics/Component/Rigidbody.h"
-#include "Renderer/Graphics/RootSignatureBuilder.h"
 #include "Renderer/Loader/PSOLoader.h"
 #include "Scene/GameObject/GameObject.h"
 #include "Scene/GameObject/DefaultMesh/DefaultMeshes.h"
@@ -25,7 +24,10 @@ bool DefaultScene::Init()
 
 	// PipelineManagerの初期化
 	m_PipelineManager = std::make_unique<DefaultPipelineManager>();
-
+	// DefaultPipelineManager型にキャスト
+	// NOTE:DefaultPipelineManagerのメソッドを使用可能にするため
+	m_default_pipeline_manager = std::dynamic_pointer_cast<DefaultPipelineManager>(get_pipeline_manager());
+	
 	// PhysicsWorldの初期化
 	RebuidPhysicsWorld();
 
@@ -42,7 +44,7 @@ bool DefaultScene::Init()
 
 	printf("PSOの生成");
 
-	PSOLoader::load_from_file("assets/pos_definitions.json", m_PipelineStateManager);
+	PSOLoader::load_from_file(const_path_pref::PSO_JsonPath, m_PipelineStateManager);
 
 	printf("シーンの初期化に成功\n");
 
@@ -59,12 +61,19 @@ void DefaultScene::Update(float delta_time)
 {
 	ISceneBase::Update(delta_time);
 
+	// ポストプロセスマネージャの更新
+	m_default_pipeline_manager->get_post_process_manager()->Update(delta_time);
+
+	// 物理演算の更新
 	m_physicsWorld->update(delta_time);
 }	
 
-void DefaultScene::EditorUpdate()
+void DefaultScene::EditorUpdate(float delta_time)
 {
-	ISceneBase::EditorUpdate();
+	ISceneBase::EditorUpdate(delta_time);
+
+	// ポストプロセスマネージャの更新
+	m_default_pipeline_manager->get_post_process_manager()->Update(delta_time);
 }
 
 void DefaultScene::Draw()
@@ -92,7 +101,7 @@ void DefaultScene::RebuidPhysicsWorld()
 void DefaultScene::InitializeGameObject()
 {
 	// ゲームオブジェクトの読み込み
-	m_GameObjects = GameObjectLoader::load_from_file("assets/scene.json");
+	m_GameObjects = GameObjectLoader::load_from_file(const_path_pref::GameObjectPath);
 
 	// リソースの確保
 	for (auto& obj : m_GameObjects)

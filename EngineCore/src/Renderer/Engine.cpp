@@ -7,10 +7,11 @@
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
+#include "../../../Game/Sctipts/Scene/DefaultScene.h"
 #include "Core/App.h"
 
 #include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
-#include "Scene/GameObject/Loader/GameObjectLoader.h"
+#include "Pass/PostProcess/Manager/PostProcessManager.h"
 
 Engine* g_Engine;
 
@@ -84,6 +85,12 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
         printf("SRVHeapの作成に失敗");
         return false;
     }
+
+    // if (!CreateConstantBufferView())
+    // {
+    //     printf("CBVHeapの作成に失敗");
+    //     return false;
+    // }
 
     if (!CreateRenderTarget()) {
         printf("レンダーターゲットの作成に失敗");
@@ -401,7 +408,7 @@ bool Engine::InitImGui()
     init_info.CommandQueue = m_pQueue.Get();
     init_info.NumFramesInFlight = FRAME_BUFFER_COUNT;
     init_info.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-    init_info.DSVFormat = DXGI_FORMAT_D32_FLOAT; // ← あれば設定
+    init_info.DSVFormat = DXGI_FORMAT_D32_FLOAT;
     init_info.SrvDescriptorHeap = m_ImGuiSrvHeap.Get();
     init_info.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* info,
         D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle,
@@ -459,6 +466,12 @@ bool Engine::CreateShaderResourceViewHeap()
     m_SRVHeap = std::make_shared<SrvDescriptorHeap>(2048);
     return true;
 }
+
+// bool Engine::CreateConstantBufferView()
+// {
+//     m_CBVHeap = std::make_shared<CbvDescriptorHeap>(2048);
+//     return true;
+// }
 
 bool Engine::CreateDepthStencil()
 {
@@ -525,7 +538,37 @@ void Engine::DrawImGui()
 
     // ImGui ウィンドウ作成
     ImGui::Begin("Example");
-    static char text1[8] = "";
+
+    // 現在選択されているプリセットの名前を保持する変数
+    static std::string currentPresetName = "Normal";
+
+    // ドロップダウンメニュー（コンボボックス）を開始
+    if (ImGui::BeginCombo("Preset", currentPresetName.c_str()))
+    {
+        auto scene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
+        if (scene != nullptr)
+        {
+            auto ppManager = scene->get_post_process_manager();
+            // マネージャーが保持している全てのプリセット名を取得してループ
+            for (const auto& presetName : ppManager->get_preset_names())
+            {
+                const bool isSelected = (currentPresetName == presetName);
+                if (ImGui::Selectable(presetName.c_str(), isSelected))
+                {
+                    // 新しいプリセットが選択された
+                    currentPresetName = presetName;
+
+                    // 1秒かけて選択されたプリセットに移行する
+                    ppManager->BlendToPreset(currentPresetName, 1.0f);
+                }
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }   
+        }
+        ImGui::EndCombo();
+    }
 
 	// シーン切り替えボタン
     if (ImGui::Button("ChangeMode")) {

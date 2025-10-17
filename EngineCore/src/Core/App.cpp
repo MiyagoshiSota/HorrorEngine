@@ -2,6 +2,7 @@
 
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
+#include "Modules/PublicConst//const_name_pref.h"
 #include "Renderer/Engine.h"
 
 HINSTANCE g_hInst;
@@ -108,7 +109,7 @@ void main_loop() {
 			}
 			else if (g_scene_type == scene_type::editor_mode)
 			{
-				g_Scene->EditorUpdate();
+				g_Scene->EditorUpdate(deltaTime.count());
 			}
 
 			g_Engine->BeginRender();
@@ -159,5 +160,5 @@ void shutdown_app() {
 		g_hWnd = nullptr;
 	}
 	// ウィンドウクラスの登録解除
-	UnregisterClass(TEXT("Hello DirectX12!"), g_hInst);
+	UnregisterClass(TEXT(const_name_pref::WindowName), g_hInst);
 }

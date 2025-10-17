@@ -149,13 +149,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sctipts\Renderer\Pass\MonochromePass.cpp" />
     <ClCompile Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
     <ClCompile Include="Sctipts\main.cpp" />
     <ClCompile Include="Sctipts\Scene\DefaultScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sctipts\Renderer\Pass\MonochromePass.h" />
     <ClInclude Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="Sctipts\main.h" />
     <ClInclude Include="Sctipts\Scene\DefaultScene.h" />
@@ -170,6 +168,9 @@
     <None Include="assets\pos_definitions.json" />
     <None Include="assets\scene.json" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sctipts\Renderer\Pass\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

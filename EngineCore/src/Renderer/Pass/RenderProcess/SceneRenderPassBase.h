@@ -22,7 +22,6 @@ protected:
     // 派生クラスが実装する純粋仮想関数
     virtual void Collect(RenderContext& context) = 0;
     virtual void Draw(RenderContext& context) = 0;
-
     // 描画対象のオブジェクトを保持するリスト（レンダーキュー）
     std::vector<std::shared_ptr<GameObject>> m_RenderQueue;
 };

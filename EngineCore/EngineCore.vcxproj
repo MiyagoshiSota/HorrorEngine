@@ -26,8 +26,8 @@
     <ClCompile Include="external\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.cpp" />
-    <ClCompile Include="src\Renderer\Pass\PostProcess\Pass\VHSFilterPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.cpp" />
     <ClCompile Include="src\Renderer\Loader\PSOLoader.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
@@ -219,8 +219,14 @@
     <ClInclude Include="external\imgui\imstb_rectpack.h" />
     <ClInclude Include="external\imgui\imstb_textedit.h" />
     <ClInclude Include="external\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_render_pref.h" />
+    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.h" />
-    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VHSFilterPass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\MonochromePass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VHSPass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\PostProcessPassBase.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.h" />
     <ClInclude Include="src\Renderer\Loader\PSOLoader.h" />
@@ -306,6 +312,9 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

@@ -1,15 +1,13 @@
 #pragma once
-#include <d3d12.h>
-
-#include "Renderer/PipelineManager/IPipelineManager.h"
-#include "Scene/Camera/SceneCamera.h"
-#include "Scene/ResourceManager/SceneResourceManager.h"
-#include "Scene/GameObject/GameObject.h"
-#include <reactphysics3d/reactphysics3d.h>
 
 #include "Audio/AudioManager.h"
-#include "GameObject/Loader/GameObjectLoader.h"
+#include "Camera/SceneCamera.h"
+#include "Renderer/PipelineManager/PipelineStateManager.h"
+#include "ResourceManager/SceneResourceManager.h"
 #include "Time/TimeManager.h"
+#include <reactphysics3d/reactphysics3d.h>
+
+#include "Renderer/PipelineManager/IPipelineManager.h"
 
 class ISceneBase
 {
@@ -41,7 +39,7 @@ public:
 			obj->transform_update();
 			obj->component_update();
 		}
-
+		
 		// TimeManagerの更新
 		m_TimeManager->update();
 	};
@@ -49,7 +47,7 @@ public:
 	/// <summary>
 	/// Editorモード時の毎フレーム実行
 	/// </summary>
-	virtual void EditorUpdate() {
+	virtual void EditorUpdate(float delta_time) {
 		// GameObjectのUpdate処理
 		for (auto& obj : m_GameObjects)
 		{
@@ -71,16 +69,25 @@ public:
 
 	virtual void CreatePrimitiveObjects() = 0;
 
-	// Getter
+	// --Getter--
+
+	// Manager
 	std::shared_ptr<SceneCamera> get_scene_camera() { return m_Camera; }
 	std::shared_ptr<PipelineStateManager> get_pipeline_state_manager() { return m_PipelineStateManager; }
+	std::shared_ptr<IPipelineManager> get_pipeline_manager() { return m_PipelineManager; }
 	std::unique_ptr<SceneResourceManager> get_scene_resource_manager() { return std::move(m_SceneResourceManager); }
 	std::shared_ptr<TimeManager> get_time_manager() { return m_TimeManager; }
 	std::shared_ptr<AudioManager> get_audio_manager() { return m_AudioManager; }
+
+	// Object
 	std::vector<std::shared_ptr <GameObject>> get_game_objects() { return m_GameObjects; }
 	std::map<std::string, std::shared_ptr<Model>> get_models() { return m_models; }
+
+	//	Physics
 	reactphysics3d::PhysicsWorld* get_physics_world() const { return m_physicsWorld; }
 	reactphysics3d::PhysicsCommon& get_physics_common() { return physics_common; }
+
+	// Model
 	std::shared_ptr<Model> get_model(const std::string& path)
 	{
 		if (m_models.find(path) != m_models.end()) {
@@ -91,7 +98,7 @@ public:
 
 protected:
 	// Manager
-	std::unique_ptr<IPipelineManager> m_PipelineManager;
+	std::shared_ptr<IPipelineManager> m_PipelineManager;
 	std::shared_ptr<PipelineStateManager> m_PipelineStateManager;
 	std::unique_ptr<SceneResourceManager> m_SceneResourceManager;
 	std::shared_ptr<AudioManager> m_AudioManager;

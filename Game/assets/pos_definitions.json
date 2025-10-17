@@ -70,7 +70,7 @@
 				}
 			]
 		}
-	},
+    },
 	"PipelineStates": {
 		"DefaultPipelinePass": {
 			"rootSignature": "Geometry_Default",
@@ -80,11 +80,17 @@
 			"inputLayoutEnable": true,
 			"cullMode": "BACK"
 		},
-		"VHSFilter": {
+		"VHS": {
 			"rootSignature": "PostProcess_TextureAndCBV",
 			"vertexShader": "../x64/Debug/VHSFilterVS.cso",
 			"pixelShader": "../x64/Debug/VHSFilterPS.cso",
 			"depthEnable": false
-		}
+		},
+      "Monochrome": {
+          "rootSignature": "PostProcess_TextureAndCBV",
+          "vertexShader": "../x64/Debug/SimpleMonochromeVS.cso",
+          "pixelShader": "../x64/Debug/SimpleMonochromePS.cso",
+          "depthEnable": false
+      }
 	}
 }

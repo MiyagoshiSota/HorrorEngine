@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Renderer/Pass/IRenderPass.h"
+#include "Renderer/Pass/PostProcess/Manager/PostProcessManager.h"
 #include "Renderer/Pass/RenderProcess/SceneRenderPassBase.h"
-#include "Renderer/RenderContext/RenderContext.h"
 
 class IPipelineManager
 {

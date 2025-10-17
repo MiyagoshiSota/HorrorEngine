@@ -1,11 +1,9 @@
 #pragma once
 #include <d3d12.h>
-#include <dxgi.h>
 #include <dxgi1_4.h>
 
 #include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
 #include "Modules/ComPtr.h"
-#include "PipelineManager/PipelineStateManager.h"
 
 #pragma comment(lib,"d3d12.lib") // d3d12ライブラリをリンクする
 #pragma comment(lib,"dxgi.lib") // dxgiライブラリをリンクする
@@ -31,6 +29,7 @@ public:
 	// 各種ゲッター
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHeap() { return m_pRtvHeap->GetCPUDescriptorHandleForHeapStart(); }
 	std::shared_ptr<SrvDescriptorHeap> GetSrvHeap() { return m_SRVHeap; }
+	// std::shared_ptr<CbvDescriptorHeap> GetCbvHeap() { return m_CBVHeap; }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDsvHeap() { return m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(); }
 	D3D12_VIEWPORT GetViewPort() { return m_Viewport; }
 	D3D12_RECT GetScissorRect() { return m_Scissor; }
@@ -76,6 +75,7 @@ private:
 private: // 描画に使うオブジェクトとその生成関数たち
 	bool CreateRenderTarget(); // レンダーターゲットを作成
 	bool CreateShaderResourceViewHeap(); // SRVヒープを作成
+	// bool CreateConstantBufferView(); // CBVを作成
 	bool CreateDepthStencil(); // 深度ステンシルバッファを生成
 	void DrawImGui(); // ImGuiの描画
 
@@ -89,6 +89,7 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	ComPtr<ID3D12Resource> m_pDepthStencilBuffer = nullptr; // 深度ステンシルバッファ
 
 	std::shared_ptr<SrvDescriptorHeap> m_SRVHeap; // SRVヒープ
+	// std::shared_ptr<CbvDescriptorHeap> m_CBVHeap; // CBVヒープ
 
 	UINT m_rtvHeapOffset; // RTVヒープのオフセット管理用
 

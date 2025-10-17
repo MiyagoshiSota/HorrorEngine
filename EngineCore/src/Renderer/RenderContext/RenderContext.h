@@ -5,15 +5,18 @@
 #include "Renderer/Target/RenderTarget.h" 
 #include "Scene/Camera/SceneCamera.h"
 #include "memory"
+#include "Renderer/Pass/PostProcess/Preset/PostProcessPreset.h"
+#include "Renderer/PipelineManager/PipelineStateManager.h"
 #include "Scene/GameObject/GameObject.h"
 
+class IPipelineManager;
 struct ID3D12GraphicsCommandList;
 
 class RenderContext
 {
 public:
     // フレーム開始時に、パイプラインマネージャーが生成する
-    RenderContext(ID3D12GraphicsCommandList* cmdList, std::shared_ptr<SceneCamera> camera, std::vector<std::shared_ptr <GameObject>> gameObjects, std::shared_ptr<ITargetBase> sourceRT, std::shared_ptr<ITargetBase> destRT, float width, float height)
+    RenderContext(ID3D12GraphicsCommandList* cmdList, std::shared_ptr<SceneCamera> camera, std::vector<std::shared_ptr <GameObject>> gameObjects, std::shared_ptr<ITargetBase> sourceRT, std::shared_ptr<ITargetBase> destRT, float width, float height, std::shared_ptr<PipelineStateManager> pipelineStateManager)
         : CommandList(cmdList)
         , Camera(camera)
         , GameObjects(gameObjects)
@@ -21,6 +24,7 @@ public:
 		, DestRT(destRT)
         , ScreenWidth(width)
         , ScreenHeight(height)
+        , PipelineStateManager(pipelineStateManager)
     {
     }
 
@@ -28,6 +32,7 @@ public:
     ID3D12GraphicsCommandList* CommandList;
     std::shared_ptr<SceneCamera> Camera;
     std::vector<std::shared_ptr <GameObject>> GameObjects;
+    std::shared_ptr<PipelineStateManager> PipelineStateManager;
     std::shared_ptr<ITargetBase> SourceRT;
     std::shared_ptr<ITargetBase> DestRT;
     float ScreenWidth;

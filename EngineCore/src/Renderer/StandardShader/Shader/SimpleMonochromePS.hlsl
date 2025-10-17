@@ -1,21 +1,21 @@
-Texture2D g_InputTexture : register(t0);
+Texture2D g_SceneTexture : register(t0);
 SamplerState g_Sampler : register(s0);
 
-struct VSOutput
+cbuffer MonochromeParams : register(b0)
 {
-    float4 position : SV_POSITION; // 必須：ピクセルのスクリーン座標
-    float2 texcoord : TEXCOORD; // テクスチャをサンプリングするためのUV座標
+    float intensity;
 };
 
-float4 main(VSOutput input) : SV_TARGET
+float4 main(float4 pos : SV_POSITION, float2 uv : TEXCOORD0) : SV_TARGET
 {
-    // 1. 入力テクスチャから、対応するUV座標のピクセル色を取得
-    float4 color = g_InputTexture.Sample(g_Sampler, input.texcoord);
-
-    // 2. 取得した色をグレースケールに変換
-    //    人間の目の感度を考慮した比率(NTSC係数)でRGBを合成するのが一般的
-    float grayscale = dot(color.rgb, float3(0.299, 0.587, 0.114));
+    float4 originalColor = g_SceneTexture.Sample(g_Sampler, uv);
     
-    // 3. RGBをすべて同じ値(grayscale)にし、アルファ値は元のままにして出力
-    return float4(grayscale, grayscale, grayscale, color.a);
+    // 輝度を計算 (一般的な計算式)
+    float luminance = dot(originalColor.rgb, float3(0.299, 0.587, 0.114));
+    float3 monochromeColor = float3(luminance, luminance, luminance);
+    
+    // intensityを使って元の色とモノクロを線形補間
+    float3 finalColor = lerp(originalColor.rgb, monochromeColor, intensity);
+    
+    return float4(finalColor, originalColor.a);
 }
