@@ -21,6 +21,10 @@ public:
         D3D12_CPU_DESCRIPTOR_HANDLE outputRT[] = { context.GetDestRT()->GetRTVHandle() };
         cmdList->OMSetRenderTargets(1, outputRT, FALSE, nullptr);
 
+		// Targetをクリア
+        const float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f }; // 通常は黒でクリア
+        cmdList->ClearRenderTargetView(outputRT[0], clearColor, 0, nullptr);
+
         // PSOとルートシグネチャを設定
         cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state(m_PsoName)->Get());
         cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature(m_RootSignatureName)->get());
@@ -45,6 +49,10 @@ public:
         // 出力先を設定
         D3D12_CPU_DESCRIPTOR_HANDLE outputRT[] = { backBufferHandle };
         cmdList->OMSetRenderTargets(1, outputRT, FALSE, nullptr);
+
+        // Targetをクリア
+        const float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f }; // 通常は黒でクリア
+        cmdList->ClearRenderTargetView(outputRT[0], clearColor, 0, nullptr);
 
         // PSOとルートシグネチャを設定
         cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state(m_PsoName)->Get());

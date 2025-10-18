@@ -106,12 +106,21 @@
     <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\MonochromePass.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VignettePass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\FilmGrainPass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\ChromaticAberration.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromePS.hlsl" />
-    <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleMonochromeVS.hlsl" />
-    <FxCompile Include="src\Renderer\StandardShader\Shader\VHSFilterPS.hlsl" />
-    <FxCompile Include="src\Renderer\StandardShader\Shader\VHSFilterVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromeVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\VHSPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\VHSVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\VignetteVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\VignettePS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\FilmGrainVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\FilmGrainPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\ChromaticAberrationVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\ChromaticAberrationPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

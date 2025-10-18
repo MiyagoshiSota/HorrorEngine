@@ -1,34 +1,61 @@
 {
 	"presets": {
 		"Normal": {
-			"order": [ "Monochrome", "VHS" ],
+			"comment": "通常時の、さりげない雰囲気作り用",
+			"order": [ "Vignette", "FilmGrain", "ChromaticAberration" ],
 			"settings": {
-				"Monochrome": { "intensity": 0.5 },
-				"VHS": {
-					"scanline_intensity": 0.3,
-					"noise_intensity": 0.5
+				"Vignette": {
+					"intensity": 0.3,
+					"smoothness": 0.7
+				},
+				"FilmGrain": {
+					"intensity": 0.1
+				},
+				"ChromaticAberration": {
+					"offset": 0.001
 				}
 			}
 		},
 		"Scary": {
-          "order": [ "Monochrome", "VHS" ],
-          "settings": {
-            "Monochrome": { "intensity": 0 },
-            "VHS": {
-              "scanline_intensity": 0.3,
-              "noise_intensity": 0.5
-            }
-          }
-		},
-          "Flashback": {
-			"order": [ "Monochrome", "VHS" ],
+			"comment": "脅威が近づいている時や、緊張感を高める用",
+			"order": [ "Vignette", "ChromaticAberration", "FilmGrain" ],
 			"settings": {
-				"Monochrome": { "intensity": 1 },
+				"Vignette": {
+					"intensity": 0.9,
+					"smoothness": 0.2
+				},
+				"ChromaticAberration": {
+					"offset": 0.008
+				},
+				"FilmGrain": {
+					"intensity": 0.5
+				}
+			}
+		},
+		"Flashback": {
+			"comment": "過去の回想シーン用",
+			"order": [ "Monochrome", "VHS", "Vignette" ],
+			"settings": {
+				"Monochrome": {
+					"intensity": 1.0
+				},
 				"VHS": {
 					"scanline_intensity": 0.3,
 					"noise_intensity": 0.5
+				},
+				"Vignette": {
+					"intensity": 0.7
+				}
+			}
+		},
+		"Debug": {
+				"comment": "過去の回想シーン用",
+				"order": [ "Monochrome" ],
+				"settings": {
+					"Monochrome": {
+						"intensity": 1
+					}
 				}
 			}
 		}
-	}
 }

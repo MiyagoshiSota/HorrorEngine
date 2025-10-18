@@ -71,6 +71,9 @@ private:
 	UINT64 m_fenceValue[FRAME_BUFFER_COUNT]; // フェンスの値(ダブルバッファリング用に２)
 	D3D12_VIEWPORT m_Viewport; // ビューポート
 	D3D12_RECT m_Scissor; // シザー矩形
+	
+	// 現在選択されているプリセットの名前を保持する変数
+	std::string m_currentPresetName = "Normal";
 
 private: // 描画に使うオブジェクトとその生成関数たち
 	bool CreateRenderTarget(); // レンダーターゲットを作成

@@ -86,11 +86,29 @@
 			"pixelShader": "../x64/Debug/VHSFilterPS.cso",
 			"depthEnable": false
 		},
-      "Monochrome": {
-          "rootSignature": "PostProcess_TextureAndCBV",
-          "vertexShader": "../x64/Debug/SimpleMonochromeVS.cso",
-          "pixelShader": "../x64/Debug/SimpleMonochromePS.cso",
-          "depthEnable": false
-      }
+		"Monochrome": {
+			"rootSignature": "PostProcess_TextureAndCBV",
+			"vertexShader": "../x64/Debug/MonochromeVS.cso",
+			"pixelShader": "../x64/Debug/MonochromePS.cso",
+			"depthEnable": false
+		},
+		"Vignette": {
+			"rootSignature": "PostProcess_TextureAndCBV",
+			"vertexShader": "../x64/Debug/VignetteVS.cso",
+			"pixelShader": "../x64/Debug/VignettePS.cso",
+			"depthEnable": false
+		},
+		"ChromaticAberration": {
+			"rootSignature": "PostProcess_TextureAndCBV",
+			"vertexShader": "../x64/Debug/ChromaticAberrationVS.cso",
+			"pixelShader": "../x64/Debug/ChromaticAberrationPS.cso",
+			"depthEnable": false
+		},
+		"FilmGrain": {
+			"rootSignature": "PostProcess_TextureAndCBV",
+			"vertexShader": "../x64/Debug/FilmGrainVS.cso",
+			"pixelShader": "../x64/Debug/FilmGrainPS.cso",
+			"depthEnable": false
+		}
 	}
 }
