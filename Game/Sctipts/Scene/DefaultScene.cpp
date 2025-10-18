@@ -42,6 +42,12 @@ bool DefaultScene::Init()
 	m_TimeManager = std::make_unique<TimeManager>();
 	m_TimeManager->init();
 
+	// LightingManagerの初期化
+	m_LightingManager = std::make_unique<LightingManager>();
+	m_LightingManager->init();
+	// TEST:Lightを環境光を一個だけ追加
+	m_LightingManager->add_light(LightType::Directional);
+
 	printf("PSOの生成");
 
 	PSOLoader::load_from_file(const_path_pref::PSO_JsonPath, m_PipelineStateManager);
@@ -66,6 +72,8 @@ void DefaultScene::Update(float delta_time)
 
 	// 物理演算の更新
 	m_physicsWorld->update(delta_time);
+
+	m_LightingManager->update_constant_buffer();
 }	
 
 void DefaultScene::EditorUpdate(float delta_time)
@@ -74,6 +82,8 @@ void DefaultScene::EditorUpdate(float delta_time)
 
 	// ポストプロセスマネージャの更新
 	m_default_pipeline_manager->get_post_process_manager()->Update(delta_time);
+
+	m_LightingManager->update_constant_buffer();
 }
 
 void DefaultScene::Draw()

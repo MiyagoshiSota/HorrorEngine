@@ -65,6 +65,10 @@ void GeometryPass::Draw(RenderContext& context)
 
     UINT frameIndex = g_Engine->CurrentBackBufferIndex();
 
+    // ライト情報の定数バッファをスロット1にセット
+    auto lightingCB = g_Scene->get_lighting_manager()->get_constant_buffer();
+    cmdList->SetGraphicsRootConstantBufferView(1, lightingCB->GetAddress());
+
 	// view, proj行列の計算
     const auto view = DirectX::XMMatrixLookAtRH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(), context.Camera->GetUpward());
     const auto proj = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 1000.0f);
@@ -98,7 +102,7 @@ void GeometryPass::Draw(RenderContext& context)
             cmdList->IASetVertexBuffers(0, 1, &vbView);
             cmdList->IASetIndexBuffer(&ibView);
 
-            cmdList->SetGraphicsRootDescriptorTable(1, model->m_Materials[i]->get_srv_handle()->gpuHandle);
+            cmdList->SetGraphicsRootDescriptorTable(2, model->m_Materials[i]->get_srv_handle()->gpuHandle);
 
             cmdList->DrawIndexedInstanced(model->m_InputMesh[i].Indeices.size(), 1, 0, 0, 0);
         }

@@ -84,9 +84,33 @@ std::shared_ptr<Texture2D> Texture2D::GetWhite()
         return m_WhiteTexture;
     }
 
-    ComPtr<ID3D12Resource> buff = GetDefaultResource(4, 4);
-    // ... (data作成とWriteToSubresourceは同じ) ...
+    const size_t width = 4;
+    const size_t height = 4;
 
+    // 1. リソースを確保
+    ComPtr<ID3D12Resource> buff = GetDefaultResource(width, height);
+    if (buff == nullptr) {
+        return nullptr;
+    }
+
+    // 2. 4x4ピクセル分の白色データを作成 (RGBA, 各色255)
+    std::vector<UINT8> data(width * height * 4, 255);
+
+    // 3. 作成したデータをリソースに書き込む
+    HRESULT hr = buff->WriteToSubresource(
+        0,
+        nullptr,
+        data.data(),
+        static_cast<UINT>(width * 4), // 1ラインのバイト数 (幅 * 4チャンネル)
+        static_cast<UINT>(data.size()) // 全体のバイト数
+    );
+    
+    if (FAILED(hr)) {
+        // エラー処理
+        return nullptr;
+    }
+
+    // 4. データが書き込まれたリソースでテクスチャオブジェクトを作成
     m_WhiteTexture = std::make_shared<Texture2D>(buff);
     return m_WhiteTexture;
 }

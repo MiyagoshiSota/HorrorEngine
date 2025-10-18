@@ -5,7 +5,8 @@
 				{
 					"shaderRegister": 0,
 					"space": 0
-				}
+				}, 
+				{ "shaderRegister": 1}
 			],
 			"descriptorTables": [
 				{

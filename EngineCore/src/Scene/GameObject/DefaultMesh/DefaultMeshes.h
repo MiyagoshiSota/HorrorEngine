@@ -22,7 +22,7 @@ namespace DefaultMeshes
         quad.Indeices = { 0, 2, 1, 1, 2, 3 };
 
         // デフォルトのテクスチャ
-        quad.DiffuseMap.clear();
+        quad.DiffuseMap = L"assets/DefaultTexture/default_diffuse_white.png";
 
         return quad;
     }
@@ -82,7 +82,7 @@ namespace DefaultMeshes
             20, 21, 22, 20, 22, 23
         };
 
-        cube.DiffuseMap.clear();
+        cube.DiffuseMap = L"assets/DefaultTexture/default_diffuse_white.png";
 
         return cube;
     }

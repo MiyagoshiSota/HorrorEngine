@@ -7,6 +7,7 @@
 #include "Time/TimeManager.h"
 #include <reactphysics3d/reactphysics3d.h>
 
+#include "Renderer/Light/LightingManager.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 
 class ISceneBase
@@ -78,6 +79,7 @@ public:
 	std::unique_ptr<SceneResourceManager> get_scene_resource_manager() { return std::move(m_SceneResourceManager); }
 	std::shared_ptr<TimeManager> get_time_manager() { return m_TimeManager; }
 	std::shared_ptr<AudioManager> get_audio_manager() { return m_AudioManager; }
+	std::shared_ptr<LightingManager> get_lighting_manager() { return m_LightingManager; }
 
 	// Object
 	std::vector<std::shared_ptr <GameObject>> get_game_objects() { return m_GameObjects; }
@@ -103,6 +105,7 @@ protected:
 	std::unique_ptr<SceneResourceManager> m_SceneResourceManager;
 	std::shared_ptr<AudioManager> m_AudioManager;
 	std::shared_ptr<TimeManager> m_TimeManager;
+	std::shared_ptr<LightingManager> m_LightingManager;
 
 	// Object
 	// TODO:CameraはGameObjectにしようかな...

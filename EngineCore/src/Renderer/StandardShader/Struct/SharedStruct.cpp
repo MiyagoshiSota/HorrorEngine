@@ -11,5 +11,5 @@ const D3D12_INPUT_ELEMENT_DESC SharedStruct::Vertex::InputElements[] =
 const D3D12_INPUT_LAYOUT_DESC SharedStruct::Vertex::InputLayout =
 {
 	Vertex::InputElements,
-	Vertex::InputElementCount
+	 _countof(Vertex::InputElements)
 };
