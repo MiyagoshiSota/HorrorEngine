@@ -44,7 +44,7 @@ void GeometryPass::Collect(RenderContext& context)
     sceneDepthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     // Clear
-    const float clearColor[] = { 0.5,0.5,0.5,1 };
+    const float clearColor[] = { 0.0,0.0,0.0,1 };
     cmdList->ClearRenderTargetView(sceneColorRT->GetRTVHandle(), clearColor, 0, nullptr);
     cmdList->ClearDepthStencilView(sceneDepthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 

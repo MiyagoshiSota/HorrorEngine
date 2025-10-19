@@ -20,11 +20,15 @@ public:
 		static const D3D12_INPUT_ELEMENT_DESC InputElements[InputElementCount];
 	};
 
-	struct LightData
-	{
-		DirectX::XMFLOAT4 Position; // w要素はライトの種類や有効/無効フラグに使う
-		DirectX::XMFLOAT4 Color;    // w要素は強さ
-		DirectX::XMFLOAT4 Attenuation; // x=Range, y=Attenuationなど
+	struct DirectionalLightForShader {
+		DirectX::XMFLOAT4 Direction;
+		DirectX::XMFLOAT4 ColorAndIntensity;
+	};
+
+	struct PointLightForShader {
+		DirectX::XMFLOAT4 Position;
+		DirectX::XMFLOAT4 ColorAndIntensity;
+		DirectX::XMFLOAT4 AttenuationAndRange; // x: Attenuation, y: Range
 	};
 
 	struct alignas(256) TimeData
@@ -43,8 +47,11 @@ public:
 	struct alignas(256) LightingParams
 	{
 		DirectX::XMFLOAT4 AmbientColor; // 環境光
-		int NumLights; // シーンに存在するライトの数
-		LightData Lights[30]; // MAX_LIGHTSはシェーダーとC++で合わせた定数 
+		int NumDirectionalLights; // 平行光源の数
+		int NumPointLights; // 点光源の数
+		float Padding[2]; // 16バイトアライメント調整用
+		DirectionalLightForShader DirectionalLights[4]; // 最大4つ
+		PointLightForShader PointLights[28];      // 最大28個
 	};
 
 	struct Mesh

@@ -1,41 +1,28 @@
  cbuffer Transform : register(b0)
 {
-
     float4x4 World;
-
     float4x4 View;
-
     float4x4 Proj;
-
 }
 
 
 struct VSInput
 {
-
     float3 pos : POSITION;
-
     float3 normal : NORMAL;
-
     float2 uv : TEXCOORD;
-
     float3 tangent : TANGENT;
-
     float4 color : COLOR;
-
 };
 
 
 struct VSOutput
 {
-
     float4 svpos : SV_POSITION;
     float2 uv : TEXCOORD0;
     float3 worldPos : TEXCOORD1;
     float3 normal : TEXCOORD2;
-
 };
-
 
 VSOutput main(VSInput input)
 {
@@ -47,6 +34,7 @@ VSOutput main(VSInput input)
 	float4 projPos = mul(Proj, viewPos);
 	output.svpos = projPos;
 	output.uv = input.uv;
+	output.normal = input.normal;
 
     return output;
 }
