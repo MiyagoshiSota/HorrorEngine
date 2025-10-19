@@ -1,0 +1,16 @@
+#pragma once
+#include "Core/Components/TriggerContext/TriggerContext.h"
+
+class GameObject;
+
+class IAction
+{
+public:
+    virtual ~IAction() = default;
+
+    // アクションを実行する
+    virtual void Execute(const TriggerContext& context) = 0;
+    
+    // GUIのインスペクターに、このアクション固有の設定項目を描画する
+    virtual void DrawInspectorUI() = 0;
+};

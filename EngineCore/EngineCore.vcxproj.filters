@@ -43,6 +43,7 @@
     <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
     <ClCompile Include="src\Renderer\Light\LightingManager.cpp" />
+    <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -113,6 +114,14 @@
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\ChromaticAberration.h" />
     <ClInclude Include="src\Renderer\Light\Light.h" />
     <ClInclude Include="src\Renderer\Light\LightingManager.h" />
+    <ClInclude Include="src\Core\Components\TriggerComponent.h" />
+    <ClInclude Include="src\Core\Components\Trigger\ITriggerCondition.h" />
+    <ClInclude Include="src\Core\Components\Action\IAction.h" />
+    <ClInclude Include="src\Core\Components\Action\PlaySoundAction.h" />
+    <ClInclude Include="src\Core\Components\TriggerContext\TriggerContext.h" />
+    <ClInclude Include="src\Core\Components\TriggerFactory.h" />
+    <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
+    <ClInclude Include="src\Physics\MyCollisionListener.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />

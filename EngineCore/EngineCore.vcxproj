@@ -26,6 +26,7 @@
     <ClCompile Include="external\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
     <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
     <ClCompile Include="src\Renderer\Light\LightingManager.cpp" />
@@ -221,10 +222,18 @@
     <ClInclude Include="external\imgui\imstb_rectpack.h" />
     <ClInclude Include="external\imgui\imstb_textedit.h" />
     <ClInclude Include="external\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Core\Components\Action\IAction.h" />
+    <ClInclude Include="src\Core\Components\Action\PlaySoundAction.h" />
+    <ClInclude Include="src\Core\Components\TriggerComponent.h" />
+    <ClInclude Include="src\Core\Components\TriggerContext\TriggerContext.h" />
+    <ClInclude Include="src\Core\Components\TriggerFactory.h" />
+    <ClInclude Include="src\Core\Components\Trigger\ITriggerCondition.h" />
+    <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
     <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_render_pref.h" />
+    <ClInclude Include="src\Physics\MyCollisionListener.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.h" />
     <ClInclude Include="src\Renderer\Light\Light.h" />
     <ClInclude Include="src\Renderer\Light\LightingManager.h" />

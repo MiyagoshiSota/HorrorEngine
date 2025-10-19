@@ -4,6 +4,7 @@
 #include "Scene/ResourceManager/SceneResourceManager.h"
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Modules/PublicConst/const_path_pref.h"
+#include "Physics/MyCollisionListener.h"
 #include "Physics/Component/Rigidbody.h"
 #include "Renderer/Loader/PSOLoader.h"
 #include "Scene/GameObject/GameObject.h"
@@ -119,6 +120,9 @@ void DefaultScene::RebuidPhysicsWorld()
 	}
 	m_physicsWorld = physics_common.createPhysicsWorld();
 	m_physicsWorld->setGravity(reactphysics3d::Vector3(0, -9.81f, 0));
+
+	m_CollisionListener = std::make_shared<MyCollisionListener>();
+	m_physicsWorld->setEventListener(m_CollisionListener.get());
 }
 
 void DefaultScene::InitializeGameObject()

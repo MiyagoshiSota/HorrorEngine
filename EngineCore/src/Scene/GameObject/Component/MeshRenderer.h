@@ -12,8 +12,7 @@ public:
 	MeshRenderer() = default;
 	~MeshRenderer() override = default;
 
-	void start() override {
-	}
+	void start() override {}
 	void update(float deltaTime) override {
 	}
 

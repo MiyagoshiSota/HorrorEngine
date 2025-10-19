@@ -1,4 +1,6 @@
 #pragma once
+#include <set>
+
 #include "Core/App.h"
 #include "Physics/EngineCollider.h"
 #include "Scene/GameObject/Component/Component.h"
@@ -17,8 +19,7 @@ public:
 		}
 	}
 
-	void start() override {
-	}
+	void start() override {}
 
 	void update(float deltaTime) override {
 		auto v3pos = m_RigidBody->getTransform().getPosition();
@@ -44,6 +45,9 @@ public:
 
 		// RigidBodyの作成
 		m_RigidBody = world->createRigidBody(transform);
+
+		// 作成した物理ボディに、親であるGameObjectのポインタを保存する
+		m_RigidBody->setUserData(obj.get());
 
 		// HACK:以下rbに関する設定をjsonから読み込む処理だがハードコーディングされているから直す
 
@@ -89,6 +93,21 @@ public:
 	}
 
 public:
+	// 衝突イベント用のコールバック関数
+	void OnCollisionEnter(GameObject* other)
+	{
+		m_CollidingObjects.insert(other);
+	};
+	void OnCollisionExit(GameObject* other)
+	{
+		m_CollidingObjects.erase(other);
+	}
+
+	// 状態を問い合わせる関数
+	bool IsColliding() const { return !m_CollidingObjects.empty(); }
+	const std::set<GameObject*>& GetCollidingObjects() const { return m_CollidingObjects; }
+
+public:
 	reactphysics3d::RigidBody* get_rigidbody() const { return m_RigidBody; }
 	std::shared_ptr<engine_collider> get_collider() const { return m_collider; }
 
@@ -96,4 +115,5 @@ private:
 	std::shared_ptr<GameObject> m_GameObject;
 	reactphysics3d::RigidBody* m_RigidBody = nullptr;
 	std::shared_ptr<engine_collider> m_collider;
+	std::set<GameObject*> m_CollidingObjects;
 };

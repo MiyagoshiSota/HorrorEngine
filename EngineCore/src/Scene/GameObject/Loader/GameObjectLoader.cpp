@@ -2,6 +2,10 @@
 
 #include <fstream>
 
+#include "Core/Components/TriggerComponent.h"
+#include "Core/Components/TriggerFactory.h"
+#include "Core/Components/Action/PlaySoundAction.h"
+#include "Core/Components/Trigger/OnGameObjectEnterCondition.h"
 #include "Physics/Component/Rigidbody.h"
 #include "Scene/GameObject/Component/ComponentFactory.h"
 #include "Scene/GameObject/Component/MeshRenderer.h"
@@ -11,6 +15,7 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::load_from_file(const 
 	auto gameObjects = std::vector<std::shared_ptr<GameObject>>();
 	ComponentFactory::Register<MeshRenderer>("MeshRenderer");
 	ComponentFactory::Register<Rigidbody>("Rigidbody");
+	ComponentFactory::Register<TriggerComponent>("Trigger");
 
 	std::ifstream file(filePath);
 	if (!file.is_open())
@@ -18,6 +23,10 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::load_from_file(const 
 		throw std::runtime_error("Could not open file: " + filePath);
 	}
 	nlohmann::json sceneJson = nlohmann::json::parse(file);
+
+	// コンポーネントの初期化
+	// TODO:別のところに置こう。責務が違う
+	components_initialize();
 
 	for (const auto& objJson : sceneJson["gameObjects"])
 	{
@@ -52,5 +61,17 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::load_from_file(const 
 		}
 		gameObjects.push_back(go);
 	}
+	
 	return gameObjects;
 }
+
+void GameObjectLoader::components_initialize()
+{
+	// Trigger Factoryの初期化
+	auto& factory = TriggerFactory::GetInstance();
+	// Conditionを登録
+	factory.RegisterCondition<OnGameObjectEnterCondition>("OnGameObjectEnterCondition");
+	// Actionを登録
+	factory.RegisterAction<PlaySoundAction>("PlaySoundAction");
+}
+

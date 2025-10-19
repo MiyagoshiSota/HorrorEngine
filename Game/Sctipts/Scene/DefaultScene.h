@@ -1,5 +1,6 @@
 #pragma once
 #include "../Renderer/PipelineManager/DefaultPipelineManager.h"
+#include "Physics/MyCollisionListener.h"
 #include "Scene/ISceneBase.h"
 
 class DefaultScene : public ISceneBase
@@ -30,5 +31,6 @@ public:
 	
 private:
 	std::shared_ptr<DefaultPipelineManager> m_default_pipeline_manager;
+	std::shared_ptr<MyCollisionListener> m_CollisionListener;
 };
 
