@@ -11,6 +11,9 @@
 #include "Core/App.h"
 
 #include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
+#include "GUI/DrawGameObjectWindow.h"
+#include "GUI/DrawModeWindow.h"
+#include "GUI/DrawPostProcessPresetWindow.h"
 #include "Pass/PostProcess/Manager/PostProcessManager.h"
 
 Engine* g_Engine;
@@ -427,6 +430,11 @@ bool Engine::InitImGui()
     // 4. フォント読み込み（省略可能）
     io.Fonts->AddFontDefault();
 
+    // 描画するウィンドウのリストに追加
+    m_drawWindows.push_back(std::make_shared<DrawModeWindow>());
+    m_drawWindows.push_back(std::make_shared<DrawGameObjectWindow>());
+    m_drawWindows.push_back(std::make_shared<DrawPostProcessPresetWindow>());
+    
     return true;
 }
 
@@ -528,85 +536,18 @@ bool Engine::CreateDepthStencil()
     return true;
 }
 
-static GameObject* s_SelectedObject = nullptr;
-
 void Engine::DrawImGui()
 {
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    // ImGui ウィンドウ作成
-    ImGui::Begin("Example");
-
-    // ドロップダウンメニュー（コンボボックス）を開始
-    if (ImGui::BeginCombo("Preset", m_currentPresetName.c_str()))
+    // 登録されているウィンドウを順番に描画
+    for (const auto& window : m_drawWindows)
     {
-        auto scene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
-        if (scene != nullptr)
-        {
-            auto ppManager = scene->get_post_process_manager();
-            // マネージャーが保持している全てのプリセット名を取得してループ
-            for (const auto& presetName : ppManager->get_preset_names())
-            {
-                const bool isSelected = (m_currentPresetName == presetName);
-                if (ImGui::Selectable(presetName.c_str(), isSelected))
-                {
-                    // 新しいプリセットが選択された
-                    m_currentPresetName = presetName;
-
-                    // 1秒かけて選択されたプリセットに移行する
-                    ppManager->BlendToPreset(m_currentPresetName, 1.0f);
-                }
-                if (isSelected)
-                {
-                    ImGui::SetItemDefaultFocus();
-                }
-            }   
-        }
-        ImGui::EndCombo();
+        window->draw();
     }
-
-	// シーン切り替えボタン
-    if (ImGui::Button("ChangeMode")) {
-	    if (g_scene_type == scene_type::editor_mode)
-	    {
-            change_scene_type(scene_type::play_mode);
-
-			// g_Scene->SaveStateJson(); // 状態を保存
-		}
-        else
-        {
-            change_scene_type(scene_type::editor_mode);
-        }
-
-		// シーン切り替え時の初期化処理
-		// TODO:一部冗長な初期化処理が入ってる気がするので整理する
-        g_Scene->RebuidPhysicsWorld(); // 物理ワールドを再構築
-		g_Scene->CreatePrimitiveObjects(); // プリミティブオブジェクトの再生成
-        g_Scene->InitializeGameObject(); // ゲームオブジェクトの初期化
-        g_Scene->get_audio_manager()->init(); // オーディオマネージャのリセット
-		g_Scene->get_time_manager()->reset(); // タイムマネージャのリセット
-
-        printf("ゲームオブジェクトの初期化");
-    }
-
-	// 現在のシーンモード表示
-	ImGui::Text("CurrentMode:%s", g_scene_type == scene_type::editor_mode ? "EditorMode" : "PlayMode");
-
-    for (const auto& obj : g_Scene->get_game_objects())
-    {
-        // オブジェクトのIDや名前を使って、ユニークなラベルを作成
-        std::string label = obj->get_name();
-
-        // Selectableを使うと、選択状態を管理できる
-        if (ImGui::Selectable(label.c_str(), s_SelectedObject == obj.get()))
-        {
-            s_SelectedObject = obj.get();
-        }
-    }
-
-    ImGui::End();
+    
     ImGui::Render();
 
     // ImGui の描画実行

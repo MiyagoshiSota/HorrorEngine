@@ -3,6 +3,7 @@
 #include <dxgi1_4.h>
 
 #include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
+#include "GUI/IDrawWindow.h"
 #include "Modules/ComPtr.h"
 
 #pragma comment(lib,"d3d12.lib") // d3d12ライブラリをリンクする
@@ -71,9 +72,6 @@ private:
 	UINT64 m_fenceValue[FRAME_BUFFER_COUNT]; // フェンスの値(ダブルバッファリング用に２)
 	D3D12_VIEWPORT m_Viewport; // ビューポート
 	D3D12_RECT m_Scissor; // シザー矩形
-	
-	// 現在選択されているプリセットの名前を保持する変数
-	std::string m_currentPresetName = "Normal";
 
 private: // 描画に使うオブジェクトとその生成関数たち
 	bool CreateRenderTarget(); // レンダーターゲットを作成
@@ -89,6 +87,7 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	UINT m_DsvDescriptorSize = 0; // 深度ステンシルのディスクリプタサイズ
 	ComPtr<ID3D12DescriptorHeap> m_pDsvHeap = nullptr; // 深度ステンシルのディスクリプタヒープ
 	ComPtr<ID3D12DescriptorHeap> m_ImGuiSrvHeap; // ImGui専用のSRVヒープ
+	std::vector<std::shared_ptr<IDrawWindow>> m_drawWindows; // 描画するウィンドウのリスト
 	ComPtr<ID3D12Resource> m_pDepthStencilBuffer = nullptr; // 深度ステンシルバッファ
 
 	std::shared_ptr<SrvDescriptorHeap> m_SRVHeap; // SRVヒープ
