@@ -23,7 +23,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns></returns>
-	virtual bool Init() = 0;
+	virtual bool Init(std::string go_file_path) = 0;
 
 	/// <summary>
 	/// 終了処理
@@ -66,7 +66,7 @@ public:
 
 	virtual void RebuidPhysicsWorld() = 0;
 
-	virtual void InitializeGameObject() = 0;
+	virtual void InitializeGameObject(std::string go_file_path) = 0;
 
 	virtual void CreatePrimitiveObjects() = 0;
 

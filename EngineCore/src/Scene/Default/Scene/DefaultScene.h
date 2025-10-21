@@ -1,5 +1,5 @@
 #pragma once
-#include "../Renderer/PipelineManager/DefaultPipelineManager.h"
+#include "Scene/Default/Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Physics/MyCollisionListener.h"
 #include "Scene/ISceneBase.h"
 
@@ -13,14 +13,14 @@ public:
 	};
 
 	void CreatePrimitiveObjects() override;
-	bool Init() override;
+	bool Init(std::string go_file_path) override;
 	void Update(float delta_time) override;
 	void EditorUpdate(float delta_time) override;
 	void Draw() override;
 	void shutdown() override;
 
 	void RebuidPhysicsWorld() override;
-	void InitializeGameObject();
+	void InitializeGameObject(std::string file_path) override;
 
 public:
 	std::shared_ptr<PostProcessManager> get_post_process_manager()

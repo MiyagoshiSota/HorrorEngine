@@ -34,6 +34,8 @@
     <ClCompile Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.cpp" />
     <ClCompile Include="src\Renderer\Loader\PSOLoader.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
+    <ClCompile Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
+    <ClCompile Include="src\Scene\Default\Scene\DefaultScene.cpp" />
     <ClCompile Include="src\Scene\GameObject\Loader\GameObjectLoader.cpp" />
     <ClCompile Include="src\Renderer\Graphics\RootSignatureBuilder.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\PipelineStateManager.cpp" />
@@ -211,6 +213,7 @@
     <ClCompile Include="src\Renderer\StandardShader\Struct\SharedStruct.cpp" />
     <ClCompile Include="src\Renderer\Texture\Texture2D.cpp" />
     <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
+    <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -229,6 +232,7 @@
     <ClInclude Include="src\Core\Components\TriggerFactory.h" />
     <ClInclude Include="src\Core\Components\Trigger\ITriggerCondition.h" />
     <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
+    <ClInclude Include="src\GUI\DrawDayWindow.h" />
     <ClInclude Include="src\GUI\DrawGameObjectWindow.h" />
     <ClInclude Include="src\GUI\IDrawWindow.h" />
     <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
@@ -254,6 +258,8 @@
     <ClInclude Include="src\Physics\Debug\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\EngineCollider.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\SceneRenderPassBase.h" />
+    <ClInclude Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.h" />
+    <ClInclude Include="src\Scene\Default\Scene\DefaultScene.h" />
     <ClInclude Include="src\Scene\GameObject\DefaultMesh\DefaultMeshes.h" />
     <ClInclude Include="src\Scene\GameObject\Find\GameObjectFInder.h" />
     <ClInclude Include="src\Scene\GameObject\Loader\GameObjectLoader.h" />
@@ -291,6 +297,7 @@
     <ClInclude Include="src\Scene\Camera\SceneCamera.h" />
     <ClInclude Include="src\Scene\ResourceManager\SceneResourceManager.h" />
     <ClInclude Include="src\Scene\ISceneBase.h" />
+    <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Time\TimeManager.h" />
   </ItemGroup>
   <ItemGroup>

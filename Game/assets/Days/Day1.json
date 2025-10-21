@@ -1,0 +1,35 @@
+﻿{
+  "scene_name": "Test Level 1",
+  "gameObjects": [
+    {
+      "name": "Player",
+      "position": [ 0.0, 100.0, 0.0 ],
+      "scale": [ 1.0, 1.0, 1.0 ],
+      "rotation": [ 0.0, 0.0, 0.0 ],
+      "components": [
+        {
+          "type": "MeshRenderer",
+          "model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX",
+          "materials": [
+            {
+              "pso": "DefaultPipelinePass",
+              "textures": {
+                "albedo": "assets/Alicia/Textures/Alicia_body_diffuse.png"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Rigidbody",
+          "isGravityEnabled": true,
+          "bodyType": "DYNAMIC",
+          "isCollider": {
+            "shape": "Capsule",
+            "height": 10,
+            "radius": 30
+          }
+        }
+      ]
+    }
+  ]
+}

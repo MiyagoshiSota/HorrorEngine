@@ -7,14 +7,14 @@
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
-#include "../../../Game/Sctipts/Scene/DefaultScene.h"
-#include "Core/App.h"
+#include "Scene/Default/Scene/DefaultScene.h"
+
 
 #include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
 #include "GUI/DrawGameObjectWindow.h"
 #include "GUI/DrawModeWindow.h"
 #include "GUI/DrawPostProcessPresetWindow.h"
-#include "Pass/PostProcess/Manager/PostProcessManager.h"
+#include <GUI/DrawDayWindow.h>
 
 Engine* g_Engine;
 
@@ -434,6 +434,7 @@ bool Engine::InitImGui()
     m_drawWindows.push_back(std::make_shared<DrawModeWindow>());
     m_drawWindows.push_back(std::make_shared<DrawGameObjectWindow>());
     m_drawWindows.push_back(std::make_shared<DrawPostProcessPresetWindow>());
+    m_drawWindows.push_back(std::make_shared<DrawDayWindow>());
     
     return true;
 }
@@ -580,4 +581,24 @@ D3D12_CPU_DESCRIPTOR_HANDLE Engine::GetCurrentRtvHandle() const
     auto rtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
     rtvHandle.ptr += m_CurrentBackBufferIndex * m_RtvDescriptorSize;
     return rtvHandle;
+}
+
+void Engine::WaitForGPU()
+{
+    // コマンドキューに、現在のフェンス値を完了目標として設定（シグナル）
+    const UINT64 fenceValue = m_fenceValue[m_CurrentBackBufferIndex];
+    m_pQueue->Signal(m_pFence.Get(), fenceValue);
+
+    // GPUが目標のフェンス値に到達しているか確認
+    if (m_pFence->GetCompletedValue() < fenceValue)
+    {
+        // 到達していなければ、完了時にイベントを発行するようGPUに指示
+        m_pFence->SetEventOnCompletion(fenceValue, m_fenceEvent);
+        
+        // イベントが発行される（GPUの処理が終わる）まで、CPUをここで待機させる
+        WaitForSingleObject(m_fenceEvent, INFINITE);
+    }
+
+    // 次の同期のために、フェンス値をインクリメント
+    m_fenceValue[m_CurrentBackBufferIndex]++;
 }

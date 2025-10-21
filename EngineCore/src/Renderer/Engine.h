@@ -18,7 +18,9 @@ public:
 	~Engine()
 	{
 		Shutdown();
-	};
+	}
+
+	void WaitForGPU();
 
 	bool Init(HWND hwnd, UINT windowWidth, UINT windowHeight); // エンジン初期化
 	void Shutdown(); // エンジン終了処理

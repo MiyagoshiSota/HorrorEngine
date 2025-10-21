@@ -3,12 +3,15 @@
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
 #include "Modules/PublicConst//const_name_pref.h"
+#include "Modules/PublicConst/const_path_pref.h"
 #include "Renderer/Engine.h"
+#include "Scene/SceneManager.h"
 
 HINSTANCE g_hInst;
 HWND g_hWnd = NULL;
 
 std::shared_ptr<ISceneBase> g_Scene;
+std::unique_ptr<SceneManager> g_SceneManager;
 std::chrono::steady_clock::time_point g_lastFrameTime;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) 
@@ -124,6 +127,8 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 	// Windowの初期化
 	init_window(appName);
 
+	g_SceneManager = std::make_unique<SceneManager>();
+
 	// 描画エンジンの初期化
 	g_Engine = new Engine();
 	if (!g_Engine->Init(g_hWnd,WINDOW_WIDTH,WINDOW_HEIGHT))
@@ -133,7 +138,7 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 
 	// シーンの初期化
 	g_Scene = scene;
-	if (!g_Scene->Init())
+if (!g_Scene->Init(const_path_pref::DefaultGameObjectPath))
 	{
 		return;
 	}

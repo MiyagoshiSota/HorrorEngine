@@ -14,7 +14,7 @@
 
 using namespace DirectX;
 
-bool DefaultScene::Init()
+bool DefaultScene::Init(std::string go_file_path)
 {
 	// カメラの初期化
 	m_Camera = std::make_unique<SceneCamera>();
@@ -68,7 +68,7 @@ bool DefaultScene::Init()
 
 	printf("シーンの初期化に成功\n");
 
-	InitializeGameObject();
+	InitializeGameObject(go_file_path);
 
 	printf("ゲームオブジェクトの初期化を設定");
 
@@ -125,10 +125,10 @@ void DefaultScene::RebuidPhysicsWorld()
 	m_physicsWorld->setEventListener(m_CollisionListener.get());
 }
 
-void DefaultScene::InitializeGameObject()
+void DefaultScene::InitializeGameObject(std::string file_path)
 {
 	// ゲームオブジェクトの読み込み
-	m_GameObjects = GameObjectLoader::load_from_file(const_path_pref::GameObjectPath);
+	m_GameObjects = GameObjectLoader::load_from_file(file_path);
 
 	// リソースの確保
 	for (auto& obj : m_GameObjects)

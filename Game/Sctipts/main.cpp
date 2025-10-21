@@ -2,7 +2,7 @@
 #include "Core/App.h"
 #include <DirectXTex.h>
 
-#include "Scene/DefaultScene.h"
+#include "Scene/Default/Scene/DefaultScene.h"
 #include "Modules/PublicConst/const_name_pref.h"
 
 int main() {

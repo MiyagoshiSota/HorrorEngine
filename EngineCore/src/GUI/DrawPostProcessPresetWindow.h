@@ -4,8 +4,7 @@
 #include "IDrawWindow.h"
 #include "imgui.h"
 #include "Core/App.h"
-
-class DefaultScene;
+#include "Scene/Default/Scene/DefaultScene.h"
 
 class DrawPostProcessPresetWindow : public IDrawWindow
 {

@@ -149,14 +149,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
     <ClCompile Include="Sctipts\main.cpp" />
-    <ClCompile Include="Sctipts\Scene\DefaultScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="Sctipts\main.h" />
-    <ClInclude Include="Sctipts\Scene\DefaultScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EngineCore\EngineCore.vcxproj">
@@ -170,7 +166,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Sctipts\Renderer\Pass\" />
+    <Content Include="assets\Days\Day1.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

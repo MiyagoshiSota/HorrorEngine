@@ -44,6 +44,9 @@
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
     <ClCompile Include="src\Renderer\Light\LightingManager.cpp" />
     <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
+    <ClCompile Include="src\Scene\SceneManager.cpp" />
+    <ClCompile Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
+    <ClCompile Include="src\Scene\Default\Scene\DefaultScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -122,6 +125,12 @@
     <ClInclude Include="src\Core\Components\TriggerFactory.h" />
     <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
     <ClInclude Include="src\Physics\MyCollisionListener.h" />
+    <ClInclude Include="src\GUI\DrawDayWindow.h" />
+    <ClInclude Include="src\GUI\DrawGameObjectWindow.h" />
+    <ClInclude Include="src\GUI\IDrawWindow.h" />
+    <ClInclude Include="src\Scene\SceneManager.h" />
+    <ClInclude Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.h" />
+    <ClInclude Include="src\Scene\Default\Scene\DefaultScene.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />
