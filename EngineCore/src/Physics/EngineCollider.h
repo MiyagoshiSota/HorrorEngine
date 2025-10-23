@@ -48,17 +48,17 @@ public:
 		reactphysics3d::ConvexShape* shape = nullptr;
 		if (shape_type == "Box") {
 			auto data = deserialize_box_shape_collider(jsonData);
-			create_box_shape_collider(rb,transform,data);
+			shape = create_box_shape_collider(rb,transform,data);
 		}
 		else if (shape_type == "Sphere")
 		{
 			auto data = deserialize_sphere_shape_collider(jsonData);
-			create_sphere_shape_collider(rb, transform, data);
+			shape = create_sphere_shape_collider(rb, transform, data);
 		}
 		else if (shape_type == "Capsule")
 		{
 			auto data = deserialize_capsule_shape_collider(jsonData);
-			create_capsule_shape_collider(rb, transform, data.get_height(), data.get_radius());
+			shape = create_capsule_shape_collider(rb, transform, data.get_height(), data.get_radius());
 		}
 		else {
 			// 未知のShapeTypeが指定された場合のエラーハンドリング
@@ -96,10 +96,11 @@ private:
 	/// <param name="rb"></param>
 	/// <param name="transform"></param>
 	/// <param name="direction"></param>
-	void create_box_shape_collider(reactphysics3d::RigidBody* rb, const reactphysics3d::Transform& transform, const reactphysics3d::Vector3 direction)
+	reactphysics3d::ConvexShape* create_box_shape_collider(reactphysics3d::RigidBody* rb, const reactphysics3d::Transform& transform, const reactphysics3d::Vector3 direction)
 	{
 		reactphysics3d::BoxShape* shape = g_Scene->get_physics_common().createBoxShape(direction);
 		add_collision(rb, shape, transform);
+		return shape;
 	}
 
 
@@ -109,10 +110,11 @@ private:
 	/// <param name="rb"></param>
 	/// <param name="transform"></param>
 	/// <param name="radius"></param>
-	void create_sphere_shape_collider(reactphysics3d::RigidBody* rb, const reactphysics3d::Transform& transform, const float radius)
+	reactphysics3d::ConvexShape* create_sphere_shape_collider(reactphysics3d::RigidBody* rb, const reactphysics3d::Transform& transform, const float radius)
 	{
 		reactphysics3d::SphereShape* shape = g_Scene->get_physics_common().createSphereShape(radius);
 		add_collision(rb, shape, transform);
+		return shape;
 	}
 
 	/// <summary>
@@ -122,10 +124,11 @@ private:
 	/// <param name="transform"></param>
 	/// <param name="height"></param>
 	/// <param name="radius"></param>
-	void create_capsule_shape_collider(reactphysics3d::RigidBody* rb, const reactphysics3d::Transform& transform, const float height, const float radius)
+	reactphysics3d::ConvexShape* create_capsule_shape_collider(reactphysics3d::RigidBody* rb, const reactphysics3d::Transform& transform, const float height, const float radius)
 	{
 		reactphysics3d::CapsuleShape* shape = g_Scene->get_physics_common().createCapsuleShape(height, radius);
 		add_collision(rb, shape, transform);
+		return shape;
 	}
 
 

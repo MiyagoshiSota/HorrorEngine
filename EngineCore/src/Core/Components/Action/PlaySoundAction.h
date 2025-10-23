@@ -21,4 +21,9 @@ public:
         // インスペクターに表示する設定項目があればここに実装
         // 例えば、再生するサウンドのIDやボリュームなどを設定できるようにする
     }
+
+    std::string GetName() const override
+    {
+        return "PlaySoundAction";
+    }
 };

@@ -13,4 +13,7 @@ public:
     
     // GUIのインスペクターに、このアクション固有の設定項目を描画する
     virtual void DrawInspectorUI() = 0;
+
+    // アクションの名前を取得する
+    virtual std::string GetName() const = 0;
 };

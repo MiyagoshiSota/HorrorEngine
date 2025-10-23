@@ -13,4 +13,6 @@ public:
 
     // GUIのインスペクターに、このトリガー固有の設定項目を描画する
     virtual void DrawInspectorUI() = 0;
+
+    virtual std::string GetName() const = 0;
 };

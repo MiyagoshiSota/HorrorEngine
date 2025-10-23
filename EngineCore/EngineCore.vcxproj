@@ -215,6 +215,7 @@
     <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
+    <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\imconfig.h" />
@@ -234,6 +235,7 @@
     <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
     <ClInclude Include="src\GUI\DrawDayWindow.h" />
     <ClInclude Include="src\GUI\DrawGameObjectWindow.h" />
+    <ClInclude Include="src\GUI\DrawModelsWindow.h" />
     <ClInclude Include="src\GUI\IDrawWindow.h" />
     <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />
@@ -299,6 +301,7 @@
     <ClInclude Include="src\Scene\ISceneBase.h" />
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Time\TimeManager.h" />
+    <ClInclude Include="src\Source\3DModel\Loader\ModelLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\ChromaticAberrationPS.hlsl">

@@ -16,6 +16,8 @@
 #include "GUI/DrawPostProcessPresetWindow.h"
 #include <GUI/DrawDayWindow.h>
 
+#include "GUI/DrawModelsWindow.h"
+
 Engine* g_Engine;
 
 bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
@@ -435,6 +437,7 @@ bool Engine::InitImGui()
     m_drawWindows.push_back(std::make_shared<DrawGameObjectWindow>());
     m_drawWindows.push_back(std::make_shared<DrawPostProcessPresetWindow>());
     m_drawWindows.push_back(std::make_shared<DrawDayWindow>());
+    m_drawWindows.push_back(std::make_shared<DrawModelsWindow>());
     
     return true;
 }

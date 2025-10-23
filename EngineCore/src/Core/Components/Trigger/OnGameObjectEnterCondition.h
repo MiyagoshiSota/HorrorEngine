@@ -24,4 +24,9 @@ public:
         // インスペクターに表示する設定項目があればここに実装
         // 例えば、トリガー領域のサイズやその他のパラメータを設定できるようにする
     }
+
+    std::string GetName() const override
+    {
+        return "OnGameObjectEnterCondition";
+    };
 };

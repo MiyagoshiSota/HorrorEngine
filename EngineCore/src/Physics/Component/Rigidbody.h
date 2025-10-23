@@ -92,6 +92,10 @@ public:
 		}
 	}
 
+	std::string get_type() override {
+		return "Rigidbody";
+	}
+
 public:
 	// 衝突イベント用のコールバック関数
 	void OnCollisionEnter(GameObject* other)
@@ -110,7 +114,10 @@ public:
 public:
 	reactphysics3d::RigidBody* get_rigidbody() const { return m_RigidBody; }
 	std::shared_ptr<engine_collider> get_collider() const { return m_collider; }
-
+	bool is_gravity_enabled() const { return m_RigidBody->isGravityEnabled(); }
+	reactphysics3d::BodyType get_body_type() const { return m_RigidBody->getType(); }
+	std::shared_ptr<engine_collider> get_collider_object() const { return m_collider; }
+	
 private:
 	std::shared_ptr<GameObject> m_GameObject;
 	reactphysics3d::RigidBody* m_RigidBody = nullptr;

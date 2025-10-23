@@ -12,6 +12,7 @@ HWND g_hWnd = NULL;
 
 std::shared_ptr<ISceneBase> g_Scene;
 std::unique_ptr<SceneManager> g_SceneManager;
+std::unique_ptr<ModelLoader> g_ModelLoader;
 std::chrono::steady_clock::time_point g_lastFrameTime;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) 
@@ -127,19 +128,30 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 	// Windowの初期化
 	init_window(appName);
 
-	g_SceneManager = std::make_unique<SceneManager>();
+	// ModelLoaderの初期化
+	g_ModelLoader = std::make_unique<ModelLoader>();
+	if (!g_ModelLoader->init())
+	{
+		printf("モデルの読み込みに失敗しました。\n");
+		return;
+	}
 
 	// 描画エンジンの初期化
 	g_Engine = new Engine();
 	if (!g_Engine->Init(g_hWnd,WINDOW_WIDTH,WINDOW_HEIGHT))
 	{
+		printf("描画エンジンの初期化に失敗しました。\n");
 		return;
 	}
 
+	// SceneManagerの初期化
+	g_SceneManager = std::make_unique<SceneManager>();
+	
 	// シーンの初期化
 	g_Scene = scene;
 if (!g_Scene->Init(const_path_pref::DefaultGameObjectPath))
 	{
+		printf("シーンの初期化に失敗しました。\n");
 		return;
 	}
 

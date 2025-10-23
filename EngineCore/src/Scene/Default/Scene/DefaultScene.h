@@ -11,8 +11,7 @@ public:
 	{
 		DefaultScene::shutdown();
 	};
-
-	void CreatePrimitiveObjects() override;
+	
 	bool Init(std::string go_file_path) override;
 	void Update(float delta_time) override;
 	void EditorUpdate(float delta_time) override;
@@ -21,6 +20,9 @@ public:
 
 	void RebuidPhysicsWorld() override;
 	void InitializeGameObject(std::string file_path) override;
+
+	bool serialize_game_objects(const std::string& go_file_path) override;
+	void deserialize_game_objects(const std::string& go_file_path) override;
 
 public:
 	std::shared_ptr<PostProcessManager> get_post_process_manager()

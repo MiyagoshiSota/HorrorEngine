@@ -68,8 +68,6 @@ public:
 
 	virtual void InitializeGameObject(std::string go_file_path) = 0;
 
-	virtual void CreatePrimitiveObjects() = 0;
-
 	// --Getter--
 
 	// Manager
@@ -83,21 +81,20 @@ public:
 
 	// Object
 	std::vector<std::shared_ptr <GameObject>> get_game_objects() { return m_GameObjects; }
-	std::map<std::string, std::shared_ptr<Model>> get_models() { return m_models; }
+	void add_game_object(std::shared_ptr<GameObject> go) { m_GameObjects.push_back(go); }
 
 	//	Physics
 	reactphysics3d::PhysicsWorld* get_physics_world() const { return m_physicsWorld; }
 	reactphysics3d::PhysicsCommon& get_physics_common() { return physics_common; }
 
-	// Model
-	std::shared_ptr<Model> get_model(const std::string& path)
-	{
-		if (m_models.find(path) != m_models.end()) {
-			return m_models[path];
-		}
-		return nullptr;
-	}
+	// --Setter--
+	void set_all_game_object(std::vector<std::shared_ptr <GameObject>> game_objects) { m_GameObjects = game_objects; }
 
+
+	// --de/serializer--
+	virtual bool serialize_game_objects(const std::string& go_file_path) = 0;
+	virtual void deserialize_game_objects(const std::string& go_file_path) = 0;
+	
 protected:
 	// Manager
 	std::shared_ptr<IPipelineManager> m_PipelineManager;
@@ -110,10 +107,7 @@ protected:
 	// Object
 	// TODO:CameraはGameObjectにしようかな...
 	std::shared_ptr<SceneCamera> m_Camera;
-	std::vector<std::shared_ptr <GameObject>> m_GameObjects;
-
-	// Model
-	std::map<std::string ,std::shared_ptr<Model>> m_models;
+	std::vector<std::shared_ptr<GameObject>> m_GameObjects;
 
 	// Physics
 	reactphysics3d::PhysicsCommon physics_common;

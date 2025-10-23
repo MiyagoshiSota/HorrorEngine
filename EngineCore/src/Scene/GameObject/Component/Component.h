@@ -16,4 +16,9 @@ public:
 
     // JSONからデータを読み込むための仮想関数
     virtual void deserialize(const nlohmann::json& jsonData,std::shared_ptr<GameObject> game_object) {}
+
+    // コンポーネントの型名を取得する関数
+    virtual std::string get_type() = 0;
+private:
+    
 };

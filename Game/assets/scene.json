@@ -9,15 +9,7 @@
 			"components": [
 				{
 					"type": "MeshRenderer",
-					"model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX",
-					"materials": [
-						{
-							"pso": "DefaultPipelinePass",
-							"textures": {
-								"albedo": "assets/Alicia/Textures/Alicia_body_diffuse.png"
-							}
-						}
-					]
+					"model_name": "Alicia_solid_Unity"
 				},
 				{
 					"type": "Rigidbody",
@@ -39,7 +31,7 @@
 			"components": [
 				{
 					"type": "MeshRenderer",
-					"model_path": "primitive/cube"
+					"model_name": "primitive/cube"
 				},
 				{
 					"type": "Rigidbody",

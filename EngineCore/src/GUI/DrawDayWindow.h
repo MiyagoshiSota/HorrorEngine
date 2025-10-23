@@ -17,7 +17,7 @@ public:
                 }
                 if (ImGui::BeginMenu("Open Day"))
                 {
-                    // ここで利用可能なDayのリストを表示する
+                    // TODO: シーンのリストを動的に生成するように変更する
                     if (ImGui::MenuItem("Day1_Apartment")) {
                         g_SceneManager->LoadScene("assets/Days/Day1.json");
                         g_SceneManager->ProcessSceneRequest();

@@ -18,51 +18,30 @@ public:
 
 	void deserialize(const nlohmann::json& jsonData,std::shared_ptr<GameObject> obj) override {
 
-		if (jsonData.contains("model_path"))
-		{
-			model_path = jsonData["model_path"];
-		}
-		else
-		{
-			return;
-		}
+		if (!jsonData.contains("model_name")) return;
 
+		model_name = jsonData["model_name"].get<std::string>();
+		
 		// モデルのロード
-		auto model = g_Scene->get_models()[model_path];
+		const auto model = g_ModelLoader->GetModel(model_name);
 
 		// 既にロードされているなら何もしない
 		if (model)
 		{
 			// GameObjectにモデルをセット
 			obj->set_model(model);
-			return;
-		}; 
-
-		// ロードされていないなら新しくロードする
-		model = std::make_shared<Model>();
-
-		// GameObjectにモデルをセット
-		obj->set_model(model);
-
-		auto path2wst = engine_string::to_wstring(model_path);
-		ImportSettings importSetting =
+		}else
 		{
-			path2wst.c_str(),
-			model->m_InputMesh,
-			false,
-			true
-		};
+			printf("存在しないモデルパス:%s\n",model_name.c_str());
+		} 
+	}
 
-		AssimpLoader loader;
-		if (!loader.Load(importSetting))
-		{
-			printf("モデルのロードに失敗:%s\n", model_path.c_str());;
-			return ;
-		}
+	std::string get_type() override {;
+		return "MeshRenderer";
 	}
 
 public:
-	std::string model_path;
+	std::string model_name;
 
 private:
 

@@ -51,17 +51,30 @@ public:
         // Action
         if (jsonData.contains("Action") && jsonData["Action"].contains("name"))
         {
-            std::string actionName = jsonData["Action"]["name"];
+            const std::string action_name = jsonData["Action"]["name"];
             // ファクトリに名前を渡して、対応するActionのインスタンスを生成
-            auto newAction = TriggerFactory::GetInstance().CreateAction(actionName);
-            if (newAction) {
-                Actions.push_back(std::move(newAction));
+            if (auto new_action = TriggerFactory::GetInstance().CreateAction(action_name)) {
+                Actions.push_back(std::move(new_action));
             }
         }
     };
     
     void DrawInspectorUI(); // ConditionとActionsのUIを描画する
 
+    std::string get_type() override
+    {
+        return "Trigger";
+    };
+
+    std::string get_trigger_name()
+    {
+        if (Condition)
+        {
+            return Condition->GetName();
+        }
+        return "No Trigger";
+    }
+    
 private:
     TriggerContext context;
 };

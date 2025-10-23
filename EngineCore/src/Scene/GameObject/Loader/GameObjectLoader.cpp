@@ -65,6 +65,13 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::load_from_file(const 
 	return gameObjects;
 }
 
+void GameObjectLoader::re_load_from_file(const std::string& filePath,
+	std::vector<std::shared_ptr<GameObject>>& out_gameObjects)
+{
+	// 既存のゲームオブジェクトの状態を上書き
+	out_gameObjects = load_from_file(filePath);
+}
+
 void GameObjectLoader::components_initialize()
 {
 	// Trigger Factoryの初期化
