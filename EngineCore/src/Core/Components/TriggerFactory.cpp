@@ -17,7 +17,7 @@ std::unique_ptr<ITriggerCondition> TriggerFactory::CreateCondition(const std::st
     if (it != m_ConditionRegistry.end())
     {
         // 関連付けられた生成関数 (it->second) を呼び出してインスタンスを生成し、返す
-        return it->second();
+        return std::move(it->second());
     }
 
     // 名前が見つからなければ、nullptrを返す
@@ -34,7 +34,7 @@ std::unique_ptr<IAction> TriggerFactory::CreateAction(const std::string& name)
     if (it != m_ActionRegistry.end())
     {
         // 関連付けられた生成関数を呼び出してインスタンスを生成し、返す
-        return it->second();
+        return std::move(it->second());
     }
     
     // 名前が見つからなければ、nullptrを返す

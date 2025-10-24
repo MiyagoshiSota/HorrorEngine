@@ -228,8 +228,11 @@ bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
             else if (type == "Trigger")
             {
 				auto triggerComp = std::dynamic_pointer_cast<TriggerComponent>(comp);
-            	
-                compJson["Trigger"]["name"] = triggerComp->Condition->GetName();
+
+				if (triggerComp->Condition != nullptr)
+				{
+					compJson["Trigger"]["name"] = triggerComp->Condition->GetName();	
+				}
 
             	for (auto & param : triggerComp->Actions)
             	{

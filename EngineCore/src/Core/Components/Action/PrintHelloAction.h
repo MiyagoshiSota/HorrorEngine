@@ -2,12 +2,12 @@
 #include "IAction.h"
 #include "Core/Components/TriggerContext/TriggerContext.h"
 
-class PlaySoundAction : public IAction
+class PrintHelloAction : public IAction
 {
 public:
     void Execute(const TriggerContext& context) override
     {
-        printf("Demo\n");
+        printf("hello\n");
         // サウンドを再生するロジックを実装
         // 例: AudioManagerを使ってサウンドを再生
         // if (context.audioManager)
@@ -24,6 +24,6 @@ public:
 
     std::string GetName() const override
     {
-        return "PlaySoundAction";
+        return "PrintHelloAction";
     }
 };

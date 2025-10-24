@@ -228,6 +228,7 @@
     <ClInclude Include="external\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Core\Components\Action\IAction.h" />
     <ClInclude Include="src\Core\Components\Action\PlaySoundAction.h" />
+    <ClInclude Include="src\Core\Components\Action\PrintHelloAction.h" />
     <ClInclude Include="src\Core\Components\TriggerComponent.h" />
     <ClInclude Include="src\Core\Components\TriggerContext\TriggerContext.h" />
     <ClInclude Include="src\Core\Components\TriggerFactory.h" />

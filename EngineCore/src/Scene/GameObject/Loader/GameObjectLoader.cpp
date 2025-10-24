@@ -5,6 +5,7 @@
 #include "Core/Components/TriggerComponent.h"
 #include "Core/Components/TriggerFactory.h"
 #include "Core/Components/Action/PlaySoundAction.h"
+#include "Core/Components/Action/PrintHelloAction.h"
 #include "Core/Components/Trigger/OnGameObjectEnterCondition.h"
 #include "Physics/Component/Rigidbody.h"
 #include "Scene/GameObject/Component/ComponentFactory.h"
@@ -80,5 +81,6 @@ void GameObjectLoader::components_initialize()
 	factory.RegisterCondition<OnGameObjectEnterCondition>("OnGameObjectEnterCondition");
 	// Actionを登録
 	factory.RegisterAction<PlaySoundAction>("PlaySoundAction");
+	factory.RegisterAction<PrintHelloAction>("PrintHelloAction");
 }
 

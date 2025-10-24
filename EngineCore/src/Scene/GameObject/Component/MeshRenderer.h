@@ -40,6 +40,12 @@ public:
 		return "MeshRenderer";
 	}
 
+	void on_gui() override {
+		ImGui::Text("MeshRenderer Component");
+		ImGui::Separator();
+		ImGui::Text("Model Name: %s", model_name.c_str());
+	}
+
 public:
 	std::string model_name;
 

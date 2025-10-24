@@ -96,6 +96,35 @@ public:
 		return "Rigidbody";
 	}
 
+	void on_gui() override {
+		ImGui::Text("Rigidbody Component");
+		ImGui::Separator();
+
+		// Body Typeの表示
+		auto body_type = m_RigidBody->getType();
+		std::string body_type_str;
+		switch (body_type)
+		{
+		case reactphysics3d::BodyType::STATIC:
+			body_type_str = "STATIC";
+			break;
+		case reactphysics3d::BodyType::DYNAMIC:
+			body_type_str = "DYNAMIC";
+			break;
+		case reactphysics3d::BodyType::KINEMATIC:
+			body_type_str = "KINEMATIC";
+			break;
+		default:
+			body_type_str = "UNKNOWN";
+			break;
+		}
+		ImGui::Text("Body Type: %s", body_type_str.c_str());
+
+		// 重力の表示
+		bool is_gravity_enabled = m_RigidBody->isGravityEnabled();
+		ImGui::Text("Gravity Enabled: %s", is_gravity_enabled ? "True" : "False");
+	}
+
 public:
 	// 衝突イベント用のコールバック関数
 	void OnCollisionEnter(GameObject* other)
