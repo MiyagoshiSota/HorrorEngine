@@ -15,6 +15,15 @@
                     },
                     "isGravityEnabled": true,
                     "type": "Rigidbody"
+                },
+                {
+                    "Action": {
+                        "name": "PrintHelloAction"
+                    },
+                    "Trigger": {
+                        "name": "OnGameObjectEnterCondition"
+                    },
+                    "type": "Trigger"
                 }
             ],
             "name": "Player",
@@ -56,6 +65,9 @@
                 {
                     "Action": {
                         "name": "PlaySoundAction"
+                    },
+                    "Trigger": {
+                        "name": "OnGameObjectEnterCondition"
                     },
                     "type": "Trigger"
                 }

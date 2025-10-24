@@ -237,6 +237,7 @@
     <ClInclude Include="src\GUI\DrawDayWindow.h" />
     <ClInclude Include="src\GUI\DrawGameObjectWindow.h" />
     <ClInclude Include="src\GUI\DrawModelsWindow.h" />
+    <ClInclude Include="src\GUI\DrawTaskManagerWindow.h" />
     <ClInclude Include="src\GUI\IDrawWindow.h" />
     <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />

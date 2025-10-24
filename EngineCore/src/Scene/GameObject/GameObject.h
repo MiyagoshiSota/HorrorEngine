@@ -52,6 +52,22 @@ public:
         return nullptr;
     }
 
+    // コンポーネントの削除
+    void RemoveComponent(const std::shared_ptr<Component>& targetComponent) {
+        components.erase(
+            std::remove(components.begin(), components.end(), targetComponent),
+            components.end()
+        );
+    }
+ 
+    template<typename T>
+    std::shared_ptr<T> AddComponent()
+	{
+        std::shared_ptr<T> newComponent = std::make_shared<T>();
+	    components.emplace_back(newComponent);
+        return newComponent;
+	}
+
 public:
     /// <summary>
     /// size分のコンスタントバッファを新しく作成する
