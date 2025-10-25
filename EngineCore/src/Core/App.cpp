@@ -110,14 +110,14 @@ void main_loop() {
 			// SceneTypeに応じて更新処理を分岐
 			if (g_scene_type == scene_type::play_mode)
 			{
-				g_Scene->Update(deltaTime.count());
+				auto delta_time = deltaTime.count();
+				g_Scene->Update(delta_time);
+				WorkManager::GetInstance().Update(delta_time);
 			}
 			else if (g_scene_type == scene_type::editor_mode)
 			{
 				g_Scene->EditorUpdate(deltaTime.count());
 			}
-			
-			WorkManager::GetInstance().Update();
 
 			g_Engine->BeginRender();
 			g_Scene->Draw();

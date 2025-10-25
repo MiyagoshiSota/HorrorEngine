@@ -4,7 +4,7 @@
 #include <functional>
 #include <map>
 #include "Core/Components/Trigger/ITriggerCondition.h"
-#include "Core/Components/Action/IAction.h"
+#include "Core/Components/Reward/IReward.h"
 
 class TriggerFactory
 {
@@ -15,7 +15,7 @@ public:
     // Conditionを名前から生成
     std::unique_ptr<ITriggerCondition> CreateCondition(const std::string& name);
     // Actionを名前から生成
-    std::unique_ptr<IAction> CreateAction(const std::string& name);
+    std::unique_ptr<IReward> CreateAction(const std::string& name);
 
     // 生成可能なクラスを登録する
     template<typename T>
@@ -50,5 +50,5 @@ public:
 private:
     TriggerFactory() = default;
     std::map<std::string, std::function<std::unique_ptr<ITriggerCondition>()>> m_ConditionRegistry;
-    std::map<std::string, std::function<std::unique_ptr<IAction>()>> m_ActionRegistry;
+    std::map<std::string, std::function<std::unique_ptr<IReward>()>> m_ActionRegistry;
 };

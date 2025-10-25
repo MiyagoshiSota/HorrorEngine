@@ -25,7 +25,7 @@ std::unique_ptr<ITriggerCondition> TriggerFactory::CreateCondition(const std::st
     return nullptr;
 }
 
-std::unique_ptr<IAction> TriggerFactory::CreateAction(const std::string& name)
+std::unique_ptr<IReward> TriggerFactory::CreateAction(const std::string& name)
 {
     // 登録されたActionのマップ(m_ActionRegistry)から名前を検索
     auto it = m_ActionRegistry.find(name);

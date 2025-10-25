@@ -5,7 +5,7 @@
 #include "imgui.h"
 #include "TriggerFactory.h"
 #include "Core/Components/Trigger/ITriggerCondition.h"
-#include "Core/Components/Action/IAction.h"
+#include "Core/Components/Reward/IReward.h"
 #include "Core/Components/TriggerContext/TriggerContext.h"
 #include "Scene/GameObject/Component/Component.h"
 
@@ -14,17 +14,20 @@ class TriggerComponent : public Component
 public:
     // GUIから動的に設定される
     std::unique_ptr<ITriggerCondition> Condition;
-    std::vector<std::unique_ptr<IAction>> Actions;
+    std::vector<std::unique_ptr<IReward>> Actions;
 
     // start
     void start() override
     {
         context.m_Owner = gameObject;
+        context.m_DeltaTime = 0;
     }
     
     // 毎フレーム呼ばれる
     void update(float deltaTime) override
     {
+        context.m_DeltaTime = deltaTime;
+        
         if (m_isActivated && !m_isCompleted) 
         {
             if (Condition && Condition->Check(context))
@@ -83,15 +86,21 @@ public:
     {
         ImGui::Text("Trigger Component");
         ImGui::Separator();
-    
-        // 既存の表示処理
+        
         ImGui::Text("Trigger: %s", get_trigger_name().c_str());
+        if (Condition) Condition->DrawInspectorUI();
+        
         for (auto & action : Actions)
         {
             ImGui::Text("Action: %s", action->GetName().c_str());
+            action->DrawInspectorUI();
         }
+        
+        ImGui::Separator();
+        
+        ImGui::Checkbox("Is Activated", &m_isActivated);
     
-        ImGui::Separator(); // UI編集部分と分離
+        ImGui::Separator();
     
         // GUIから動的に設定するためのUIを描画
         DrawInspectorUI();
@@ -224,7 +233,7 @@ public:
 private:
     TriggerContext context;
 
-    bool m_isActivated = false; // WorkFlowによって実行が許可されたか
+    bool m_isActivated = true; 
     bool m_isCompleted = false; // 既に実行が完了したか
     std::string m_taskName = "Untitled Task"; // GUIで表示するための名前
 };
