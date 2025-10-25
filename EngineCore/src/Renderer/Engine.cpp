@@ -18,6 +18,7 @@
 
 #include "GUI/DrawModelsWindow.h"
 #include "GUI/DrawTaskManagerWindow.h"
+#include "GUI/DrawWorkManagerWindow.h"
 
 Engine* g_Engine;
 
@@ -440,6 +441,7 @@ bool Engine::InitImGui()
     m_drawWindows.push_back(std::make_shared<DrawDayWindow>());
     m_drawWindows.push_back(std::make_shared<DrawModelsWindow>());
     m_drawWindows.push_back(std::make_shared<DrawTaskManagerWindow>());
+    m_drawWindows.push_back(std::make_shared<DrawWorkManagerWindow>());
     
     return true;
 }

@@ -25,11 +25,15 @@ public:
     // 毎フレーム呼ばれる
     void update(float deltaTime) override
     {
-        if (Condition && Condition->Check(context))
+        if (m_isActivated && !m_isCompleted) 
         {
-            for (auto& action : Actions)
+            if (Condition && Condition->Check(context))
             {
-                action->Execute(context);
+                for (auto& action : Actions)
+                {
+                    action->Execute(context);
+                }
+                m_isCompleted = true; // 実行したら完了フラグを立てる
             }
         }
     }
@@ -208,8 +212,20 @@ public:
             }
         }
     }
+
+public:
+    void Activate() { m_isActivated = true; }
+    void Deactivate() { m_isActivated = false; }
+    void ResetTask() { m_isCompleted = false; m_isActivated = false; }
+    bool IsCompleted() const { return m_isCompleted; }
+    const std::string& GetTaskName() const { return m_taskName; }
+    void SetTaskName(const std::string& name) { m_taskName = name; }
     
 private:
     TriggerContext context;
+
+    bool m_isActivated = false; // WorkFlowによって実行が許可されたか
+    bool m_isCompleted = false; // 既に実行が完了したか
+    std::string m_taskName = "Untitled Task"; // GUIで表示するための名前
 };
 

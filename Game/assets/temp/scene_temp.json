@@ -9,21 +9,12 @@
                 {
                     "bodyType": "DYNAMIC",
                     "isCollider": {
-                        "height": 30.0,
-                        "radius": 10.0,
+                        "height": 10.0,
+                        "radius": 30.0,
                         "shape": "Capsule"
                     },
                     "isGravityEnabled": true,
                     "type": "Rigidbody"
-                },
-                {
-                    "Action": {
-                        "name": "PrintHelloAction"
-                    },
-                    "Trigger": {
-                        "name": "OnGameObjectEnterCondition"
-                    },
-                    "type": "Trigger"
                 }
             ],
             "name": "Player",
@@ -61,15 +52,6 @@
                     },
                     "isGravityEnabled": false,
                     "type": "Rigidbody"
-                },
-                {
-                    "Action": {
-                        "name": "PlaySoundAction"
-                    },
-                    "Trigger": {
-                        "name": "OnGameObjectEnterCondition"
-                    },
-                    "type": "Trigger"
                 }
             ],
             "name": "Block",
@@ -87,6 +69,150 @@
                 10.0,
                 1.0,
                 10.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube1",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube2",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube3",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube4",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube5",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
             ]
         }
     ],

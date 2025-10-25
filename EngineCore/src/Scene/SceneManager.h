@@ -21,8 +21,9 @@ public:
     // 毎フレームの開始時に呼び出し、予約があればシーンを切り替える
     void ProcessSceneRequest();
 
+    // シーン読み込みが予約されているか取得
     std::string GetNextScenePath() const { return m_nextScenePath; }
-
+    
 private:
     void SetNextScenePath(std::string scenePath) { m_nextScenePath = scenePath; }
     void SetIsRequested(bool isRequested) { m_isLoadRequested = isRequested; }

@@ -2,6 +2,7 @@
 
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
+#include "Components/Work/WorkManager.h"
 #include "Modules/PublicConst//const_name_pref.h"
 #include "Modules/PublicConst/const_path_pref.h"
 #include "Renderer/Engine.h"
@@ -115,6 +116,8 @@ void main_loop() {
 			{
 				g_Scene->EditorUpdate(deltaTime.count());
 			}
+			
+			WorkManager::GetInstance().Update();
 
 			g_Engine->BeginRender();
 			g_Scene->Draw();

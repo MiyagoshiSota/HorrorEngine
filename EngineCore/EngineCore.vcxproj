@@ -27,6 +27,9 @@
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
+    <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
+    <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
+    <ClCompile Include="src\GUI\DrawWorkManagerWindow.cpp" />
     <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
     <ClCompile Include="src\Renderer\Light\LightingManager.cpp" />
@@ -234,10 +237,14 @@
     <ClInclude Include="src\Core\Components\TriggerFactory.h" />
     <ClInclude Include="src\Core\Components\Trigger\ITriggerCondition.h" />
     <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
+    <ClInclude Include="src\Core\Components\WorkFlow\WorkFlow.h" />
+    <ClInclude Include="src\Core\Components\Work\Work.h" />
+    <ClInclude Include="src\Core\Components\Work\WorkManager.h" />
     <ClInclude Include="src\GUI\DrawDayWindow.h" />
     <ClInclude Include="src\GUI\DrawGameObjectWindow.h" />
     <ClInclude Include="src\GUI\DrawModelsWindow.h" />
     <ClInclude Include="src\GUI\DrawTaskManagerWindow.h" />
+    <ClInclude Include="src\GUI\DrawWorkManagerWindow.h" />
     <ClInclude Include="src\GUI\IDrawWindow.h" />
     <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />

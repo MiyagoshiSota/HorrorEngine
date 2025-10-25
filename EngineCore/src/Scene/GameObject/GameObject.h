@@ -52,6 +52,17 @@ public:
         return nullptr;
     }
 
+    template<typename T>
+    std::vector<std::shared_ptr<T>> find_components() {
+        std::vector<std::shared_ptr<T>> foundComponents;
+        for (const auto& comp : components) {
+            if (auto casted_comp = std::dynamic_pointer_cast<T>(comp)) {
+                foundComponents.push_back(casted_comp);
+            }
+        }
+        return foundComponents;
+    }
+
     // コンポーネントの削除
     void RemoveComponent(const std::shared_ptr<Component>& targetComponent) {
         components.erase(
