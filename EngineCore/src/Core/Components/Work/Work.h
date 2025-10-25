@@ -12,33 +12,28 @@ class Work
 public:
     std::string m_name;
     std::vector<std::unique_ptr<WorkFlow>> m_workflows;
-
-    TriggerContext m_context;
     
     // このWorkを開始するためのトリガー
     std::unique_ptr<ITriggerCondition> m_startCondition;
 
     // このWorkを完了させるための報酬
-    std::vector<std::unique_ptr<IAction>> m_rewardActions;
+    std::vector<std::unique_ptr<IReward>> m_rewardActions;
 
     bool m_isActive = false;
     bool m_isComplete = false;
     int m_currentWorkflowIndex = 0;
 
 public:
-    Work(std::string name) : m_name(std::move(name))
-    {
-        m_context.m_Owner = nullptr;
-    }
+    Work(std::string name) : m_name(std::move(name)){}
 
-    void Update()
+    void Update(const TriggerContext& context)
     {
         if (m_isComplete) return;
 
         // まだアクティブでなければ、開始条件をチェック
         if (!m_isActive)
         {
-            if (m_startCondition && m_startCondition->Check(m_context))
+            if (m_startCondition && m_startCondition->Check(context))
             {
                 m_isActive = true;
                 // 最初のWorkFlowのタスクをリセット
@@ -54,7 +49,7 @@ public:
         {
             if (m_currentWorkflowIndex < m_workflows.size())
             {
-                auto currentWorkflow = std::move(m_workflows[m_currentWorkflowIndex]);
+                const auto& currentWorkflow = m_workflows[m_currentWorkflowIndex];
                 currentWorkflow->Update();
 
                 // 現在のWorkFlowが完了したら次へ
@@ -77,7 +72,7 @@ public:
                 {
                     if (action)
                     {
-                        action->Execute(m_context);
+                        action->Execute(context);
                     }
                 }
             }

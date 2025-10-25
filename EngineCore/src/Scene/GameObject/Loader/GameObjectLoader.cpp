@@ -4,8 +4,10 @@
 
 #include "Core/Components/TriggerComponent.h"
 #include "Core/Components/TriggerFactory.h"
-#include "Core/Components/Action/PlaySoundAction.h"
-#include "Core/Components/Action/PrintHelloAction.h"
+#include "Core/Components/Reward/PlaySoundReward.h"
+#include "Core/Components/Reward/PrintHelloReward.h"
+#include "Core/Components/Reward/StartWorkReward.h"
+#include "Core/Components/Trigger/CountDownCondition.h"
 #include "Core/Components/Trigger/OnGameObjectEnterCondition.h"
 #include "Physics/Component/Rigidbody.h"
 #include "Scene/GameObject/Component/ComponentFactory.h"
@@ -79,8 +81,10 @@ void GameObjectLoader::components_initialize()
 	auto& factory = TriggerFactory::GetInstance();
 	// Conditionを登録
 	factory.RegisterCondition<OnGameObjectEnterCondition>("OnGameObjectEnterCondition");
+	factory.RegisterCondition<CountDownCondition>("CountDownCondition");
 	// Actionを登録
-	factory.RegisterAction<PlaySoundAction>("PlaySoundAction");
-	factory.RegisterAction<PrintHelloAction>("PrintHelloAction");
+	factory.RegisterAction<PlaySoundReward>("PlaySoundReward");
+	factory.RegisterAction<PrintHelloReward>("PrintHelloReward");
+	factory.RegisterAction<StartWorkReward>("StartWorkReward");
 }
 

@@ -7,7 +7,6 @@
 
 class Scene;
 class TriggerComponent;
-struct TriggerContext;
 
 class WorkManager
 {
@@ -17,7 +16,7 @@ public:
     WorkManager(const WorkManager&) = delete;
     WorkManager& operator=(const WorkManager&) = delete;
     
-    void Update() const;
+    void Update(float delta_time);
     
     Work* CreateWork(const std::string& name);
     
@@ -28,8 +27,13 @@ public:
     std::vector<std::shared_ptr<TriggerComponent>> FindAllTriggersInScene();
 
 private:
-    WorkManager() = default;  // プライベートコンストラクタ
+    WorkManager()
+    {
+        m_context.m_DeltaTime = 0.0f;
+        m_context.m_Owner = nullptr;
+    }  // プライベートコンストラクタ
     ~WorkManager() = default; // プライベートデストラクタ
 
     std::vector<std::unique_ptr<Work>> m_works; // すべてのWorkを所有
+    TriggerContext m_context;
 };

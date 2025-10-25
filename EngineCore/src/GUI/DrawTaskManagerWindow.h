@@ -109,10 +109,10 @@ public:
             ImGui::EndCombo();
         }
         
-        // [Reward] (IAction) を選択
+        // [Reward] (IReward) を選択
         auto actionNames = factory.GetRegisteredActionNames();
         if (s_SelectedActionName.empty() && !actionNames.empty()) s_SelectedActionName = actionNames[0];
-        if (ImGui::BeginCombo("Reward (IAction)", s_SelectedActionName.c_str()))
+        if (ImGui::BeginCombo("Reward (IReward)", s_SelectedActionName.c_str()))
         {
             for (const auto& name : actionNames)
             {
@@ -132,10 +132,10 @@ public:
                 // Condition と Action をファクトリで生成して設定
                 newTrigger->Condition = factory.CreateCondition(s_SelectedConditionName);
                 
-                auto newAction = factory.CreateAction(s_SelectedActionName);
-                if(newAction)
+                auto new_action = factory.CreateAction(s_SelectedActionName);
+                if(new_action)
                 {
-                    newTrigger->Actions.push_back(std::move(newAction));
+                    newTrigger->Actions.push_back(std::move(new_action));
                 }
 
                 newTrigger->gameObject = s_TargetForNewTask;

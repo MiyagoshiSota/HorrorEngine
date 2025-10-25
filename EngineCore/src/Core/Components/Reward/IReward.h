@@ -3,10 +3,10 @@
 
 class GameObject;
 
-class IAction
+class IReward
 {
 public:
-    virtual ~IAction() = default;
+    virtual ~IReward() = default;
 
     // アクションを実行する
     virtual void Execute(const TriggerContext& context) = 0;

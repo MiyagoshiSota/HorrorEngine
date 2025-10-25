@@ -24,7 +24,7 @@ public:
     };
 	void init();
     void transform_update();
-    void component_update();
+    void component_update(float delta_time) const;
     
     // 各種Getter
 	std::string get_name() const { return name; }

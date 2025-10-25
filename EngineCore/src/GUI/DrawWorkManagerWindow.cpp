@@ -77,11 +77,14 @@ void DrawWorkManagerWindow::DrawWorkListColumn()
             m_selectedWorkflow = nullptr; // Workを切り替えたらWorkflow選択もリセット
         }
 
+        // TODO:Web系のComponent指向を取り入れてもいいかもね
+
         ImGui::SameLine();
-        if (ImGui::Button("X", ImVec2(20, 20)))
+        if (ImGui::Button("X", ImVec2(10, 10)))
         {
             workToDelete = work.get();
         }
+        
         ImGui::PopID();
     }
 
@@ -93,6 +96,91 @@ void DrawWorkManagerWindow::DrawWorkListColumn()
         }
         WorkManager::GetInstance().DeleteWork(workToDelete);
     }
+
+    ImGui::Separator();
+    
+    // そのWorkが開始する条件の表示
+    ImGui::Text("Trigger Condition");
+    if (m_selectedWork && m_selectedWork->m_startCondition)
+    {
+        m_selectedWork->m_startCondition->DrawInspectorUI();
+    }
+    else
+    {
+        ImGui::Text("No Start Condition Set");
+    }
+
+    ImGui::Separator();
+    
+    // そのWorkが完了したときの報酬アクションの表示
+    ImGui::Text("Reward Actions");
+    if (m_selectedWork && !m_selectedWork->m_rewardActions.empty())
+    {
+        for (const auto& action : m_selectedWork->m_rewardActions)
+        {
+            if (action)
+            {
+                ImGui::Text("Action: %s", action->GetName().c_str());
+                action->DrawInspectorUI();
+                ImGui::Separator();
+            }
+        }
+    }
+    else
+    {
+        ImGui::Text("No Reward Actions Set");
+    }
+
+    // 編集可能な開始条件と報酬アクションの設定UI
+    if (m_selectedWork)
+    {
+        ImGui::Separator();
+        ImGui::Text("Edit Start Condition");
+        // 開始条件の編集UI
+        auto& factory = TriggerFactory::GetInstance();
+        auto conditionNames = factory.GetRegisteredConditionNames();
+        static std::string selectedStartConditionName;
+        if (selectedStartConditionName.empty() && !conditionNames.empty()) {
+            selectedStartConditionName = conditionNames[0];
+        }
+        if (ImGui::BeginCombo("Start Condition", selectedStartConditionName.c_str()))
+        {
+            for (const auto& name : conditionNames)
+            {
+                if (ImGui::Selectable(name.c_str(), selectedStartConditionName == name)) {
+                    selectedStartConditionName = name;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::Button("Set Start Condition"))
+        {
+            m_selectedWork->m_startCondition = factory.CreateCondition(selectedStartConditionName);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Add Reward Action");
+        auto actionNames = factory.GetRegisteredActionNames();
+        static std::string selectedRewardActionName;
+        if (selectedRewardActionName.empty() && !actionNames.empty()) {
+            selectedRewardActionName = actionNames[0];
+        }
+        if (ImGui::BeginCombo("Reward Action", selectedRewardActionName.c_str()))
+        {
+            for (const auto& name : actionNames)
+            {
+                if (ImGui::Selectable(name.c_str(), selectedRewardActionName == name)) {
+                    selectedRewardActionName = name;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::Button("Add Reward Action"))
+        {
+            m_selectedWork->m_rewardActions.push_back(factory.CreateAction(selectedRewardActionName));
+        }
+    }
+    
     ImGui::EndChild();
 }
 
@@ -375,8 +463,11 @@ void DrawWorkManagerWindow::DrawTaskCreatorPanel()
         
         // GameObjectにTriggerComponentを追加
         std::shared_ptr<TriggerComponent> newTrigger = targetObject->AddComponent<TriggerComponent>(); // AddComponentはT*を返すと仮定
+
+        // TargetComponentの初期化
         newTrigger->SetTaskName(m_newTaskNameBuffer);
         newTrigger->gameObject = targetObject;
+        newTrigger->ResetTask();
         
         // ConditionとActionをFactoryから作成してセット
         if (!m_selectedConditionName.empty()) {
@@ -406,7 +497,7 @@ void DrawWorkManagerWindow::DrawTaskCreatorPanel()
     }
 }
 
-// シーン内の全TriggerComponentをキャッシュに格納
+// ヘルパー：シーン内の全TriggerComponentをキャッシュに格納
 void DrawWorkManagerWindow::RefreshTriggerCache()
 {
     m_sceneTriggersCache.clear();

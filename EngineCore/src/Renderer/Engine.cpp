@@ -440,7 +440,6 @@ bool Engine::InitImGui()
     m_drawWindows.push_back(std::make_shared<DrawPostProcessPresetWindow>());
     m_drawWindows.push_back(std::make_shared<DrawDayWindow>());
     m_drawWindows.push_back(std::make_shared<DrawModelsWindow>());
-    m_drawWindows.push_back(std::make_shared<DrawTaskManagerWindow>());
     m_drawWindows.push_back(std::make_shared<DrawWorkManagerWindow>());
     
     return true;

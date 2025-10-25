@@ -48,7 +48,7 @@
 						"name": "OnGameObjectEnterCondition"
 					},
 					"Action": {
-						"name": "PlaySoundAction"
+						"name": "StartWorkReward"
 					}
 				}
 			]

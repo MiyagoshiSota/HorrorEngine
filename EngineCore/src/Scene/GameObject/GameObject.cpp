@@ -44,11 +44,11 @@ void GameObject::transform_update()
 	m_Transform = scaleMat * rotXMat * transMatrix;
 }
 
-void GameObject::component_update()
+void GameObject::component_update(float delta_time) const
 {
 		// コンポーネントのUpdate処理
 	for (auto& comp : components)
 	{
-		comp->update(0);
+		comp->update(delta_time);
 	}
 }

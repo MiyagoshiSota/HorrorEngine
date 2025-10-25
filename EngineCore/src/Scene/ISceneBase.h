@@ -38,7 +38,7 @@ public:
 		for (auto& obj : m_GameObjects)
 		{
 			obj->transform_update();
-			obj->component_update();
+			obj->component_update(delta_time);
 		}
 		
 		// TimeManagerの更新

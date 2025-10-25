@@ -10,14 +10,16 @@ WorkManager& WorkManager::GetInstance()
     return instance;
 }
 
-void WorkManager::Update() const
+void WorkManager::Update(float delta_time)
 {
+    m_context.m_DeltaTime = delta_time;
+    
     // すべてのWorkをイテレートし、アクティブなものを更新
     for (auto& work : m_works)
     {
         if (work && !work->m_isComplete)
         {
-            work->Update();
+            work->Update(m_context);
         }
     }
 }
@@ -33,14 +35,11 @@ void WorkManager::DeleteWork(Work* workToDelete)
     const auto it = std::remove_if(m_works.begin(), m_works.end(),
             [workToDelete](const std::unique_ptr<Work>& workPtr) 
             {
-                // unique_ptrが持つ生のポインタと、削除対象の生のポインタを比較する
                 return workPtr.get() == workToDelete;
             });
 
     if (it != m_works.end())
     {
-        // vectorの末尾に移動した要素（たち）を削除する
-        // これによりunique_ptrのデストラクタが呼ばれ、Workオブジェクトが解放される
         m_works.erase(it, m_works.end());
     }
 }

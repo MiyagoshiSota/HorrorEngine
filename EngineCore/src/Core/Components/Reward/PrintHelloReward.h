@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "IAction.h"
+#include "IReward.h"
 #include "Core/Components/TriggerContext/TriggerContext.h"
 
-class PrintHelloAction : public IAction
+class PrintHelloReward : public IReward
 {
 public:
     void Execute(const TriggerContext& context) override
