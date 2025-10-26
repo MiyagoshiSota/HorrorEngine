@@ -19,13 +19,13 @@ public:
             {
                 change_scene_type(scene_type::play_mode);
 
-                g_Scene->serialize_game_objects("assets/temp/scene_temp.json"); // 一時保存
+                g_Scene->serialize_game_objects(const_path_pref::DefaultTempGameObjectPath); // 一時保存
             }
             else
             {
                 // プレイモードからエディターモードに戻る際の処理
                 g_Scene->RebuidPhysicsWorld(); // 物理ワールドを再構築
-                g_Scene->InitializeGameObject("assets/temp/scene_temp.json");
+                g_Scene->InitializeGameObject(const_path_pref::DefaultTempGameObjectPath);
                 
                 change_scene_type(scene_type::editor_mode);
             }

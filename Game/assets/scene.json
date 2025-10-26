@@ -15,7 +15,7 @@
 					"type": "Rigidbody",
 					"isGravityEnabled": true,
 					"bodyType": "DYNAMIC",
-					"isCollider": {
+					"Collider": {
 						"shape": "Capsule",
 						"height": 10,
 						"radius": 30
@@ -37,9 +37,9 @@
 					"type": "Rigidbody",
 					"isGravityEnabled": false,
 					"bodyType": "STATIC",
-					"isCollider": {
+					"Collider": {
 						"shape": "Box",
-						"direction": [ 20.0, 5.0, 20.0 ]
+						"halfExtents": [ 20.0, 5.0, 20.0 ]
 					}
 				},
 				{

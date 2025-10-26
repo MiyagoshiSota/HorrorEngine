@@ -23,14 +23,14 @@ public:
         ImGui::Separator();
         
         // 全GameObjectをスキャンしてTriggerComponentを収集
-        std::map<std::shared_ptr<GameObject>, std::vector<std::shared_ptr<TriggerComponent>>> taskMap;
+        std::map<std::shared_ptr<GameObject>, std::vector<TriggerComponent*>> taskMap;
         for (const auto& obj : g_Scene->get_game_objects())
         {
             for (const auto& comp : obj->components)
             {
                 if (comp->get_type() == "Trigger")
                 {
-                    std::shared_ptr<TriggerComponent> trigger = std::dynamic_pointer_cast<TriggerComponent>(comp);
+                    const auto& trigger = dynamic_cast<TriggerComponent*>(comp.get());
                     if (trigger)
                     {
                         taskMap[obj].push_back(trigger);
@@ -47,8 +47,8 @@ public:
             {
                 for (int i = 0; i < triggers.size(); ++i)
                 {
-                    std::shared_ptr<TriggerComponent> trigger = triggers[i];
-                    ImGui::PushID(trigger.get()); // 各TriggerComponentを一意に識別
+                    const auto& trigger = triggers[i];
+                    ImGui::PushID(trigger); // 各TriggerComponentを一意に識別
 
                     ImGui::Text("Task %d", i + 1);
                     ImGui::SameLine();
@@ -127,7 +127,7 @@ public:
             if (s_TargetForNewTask && !s_SelectedConditionName.empty() && !s_SelectedActionName.empty())
             {
                 // TargetのGameObjectにTriggerComponentを追加
-                std::shared_ptr<TriggerComponent> newTrigger = s_TargetForNewTask->AddComponent<TriggerComponent>();
+                const auto newTrigger = s_TargetForNewTask->AddComponent<TriggerComponent>();
                 
                 // Condition と Action をファクトリで生成して設定
                 newTrigger->Condition = factory.CreateCondition(s_SelectedConditionName);
@@ -138,7 +138,7 @@ public:
                     newTrigger->Actions.push_back(std::move(new_action));
                 }
 
-                newTrigger->gameObject = s_TargetForNewTask;
+                newTrigger->initialize(s_TargetForNewTask);
             }
         }
         ImGui::End();

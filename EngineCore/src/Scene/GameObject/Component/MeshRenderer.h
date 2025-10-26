@@ -12,11 +12,16 @@ public:
 	MeshRenderer() = default;
 	~MeshRenderer() override = default;
 
+	void initialize(std::shared_ptr<GameObject> game_object) override
+	{
+		Component::initialize(game_object);
+	};
+
 	void start() override {}
 	void update(float deltaTime) override {
 	}
 
-	void deserialize(const nlohmann::json& jsonData,std::shared_ptr<GameObject> obj) override {
+	void deserialize(const nlohmann::json& jsonData) override {
 
 		if (!jsonData.contains("model_name")) return;
 
@@ -29,7 +34,7 @@ public:
 		if (model)
 		{
 			// GameObjectにモデルをセット
-			obj->set_model(model);
+			gameObject->set_model(model);
 		}else
 		{
 			printf("存在しないモデルパス:%s\n",model_name.c_str());

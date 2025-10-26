@@ -8,7 +8,12 @@ class StartWorkReward : public IReward
 public:
     void Execute(const TriggerContext& context) override
     {
-        m_Work->m_isActive = true;
+        if (m_Work != nullptr)
+        {
+            m_Work->m_isActive = true;
+            return;
+        }
+        printf("スタートするWorkが設定されていません。");
     }
 
     void DrawInspectorUI() override
@@ -27,6 +32,11 @@ public:
             }
             ImGui::TreePop();
         }
+    }
+
+    Work* get_work()
+    {
+        return m_Work;
     }
 
     std::string GetName() const override

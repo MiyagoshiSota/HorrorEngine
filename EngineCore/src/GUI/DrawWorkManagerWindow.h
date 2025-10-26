@@ -40,7 +40,7 @@ private:
     char m_newTaskNameBuffer[128];
 
     // シーン内の全TriggerComponentのキャッシュ（「利用可能なタスク」リスト用）
-    std::vector<std::shared_ptr<TriggerComponent>> m_sceneTriggersCache;
+    std::vector<TriggerComponent*> m_sceneTriggersCache;
     
     // タスク作成UI用
     int m_selectedGameObjectIndex; // ターゲットGameObjectのインデックス

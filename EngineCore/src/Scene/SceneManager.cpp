@@ -4,8 +4,6 @@
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
 
 // App.cppで実体を定義する
-extern std::shared_ptr<ISceneBase> g_Scene;
-extern Engine* g_Engine;
 
 void SceneManager::LoadScene(const std::string& scenePath)
 {

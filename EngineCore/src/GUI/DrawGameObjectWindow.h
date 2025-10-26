@@ -2,6 +2,7 @@
 #include "IDrawWindow.h"
 #include "imgui.h"
 #include "Core/App.h"
+#include "Scene/GameObject/Component/ComponentFactory.h"
 
 class DrawGameObjectWindow : public IDrawWindow
 {
@@ -78,9 +79,21 @@ public:
             }
             
             // Components
-            for (auto & comp : s_SelectedObject->components)
+            for (const auto& comp : s_SelectedObject->components)
             {
-                comp->on_gui();
+                if (!comp) continue;
+
+                ImGui::PushID(comp.get());
+
+                std::string componentType = comp->get_type(); 
+
+                if (ImGui::CollapsingHeader(componentType.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    comp->on_gui(); 
+                }
+
+                ImGui::PopID();
+                ImGui::Separator();
             }
         }
         else
@@ -88,6 +101,60 @@ public:
             ImGui::Text("No object selected.");
         }
         ImGui::EndChild();
+
+        // Componentの追加
+        // Componentの追加
+        if (s_SelectedObject) // s_SelectedObject は std::shared_ptr<GameObject>
+        {
+            ImGui::Separator();
+            ImGui::Text("Add Component");
+
+            // ファクトリから登録済みのコンポーネント名リストを取得
+            const auto& component_map = ComponentFactory::get_mappings();
+
+            // ドロップダウンリスト
+            static std::string selected_component_type;
+            if (component_map.empty())
+            {
+                ImGui::Text("No components registered.");
+            }
+            else
+            {
+                // 選択肢が空なら、最初の要素をデフォルトにする
+                if (selected_component_type.empty()) {
+                    selected_component_type = component_map.begin()->first;
+                }
+
+                if (ImGui::BeginCombo("Component Type", selected_component_type.c_str()))
+                {
+                    for (const auto& pair : component_map)
+                    {
+                        bool isSelected = (selected_component_type == pair.first);
+                        if (ImGui::Selectable(pair.first.c_str(), isSelected))
+                        {
+                            selected_component_type = pair.first;
+                        }
+                        if (isSelected) ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Add"))
+                {
+                    // ファクトリに文字列名を渡してコンポーネントを
+                    auto newComp = 
+                        ComponentFactory::create(selected_component_type);
+
+                    // 作成したコンポーネントを
+                    if (newComp)
+                    {
+                        newComp->initialize(s_SelectedObject);
+                        s_SelectedObject->components.push_back(std::move(newComp));
+                    }
+                }
+            }
+        }
 
         ImGui::End();
     }

@@ -43,9 +43,9 @@ public:
 
     // 各種Find
     template<typename T>
-    std::shared_ptr<T> find_component() {
+    T* find_component() {
         for (const auto& comp : components) {
-            if (auto casted_comp = std::dynamic_pointer_cast<T>(comp)) {
+            if (auto casted_comp = dynamic_cast<T*>(comp.get())) {
                 return casted_comp;
             }
         }
@@ -53,30 +53,50 @@ public:
     }
 
     template<typename T>
-    std::vector<std::shared_ptr<T>> find_components() {
-        std::vector<std::shared_ptr<T>> foundComponents;
-        for (const auto& comp : components) {
-            if (auto casted_comp = std::dynamic_pointer_cast<T>(comp)) {
-                foundComponents.push_back(casted_comp);
-            }
-        }
+    std::vector<T*> find_components() {
+        std::vector<T*> foundComponents;
+		for (const auto& comp : components) {
+			T* castedComponent = dynamic_cast<T*>(comp.get());
+
+			if (castedComponent != nullptr) {
+				foundComponents.push_back(castedComponent);
+			}
+		}
         return foundComponents;
     }
 
     // コンポーネントの削除
-    void RemoveComponent(const std::shared_ptr<Component>& targetComponent) {
-        components.erase(
-            std::remove(components.begin(), components.end(), targetComponent),
-            components.end()
+    void RemoveComponent(Component* compToRemove)
+	{
+	    if (compToRemove == nullptr) return;
+
+	    // std::remove_if を使って、条件に一致する要素を検索します
+	    const auto it = std::remove_if(components.begin(), components.end(),
+        
+            // ラムダ式で比較条件を定義します
+            [compToRemove](const std::unique_ptr<Component>& comp_ptr) 
+            {
+                // compPtr の .get() が、削除したいポインタと一致するかどうかを返します
+                return comp_ptr.get() == compToRemove;
+            }
         );
-    }
+
+	    // 見つかった要素を削除
+	    if (it != components.end())
+	    {
+	        components.erase(it, components.end());
+	    }
+	}
  
     template<typename T>
-    std::shared_ptr<T> AddComponent()
+    T* AddComponent()
 	{
-        std::shared_ptr<T> newComponent = std::make_shared<T>();
-	    components.emplace_back(newComponent);
-        return newComponent;
+        std::unique_ptr<T> newComponent = std::make_unique<T>();
+
+		// Moveする前にptrをget
+		T* new_component_ptr = newComponent.get();
+	    components.emplace_back(std::move(newComponent));
+        return new_component_ptr;
 	}
 
 public:
@@ -93,7 +113,7 @@ public:
 
 public:
     std::string name;
-	std::vector<std::shared_ptr<Component>> components;
+	std::vector<std::unique_ptr<Component>> components;
 
 private:
     std::shared_ptr<Model> m_Model;

@@ -31,6 +31,7 @@
     <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
     <ClCompile Include="src\GUI\DrawWorkManagerWindow.cpp" />
     <ClCompile Include="src\Input\InputDevice.cpp" />
+    <ClCompile Include="src\Physics\EngineCollider.cpp" />
     <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
     <ClCompile Include="src\Renderer\Light\LightingManager.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_gameobject_save_param_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_render_pref.h" />
     <ClInclude Include="src\Physics\MyCollisionListener.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.h" />

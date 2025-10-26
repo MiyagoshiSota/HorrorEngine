@@ -56,8 +56,8 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::load_from_file(const 
 				std::string type = compJson["type"];
 				if (auto new_component = ComponentFactory::create(type))
 				{
-					new_component->gameObject = go;
-					new_component->deserialize(compJson,go);
+					new_component->initialize(go);
+					new_component->deserialize(compJson);
 					go->components.push_back(std::move(new_component));
 				}
 			}

@@ -8,6 +8,11 @@
                 },
                 {
                     "bodyType": "DYNAMIC",
+                    "isCollider": {
+                        "height": 30.0,
+                        "radius": 10.0,
+                        "shape": "Capsule"
+                    },
                     "isGravityEnabled": true,
                     "type": "Rigidbody"
                 }
@@ -34,35 +39,25 @@
                 {
                     "model_name": "primitive/cube",
                     "type": "MeshRenderer"
-                },
-                {
-                    "bodyType": "STATIC",
-                    "collider": {
-                        "isTrigger": false,
-                        "radius": 0.5,
-                        "shape": "Sphere"
-                    },
-                    "isGravityEnabled": false,
-                    "type": "Rigidbody"
                 }
             ],
             "name": "primitive/cube",
             "position": [
                 0.0,
-                0.0,
+                23.600000381469727,
                 0.0
             ],
             "rotation": [
-                0.0,
-                0.0,
+                8.5,
+                6.5,
                 0.0
             ],
             "scale": [
-                48.099998474121094,
-                1.0,
-                13.600000381469727
+                8.0,
+                1.5,
+                18.5
             ]
         }
     ],
-    "scene_name": "assets/temp/scene_temp.json"
+    "scene_name": "assets/Days/Day1.json"
 }
