@@ -30,6 +30,7 @@
     <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
     <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
     <ClCompile Include="src\GUI\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\Input\InputDevice.cpp" />
     <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
     <ClCompile Include="src\Renderer\Light\LightingManager.cpp" />
@@ -248,6 +249,7 @@
     <ClInclude Include="src\GUI\DrawTaskManagerWindow.h" />
     <ClInclude Include="src\GUI\DrawWorkManagerWindow.h" />
     <ClInclude Include="src\GUI\IDrawWindow.h" />
+    <ClInclude Include="src\Input\InputDevice.h" />
     <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />

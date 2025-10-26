@@ -4,6 +4,7 @@
 #include "Scene/ResourceManager/SceneResourceManager.h"
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Core/Components/TriggerComponent.h"
+#include "Input/InputDevice.h"
 #include "Modules/PublicConst/const_path_pref.h"
 #include "Physics/MyCollisionListener.h"
 #include "Physics/Component/Rigidbody.h"
@@ -98,6 +99,9 @@ void DefaultScene::EditorUpdate(float delta_time)
 	m_default_pipeline_manager->get_post_process_manager()->Update(delta_time);
 
 	m_LightingManager->update_constant_buffer();
+
+	// SceneCameraの更新
+	m_Camera->Update(delta_time);
 }
 
 void DefaultScene::Draw()

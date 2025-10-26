@@ -3,6 +3,7 @@
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
 #include "Components/Work/WorkManager.h"
+#include "Input/InputDevice.h"
 #include "Modules/PublicConst//const_name_pref.h"
 #include "Modules/PublicConst/const_path_pref.h"
 #include "Renderer/Engine.h"
@@ -20,6 +21,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wp, lp)) return true;
 
+	// 入力処理
+	InputDevice::GetInstance().ProcessMessage(msg, wp, lp);
+	
 	switch (msg) {
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -39,7 +43,7 @@ void init_window(const TCHAR* appName)
 		return;
 	}
 
-	//	Windowの設定
+	// Windowの設定
 	WNDCLASSEX wc = {};
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -107,10 +111,15 @@ void main_loop() {
 		}
 		else 
 		{
+			// 経過時間を秒単位で取得
+			auto delta_time = deltaTime.count();
+
+			// 入力デバイスの更新
+			InputDevice::GetInstance().Update();
+			
 			// SceneTypeに応じて更新処理を分岐
 			if (g_scene_type == scene_type::play_mode)
 			{
-				auto delta_time = deltaTime.count();
 				g_Scene->Update(delta_time);
 				WorkManager::GetInstance().Update(delta_time);
 			}
