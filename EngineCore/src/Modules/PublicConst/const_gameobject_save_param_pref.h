@@ -2,7 +2,7 @@
 {
 public:
     static inline const char* SceneName = "scene_name";
-    static inline const char* GameObjects = "gameObjects"; // GameObject -> GameObjects に修正
+    static inline const char* GameObjects = "gameObjects";
     static inline const char* GameObjectName = "name";
 
     static inline const char* TransformPosition = "position";
@@ -15,6 +15,7 @@ public:
     static inline const char* ComponentMeshRenderer = "MeshRenderer";
     static inline const char* ComponentRigidbody = "Rigidbody";
     static inline const char* ComponentTrigger = "Trigger";
+    static inline const char* ComponentPlayerController = "PlayerController";
 
     // Physics (Rigidbody Component 内)
     static inline const char* RigidbodyIsGravityEnabled = "isGravityEnabled";
@@ -36,4 +37,7 @@ public:
     static inline const char* TriggerAction = "Action"; 
     static inline const char* TriggerActionName = "name";
     static inline const char* TriggerActions = "Actions";
+
+    // PLayerController内
+    static inline const char* PlayerControllerMoveSpeed = "MoveSpeed";
 };

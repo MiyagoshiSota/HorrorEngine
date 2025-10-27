@@ -275,6 +275,7 @@
     <ClInclude Include="src\Physics\Debug\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\EngineCollider.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\SceneRenderPassBase.h" />
+    <ClInclude Include="src\Scene\Character\Player\PlayerController.h" />
     <ClInclude Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="src\Scene\Default\Scene\DefaultScene.h" />
     <ClInclude Include="src\Scene\GameObject\DefaultMesh\DefaultMeshes.h" />

@@ -9,6 +9,7 @@
 #include "Physics/MyCollisionListener.h"
 #include "Physics/Component/Rigidbody.h"
 #include "Renderer/Loader/PSOLoader.h"
+#include "Scene/Character/Player/PlayerController.h"
 #include "Scene/GameObject/GameObject.h"
 #include "Scene/GameObject/Component/MeshRenderer.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
@@ -300,7 +301,16 @@ bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
                     }
                 }
             }
-            // --- 他のコンポーネントタイプのシリアライズ処理をここに追加 ---
+            else if (type == const_gameobject_save_param_pref::ComponentPlayerController)
+            {
+                auto* playerController = dynamic_cast<PLayerController*>(comp.get());
+                if (playerController)
+                {
+                    // キャスト成功確認
+                    compJson[const_gameobject_save_param_pref::PlayerControllerMoveSpeed] = playerController->
+                        get_move_speed();
+                }
+            }
 
             componentsJson.push_back(compJson);
         }

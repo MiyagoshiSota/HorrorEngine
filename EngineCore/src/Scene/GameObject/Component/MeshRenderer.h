@@ -54,7 +54,5 @@ public:
 public:
 	std::string model_name;
 
-private:
-
 };
 

@@ -26,6 +26,4 @@ public:
 
     // GUI描画用の仮想関数
     virtual void on_gui() = 0;
-private:
-    
 };

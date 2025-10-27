@@ -8,8 +8,21 @@
                 },
                 {
                     "bodyType": "DYNAMIC",
+                    "collider": {
+                        "halfExtents": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
                     "isGravityEnabled": true,
                     "type": "Rigidbody"
+                },
+                {
+                    "MoveSpeed": 100.0,
+                    "type": "PlayerController"
                 }
             ],
             "name": "Player",
@@ -38,9 +51,13 @@
                 {
                     "bodyType": "STATIC",
                     "collider": {
+                        "halfExtents": [
+                            50.0,
+                            10.0,
+                            50.0
+                        ],
                         "isTrigger": false,
-                        "radius": 0.5,
-                        "shape": "Sphere"
+                        "shape": "Box"
                     },
                     "isGravityEnabled": false,
                     "type": "Rigidbody"
