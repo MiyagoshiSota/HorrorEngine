@@ -2,8 +2,9 @@
 
 #include <reactphysics3d/reactphysics3d.h>
 #include <string>
+#include <DirectXMath.h>
 
-class engine_collider
+class engine_collider // NOLINT(cppcoreguidelines-special-member-functions)
 {
 public:
     // --- Enums ---
@@ -15,14 +16,14 @@ public:
     ~engine_collider(); // デストラクタで形状を破棄
 
     // --- Collider Creation Methods ---
-    bool create_box(reactphysics3d::RigidBody* rb,
+    bool create_box(reactphysics3d::RigidBody* rb, DirectX::XMFLOAT3 go_size,
                     const reactphysics3d::Vector3& halfExtents,
                     const reactphysics3d::Transform& transform =
                         reactphysics3d::Transform::identity());
-    bool create_sphere(reactphysics3d::RigidBody* rb, float radius,
+    bool create_sphere(reactphysics3d::RigidBody* rb, DirectX::XMFLOAT3 go_size, float radius,
                        const reactphysics3d::Transform& transform =
                            reactphysics3d::Transform::identity());
-    bool create_capsule(reactphysics3d::RigidBody* rb, float radius, float height,
+    bool create_capsule(reactphysics3d::RigidBody* rb, DirectX::XMFLOAT3 go_size, float radius, float height,
                         const reactphysics3d::Transform& transform =
                             reactphysics3d::Transform::identity());
 
@@ -35,7 +36,7 @@ public:
     float get_capsule_height() const;
 
     // --- GUI Drawing ---
-    void DrawShapeParamsGUI(); // シェイプ固有のパラメータ編集UI
+    void DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size); // シェイプ固有のパラメータ編集UI
 
     // --- Helpers ---
     // ShapeTypeを文字列に変換するヘルパー

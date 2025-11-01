@@ -55,3 +55,23 @@ bool VertexBuffer::IsValid()
 {
 	return m_IsValid;
 }
+
+void VertexBuffer::CopyData(size_t size, const void* pInitData)
+{
+	if (pInitData != nullptr)
+	{
+		void* ptr = nullptr; 
+		auto hr = m_pBuffer->Map(0, nullptr, &ptr);
+		if (FAILED(hr))
+		{
+			printf("頂点バッファマッピングに失敗");
+			return;
+		}
+
+		// 頂点データをマッピング先に設定
+		memcpy(ptr, pInitData, size);
+
+		// マッピング解除
+		m_pBuffer->Unmap(0, nullptr);
+	}
+}

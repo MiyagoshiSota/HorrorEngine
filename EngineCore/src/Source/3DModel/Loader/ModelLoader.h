@@ -13,6 +13,8 @@ public:
     bool set_model(const std::string& model_name, const std::string& model_path);
     std::map<std::string, std::shared_ptr<Model>> get_all_models() const { return m_ModelCache; }
 
+    std::shared_ptr<Model> GetModelOrigin(const std::string& model_name);
+
 private:
     bool desirialize(const std::string& models_file_path);
     void create_primitive_objects();

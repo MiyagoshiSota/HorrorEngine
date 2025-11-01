@@ -12,6 +12,7 @@ public:
 	}
 	D3D12_VERTEX_BUFFER_VIEW View() const; // 頂点バッファビューを取得
 	bool IsValid(); // バッファの作成に成功したかを取得
+	void CopyData(size_t size, const void* pInitData);
 
 private:
 	bool m_IsValid = false; // バッファの作成に成功したかを取得

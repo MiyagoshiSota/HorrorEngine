@@ -47,6 +47,13 @@
     <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
     <ClCompile Include="src\Scene\Default\Scene\DefaultScene.cpp" />
+    <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
+    <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
+    <ClCompile Include="src\GUI\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\Input\InputDevice.cpp" />
+    <ClCompile Include="src\Physics\EngineCollider.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.cpp" />
+    <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -119,8 +126,6 @@
     <ClInclude Include="src\Renderer\Light\LightingManager.h" />
     <ClInclude Include="src\Core\Components\TriggerComponent.h" />
     <ClInclude Include="src\Core\Components\Trigger\ITriggerCondition.h" />
-    <ClInclude Include="src\Core\Components\Action\IAction.h" />
-    <ClInclude Include="src\Core\Components\Action\PlaySoundAction.h" />
     <ClInclude Include="src\Core\Components\TriggerContext\TriggerContext.h" />
     <ClInclude Include="src\Core\Components\TriggerFactory.h" />
     <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
@@ -131,6 +136,22 @@
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="src\Scene\Default\Scene\DefaultScene.h" />
+    <ClInclude Include="src\Core\Components\Reward\IReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\PlaySoundReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\PrintHelloReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\StartWorkReward.h" />
+    <ClInclude Include="src\Core\Components\Trigger\CountDownCondition.h" />
+    <ClInclude Include="src\Core\Components\WorkFlow\WorkFlow.h" />
+    <ClInclude Include="src\Core\Components\Work\Work.h" />
+    <ClInclude Include="src\Core\Components\Work\WorkManager.h" />
+    <ClInclude Include="src\GUI\DrawModelsWindow.h" />
+    <ClInclude Include="src\GUI\DrawTaskManagerWindow.h" />
+    <ClInclude Include="src\GUI\DrawWorkManagerWindow.h" />
+    <ClInclude Include="src\Input\InputDevice.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_gameobject_save_param_pref.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.h" />
+    <ClInclude Include="src\Scene\Character\Player\PlayerController.h" />
+    <ClInclude Include="src\Source\3DModel\Loader\ModelLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />
@@ -145,6 +166,8 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\ChromaticAberrationPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimplePS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\DebugVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\DebugPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

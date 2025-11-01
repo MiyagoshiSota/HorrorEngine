@@ -27,7 +27,7 @@ public:
     void initialize(std::shared_ptr<GameObject> game_object) override
     {
         Component::initialize(game_object);
-        
+
         // PhysicsWorldの取得
         auto world = g_Scene->get_physics_world();
 
@@ -35,16 +35,24 @@ public:
         auto fl_pos = gameObject->get_position();
         reactphysics3d::Vector3 pos = reactphysics3d::Vector3(fl_pos.x, fl_pos.y, fl_pos.z);
 
-        // TODO:これもGameObjectから持ってくるべき
         // ReactPhysics3DのTransform型を作成
-        reactphysics3d::Quaternion rot = reactphysics3d::Quaternion::identity();
-        reactphysics3d::Transform transform = reactphysics3d::Transform(pos, rot);
+        // auto rot = gameObject->get_rotation();
+        // reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(
+        //     static_cast<reactphysics3d::decimal>(rot.x * static_cast<reactphysics3d::decimal>(M_PI) / 180.0),
+        //     static_cast<reactphysics3d::decimal>(rot.y * static_cast<reactphysics3d::decimal>(M_PI) / 180.0),
+        //     static_cast<reactphysics3d::decimal>(rot.z * static_cast<reactphysics3d::decimal>(M_PI) / 180.0)
+        // );
+        auto quat = reactphysics3d::Quaternion::identity();
+
+        reactphysics3d::Transform transform = reactphysics3d::Transform(pos, quat);
 
         // RigidBodyの作成
         m_RigidBody = world->createRigidBody(transform);
 
         // 作成した物理ボディに、親であるGameObjectのポインタを保存する
         m_RigidBody->setUserData(gameObject.get());
+
+        m_RigidBody->setMass(10.0f); // デフォルト質量を設定
     }
 
     void start() override
@@ -54,14 +62,24 @@ public:
     void update(float deltaTime) override
     {
         auto v3pos = m_RigidBody->getTransform().getPosition();
+        reactphysics3d::Quaternion v3rot = m_RigidBody->getTransform().getOrientation();
 
         gameObject->set_position(v3pos.x, v3pos.y, v3pos.z);
+
+        // オイラー角に変換
+        // reactphysics3d::Vector3 eulerAngles = v3rot.getVectorV();
+        // gameObject->set_rotation(
+        //     static_cast<float>(eulerAngles.x * 180.0 / M_PI),
+        //     static_cast<float>(eulerAngles.y * 180.0 / M_PI),
+        //     static_cast<float>(eulerAngles.z * 180.0 / M_PI)
+        // );
     }
 
     void deserialize(const nlohmann::json& jsonData) override
     {
         // RigidBodyがinitializeで作成されている前提
-        if (!m_RigidBody) {
+        if (!m_RigidBody)
+        {
             printf("Error: Rigidbody::deserialize called before RigidBody was initialized.\n");
             return;
         }
@@ -73,11 +91,14 @@ public:
         if (jsonData.contains(Prefs::RigidbodyIsGravityEnabled))
         {
             // エラーチェックを追加 (型がboolか)
-            if (jsonData[Prefs::RigidbodyIsGravityEnabled].is_boolean()) {
+            if (jsonData[Prefs::RigidbodyIsGravityEnabled].is_boolean())
+            {
                 bool data = jsonData[Prefs::RigidbodyIsGravityEnabled].get<bool>();
                 m_RigidBody->enableGravity(data);
-            } else {
-                 printf("Warning: Rigidbody 'isGravityEnabled' is not a boolean.\n");
+            }
+            else
+            {
+                printf("Warning: Rigidbody 'isGravityEnabled' is not a boolean.\n");
             }
         }
 
@@ -85,7 +106,8 @@ public:
         if (jsonData.contains(Prefs::RigidbodyBodyType))
         {
             // エラーチェックを追加 (型がstringか)
-            if(jsonData[Prefs::RigidbodyBodyType].is_string()) {
+            if (jsonData[Prefs::RigidbodyBodyType].is_string())
+            {
                 std::string body_type = jsonData[Prefs::RigidbodyBodyType].get<std::string>();
                 if (body_type == "STATIC") // 文字列比較は定数を使わない方が良い場合もある
                 {
@@ -99,7 +121,9 @@ public:
                 {
                     m_RigidBody->setType(reactphysics3d::BodyType::KINEMATIC);
                 }
-            } else {
+            }
+            else
+            {
                 printf("Warning: Rigidbody 'bodyType' is not a string.\n");
             }
         }
@@ -108,7 +132,8 @@ public:
         if (jsonData.contains(Prefs::RigidbodyCollider)) // キー名を定数に変更
         {
             // エラーチェック (型がobjectか)
-            if (!jsonData[Prefs::RigidbodyCollider].is_object()) {
+            if (!jsonData[Prefs::RigidbodyCollider].is_object())
+            {
                 printf("Warning: Rigidbody 'collider' is not an object.\n");
                 return;
             }
@@ -123,6 +148,8 @@ public:
 
                 bool created = false;
 
+                auto size = gameObject->get_scale();
+
                 // BOX
                 if (shapeType == Prefs::ColliderShapeBox && // 定数を使用
                     colliderJson.contains(Prefs::ColliderBoxHalfExtents) &&
@@ -130,35 +157,47 @@ public:
                     colliderJson[Prefs::ColliderBoxHalfExtents].size() == 3)
                 {
                     // 型チェックを追加
-                    try {
+                    try
+                    {
                         std::vector<float> he = colliderJson[Prefs::ColliderBoxHalfExtents].get<std::vector<float>>();
-                        created = m_collider->create_box(m_RigidBody, reactphysics3d::Vector3(he[0], he[1], he[2]), localTransform);
-                    } catch (const nlohmann::json::type_error& e) {
+                        created = m_collider->create_box(get_rigidbody(), size, reactphysics3d::Vector3(he[0], he[1], he[2]),
+                                                         localTransform);
+                    }
+                    catch (const nlohmann::json::type_error& e)
+                    {
                         printf("Warning: Collider 'halfExtents' has incorrect type: %s\n", e.what());
                     }
                 }
                 // SPHERE
                 else if (shapeType == Prefs::ColliderShapeSphere && // 定数を使用
-                         colliderJson.contains(Prefs::ColliderSphereRadius) &&
-                         colliderJson[Prefs::ColliderSphereRadius].is_number())
+                    colliderJson.contains(Prefs::ColliderSphereRadius) &&
+                    colliderJson[Prefs::ColliderSphereRadius].is_number())
                 {
-                    try {
+                    try
+                    {
                         float r = colliderJson[Prefs::ColliderSphereRadius].get<float>(); // 定数を使用
-                        created = m_collider->create_sphere(m_RigidBody, r, localTransform);
-                     } catch (const nlohmann::json::type_error& e) {
+                        created = m_collider->create_sphere(get_rigidbody(), size, r, localTransform);
+                    }
+                    catch (const nlohmann::json::type_error& e)
+                    {
                         printf("Warning: Collider 'radius' (Sphere) has incorrect type: %s\n", e.what());
                     }
                 }
                 // CAPSULE
                 else if (shapeType == Prefs::ColliderShapeCapsule && // 定数を使用
-                         colliderJson.contains(Prefs::ColliderCapsuleRadius) && colliderJson[Prefs::ColliderCapsuleRadius].is_number() &&
-                         colliderJson.contains(Prefs::ColliderCapsuleHeight) && colliderJson[Prefs::ColliderCapsuleHeight].is_number())
+                    colliderJson.contains(Prefs::ColliderCapsuleRadius) && colliderJson[Prefs::ColliderCapsuleRadius].
+                    is_number() &&
+                    colliderJson.contains(Prefs::ColliderCapsuleHeight) && colliderJson[Prefs::ColliderCapsuleHeight].
+                    is_number())
                 {
-                    try {
+                    try
+                    {
                         float r = colliderJson[Prefs::ColliderCapsuleRadius].get<float>(); // 定数を使用
                         float h = colliderJson[Prefs::ColliderCapsuleHeight].get<float>(); // 定数を使用
-                        created = m_collider->create_capsule(m_RigidBody, r, h, localTransform);
-                     } catch (const nlohmann::json::type_error& e) {
+                        created = m_collider->create_capsule(get_rigidbody(), size, r, h, localTransform);
+                    }
+                    catch (const nlohmann::json::type_error& e)
+                    {
                         printf("Warning: Collider 'radius' or 'height' (Capsule) has incorrect type: %s\n", e.what());
                     }
                 }
@@ -170,20 +209,25 @@ public:
                 }
                 // Trigger設定の読み込み
                 else if (colliderJson.contains(Prefs::ColliderIsTrigger) && // 定数を使用
-                         colliderJson[Prefs::ColliderIsTrigger].is_boolean())
+                    colliderJson[Prefs::ColliderIsTrigger].is_boolean())
                 {
-                     try {
+                    try
+                    {
                         bool isTrigger = colliderJson[Prefs::ColliderIsTrigger].get<bool>(); // 定数を使用
                         if (m_collider && m_collider->get_collider()) // m_colliderのnullチェック追加
                         {
                             m_collider->get_collider()->setIsTrigger(isTrigger);
                         }
-                     } catch (const nlohmann::json::type_error& e) {
+                    }
+                    catch (const nlohmann::json::type_error& e)
+                    {
                         printf("Warning: Collider 'isTrigger' has incorrect type: %s\n", e.what());
-                     }
+                    }
                 }
-            } else {
-                 printf("Warning: Rigidbody 'collider' object is missing 'shape' string.\n");
+            }
+            else
+            {
+                printf("Warning: Rigidbody 'collider' object is missing 'shape' string.\n");
             }
         }
     }
@@ -233,7 +277,8 @@ public:
             ImGui::Text("  Shape: %s", engine_collider::shape_type_to_string(m_collider->get_shape_type()).c_str());
 
             // Collider固有のパラメータ編集UIを呼び出す
-            m_collider->DrawShapeParamsGUI();
+            auto go_size = gameObject->get_scale();
+            m_collider->DrawShapeParamsGUI(go_size);
 
             ImGui::Spacing();
             if (ImGui::Button("Remove Collider##RBRemoveCollider"))
@@ -301,22 +346,27 @@ public:
                 }
 
                 bool success = false;
-                // ローカルトランスフォームはデフォルトでIdentityを使用
-                reactphysics3d::Transform localTransform = reactphysics3d::Transform::identity();
+                const auto pos = gameObject->get_position();
+                const auto quo = reactphysics3d::Quaternion::identity();
+                const auto local_transform = reactphysics3d::Transform(reactphysics3d::Vector3(pos.x, pos.y, pos.z),
+                                                                       quo);
 
+                auto size = gameObject->get_scale();
                 switch (selectedShapeIndex)
                 {
                 case 0: // Box
-                    success = m_collider->create_box(m_RigidBody,
+                    success = m_collider->create_box(get_rigidbody(), size,
                                                      reactphysics3d::Vector3(
-                                                         boxHalfExtents[0], boxHalfExtents[1], boxHalfExtents[2]),
-                                                     localTransform);
+                                                         boxHalfExtents[0] ,
+                                                         boxHalfExtents[1] ,
+                                                         boxHalfExtents[2] ),
+                                                     local_transform);
                     break;
                 case 1: // Sphere
-                    success = m_collider->create_sphere(m_RigidBody, sphereRadius, localTransform);
+                    success = m_collider->create_sphere(get_rigidbody(), size, sphereRadius, local_transform);
                     break;
                 case 2: // Capsule
-                    success = m_collider->create_capsule(m_RigidBody, capsuleRadius, capsuleHeight, localTransform);
+                    success = m_collider->create_capsule(get_rigidbody(), size, capsuleRadius, capsuleHeight, local_transform);
                     break;
                 default: ;
                 }
@@ -348,7 +398,6 @@ public:
 
 public:
     reactphysics3d::RigidBody* get_rigidbody() const { return m_RigidBody; }
-    std::shared_ptr<engine_collider> get_collider() const { return m_collider; }
     bool is_gravity_enabled() const { return m_RigidBody->isGravityEnabled(); }
     reactphysics3d::BodyType get_body_type() const { return m_RigidBody->getType(); }
     std::shared_ptr<engine_collider> get_collider_object() const { return m_collider; }

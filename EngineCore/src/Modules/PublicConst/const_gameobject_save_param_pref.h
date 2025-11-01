@@ -1,4 +1,6 @@
-﻿class const_gameobject_save_param_pref
+﻿#pragma once
+
+class const_gameobject_save_param_pref
 {
 public:
     static inline const char* SceneName = "scene_name";

@@ -13,6 +13,7 @@ public:
 	void SetRootSignature(ID3D12RootSignature* rootSignature); // ルートシグネチャを設定
 	void SetRenderTargetFormat(DXGI_FORMAT format);
 	void SetDepthStencilFormat(DXGI_FORMAT format);
+	void SetWireFrame(bool wireFrame);
 	void SetVS(std::wstring filePath); // 頂点シェーダーを設定
 	void SetPS(std::wstring filePath); // ピクセルシェーダーを設定
 	void Create(); // パイプラインステートを生成

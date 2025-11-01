@@ -48,7 +48,6 @@ void GeometryPass::Collect(RenderContext& context)
     cmdList->ClearRenderTargetView(sceneColorRT->GetRTVHandle(), clearColor, 0, nullptr);
     cmdList->ClearDepthStencilView(sceneDepthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-
 	// 出力先としてレンダーターゲットと深度バッファを設定
     auto sceneDepthRHandle = sceneDepthRT->GetDSVHandle();
     D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[] = { sceneColorRT->GetRTVHandle() };
@@ -66,7 +65,7 @@ void GeometryPass::Draw(RenderContext& context)
     UINT frameIndex = g_Engine->CurrentBackBufferIndex();
 
     // ライト情報の定数バッファをスロット1にセット
-    auto lightingCB = g_Scene->get_lighting_manager()->get_constant_buffer();
+    const auto& lightingCB = g_Scene->get_lighting_manager()->get_constant_buffer();
     cmdList->SetGraphicsRootConstantBufferView(1, lightingCB->GetAddress());
 
 	// view, proj行列の計算

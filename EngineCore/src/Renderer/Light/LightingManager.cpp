@@ -3,7 +3,7 @@
 
 void LightingManager::init()
 {
-    m_LightingConstantBuffer = std::make_unique<ConstantBuffer>(sizeof(SharedStruct::LightingParams));
+    m_LightingConstantBuffer = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::LightingParams));
 }
 
 std::shared_ptr<Light> LightingManager::add_directional_light(LightType type, const DirectX::XMFLOAT3& color,

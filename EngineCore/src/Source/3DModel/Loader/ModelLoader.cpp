@@ -3,6 +3,7 @@
 #include "Core/App.h"
 #include "Modules/PublicConst/const_path_pref.h"
 #include "Renderer/Assimp/AssimpLoader.h"
+#include "Scene/SceneManager.h"
 #include "Scene/GameObject/DefaultMesh/DefaultMeshes.h"
 
 bool ModelLoader::init()
@@ -10,6 +11,16 @@ bool ModelLoader::init()
     desirialize(const_path_pref::DefaultModelsPath);
     create_primitive_objects();
     return true;
+}
+
+std::shared_ptr<Model> ModelLoader::GetModelOrigin(const std::string& model_name)
+{
+    auto it = m_ModelCache.find(model_name);
+    if (it != m_ModelCache.end())
+    {
+        return it->second;
+    }
+    return nullptr;
 }
 
 bool ModelLoader::desirialize(const std::string& models_file_path)
@@ -95,10 +106,16 @@ void ModelLoader::create_primitive_objects()
     // 平面
     auto quad_model = std::make_shared<Model>();
     quad_model->m_InputMesh.push_back(DefaultMeshes::create_quad());
+    SceneResourceManager::GetInstance().create_mesh_classes(quad_model);
+    SceneResourceManager::GetInstance().create_index_buffer(quad_model);
+    SceneResourceManager::GetInstance().create_vertex_buffer(quad_model);
     m_ModelCache["primitive/quad"] = quad_model;
 
     // 立方体
     auto cube_model = std::make_shared<Model>();
     cube_model->m_InputMesh.push_back(DefaultMeshes::create_cube());
+    SceneResourceManager::GetInstance().create_mesh_classes(cube_model);
+    SceneResourceManager::GetInstance().create_index_buffer(cube_model);
+    SceneResourceManager::GetInstance().create_vertex_buffer(cube_model);
     m_ModelCache["primitive/cube"] = cube_model;
 }

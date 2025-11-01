@@ -4,6 +4,7 @@
 #include "Modules/PublicConst/const_path_pref.h"
 #include "Modules/PublicConst/const_render_pref.h"
 #include "Renderer/Engine.h"
+#include "Renderer/Pass/RenderProcess/Pass/DebugPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/GeometryPass.h"
 #include "Renderer/Target/DepthStencilTarget.h"
 
@@ -11,6 +12,7 @@ DefaultPipelineManager::DefaultPipelineManager()
 {
     // Passを追加
     AddRenderProcessPass(std::make_shared<GeometryPass>());
+	// AddRenderProcessPass(std::make_shared<DebugPass>());
 
     // ターゲットの生成
     m_sceneColor = std::make_shared<RenderTarget>();

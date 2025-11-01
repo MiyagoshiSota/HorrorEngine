@@ -1,4 +1,4 @@
-#once
+#pragma once
 
 class const_premitive_gameobject_pref
 {

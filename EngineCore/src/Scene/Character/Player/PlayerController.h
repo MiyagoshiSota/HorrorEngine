@@ -14,8 +14,6 @@ public:
     {
         const auto& m_input_device_ = InputDevice::GetInstance();
         
-        // プレイヤーの移動処理をここに実装
-
         DirectX::XMFLOAT3 direction = { 0.0f, 0.0f,0.0f };
         
         if (m_input_device_.IsKeyDown('W'))
@@ -35,10 +33,9 @@ public:
             direction.x = 1.0f;
         }
 
+        // 移動
         if (direction.x != 0.0f || direction.z != 0.0f)
         {
-            // 位置の更新
-
             auto rb = gameObject->find_component<Rigidbody>();
             if (rb && rb->get_rigidbody())
             {

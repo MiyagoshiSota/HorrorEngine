@@ -85,6 +85,8 @@ void DefaultScene::Update(float delta_time)
     // ポストプロセスマネージャの更新
     m_default_pipeline_manager->get_post_process_manager()->Update(delta_time);
 
+    get_physics_world()->setIsDebugRenderingEnabled(true);
+    
     // 物理演算の更新
     m_physicsWorld->update(delta_time);
 
@@ -102,6 +104,8 @@ void DefaultScene::EditorUpdate(float delta_time)
 
     // SceneCameraの更新
     m_Camera->Update(delta_time);
+
+    get_physics_world()->setIsDebugRenderingEnabled(true);
 }
 
 void DefaultScene::Draw()
@@ -129,6 +133,8 @@ void DefaultScene::RebuidPhysicsWorld()
 
     m_CollisionListener = std::make_shared<MyCollisionListener>();
     m_physicsWorld->setEventListener(m_CollisionListener.get());
+
+    m_physicsWorld->setIsDebugRenderingEnabled(true);
 }
 
 void DefaultScene::InitializeGameObject(std::string file_path)
@@ -139,7 +145,7 @@ void DefaultScene::InitializeGameObject(std::string file_path)
     // リソースの確保
     for (auto& obj : m_GameObjects)
     {
-        m_SceneResourceManager->initialize_gpu_resources_for(obj);
+        SceneResourceManager::GetInstance().initialize_gpu_resources_for(obj);
     }
 
     // ゲームオブジェクトのInitを実行

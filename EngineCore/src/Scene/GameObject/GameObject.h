@@ -15,7 +15,7 @@ public:
         m_Transform = DirectX::XMMatrixIdentity();
 
         // コンストラクタでフレーム数分のバッファを全て作成する
-        m_ConstantBuffers.resize(g_Engine->FRAME_BUFFER_COUNT);
+        m_ConstantBuffers.resize(g_Engine->FRAME_BUFFER_COUNT + 1);
         for (int i = 0; i < g_Engine->FRAME_BUFFER_COUNT; ++i)
         {
             // TODO:野生のConstantBufferを作ってる,Heapで管理したい感ある
@@ -106,7 +106,6 @@ public:
     /// <param name="size"></param>
     void create_constant_buffer(size_t size) { constantBuffer = std::make_shared<ConstantBuffer>(size); }
 
-    // フレームインデックスを受け取るように変更
     std::shared_ptr<ConstantBuffer> get_constant_buffer(UINT frameIndex) const {
         return m_ConstantBuffers[frameIndex];
     }

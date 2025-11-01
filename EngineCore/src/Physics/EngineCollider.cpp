@@ -1,6 +1,7 @@
 ﻿#include "EngineCollider.h"
 
 #include "imgui.h"
+#include "Component/Rigidbody.h"
 #include "Core/App.h"
 
 engine_collider::~engine_collider()
@@ -57,17 +58,20 @@ bool engine_collider::add_collider_internal(
 }
 
 bool engine_collider::create_box(reactphysics3d::RigidBody* rb,
+DirectX::XMFLOAT3 go_size,
                                  const reactphysics3d::Vector3& halfExtents,
                                  const reactphysics3d::Transform& transform)
 {
     if (!g_Scene)
         return false;
+    auto size_v = reactphysics3d::Vector3(go_size.x, go_size.y, go_size.z);
+
     reactphysics3d::BoxShape* shape =
         g_Scene->get_physics_common().createBoxShape(halfExtents);
     if (add_collider_internal(rb, shape, transform))
     {
         m_shape_type_ = ShapeType::BOX;
-        m_box_half_extents_ = halfExtents; // パラメータを保存
+        m_box_half_extents_ = halfExtents * size_v; // パラメータを保存
         return true;
     }
     // 失敗した場合: add_collider_internal が古い形状をクリアしているので、
@@ -76,7 +80,7 @@ bool engine_collider::create_box(reactphysics3d::RigidBody* rb,
     return false;
 }
 
-bool engine_collider::create_sphere(reactphysics3d::RigidBody* rb, float radius,
+bool engine_collider::create_sphere(reactphysics3d::RigidBody* rb,DirectX::XMFLOAT3 go_size, float radius,
                                     const reactphysics3d::Transform& transform)
 {
     if (!g_Scene)
@@ -93,7 +97,7 @@ bool engine_collider::create_sphere(reactphysics3d::RigidBody* rb, float radius,
     return false;
 }
 
-bool engine_collider::create_capsule(reactphysics3d::RigidBody* rb, float radius,
+bool engine_collider::create_capsule(reactphysics3d::RigidBody* rb, DirectX::XMFLOAT3 go_size,float radius,
                                      float height,
                                      const reactphysics3d::Transform& transform)
 {
@@ -156,7 +160,7 @@ float engine_collider::get_capsule_height() const
 }
 
 // --- Shape Parameter Editing UI ---
-void engine_collider::DrawShapeParamsGUI()
+void engine_collider::DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size)
 {
     if (!m_collider_ || !m_shape_)
         return;
@@ -217,13 +221,13 @@ void engine_collider::DrawShapeParamsGUI()
                 switch (m_shape_type_)
                 {
                 case ShapeType::BOX:
-                    create_box(rb, m_box_half_extents_, currentLocalTransform);
+                    create_box(rb,go_size, m_box_half_extents_, currentLocalTransform);
                     break;
                 case ShapeType::SPHERE:
-                    create_sphere(rb, m_sphere_radius_, currentLocalTransform);
+                    create_sphere(rb,go_size, m_sphere_radius_, currentLocalTransform);
                     break;
                 case ShapeType::CAPSULE:
-                    create_capsule(rb, m_capsule_radius_, m_capsule_height_,
+                    create_capsule(rb,go_size, m_capsule_radius_, m_capsule_height_,
                                    currentLocalTransform);
                     break;
                 default:

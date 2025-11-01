@@ -32,7 +32,7 @@ public:
                 new_game_object->components.push_back(std::move(renderer_component));
 
                 // リソースの確保
-                g_Scene->get_scene_resource_manager()->initialize_gpu_resources_for(new_game_object);
+                SceneResourceManager::GetInstance().initialize_gpu_resources_for(new_game_object);
                 
                 // ゲームオブジェクトのInitを実行
                 new_game_object->init();

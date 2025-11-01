@@ -32,6 +32,7 @@ void PipelineStateManager::create_pipeline_state(
     const std::string& rootSignatureName,
     const std::wstring& vsFilePath,
     const std::wstring& psFilePath,
+    bool useWireframe,
     bool useInputLayout,
     bool useDepthFormat)
 {
@@ -54,6 +55,7 @@ void PipelineStateManager::create_pipeline_state(
         pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
     }
 
+    pipelineState->SetWireFrame(useWireframe);
     pipelineState->SetRootSignature(rootSignature->get());
     pipelineState->SetVS(vsFilePath);
     pipelineState->SetPS(psFilePath);

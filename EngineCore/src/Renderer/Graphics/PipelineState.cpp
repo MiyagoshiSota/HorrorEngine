@@ -9,7 +9,7 @@ PipelineState::PipelineState()
 {
 	// パイプラインステートの設定
 	desc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT); // ラスタライザーはデフォルト
-	desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // カリングはなし
+	desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // カリングはなしs
 	desc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT); // ブレンドステートもデフォルト
 	desc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT); // 深度ステンシルはデフォルトを使う
 	desc.SampleMask = UINT_MAX;
@@ -87,4 +87,9 @@ void PipelineState::SetRenderTargetFormat(DXGI_FORMAT format)
 void PipelineState::SetDepthStencilFormat(DXGI_FORMAT format)
 {
 	desc.DSVFormat = format;
+}
+
+void PipelineState::SetWireFrame(bool wireFrame)
+{
+	desc.RasterizerState.FillMode = wireFrame ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
 }
