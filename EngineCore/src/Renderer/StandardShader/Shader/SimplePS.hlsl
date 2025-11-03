@@ -26,22 +26,27 @@ cbuffer LightParams : register(b1)
     } g_PointLights[28]; // 最大28個
 };
 
+cbuffer DeffuseParams : register(b2)
+{
+    float4 DiffuseColor;
+}
+
 // 頂点シェーダーから渡されるデータ
 struct PSInput
 {
-    float4 SvPosition : SV_POSITION;
-    float2 UV         : TEXCOORD0;
-    float3 WorldPos   : TEXCOORD1;
-    float3 Normal     : TEXCOORD2;
+    float4 svpos : SV_POSITION;
+    float2 uv : TEXCOORD0;
+    float3 worldPos : TEXCOORD1;
+    float3 normal : TEXCOORD2;
 };
 
 float4 main(PSInput input) : SV_TARGET
 {
     // テクスチャから基本色（アルベド）を取得
-    float3 albedo = g_MainTex.Sample(g_Sampler, input.UV).rgb;
+    float3 albedo = g_MainTex.Sample(g_Sampler, input.uv).rgb;
     
     // 補間された法線を正規化
-    float3 normal = normalize(input.Normal);
+    float3 normal = normalize(input.normal);
 
     // 環境光で最終的な色を初期化
     float3 finalColor = albedo * AmbientColor.rgb;
@@ -67,7 +72,7 @@ float4 main(PSInput input) : SV_TARGET
     for (int j = 0; j < NumPointLights; j++)
     {
         // ピクセル位置からライトへのベクトル
-        float3 lightVec = g_PointLights[j].Position.xyz - input.WorldPos;
+        float3 lightVec = g_PointLights[j].Position.xyz - input.worldPos;
         float dist = length(lightVec);
         float range = g_PointLights[j].AttenuationAndRange.y;
 
@@ -92,8 +97,10 @@ float4 main(PSInput input) : SV_TARGET
 
         // 拡散反射光（減衰を考慮）を加算
         finalColor += albedo * lightColor * lightIntensity * diffuseFactor * attenuation;
+        
+        // return float4(attenuation,0.0f,0.0f, 1.0f);
     }
     
     // 最終的な色を 0.0 ~ 1.0 の範囲に収めて返す
-    return float4(saturate(finalColor), 1.0f);
+    return float4(saturate(finalColor * DiffuseColor), 1.0f);
 }

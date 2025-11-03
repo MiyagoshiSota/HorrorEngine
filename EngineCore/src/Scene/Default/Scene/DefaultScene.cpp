@@ -50,17 +50,17 @@ bool DefaultScene::Init(std::string go_file_path)
     // TEST:Lightを環境光とポイントライトを一個だけ追加
     m_LightingManager->add_directional_light(
         LightType::Directional,
-        DirectX::XMFLOAT3(0.4f, 0.4f, 0.4f),
-        2.0f,
+        DirectX::XMFLOAT3(0.f, 0.f, 0.f),
+        1.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f)
     );
     m_LightingManager->add_point_light(
         LightType::Point,
-        DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f),
+        DirectX::XMFLOAT3(1.0f, .0f, .0f),
         3.0f,
-        DirectX::XMFLOAT3(0.0f, -5.0f, 0.0f),
-        20.0f,
-        0.1f
+        DirectX::XMFLOAT3(0.0f, 5.0f, 0.0f),
+        500.0f,
+        0.005f
     );
 
     printf("PSOの生成");

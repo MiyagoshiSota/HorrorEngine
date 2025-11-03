@@ -31,14 +31,15 @@ std::string ToUTF8(const std::wstring& value)
 // std::string(マルチバイト文字列)からstd::wstring(ワイド文字列)を得る
 std::wstring ToWideString(const std::string& str)
 {
-    auto num1 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, str.c_str(), -1, nullptr, 0);
-
+    auto num1 = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+    
     std::wstring wstr;
     wstr.resize(num1);
 
-    auto num2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, str.c_str(), -1, &wstr[0], num1);
-
+    auto num2 = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &wstr[0], num1);
+    
     assert(num1 == num2);
+    wstr.resize(num1 - 1);
     return wstr;
 }
 
@@ -82,7 +83,14 @@ bool AssimpLoader::Load(ImportSettings settings)
     {
         const auto pMesh = scene->mMeshes[i];
         LoadMesh(meshes[i], pMesh, inverseU, inverseV);
-        const auto pMaterial = scene->mMaterials[i];
+        
+        // メッシュから、それが使用するマテリアルの「インデックス」を取得する
+        unsigned int materialIndex = pMesh->mMaterialIndex;
+
+        // そのインデックスを使って、シーンから正しいマテリアルを取得する
+        const auto pMaterial = scene->mMaterials[materialIndex];
+
+        // 正しいマテリアルを使ってテクスチャをロードする
         LoadTexture(settings.filename, meshes[i], pMaterial);
     }
 
@@ -152,6 +160,12 @@ void AssimpLoader::LoadTexture(const wchar_t* filename, SharedStruct::Mesh& dst,
     else
     {
         dst.DiffuseMap.clear();
+        dst.HasDiffuseMap = false;
+
+        // マテリアルの「ベースカラー」を取得する
+        aiColor4D diffuseColor(1.0f, 1.0f, 1.0f, 1.0f); // デフォルトは白
+        src->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+        dst.DiffuseColor = {diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a};
     }
 }
 

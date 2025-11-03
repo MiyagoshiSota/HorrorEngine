@@ -35,6 +35,7 @@ VSOutput main(VSInput input)
 	output.svpos = projPos;
 	output.uv = input.uv;
 	output.normal = input.normal;
-
+	output.worldPos = worldPos.xyz;
+	
     return output;
 }

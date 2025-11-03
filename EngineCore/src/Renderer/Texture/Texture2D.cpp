@@ -153,6 +153,34 @@ bool Texture2D::Load(std::wstring& path)
     {
         LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
     }
+    else if (ext == L"jpg") // jpgの時はWICFileを使う
+    {
+        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
+    }
+    else if (ext == L"bmp") // bmpの時はWICFileを使う
+    {
+        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
+    }
+    else if (ext == L"dds") // ddsの時はDDSFileを使う
+    {
+        hr = LoadFromDDSFile(path.c_str(), DDS_FLAGS_NONE, &meta, scratch);
+    }
+    else if (ext == L"hdr") // hdrの時はHDRFileを使う
+    {
+        hr = LoadFromHDRFile(path.c_str(), &meta, scratch);
+    }
+    else if (ext == L"tiff") // tiffの時はWICFileを使う
+    {
+        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
+    }
+    else if (ext == L"gif") // gifの時はWICFileを使う
+    {
+        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
+    }
+    else if (ext == L"ico") // icoの時はWICFileを使う
+    {
+        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
+    }
     else if (ext == L"tga") // tgaの時はTGAFileを使う
     {
         hr = LoadFromTGAFile(path.c_str(), &meta, scratch);

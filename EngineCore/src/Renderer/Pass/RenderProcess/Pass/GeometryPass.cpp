@@ -70,7 +70,7 @@ void GeometryPass::Draw(RenderContext& context)
 
 	// view, proj行列の計算
     const auto view = DirectX::XMMatrixLookAtRH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(), context.Camera->GetUpward());
-    const auto proj = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 1000.0f);
+    const auto proj = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 5000.0f);
 
 	// マテリアルのディスクリプタヒープをセット
     auto materialHeap = g_Engine->GetSrvHeap()->GetHeap();
@@ -97,11 +97,16 @@ void GeometryPass::Draw(RenderContext& context)
             auto vbView = model->m_Meshes[i]->get_vertex_buffer()->View();
             auto ibView = model->m_Meshes[i]->get_index_buffer()->View();
 
+            auto materialBuffer = model->m_Materials[i]->get_constant_buffer();
+            auto pMaterial = materialBuffer->GetPtr<DirectX::XMFLOAT4>();
+            pMaterial[0] = model->m_Materials[i]->get_color();
+            cmdList->SetGraphicsRootConstantBufferView(2, materialBuffer->GetAddress());
+
             cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmdList->IASetVertexBuffers(0, 1, &vbView);
             cmdList->IASetIndexBuffer(&ibView);
 
-            cmdList->SetGraphicsRootDescriptorTable(2, model->m_Materials[i]->get_srv_handle()->gpuHandle);
+            cmdList->SetGraphicsRootDescriptorTable(3, model->m_Materials[i]->get_srv_handle()->gpuHandle);
 
             cmdList->DrawIndexedInstanced(model->m_InputMesh[i].Indeices.size(), 1, 0, 0, 0);
         }

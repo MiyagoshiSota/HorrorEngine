@@ -8,6 +8,9 @@
         },
         {
           "shaderRegister": 1
+        },
+        {
+          "shaderRegister": 2
         }
       ],
       "descriptorTables": [

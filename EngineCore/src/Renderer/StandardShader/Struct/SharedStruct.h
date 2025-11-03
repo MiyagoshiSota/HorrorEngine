@@ -59,5 +59,7 @@ public:
 		std::vector<Vertex> Vertices; // 頂点データの配列
 		std::vector<uint32_t> Indeices; // インデックスの配列
 		std::wstring DiffuseMap; // テクスチャのファイルパス
+		DirectX::XMFLOAT4 DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); // ディフューズカラー
+		bool HasDiffuseMap = false; // ディフューズマップが存在するか
 	};
 };

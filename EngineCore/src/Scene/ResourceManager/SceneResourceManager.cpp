@@ -73,6 +73,7 @@ void SceneResourceManager::read_material(std::shared_ptr<Model> model)
 	{
 		auto material = model->m_Materials[i];
 		material->create_material(model->m_InputMesh[i].DiffuseMap);
+		material->set_color(model->m_InputMesh[i].DiffuseColor);
 		model->m_Materials.push_back(material);
 	}
 }

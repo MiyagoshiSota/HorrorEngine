@@ -29,6 +29,25 @@ public:
     // 定数バッファを取得する
     std::shared_ptr<ConstantBuffer> get_constant_buffer() const { return m_LightingConstantBuffer; }
 
+    std::vector<std::shared_ptr<Light>> get_lights()
+    {
+        auto lights = std::vector<std::shared_ptr<Light>>();
+
+        // ディレクショナルライトを追加
+        for (const auto& dirLight : m_DirectionalLights)
+        {
+            lights.push_back(dirLight);
+        }
+
+        // ポイントライトを追加
+        for (const auto& pointLight : m_PointLights)
+        {
+            lights.push_back(pointLight);
+        }
+
+        return lights;
+    }
+
 private:
     std::vector<std::shared_ptr<DirectionalLight>> m_DirectionalLights;
     std::vector<std::shared_ptr<PointLight>> m_PointLights;
