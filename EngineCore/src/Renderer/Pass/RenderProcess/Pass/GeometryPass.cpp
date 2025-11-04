@@ -73,7 +73,7 @@ void GeometryPass::Draw(RenderContext& context)
     const auto proj = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 5000.0f);
 
 	// マテリアルのディスクリプタヒープをセット
-    auto materialHeap = g_Engine->GetSrvHeap()->GetHeap();
+    auto materialHeap = g_Engine->GetDescriptorHeap()->GetHeap();
     cmdList->SetDescriptorHeaps(1, &materialHeap);
 
     for (auto& obj : m_RenderQueue)

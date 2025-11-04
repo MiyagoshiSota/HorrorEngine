@@ -10,7 +10,7 @@
 #include "Scene/Default/Scene/DefaultScene.h"
 
 
-#include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
+#include "Graphics/DescriptorHeap/DescriptorHeap.h"
 #include "GUI/DrawGameObjectWindow.h"
 #include "GUI/DrawModeWindow.h"
 #include "GUI/DrawPostProcessPresetWindow.h"
@@ -87,7 +87,7 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
     CreateViewPort();
     CreateScissorRect();
 
-    if (!CreateShaderResourceViewHeap())
+    if (!CreateDescriptorHeap())
     {
         printf("SRVHeapの作成に失敗");
         return false;
@@ -476,9 +476,9 @@ bool Engine::CreateRenderTarget()
     return true;
 }
 
-bool Engine::CreateShaderResourceViewHeap()
+bool Engine::CreateDescriptorHeap()
 {
-    m_SRVHeap = std::make_shared<SrvDescriptorHeap>(2048);
+    m_DescriptorHeap = std::make_shared<DescriptorHeap>(2048);
     return true;
 }
 

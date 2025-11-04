@@ -23,6 +23,14 @@ public:
                                            float range,
                                            float attenuation);
 
+    // SpotLightを追加する
+    std::shared_ptr<Light> add_spot_light(LightType type,
+                                          const DirectX::XMFLOAT3& color,
+                                          float intensity,
+                                          const DirectX::XMFLOAT3& position,
+                                          const DirectX::XMFLOAT3& direction,
+                                          float inngerAngle, float outerAngle,float range, float attenuation);
+
     // 毎フレーム呼び出し、定数バッファを更新する
     void update_constant_buffer() const;
 
@@ -45,11 +53,17 @@ public:
             lights.push_back(pointLight);
         }
 
+        for (const auto& spotLight : m_SpotLights)
+        {
+            lights.push_back(spotLight);
+        }
+
         return lights;
     }
 
 private:
     std::vector<std::shared_ptr<DirectionalLight>> m_DirectionalLights;
     std::vector<std::shared_ptr<PointLight>> m_PointLights;
+    std::vector<std::shared_ptr<SpotLight>> m_SpotLights;
     std::shared_ptr<ConstantBuffer> m_LightingConstantBuffer;
 };

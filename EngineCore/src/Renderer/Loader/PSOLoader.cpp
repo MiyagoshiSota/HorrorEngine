@@ -63,6 +63,18 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                     builder->add_constant_buffer_view(cbv.value("shaderRegister", 0));
                 }
             }
+            // UAV
+            if (rsJson.contains("unorderedAccessViews")) {
+                for (const auto& uav : rsJson["unorderedAccessViews"]) {
+                    builder->add_unordered_access_view(uav.value("shaderRegister", 0));
+                }
+            }
+            // SRV
+            if (rsJson.contains("shaderResourceViews")) {
+                for (const auto& srv : rsJson["shaderResourceViews"]) {
+                    builder->add_shader_resource_view(srv.value("shaderRegister", 0));
+                }
+            }
             // Descriptor Tables
             if (rsJson.contains("descriptorTables")) {
                 for (const auto& table : rsJson["descriptorTables"]) {
@@ -98,14 +110,40 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
     if (psoJson.contains("PipelineStates")) {
         for (auto& [name, psoJson] : psoJson["PipelineStates"].items()) {
             std::string rootSignatureName = psoJson["rootSignature"];
-            std::wstring vsPath = engine_string::to_wstring(psoJson["vertexShader"]);
-            std::wstring psPath = engine_string::to_wstring(psoJson["pixelShader"]);
-            bool depthEnable = psoJson.value("depthEnable", true);
-			bool inputLayout = psoJson.value("inputLayoutEnable", false);
-            bool useWireframe = psoJson.value("wireframeEnable", false);
+            // グラフィックスシェーダー用PSO
+            if (psoJson.contains("vertexShader") && psoJson.contains("pixelShader"))
+            {
+                std::wstring vsPath = engine_string::to_wstring(psoJson["vertexShader"]);
+                std::wstring psPath = engine_string::to_wstring(psoJson["pixelShader"]);
+                std::wstring gsPath = L"";
 
-            // マネージャーにPSOを生成・登録させる
-            manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, useWireframe,inputLayout, depthEnable);
+                if (psoJson.contains("geometryShader"))
+                {
+                    gsPath = engine_string::to_wstring(psoJson["geometryShader"]);
+                }
+
+                bool depthEnable = psoJson.value("depthEnable", true);
+                bool inputLayout = psoJson.value("inputLayoutEnable", false);
+                bool useWireframe = psoJson.value("wireframeEnable", false);
+
+                // マネージャーにPSOを生成・登録させる
+
+                // ジオメトリシェーダー有りの場合
+                if(!gsPath.empty())
+                {
+                    manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, gsPath, useWireframe,inputLayout, depthEnable);
+                }
+
+                // ジオメトリシェーダー無しの場合
+                manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, useWireframe,inputLayout, depthEnable);   
+            }
+            // Computeシェーダー用PSO
+            else if (psoJson.contains("computeShader"))
+            {
+                std::wstring csPath = engine_string::to_wstring(psoJson["computeShader"]);
+
+                manager->create_pipeline_state(name, rootSignatureName, csPath);
+            }
         }
     }
 

@@ -48,6 +48,7 @@ void PipelineStateManager::create_pipeline_state(
         return;
     }
 
+    // パイプラインステートを作成
     auto pipelineState = std::make_shared<PipelineState>();
 
     // Inputレイアウトを設定
@@ -55,6 +56,7 @@ void PipelineStateManager::create_pipeline_state(
         pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
     }
 
+    // 色々設定
     pipelineState->SetWireFrame(useWireframe);
     pipelineState->SetRootSignature(rootSignature->get());
     pipelineState->SetVS(vsFilePath);
@@ -68,8 +70,101 @@ void PipelineStateManager::create_pipeline_state(
     else {
         pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
     }
+    
+    // グラフィックスパイプラインステートを生成
+    pipelineState->CreateGraphicsPSO();
+    if (!pipelineState->IsValid()) {
+        printf("パイプラインステートの生成に失敗: %s\n", name.c_str());
+        return;
+    }
 
-    pipelineState->Create();
+    // マップに保存
+    pipelineStateMap[name] = pipelineState;
+}
+
+void PipelineStateManager::create_pipeline_state(const std::string& name, const std::string& rootSignatureName,
+    const std::wstring& vsFilePath, const std::wstring& psFilePath, const std::wstring& gsFilePath, bool useWireframe,
+    bool useInputLayout, bool useDepthFormat)
+{
+    // 作成済みなら何もしない
+    if (pipelineStateMap.count(name)) {
+        return;
+    }
+
+    // 指定されたルートシグネチャを取得
+    auto rootSignature = get_root_signature(rootSignatureName);
+    if (rootSignature == nullptr) {
+        printf("指定されたルートシグネチャが見つかりません: %s\n", rootSignatureName.c_str());
+        return;
+    }
+
+    // パイプラインステートを作成
+    auto pipelineState = std::make_shared<PipelineState>();
+
+    // Inputレイアウトを設定
+    if (useInputLayout) {
+        pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
+    }
+
+    // 色々設定
+    pipelineState->SetWireFrame(useWireframe);
+    pipelineState->SetRootSignature(rootSignature->get());
+    pipelineState->SetVS(vsFilePath);
+    pipelineState->SetPS(psFilePath);
+    pipelineState->SetGS(gsFilePath);
+    pipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+
+    // 深度ステンシルのフォーマットを設定
+    if (useDepthFormat) {
+        pipelineState->SetDepthStencilFormat(DXGI_FORMAT_D32_FLOAT);
+    }
+    else {
+        pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
+    }
+    
+    // グラフィックスパイプラインステートを生成
+    pipelineState->CreateGraphicsPSO();
+    if (!pipelineState->IsValid()) {
+        printf("パイプラインステートの生成に失敗: %s\n", name.c_str());
+        return;
+    }
+
+    // マップに保存
+    pipelineStateMap[name] = pipelineState;
+}
+
+void PipelineStateManager::create_pipeline_state(
+    const std::string& name,
+    const std::string& rootSignatureName,
+    const std::wstring& csFilePath)
+{
+    // 作成済みなら何もしない
+    if (pipelineStateMap.count(name)) {
+        return;
+    }
+
+    // 指定されたルートシグネチャを取得
+    auto rootSignature = get_root_signature(rootSignatureName);
+    if (rootSignature == nullptr) {
+        printf("指定されたルートシグネチャが見つかりません: %s\n", rootSignatureName.c_str());
+        return;
+    }
+
+    // パイプラインステートを作成
+    auto pipelineState = std::make_shared<PipelineState>();
+
+    // ルートシグネチャを設定
+    pipelineState->SetRootSignature(rootSignature->get());
+    pipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+
+    // コンピュートシェーダーを設定
+    pipelineState->SetCS(csFilePath);
+
+    // 深度ステンシルのフォーマットを設定
+    pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
+
+    // コンピュートパイプラインステートを生成
+    pipelineState->CreateComputePSO();
     if (!pipelineState->IsValid()) {
         printf("パイプラインステートの生成に失敗: %s\n", name.c_str());
         return;

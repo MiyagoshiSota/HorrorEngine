@@ -31,7 +31,7 @@ public:
         DXGI_FORMAT srvFormat,
         D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
         std::shared_ptr<DescriptorHandle> srvHandle
-    ) override {};
+    ) override {}
     
 private:
    DXGI_FORMAT m_Format;

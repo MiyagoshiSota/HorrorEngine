@@ -166,6 +166,50 @@
                         }
                     }
                 }
+
+                // SpotLightの編集
+                if (s_SelectedLight->Type == LightType::Spot)
+                {
+                    auto spotLight = std::dynamic_pointer_cast<SpotLight>(s_SelectedLight);
+                    if (spotLight)
+                    {
+                        auto position = spotLight->Position;
+                        if (ImGui::DragFloat3("Position", &position.x, 0.1f))
+                        {
+                            spotLight->set_position(position.x, position.y, position.z);
+                        }
+
+                        auto direction = spotLight->Direction;
+                        if (ImGui::DragFloat3("Direction", &direction.x, 0.1f))
+                        {
+                            spotLight->Direction = direction;
+                        }
+
+                        float innerAngle = spotLight->InnerAngle;
+                        if (ImGui::DragFloat("Inner Angle", &innerAngle, 0.01f, 0.0f, 3.14f))
+                        {
+                            spotLight->InnerAngle = innerAngle;
+                        }
+
+                        float outerAngle = spotLight->OuterAngle;
+                        if (ImGui::DragFloat("Outer Angle", &outerAngle, 0.01f, 0.0f, 3.14f))
+                        {
+                            spotLight->OuterAngle = outerAngle;
+                        }
+
+                        float range = spotLight->Range;
+                        if (ImGui::DragFloat("Range", &range, 1.0f, 0.0f, 10000.0f))
+                        {
+                            spotLight->Range = range;
+                        }
+
+                        float attenuation = spotLight->Attenuation;
+                        if (ImGui::DragFloat("Attenuation", &attenuation, 0.001f, 0.0f, 1.0f))
+                        {
+                            spotLight->Attenuation = attenuation;
+                        }
+                    }
+                }
             }
             else
             {

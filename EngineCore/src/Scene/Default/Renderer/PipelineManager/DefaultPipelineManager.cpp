@@ -10,6 +10,8 @@
 
 DefaultPipelineManager::DefaultPipelineManager()
 {
+	m_rainParticleSystem = std::make_shared<RainParticleSystem>();
+	
     // Passを追加
     AddRenderProcessPass(std::make_shared<GeometryPass>());
 	// AddRenderProcessPass(std::make_shared<DebugPass>());
@@ -20,10 +22,10 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_tmpColorB = std::make_shared<RenderTarget>();
     m_sceneDepth = std::make_shared<DepthStencilTarget>();
 
-    m_sceneColor->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(),g_Engine->GetSrvHeap()->Allocate());
-	m_tmpColorA->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(), g_Engine->GetSrvHeap()->Allocate());
-    m_tmpColorB->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(), g_Engine->GetSrvHeap()->Allocate());
-    m_sceneDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, g_Engine->GetDsvHeap(), g_Engine->GetSrvHeap()->Allocate());
+    m_sceneColor->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(),g_Engine->GetDescriptorHeap()->Allocate());
+	m_tmpColorA->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate());
+    m_tmpColorB->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate());
+    m_sceneDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, g_Engine->GetDsvHeap(), g_Engine->GetDescriptorHeap()->Allocate());
 
 	// PostProcessManagerの初期化
 	m_postProcessManager = std::make_shared<PostProcessManager>();
@@ -48,5 +50,9 @@ void DefaultPipelineManager::Execute()
         pass->Execute(context);
     }
 
+	// レインパーティクルシステムの実行
+	m_rainParticleSystem->Execute(context);
+
+	// ポストプロセスマネージャーの実行
     m_postProcessManager->ExecutePasses(context);
 }

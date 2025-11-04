@@ -2,7 +2,7 @@
 #include "Scene/GameObject/Mesh/Mesh.h"
 #include "Scene/GameObject/Material/Material.h"
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
-#include "Renderer/Graphics/DescriptorHeap//SrvDescriptorHeap.h"
+#include "Renderer/Graphics/DescriptorHeap//DescriptorHeap.h"
 
 class Model
 {

@@ -1,7 +1,7 @@
 #include "SceneResourceManager.h"
 #include "Scene/GameObject/GameObject.h"
 #include "Renderer/Graphics/Buffer/IndexBuffer.h"
-#include "Renderer/Graphics/DescriptorHeap/SrvDescriptorHeap.h"
+#include "Renderer/Graphics/DescriptorHeap/DescriptorHeap.h"
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
 
 // 拡張子を置き換える処理

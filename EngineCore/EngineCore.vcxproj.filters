@@ -16,8 +16,6 @@
     <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
     <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
-    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\RtvDescriptorHeap.cpp" />
-    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\SrvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
@@ -40,7 +38,6 @@
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.cpp" />
     <ClCompile Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.cpp" />
-    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
     <ClCompile Include="src\Renderer\Light\LightingManager.cpp" />
     <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
@@ -54,6 +51,8 @@
     <ClCompile Include="src\Physics\EngineCollider.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.cpp" />
     <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
+    <ClCompile Include="src\Renderer\Pass\ComputeProcess\RainParticleSystem.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHeap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -78,8 +77,6 @@
     <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
     <ClInclude Include="src\Renderer\PipelineManager\IPipelineManager.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHandle.h" />
-    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\RtvDescriptorHeap.h" />
-    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\SrvDescriptorHeap.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
@@ -118,7 +115,6 @@
     <ClInclude Include="src\Modules\PublicConst\const_render_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\MonochromePass.h" />
-    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VignettePass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\FilmGrainPass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\ChromaticAberration.h" />
@@ -152,6 +148,8 @@
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.h" />
     <ClInclude Include="src\Scene\Character\Player\PlayerController.h" />
     <ClInclude Include="src\Source\3DModel\Loader\ModelLoader.h" />
+    <ClInclude Include="src\Renderer\Pass\ComputeProcess\RainParticleSystem.h" />
+    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHeap.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />
@@ -168,6 +166,10 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\DebugVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\DebugPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticle.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticleGS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticleVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticlePS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

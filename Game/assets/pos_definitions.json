@@ -3,8 +3,7 @@
     "Geometry_Default": {
       "constantBufferViews": [
         {
-          "shaderRegister": 0,
-          "space": 0
+          "shaderRegister": 0
         },
         {
           "shaderRegister": 1
@@ -47,6 +46,38 @@
         "DENY_HULL_SHADER_ROOT_ACCESS",
         "DENY_DOMAIN_SHADER_ROOT_ACCESS",
         "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+      ]
+    },
+    "Rain_Particles": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "unorderedAccessViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "flags": [
+        "DENY_HULL_SHADER_ROOT_ACCESS",
+        "DENY_DOMAIN_SHADER_ROOT_ACCESS",
+        "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+      ]
+    },
+    "Rain_Particle_Render": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "shaderResourceViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "flags": [
+
       ]
     },
     "PostProcess_SingleTexture": {
@@ -107,6 +138,20 @@
       "depthEnable": true,
       "inputLayoutEnable": true,
       "wireframeEnable": true,
+      "cullMode": "NONE"
+    },
+    "RainParticlePass": {
+      "rootSignature": "Rain_Particles",
+      "computeShader": "../x64/Debug/RainParticle.cso"
+    },
+    "RainParticleRenderPass": {
+      "rootSignature": "Rain_Particle_Render",
+      "vertexShader": "../x64/Debug/RainParticleVS.cso",
+      "pixelShader": "../x64/Debug/RainParticlePS.cso",
+      "geometryShader": "../x64/Debug/RainParticleGS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": false,
+      "blendEnable": false,
       "cullMode": "NONE"
     },
     "VHS": {

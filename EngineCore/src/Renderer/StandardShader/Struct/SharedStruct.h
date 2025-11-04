@@ -31,6 +31,14 @@ public:
 		DirectX::XMFLOAT4 AttenuationAndRange; // x: Attenuation, y: Range
 	};
 
+	struct SpotLightForShader
+	{
+		DirectX::XMFLOAT4 Position;
+		DirectX::XMFLOAT4 Direction;
+		DirectX::XMFLOAT4 ColorAndIntensity;
+		DirectX::XMFLOAT4 SpotAnglesAttenuationAndRange; // x: InnerAngle, y: OuterAngle z: Attenuation, w: Range
+	};
+
 	struct alignas(256) TimeData
 	{
 		float DeltaTime;
@@ -49,9 +57,11 @@ public:
 		DirectX::XMFLOAT4 AmbientColor; // 環境光
 		int NumDirectionalLights; // 平行光源の数
 		int NumPointLights; // 点光源の数
-		float Padding[2]; // 16バイトアライメント調整用
+		int NumSpotLights; // スポットライトの数
+		float Padding[1]; // 16バイトアライメント調整用
 		DirectionalLightForShader DirectionalLights[4]; // 最大4つ
 		PointLightForShader PointLights[28];      // 最大28個
+		SpotLightForShader SpotLights[28];        // 最大28個
 	};
 
 	struct Mesh

@@ -9,6 +9,7 @@ enum class LightType : int
 {
     Directional,
     Point,
+    Spot
 };
 
 struct Light
@@ -35,6 +36,8 @@ struct Light
             return "Directional";
         case LightType::Point:
             return "Point";
+        case LightType::Spot:
+            return "Spot";
         default:
             return "Unknown";
         }
@@ -67,5 +70,27 @@ struct DirectionalLight : Light
     {
         // ディレクショナルライトの場合、位置は方向ベクトルとして扱う
         Direction = { x, y, z };
+    }
+};
+
+struct SpotLight: Light
+{
+    // ライトの位置
+    DirectX::XMFLOAT3 Position = { 0.0f, 0.0f, 0.0f };
+    // ライトの方向（単位ベクトル）
+    DirectX::XMFLOAT3 Direction = { 0.0f, -1.0f, 0.0f };
+    // スポットライトの内角度（ラジアン）
+    float InnerAngle = 0.5f; // 約28.65度
+    // スポットライトの外角度（ラジアン）
+    float OuterAngle = 0.75f; // 約42.97度
+
+    // スポットの影響範囲
+    float Range = 100.0f;
+    // スポットの距離による減衰率
+    float Attenuation = 0.1f;
+    
+    void set_position(float x, float y, float z) override
+    {
+        Position = { x, y, z };
     }
 };

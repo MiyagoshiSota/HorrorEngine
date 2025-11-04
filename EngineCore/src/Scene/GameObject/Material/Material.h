@@ -6,7 +6,7 @@
 #include "Modules/Other/engineString.h"
 #include "Renderer/Engine.h"
 #include "Renderer/Graphics/Buffer/ConstantBuffer.h"
-#include "Renderer/Graphics/DescriptorHeap/SrvDescriptorHeap.h"
+#include "Renderer/Graphics/DescriptorHeap/DescriptorHeap.h"
 
 class Material
 {
@@ -26,7 +26,7 @@ public:
 		m_DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// SRVヒープからSRVハンドルを確保
-		m_SrvHandle = g_Engine->GetSrvHeap()->Allocate();
+		m_SrvHandle = g_Engine->GetDescriptorHeap()->Allocate();
 		if (!m_SrvHandle)
 		{
 			printf("マテリアルのSRVハンドルの確保に失敗\n");

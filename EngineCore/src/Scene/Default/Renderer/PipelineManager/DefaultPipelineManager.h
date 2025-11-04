@@ -1,4 +1,5 @@
 #pragma once
+#include "Renderer/Pass/ComputeProcess/RainParticleSystem.h"
 #include "Renderer/Pass/PostProcess/Manager/PostProcessManager.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 #include "Renderer/Target/RenderTarget.h"
@@ -22,5 +23,6 @@ private:
 
 private:
     std::shared_ptr<PostProcessManager> m_postProcessManager;
+    std::shared_ptr<RainParticleSystem> m_rainParticleSystem;
 };
 

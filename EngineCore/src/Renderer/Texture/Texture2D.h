@@ -5,7 +5,7 @@
 #include <memory>
 #include <unordered_map>
 
-class SrvDescriptorHeap;
+class DescriptorHeap;
 class DescriptorHandle;
 
 class Texture2D : public std::enable_shared_from_this<Texture2D>
