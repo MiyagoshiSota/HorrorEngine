@@ -7,3 +7,5 @@ HorrorEngine は、 チラズアート作品に代表される 「日常作業 �
 異変のない日常から、怪異が侵入するホラー体験へと崩壊していく進行を容易に構築できます。
 
 GUIにより、開発者はシーン上にオブジェクトを置き、 エディタから Task → WorkFlow → Work を組み合わせるだけでゲームを作れます。
+
+詳しくは[Wiki](https://github.com/MiyagoshiSota/HorrorEngine/wiki)を見てね
