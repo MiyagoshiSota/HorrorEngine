@@ -151,7 +151,7 @@
       "geometryShader": "../x64/Debug/RainParticleGS.cso",
       "depthEnable": true,
       "inputLayoutEnable": false,
-      "blendEnable": false,
+      "blendEnable": true,
       "cullMode": "NONE"
     },
     "VHS": {

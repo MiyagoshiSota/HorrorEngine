@@ -46,7 +46,8 @@ void main(point VS_OUTPUT input[1],inout TriangleStream<PS_INPUT> stream)
 
 	// 雨の筋の長さと幅
 	float length = g_RainLength;
-	float width = 0.2; // TODO:一旦仮
+	float width = 0.1; // TODO:一旦仮
+	float height = 5;
 
 	// ビルボードの計算
 	float3 particleToCam = normalize(pos - cameraPos);
@@ -54,10 +55,10 @@ void main(point VS_OUTPUT input[1],inout TriangleStream<PS_INPUT> stream)
 	float3 up = velocity * length;
 
 	// 4つの頂点を計算
-	float3 p0 = pos + right;		// 右上
-	float3 p1 = pos - right;		// 左上
-	float3 p2 = pos + right - up;	// 右下
-	float3 p3 = pos - right - up;	// 左下
+	float3 p0 = pos + right * width;				// 右上
+	float3 p1 = pos - right * width;				// 左上
+	float3 p2 = pos + right * width - up * height;	// 右下
+	float3 p3 = pos - right * width - up * height;	// 左下
 
 	// 4頂点を三角形ストリームに追加(2つのトライアングル)
 	// 頂点0

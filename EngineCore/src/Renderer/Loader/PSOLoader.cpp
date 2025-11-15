@@ -125,17 +125,18 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                 bool depthEnable = psoJson.value("depthEnable", true);
                 bool inputLayout = psoJson.value("inputLayoutEnable", false);
                 bool useWireframe = psoJson.value("wireframeEnable", false);
+                bool blendEnable = psoJson.value("blendEnable", false);
 
                 // マネージャーにPSOを生成・登録させる
 
                 // ジオメトリシェーダー有りの場合
                 if(!gsPath.empty())
                 {
-                    manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, gsPath, useWireframe,inputLayout, depthEnable);
+                    manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, gsPath, useWireframe,inputLayout, depthEnable, blendEnable);
                 }
 
                 // ジオメトリシェーダー無しの場合
-                manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, useWireframe,inputLayout, depthEnable);   
+                manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, useWireframe,inputLayout, depthEnable, blendEnable);   
             }
             // Computeシェーダー用PSO
             else if (psoJson.contains("computeShader"))

@@ -118,6 +118,37 @@ void PipelineState::CreateComputePSO()
 	m_IsValid = true;
 }
 
+void PipelineState::SetBlendEnable(bool blendEnable)
+{
+	if (blendEnable)
+	{
+		D3D12_BLEND_DESC blendDesc = {};
+		blendDesc.AlphaToCoverageEnable = FALSE;
+		blendDesc.IndependentBlendEnable = FALSE; // 全てのレンダーターゲットで同じ設定を使う
+
+		// RenderTarget[0]
+		D3D12_RENDER_TARGET_BLEND_DESC rtBlendDesc = {};
+		rtBlendDesc.BlendEnable = TRUE; // ブレンディングを有効にする
+		rtBlendDesc.LogicOpEnable = FALSE;
+
+		// 色の合成方法
+		rtBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;       // (Rs, Gs, Bs) * As
+		rtBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA; // (Rd, Gd, Bd) * (1 - As)
+		rtBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;          // 上記2つを加算する
+
+		// アルファ値自体の合成方法
+		rtBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+		rtBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+		rtBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+		rtBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+		blendDesc.RenderTarget[0] = rtBlendDesc;
+
+		descGS.BlendState = blendDesc;
+	}
+}
+
 ID3D12PipelineState* PipelineState::Get()
 {
 	return m_pPipelineState.Get();

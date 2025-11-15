@@ -50,7 +50,7 @@ bool DefaultScene::Init(std::string go_file_path)
     // TEST:Lightを環境光とポイントライトを一個だけ追加
     m_LightingManager->add_directional_light(
         LightType::Directional,
-        DirectX::XMFLOAT3(0.f, 0.f, 0.f),
+        DirectX::XMFLOAT3(-0.9f, -0.9f, -0.9f),
         1.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f)
     );

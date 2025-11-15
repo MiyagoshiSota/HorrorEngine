@@ -20,6 +20,7 @@ public:
 	void SetCS(std::wstring filePath); // コンピュートシェーダーを設定
 	void CreateGraphicsPSO(); // パイプラインステートを生成
 	void CreateComputePSO(); // コンピュートパイプラインステートを生成
+	void SetBlendEnable(bool blendEnable); // ブレンドを有効化するかどうか
 
 	ID3D12PipelineState* Get();
 

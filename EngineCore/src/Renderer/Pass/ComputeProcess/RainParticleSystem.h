@@ -49,7 +49,7 @@ public:
 
 public:
     // パーティクルの最大数
-    static const uint32_t MAX_PARTICLES = 100000;
+    static const uint32_t MAX_PARTICLES = 10000;
     // スレッドグループのサイズ (HLSL側と一致)
     static const uint32_t THREAD_GROUP_SIZE = 256;
 

@@ -103,10 +103,10 @@ void RainParticleSystem::Execute(RenderContext& context)
     auto cons = constantBuffer->GetPtr<FrameConstants>();
     const auto time_manager = g_Scene->get_time_manager();
     cons->deltaTime = time_manager->get_delta_time(); // 経過時間
-    cons->windForce = DirectX::XMFLOAT3(0.5f, 0.0f, 0.0f); // 風の力
-    cons->emitCenter = DirectX::XMFLOAT3(0.0f, 50.0f, 0.0f); // エミット中心位置
-    cons->emitRadius = 300.0f; // エミット半径
-    cons->emitHeight = 600.0f; // エミット高さ
+    cons->windForce = DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f); // 風の力
+    cons->emitCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f); // エミット中心位置
+    cons->emitRadius = 200.0f; // エミット半径
+    cons->emitHeight = 400.0f; // エミット高さ
     cons->groundHeight = 0.0f; // 地面の高さ
     cons->initialLifeMin = 5.0f; // パーティクルの初期寿命最小値
     cons->initialLifeMax = 10.0f; // パーティクルの初期寿命最大値

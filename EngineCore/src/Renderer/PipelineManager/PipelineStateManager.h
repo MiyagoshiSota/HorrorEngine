@@ -36,7 +36,8 @@ public:
         const std::wstring& psFilePath,           // ピクセルシェーダーのパス
         bool useWireframe,                        // ワイヤーフレームモードを使用するか
         bool useInputLayout,                      // InputLayoutを使用するか
-        bool useDepthFormat                       // 深度フォーマットを使用するか
+        bool useDepthFormat,                      // 深度フォーマットを使用するか
+        bool blendEnable                          // ブレンドを使用するか
     );
     
     void create_pipeline_state(
@@ -47,7 +48,8 @@ public:
         const std::wstring& gsFilePath,           // ジオメトリシェーダーのパス
         bool useWireframe,                        // ワイヤーフレームモードを使用するか
         bool useInputLayout,                      // InputLayoutを使用するか
-        bool useDepthFormat                       // 深度フォーマットを使用するか
+        bool useDepthFormat,                       // 深度フォーマットを使用するか
+        bool blendEnable                          // ブレンドを使用するか
     );
     
     // Computeシェーダー用のパイプラインステートを作成して登録する

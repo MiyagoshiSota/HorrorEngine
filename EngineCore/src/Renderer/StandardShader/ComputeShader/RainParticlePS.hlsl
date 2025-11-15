@@ -6,6 +6,6 @@ struct PS_INPUT
 
 float4 main(PS_INPUT input) : SV_Target
 {
-    float4 color = float4(0.7,0.8,1.0,0.3); // 雨の色と透明度
+    float4 color = float4(0.5,0.5,0.5,0.1); // 雨の色と透明度
     return color;
 }

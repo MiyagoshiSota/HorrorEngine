@@ -74,9 +74,9 @@ void CS_UpdateParticles(uint3 dispatchThreadID : SV_DispatchThreadID)
             // 衝突したら寿命を0にして消滅させる
             p.life = 0.0; 
             
-            // (オプション: 跳ね返らせる場合)
-            // p.position.y = groundHeight;
-            // p.velocity.y = -p.velocity.y * 0.3; // 反射と減衰
+            // 跳ね返らせる
+            p.position.y = groundHeight;
+            p.velocity.y = -p.velocity.y * 0.3; // 反射と減衰
         }
     }
     
