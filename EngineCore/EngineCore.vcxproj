@@ -216,6 +216,7 @@
     <ClCompile Include="src\Renderer\Graphics\RootSignature.cpp" />
     <ClCompile Include="src\Renderer\StandardShader\Struct\SharedStruct.cpp" />
     <ClCompile Include="src\Renderer\Texture\Texture2D.cpp" />
+    <ClCompile Include="src\Renderer\Texture\TextureManager.cpp" />
     <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="src\Renderer\Graphics\RootSignature.h" />
     <ClInclude Include="src\Renderer\StandardShader\Struct\SharedStruct.h" />
     <ClInclude Include="src\Renderer\Texture\Texture2D.h" />
+    <ClInclude Include="src\Renderer\Texture\TextureManager.h" />
     <ClInclude Include="src\Scene\Camera\SceneCamera.h" />
     <ClInclude Include="src\Scene\ResourceManager\SceneResourceManager.h" />
     <ClInclude Include="src\Scene\ISceneBase.h" />

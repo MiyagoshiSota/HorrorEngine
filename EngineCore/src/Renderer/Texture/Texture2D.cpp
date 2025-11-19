@@ -6,9 +6,6 @@
 
 using namespace DirectX;
 
-std::unordered_map<std::wstring, std::shared_ptr<Texture2D>> Texture2D::m_TextureCache;
-std::shared_ptr<Texture2D> Texture2D::m_WhiteTexture;
-
 // std::string(マルチバイト文字列)からstd::wstring(ワイド文字列)を得る。AssimpLoaderと同じものだけど、共用にするのがめんどくさかったので許してください
 std::wstring GetWideString(const std::string& str)
 {
@@ -46,43 +43,9 @@ Texture2D::Texture2D(ComPtr < ID3D12Resource > buffer)
     m_IsValid = m_pResource != nullptr;
 }
 
-// 戻り値をshared_ptrに変更
-std::shared_ptr<Texture2D> Texture2D::Get(std::string path)
+// 白の単色テクスチャを生成する静的メソッド
+std::shared_ptr<Texture2D> Texture2D::CreateWhiteTexture()
 {
-    auto wpath = GetWideString(path);
-    return Get(wpath);
-}
-
-// Getメソッドをキャッシュ対応に修正
-std::shared_ptr<Texture2D> Texture2D::Get(std::wstring path)
-{
-    // 1. キャッシュにテクスチャがあるか探す
-    auto it = m_TextureCache.find(path);
-    if (it != m_TextureCache.end())
-    {
-        // あればそれを返す
-        return it->second;
-    }
-
-    // 2. なければ新しく作る (make_sharedを使う)
-    auto tex = std::make_shared<Texture2D>(path);
-    if (!tex->IsValid())
-    {
-        return GetWhite(); // 失敗したら白テクスチャを返す
-    }
-
-    // 3. 作成したテクスチャをキャッシュに保存
-    m_TextureCache[path] = tex;
-    return tex;
-}
-
-// GetWhiteもキャッシュ対応に
-std::shared_ptr<Texture2D> Texture2D::GetWhite()
-{
-    if (m_WhiteTexture)
-    {
-        return m_WhiteTexture;
-    }
 
     const size_t width = 4;
     const size_t height = 4;
@@ -111,8 +74,7 @@ std::shared_ptr<Texture2D> Texture2D::GetWhite()
     }
 
     // 4. データが書き込まれたリソースでテクスチャオブジェクトを作成
-    m_WhiteTexture = std::make_shared<Texture2D>(buff);
-    return m_WhiteTexture;
+    return std::make_shared<Texture2D>(buff);
 }
 
 bool Texture2D::IsValid()

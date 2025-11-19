@@ -26,18 +26,19 @@ public:
 		}
 
 		std::shared_ptr<Texture2D> mainTex;
+		auto texManager = g_Engine->GetTextureManager();
 
 		if (deff_path.empty())
 		{
 			// テクスチャが指定されていない場合は白テクスチャを設定
-			mainTex = Texture2D::GetWhite();
+			mainTex = texManager->GetWhite();
 		}
 		else
 		{
 			// MainTexture分のSRV生成
 			// TODO:わざわざ拡張子をtgaに変えているけど問題ありそう.
 			auto texPath = engine_string::replace_extension(deff_path, "tga");
-			mainTex = Texture2D::Get(texPath);
+			mainTex = texManager->Get(texPath);
 		}
 
 		auto desc = mainTex->ViewDesc();

@@ -15,9 +15,7 @@ public:
 	Texture2D(std::wstring path);
 	Texture2D(ComPtr<ID3D12Resource> buffer);
 
-	static std::shared_ptr<Texture2D> Get(std::string path); // stringで受け取ったパスからテクスチャを読み込む
-	static std::shared_ptr<Texture2D> Get(std::wstring path); // wstringで受け取ったパスからテクスチャを読み込む
-	static std::shared_ptr<Texture2D> GetWhite(); // 白の単色テクスチャを生成する
+	static std::shared_ptr<Texture2D> CreateWhiteTexture(); // 白の単色テクスチャを生成する(TextureManagerから使用)
 	bool IsValid(); // 正常に読み込まれているかどうかを返す
 
 	~Texture2D()
@@ -38,8 +36,5 @@ private:
 
 	Texture2D(const Texture2D&) = delete;
 	void operator = (const Texture2D&) = delete;
-
-	static std::unordered_map<std::wstring, std::shared_ptr<Texture2D>> m_TextureCache;
-	static std::shared_ptr<Texture2D> m_WhiteTexture;
 };
 

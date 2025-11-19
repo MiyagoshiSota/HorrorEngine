@@ -93,6 +93,9 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
         return false;
     }
 
+    // TextureManagerの初期化
+    m_TextureManager = std::make_shared<TextureManager>();
+
     // if (!CreateConstantBufferView())
     // {
     //     printf("CBVHeapの作成に失敗");
