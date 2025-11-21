@@ -34,6 +34,7 @@ public:
         const std::string& rootSignatureName,     // 使用するルートシグネチャの名前
         const std::wstring& vsFilePath,           // 頂点シェーダーのパス
         const std::wstring& psFilePath,           // ピクセルシェーダーのパス
+		UINT SampleCount,                         // サンプル数
         bool useWireframe,                        // ワイヤーフレームモードを使用するか
         bool useInputLayout,                      // InputLayoutを使用するか
         bool useDepthFormat,                      // 深度フォーマットを使用するか

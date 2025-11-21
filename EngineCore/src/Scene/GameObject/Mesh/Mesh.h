@@ -57,5 +57,5 @@ private:
     std::shared_ptr<IndexBuffer> m_IndexBuffer;
     std::shared_ptr<VertexBuffer> m_VertexBuffer;
 
-    int m_MaterialIndex;
+    int m_MaterialIndex = 0;
 };

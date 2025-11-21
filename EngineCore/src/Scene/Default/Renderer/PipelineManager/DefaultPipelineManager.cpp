@@ -20,12 +20,16 @@ DefaultPipelineManager::DefaultPipelineManager()
     m_sceneColor = std::make_shared<RenderTarget>();
 	m_tmpColorA = std::make_shared<RenderTarget>();
 	m_tmpColorB = std::make_shared<RenderTarget>();
+	m_msaaTarget = std::make_shared<RenderTarget>();
+	m_msaaDepth = std::make_shared<DepthStencilTarget>();
     m_sceneDepth = std::make_shared<DepthStencilTarget>();
 
-    m_sceneColor->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(),g_Engine->GetDescriptorHeap()->Allocate());
-	m_tmpColorA->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate());
-    m_tmpColorB->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate());
-    m_sceneDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, g_Engine->GetDsvHeap(), g_Engine->GetDescriptorHeap()->Allocate());
+    m_sceneColor->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM,1,1,1,0, g_Engine->AllocateRtvHandle(),g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_tmpColorA->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+    m_tmpColorB->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_msaaTarget->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 8, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+    m_sceneDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+    m_msaaDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 8, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 
 	// PostProcessManagerの初期化
 	m_postProcessManager = std::make_shared<PostProcessManager>();
@@ -43,6 +47,8 @@ void DefaultPipelineManager::Execute()
     context.AddRenderTarget(const_render_pref::SceneDepth,m_sceneDepth);
 	context.AddRenderTarget(const_render_pref::TmpColorA, m_tmpColorA);
     context.AddRenderTarget(const_render_pref::TmpColorB, m_tmpColorB);
+	context.AddRenderTarget(const_render_pref::MSAART, m_msaaTarget);
+	context.AddRenderTarget(const_render_pref::MSAA_Depth, m_msaaDepth);
 
     // RenderPassを実行
     for (auto& pass : m_sceneRenderPasses)

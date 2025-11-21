@@ -2,7 +2,6 @@
 #include <d3d12.h>
 #include <Renderer/StandardShader/Struct/SharedStruct.h>
 #include <Renderer/Graphics/Buffer/ConstantBuffer.h>
-#include <Scene/GameObject/Model/Model.h>
 #include <Scene/GameObject/Mesh/Mesh.h>
 
 #include "Component/Component.h"
@@ -32,15 +31,13 @@ public:
     DirectX::XMFLOAT3 get_position() const { return m_Position; }
 	DirectX::XMFLOAT3 get_rotation() const { return m_Rotation; }
 	DirectX::XMFLOAT3 get_scale() const { return m_Scale; }
-    std::shared_ptr<Model> get_model() const { return m_Model; }
     std::shared_ptr<ConstantBuffer> get_constant_buffer() const { return  constantBuffer; }
 
 	// 各種Setter
     void set_position(float x, float y, float z) { m_Position = { x, y, z }; }
 	void set_rotation(float x, float y, float z) { m_Rotation = { x, y, z }; }
 	void set_scale(float x, float y, float z) { m_Scale = { x, y, z }; }
-	void set_model(std::shared_ptr<Model> model) { m_Model = model; }
-
+	
     // 各種Find
     template<typename T>
     T* find_component() {
@@ -115,8 +112,6 @@ public:
 	std::vector<std::unique_ptr<Component>> components;
 
 private:
-    std::shared_ptr<Model> m_Model;
-
     std::shared_ptr<ConstantBuffer> constantBuffer = nullptr;
     std::vector<std::shared_ptr<ConstantBuffer>> m_ConstantBuffers;
 

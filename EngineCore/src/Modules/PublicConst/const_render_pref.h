@@ -8,4 +8,6 @@ public:
 	static inline const char* SceneDepth = "SceneDepth";
 	static inline const char* TmpColorA = "TmpColorA";
 	static inline const char* TmpColorB = "TmpColorB";
+	static inline const char* MSAART = "MSAART";
+	static inline const char* MSAA_Depth = "MSAADepth";
 };

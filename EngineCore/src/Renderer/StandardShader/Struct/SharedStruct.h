@@ -50,6 +50,8 @@ public:
 		DirectX::XMMATRIX World; // ワールド行列
 		DirectX::XMMATRIX View; // ビュー行列
 		DirectX::XMMATRIX Proj; // 東映行列
+		DirectX::XMFLOAT3 CameraPosition; // カメラの位置
+		float Padding; // 16バイトアライメント調整用
 	};
 	
 	struct alignas(256) LightingParams
@@ -68,8 +70,23 @@ public:
 	{
 		std::vector<Vertex> Vertices; // 頂点データの配列
 		std::vector<uint32_t> Indeices; // インデックスの配列
-		std::wstring DiffuseMap; // テクスチャのファイルパス
-		DirectX::XMFLOAT4 DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); // ディフューズカラー
-		bool HasDiffuseMap = false; // ディフューズマップが存在するか
+
+		// PBR
+		std::wstring hAlbedoMap; // アルベドマップのファイルパス
+		std::wstring hNormalMap; // 法線マップのファイルパス
+		std::wstring hMetallicMap; // メタリックマップのファイルパス
+		std::wstring hRoughnessMap; // ラフネスマップのファイルパス
+		std::wstring hAOMap; // AOマップのファイルパス
+		std::wstring hEmissiveMap; // エミッシブマップのファイルパス
+		bool HasAlbedoMap = false; // アルベドマップを持っているか
+		bool HasNormalMap = false; // 法線マップを持っているか
+		bool HasMetallicMap = false; // メタリックマップを持っているか
+		bool HasRoughnessMap = false; // ラフネスマップを持っているか
+		bool HasAOMap = false; // AOマップを持っているか
+		bool HasEmissiveMap = false; // エミッシブマップを持っているか
+
+		DirectX::XMFLOAT4 albedoFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+		float metallicFactor = 1.0f;
+		float roughnessFactor = 1.0f;
 	};
 };

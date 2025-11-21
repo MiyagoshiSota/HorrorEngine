@@ -15,9 +15,8 @@
       "descriptorTables": [
         {
           "type": "SRV",
-          "num": 1,
-          "shaderRegister": 0,
-          "space": 0
+          "num": 4,
+          "shaderRegister": 0
         }
       ],
       "staticSamplers": [
@@ -129,6 +128,7 @@
       "pixelShader": "../x64/Debug/SimplePS.cso",
       "depthEnable": true,
       "inputLayoutEnable": true,
+      "sampleCount": 8,
       "cullMode": "BACK"
     },
     "DebugPipelinePass": {

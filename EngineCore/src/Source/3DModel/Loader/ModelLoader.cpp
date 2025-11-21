@@ -1,26 +1,32 @@
 ﻿#include "ModelLoader.h"
 
 #include "Core/App.h"
+#include "Modules/Other/engineString.h"
 #include "Modules/PublicConst/const_path_pref.h"
 #include "Renderer/Assimp/AssimpLoader.h"
-#include "Scene/SceneManager.h"
 #include "Scene/GameObject/DefaultMesh/DefaultMeshes.h"
+#include "Scene/GameObject/Model/Model.h"
 
 bool ModelLoader::init()
 {
+	// モデル設定ファイルからモデルを読み込み
     desirialize(const_path_pref::DefaultModelsPath);
+
+	// プリミティブオブジェクトの作成
     create_primitive_objects();
     return true;
 }
 
-std::shared_ptr<Model> ModelLoader::GetModelOrigin(const std::string& model_name)
+std::vector<SharedStruct::Mesh> ModelLoader::GetModelOriginData(const std::string& model_name)
 {
-    auto it = m_ModelCache.find(model_name);
-    if (it != m_ModelCache.end())
+    auto it = m_ModelDataCache.find(model_name);
+    if (it != m_ModelDataCache.end())
     {
         return it->second;
     }
-    return nullptr;
+
+	printf("モデルが見つかりません:%s\n", model_name.c_str());
+	return {};
 }
 
 bool ModelLoader::desirialize(const std::string& models_file_path)
@@ -56,14 +62,10 @@ bool ModelLoader::desirialize(const std::string& models_file_path)
 
 std::shared_ptr<Model> ModelLoader::GetModel(const std::string& modelName)
 {
-    // TODO:全ModelがInputMeshを持っていて重複しているのは無駄づかいなので、InputMeshのみを持っているクラスと、InputMeshから確保したBufferを管理するクラスを分ける
-    // リストからモデルを探してInputMeshのみコピーして返す
     auto it = m_ModelCache.find(modelName);
     if (it != m_ModelCache.end())
     {
-        auto model = std::make_shared<Model>();
-        model->m_InputMesh = it->second->m_InputMesh;
-        return model;
+		return it->second;
     }
     return nullptr;
 }
@@ -77,13 +79,13 @@ bool ModelLoader::set_model(const std::string& model_name, const std::string& mo
         return false;
     }
     
-    auto model = std::make_shared<Model>();
+    std::vector<SharedStruct::Mesh> input_data = {};
     
     auto path2wst = engine_string::to_wstring(model_path);
     ImportSettings importSetting =
     {
         path2wst.c_str(),
-        model->m_InputMesh,
+        input_data,
         false,
         true
     };
@@ -96,26 +98,48 @@ bool ModelLoader::set_model(const std::string& model_name, const std::string& mo
         return false;
     }
 
-    // キャッシュに登録
-    m_ModelCache[model_name] = model;
+    // OriginDataのキャッシュに登録
+    m_ModelDataCache[model_name] = input_data;
+
+	// Modelオブジェクトの作成とキャッシュ登録
+	auto model = std::make_shared<Model>(model_name);
+	SceneResourceManager::GetInstance().initialize_gpu_resources_for(input_data, model);
+	m_ModelCache[model_name] = model;
+
     return true;
 }
 
 void ModelLoader::create_primitive_objects()
 {
-    // 平面
-    auto quad_model = std::make_shared<Model>();
-    quad_model->m_InputMesh.push_back(DefaultMeshes::create_quad());
-    SceneResourceManager::GetInstance().create_mesh_classes(quad_model);
-    SceneResourceManager::GetInstance().create_index_buffer(quad_model);
-    SceneResourceManager::GetInstance().create_vertex_buffer(quad_model);
-    m_ModelCache["primitive/quad"] = quad_model;
+    // ~~平面~~
+	const auto quad_name = "primitive/quad";
+    auto quad_model = std::make_shared<Model>(quad_name);
+    std::vector<SharedStruct::Mesh> quad_origin_data;
 
-    // 立方体
-    auto cube_model = std::make_shared<Model>();
-    cube_model->m_InputMesh.push_back(DefaultMeshes::create_cube());
-    SceneResourceManager::GetInstance().create_mesh_classes(cube_model);
-    SceneResourceManager::GetInstance().create_index_buffer(cube_model);
-    SceneResourceManager::GetInstance().create_vertex_buffer(cube_model);
-    m_ModelCache["primitive/cube"] = cube_model;
+	// 平面メッシュの作成
+	quad_origin_data.clear();
+	quad_origin_data.push_back(DefaultMeshes::create_quad());
+
+	// モデルデータの作成
+    SceneResourceManager::GetInstance().initialize_gpu_resources_for(quad_origin_data,quad_model);
+
+	// キャッシュに登録
+    m_ModelDataCache[quad_name] = quad_origin_data;
+    m_ModelCache[quad_name] = quad_model;
+
+    // ~~立方体~~
+	const auto cube_name = "primitive/cube";
+    auto cube_model = std::make_shared<Model>(cube_name);
+    std::vector<SharedStruct::Mesh> cube_origin_data;
+
+	// 立方体メッシュの作成
+	cube_origin_data.clear();
+    cube_origin_data.push_back(DefaultMeshes::create_cube());
+
+	// モデルデータの作成
+    SceneResourceManager::GetInstance().initialize_gpu_resources_for(cube_origin_data, cube_model);
+	
+	// キャッシュに登録
+    m_ModelDataCache[cube_name] = cube_origin_data;
+    m_ModelCache[cube_name] = cube_model;
 }

@@ -1,45 +1,46 @@
 #pragma once
-#include "Modules/ComPtr.h"
 #include <string>
-#include <d3dx12.h>
 #include <memory>
-#include <unordered_map>
+#include <d3d12.h>
+#include <wrl/client.h> // ComPtr用
+#include <DirectXMath.h>
 
-class DescriptorHeap;
-class DescriptorHandle;
+// ※本来はDirectXTexなどのライブラリが必要ですが、ここでは構造を示します
 
-class Texture2D : public std::enable_shared_from_this<Texture2D>
+class Texture2D
 {
 public:
-	Texture2D(std::string path);
-	Texture2D(std::wstring path);
-	Texture2D(ComPtr<ID3D12Resource> buffer);
+    Texture2D();
+    ~Texture2D();
 
-	static std::shared_ptr<Texture2D> Get(std::string path); // stringで受け取ったパスからテクスチャを読み込む
-	static std::shared_ptr<Texture2D> Get(std::wstring path); // wstringで受け取ったパスからテクスチャを読み込む
-	static std::shared_ptr<Texture2D> GetWhite(); // 白の単色テクスチャを生成する
-	bool IsValid(); // 正常に読み込まれているかどうかを返す
+    // ファクトリーメソッド: パスからロードしてインスタンスを返す
+    // (直接newせず、失敗時にnullptrを返せるようにする)
+    static std::shared_ptr<Texture2D> Load(const std::wstring& path);
+        static std::shared_ptr<Texture2D> CreateWhiteTexture();
 
-	~Texture2D()
-	{
-		
-	}
+    // ゲッター
+    const std::wstring& GetPath() const { return m_path; }
+    uint32_t GetWidth() const { return m_width; }
+    uint32_t GetHeight() const { return m_height; }
 
-	ComPtr<ID3D12Resource> Resource(); // リソースを返す
-	D3D12_SHADER_RESOURCE_VIEW_DESC ViewDesc(); // シェーダーリソースビューの設定を返す
+    // GPUリソースへのアクセサ
+    Microsoft::WRL::ComPtr<ID3D12Resource> GetResource() const { return m_resource; }
+    const D3D12_SHADER_RESOURCE_VIEW_DESC& GetViewDesc() const { return m_srvDesc; }
 
 private:
-	bool m_IsValid; // 正常に読み込まれているか
-	ComPtr<ID3D12Resource> m_pResource; // リソース
-	bool Load(std::string& path);
-	bool Load(std::wstring& path);
+    // 実際のロード処理 (内部用)
+    bool InternalLoad(const std::wstring& path);
+	bool InternalCreateFromData(const uint8_t* data, size_t dataSize, uint32_t width, uint32_t height);
+    Microsoft::WRL::ComPtr<ID3D12Resource> GetDefaultResource(size_t width, size_t height);
 
-	static ComPtr < ID3D12Resource > GetDefaultResource(size_t width, size_t height);
+private:
+    std::wstring m_path;
+    uint32_t m_width = 0;
+    uint32_t m_height = 0;
 
-	Texture2D(const Texture2D&) = delete;
-	void operator = (const Texture2D&) = delete;
+    // DirectX 12 リソース
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_resource;
 
-	static std::unordered_map<std::wstring, std::shared_ptr<Texture2D>> m_TextureCache;
-	static std::shared_ptr<Texture2D> m_WhiteTexture;
+    // シェーダーリソースビュー(SRV)の設定情報
+    D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc = {};
 };
-

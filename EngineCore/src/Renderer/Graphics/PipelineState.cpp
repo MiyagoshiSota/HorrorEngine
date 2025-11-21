@@ -92,6 +92,11 @@ void PipelineState::SetCS(std::wstring filePath)
 	descCS.CS = CD3DX12_SHADER_BYTECODE(m_pPSBlob.Get());
 }
 
+void PipelineState::SetSampleDescCount(UINT count)
+{
+	descGS.SampleDesc.Count = count;
+}
+
 void PipelineState::CreateGraphicsPSO()
 {
 	// パイプラインステートを生成

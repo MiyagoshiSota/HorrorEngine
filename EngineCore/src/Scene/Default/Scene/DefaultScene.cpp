@@ -50,26 +50,26 @@ bool DefaultScene::Init(std::string go_file_path)
     // TEST:Lightを環境光とポイントライトを一個だけ追加
     m_LightingManager->add_directional_light(
         LightType::Directional,
-        DirectX::XMFLOAT3(-0.9f, -0.9f, -0.9f),
-        1.0f,
+        DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f),
+        3.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f)
     );
-    m_LightingManager->add_point_light(
-        LightType::Point,
-        DirectX::XMFLOAT3(1.0f, .0f, .0f),
-        3.0f,
-        DirectX::XMFLOAT3(0.0f, 5.0f, 0.0f),
-        500.0f,
-        0.005f
-    );
-    m_LightingManager->add_spot_light(
-        LightType::Spot,
-        DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f),
-        5.0f,
-        DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f),
-        DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f),
-        0.7f, 1.0f,100, 0.01f
-    );
+    //m_LightingManager->add_point_light(
+    //    LightType::Point,
+    //    DirectX::XMFLOAT3(1.0f, .0f, .0f),
+    //    3.0f,
+    //    DirectX::XMFLOAT3(0.0f, 5.0f, 0.0f),
+    //    500.0f,
+    //    0.005f
+    //);
+    //m_LightingManager->add_spot_light(
+    //    LightType::Spot,
+    //    DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f),
+    //    5.0f,
+    //    DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f),
+    //    DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f),
+    //    0.7f, 1.0f,100, 0.01f
+    //);
 
     printf("PSOの生成");
 
@@ -149,12 +149,6 @@ void DefaultScene::InitializeGameObject(std::string file_path)
 {
     // ゲームオブジェクトの読み込み
     m_GameObjects = GameObjectLoader::load_from_file(file_path);
-
-    // リソースの確保
-    for (auto& obj : m_GameObjects)
-    {
-        SceneResourceManager::GetInstance().initialize_gpu_resources_for(obj);
-    }
 
     // ゲームオブジェクトのInitを実行
     for (auto& obj : m_GameObjects)

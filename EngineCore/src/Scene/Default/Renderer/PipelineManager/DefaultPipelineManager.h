@@ -17,6 +17,8 @@ public:
 
 private:
     std::shared_ptr<RenderTarget> m_sceneColor;
+	std::shared_ptr<RenderTarget> m_msaaTarget;
+	std::shared_ptr<DepthStencilTarget> m_msaaDepth;
 	std::shared_ptr<DepthStencilTarget> m_sceneDepth;
 	std::shared_ptr<RenderTarget> m_tmpColorA;
     std::shared_ptr<RenderTarget> m_tmpColorB;

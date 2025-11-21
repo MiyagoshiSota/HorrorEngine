@@ -25,37 +25,45 @@ DescriptorHeap::DescriptorHeap(UINT numDescriptors) : m_NumDescriptors(numDescri
 	m_IncrementSize = device->GetDescriptorHandleIncrementSize(desc.Type);
 }
 
-std::shared_ptr<DescriptorHandle> DescriptorHeap::Allocate()
+// 引数に count を追加 (デフォルトは 1)
+std::shared_ptr<DescriptorHandle> DescriptorHeap::Allocate(UINT count)
 {
-	UINT index;
-	if (!m_FreeList.empty()) {
-		index = m_FreeList.back();
-		m_FreeList.pop_back();
-	} else {
-		index = m_NextAvailableIndex;
-		m_NextAvailableIndex++;
-	}
+    UINT index = -1;
 
-	if (index >= m_NumDescriptors) {
-		// 確保失敗
-		return nullptr;
-	}
+    // 1個だけの確保なら、FreeList（再利用）をチェックする
+    if (count == 1 && !m_FreeList.empty()) {
+        index = m_FreeList.back();
+        m_FreeList.pop_back();
+    }
+    else {
+        // 複数個の確保、またはFreeListが空なら、末尾から確保する
 
-	// ハンドルを作成
-	auto handle = std::make_shared<DescriptorHandle>();
-	handle->index = index;
+        // 容量チェック
+        if (m_NextAvailableIndex + count > m_NumDescriptors) {
+            return nullptr; // 足りない
+        }
 
-	// CPUハンドルを計算
-	handle->cpuHandle = m_pHeap->GetCPUDescriptorHandleForHeapStart();
-	handle->cpuHandle.ptr += index * m_IncrementSize;
+        index = m_NextAvailableIndex;
+        m_NextAvailableIndex += count; // 指定された個数分進める！
+    }
 
-	// GPUハンドルを計算
-	handle->gpuHandle = m_pHeap->GetGPUDescriptorHandleForHeapStart();
-	handle->gpuHandle.ptr += index * m_IncrementSize;
-    
-	// カスタムデリータ付きのshared_ptrを作成して返す
-	// これにより、このshared_ptrの参照が全て無くなった時に自動でFreeが呼ばれる
-	return handle;
+    // ハンドルを作成
+    auto handle = std::make_shared<DescriptorHandle>();
+    handle->index = index;
+    handle->count = count; // ★重要：何個確保したか覚えておく必要がある
+
+    // CPUハンドルを計算 (開始位置)
+    handle->cpuHandle = m_pHeap->GetCPUDescriptorHandleForHeapStart();
+    handle->cpuHandle.ptr += index * m_IncrementSize;
+
+    // GPUハンドルを計算 (開始位置)
+    handle->gpuHandle = m_pHeap->GetGPUDescriptorHandleForHeapStart();
+    handle->gpuHandle.ptr += index * m_IncrementSize;
+
+    // カスタムデリータを設定 (ラムダ式などで、解放時に count 分を Free する処理が必要)
+    // handle_ptr.reset(handle, [this](DescriptorHandle* h) { this->Free(h); }); のようなイメージ
+
+    return handle;
 }
 
 ID3D12DescriptorHeap* DescriptorHeap::GetHeap() const
@@ -63,8 +71,10 @@ ID3D12DescriptorHeap* DescriptorHeap::GetHeap() const
 	return m_pHeap.Get();
 }
 
-void DescriptorHeap::Free(UINT index)
+void DescriptorHeap::Free(std::shared_ptr<DescriptorHandle> handle)
 {
-	// インデックスをフリーリストに戻す
-	m_FreeList.push_back(index);
+    // TODO: Freeよばないと
+    if (handle->count == 1) {
+        m_FreeList.push_back(handle->index);
+    }
 }

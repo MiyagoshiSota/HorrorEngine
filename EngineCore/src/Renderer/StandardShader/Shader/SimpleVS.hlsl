@@ -3,8 +3,9 @@
     float4x4 World;
     float4x4 View;
     float4x4 Proj;
+    float3 CameraPos; // ★追加: 正しいスペキュラ計算に必須
+    float Padding0;
 }
-
 
 struct VSInput
 {
@@ -14,7 +15,6 @@ struct VSInput
     float3 tangent : TANGENT;
     float4 color : COLOR;
 };
-
 
 struct VSOutput
 {

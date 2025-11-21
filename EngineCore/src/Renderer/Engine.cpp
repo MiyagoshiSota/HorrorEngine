@@ -19,6 +19,7 @@
 #include "GUI/DrawModelsWindow.h"
 #include "GUI/DrawTaskManagerWindow.h"
 #include "GUI/DrawWorkManagerWindow.h"
+#include "Texture/Texture2D.h"
 
 Engine* g_Engine;
 
@@ -114,6 +115,9 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
         printf("ImGuiの初期化に失敗");
 		return false;
     }
+
+	// TextureResourceの初期化
+	m_TextureResource = std::make_shared<Texture2D>();
 
     printf("描画エンジンの初期化成功\n");
     return true;
@@ -230,6 +234,16 @@ D3D12_CPU_DESCRIPTOR_HANDLE Engine::AllocateRtvHandle()
     m_rtvHeapOffset++;
 
     return handle;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE Engine::AllocateDsvHandle()
+{
+	auto handle = m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += m_dsvHeapOffset * m_DsvDescriptorSize;
+    
+	m_dsvHeapOffset++;
+	
+	return handle;
 }
 
 ID3D12Device6* Engine::Device()
@@ -492,7 +506,8 @@ bool Engine::CreateDepthStencil()
 {
     // DSV用のディスクリプタヒープを作成する
     D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-    heapDesc.NumDescriptors = 1;
+
+    heapDesc.NumDescriptors = FRAME_BUFFER_COUNT + 10;
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     auto hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pDsvHeap));
@@ -539,6 +554,8 @@ bool Engine::CreateDepthStencil()
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
 
     m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), nullptr, dsvHandle);
+
+	m_dsvHeapOffset = 1;
 
     return true;
 }

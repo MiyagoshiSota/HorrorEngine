@@ -1,7 +1,7 @@
 ﻿{
   "models": {
     "WorldEnvironment": {
-      "model_path": "assets/japanese-street-at-night/source/Street.fbx",
+      "model_path": "assets/japanese_street_at_night/scene.gltf",
       "model_name": "ForestEnvironment"
     }
   }

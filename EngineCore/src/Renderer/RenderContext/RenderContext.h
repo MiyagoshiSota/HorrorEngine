@@ -35,6 +35,7 @@ public:
     std::shared_ptr<PipelineStateManager> PipelineStateManager;
     std::shared_ptr<ITargetBase> SourceRT;
     std::shared_ptr<ITargetBase> DestRT;
+	std::shared_ptr<ITargetBase> MSAART;
     float ScreenWidth;
     float ScreenHeight;
 

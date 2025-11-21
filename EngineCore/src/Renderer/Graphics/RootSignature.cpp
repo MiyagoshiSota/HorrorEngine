@@ -23,6 +23,13 @@ bool RootSignature::create(ID3D12Device* device, const std::shared_ptr<RootSigna
 	);
 	if (FAILED(hr))
 	{
+		if (pErrorBlob)
+		{
+			// エラーメッセージを文字列として取得して表示
+			const char* errStr = (const char*)pErrorBlob->GetBufferPointer();
+			printf("RootSignature Serialization Error: %s\n", errStr);
+			OutputDebugStringA(errStr); // Visual Studioの出力ウィンドウにも出す
+		}
 		// エラー処理
 		return false;
 	}

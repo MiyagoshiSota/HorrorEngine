@@ -1,212 +1,145 @@
 #include "Texture2D.h"
 #include <DirectXTex.h>
+#include <vector>
+#include <cassert>
+#include <d3dx12.h>
+
 #include "Renderer/Engine.h"
 
+// ライブラリのリンク
 #pragma comment(lib, "DirectXTex.lib")
 
 using namespace DirectX;
 
-std::unordered_map<std::wstring, std::shared_ptr<Texture2D>> Texture2D::m_TextureCache;
-std::shared_ptr<Texture2D> Texture2D::m_WhiteTexture;
+// --- ヘルパー関数 ---
 
-// std::string(マルチバイト文字列)からstd::wstring(ワイド文字列)を得る。AssimpLoaderと同じものだけど、共用にするのがめんどくさかったので許してください
+// std::string -> std::wstring 変換
 std::wstring GetWideString(const std::string& str)
 {
-    auto num1 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, str.c_str(), -1, nullptr, 0);
-
-    std::wstring wstr;
-    wstr.resize(num1);
-
-    auto num2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, str.c_str(), -1, &wstr[0], num1);
-
-    assert(num1 == num2);
-    return wstr;
+    if (str.empty()) return std::wstring();
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+    std::wstring wstrTo(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+    return wstrTo;
 }
 
-// 拡張子を返す
+// 拡張子の取得
 std::wstring FileExtension(const std::wstring& path)
 {
     auto idx = path.rfind(L'.');
-    return path.substr(idx + 1, path.length() - idx - 1);
+    if (idx == std::wstring::npos) return L"";
+    return path.substr(idx + 1);
 }
 
-Texture2D::Texture2D(std::string path)
+// --- コンストラクタ・デストラクタ ---
+
+Texture2D::Texture2D()
+    : m_width(0), m_height(0)
 {
-    m_IsValid = Load(path);
 }
 
-Texture2D::Texture2D(std::wstring path)
+Texture2D::~Texture2D()
 {
-    m_IsValid = Load(path);
 }
 
-Texture2D::Texture2D(ComPtr < ID3D12Resource > buffer)
-{
-    m_pResource = buffer;
-    m_IsValid = m_pResource != nullptr;
-}
+// --- ファクトリーメソッド (外部から呼ばれる) ---
 
-// 戻り値をshared_ptrに変更
-std::shared_ptr<Texture2D> Texture2D::Get(std::string path)
+std::shared_ptr<Texture2D> Texture2D::Load(const std::wstring& path)
 {
-    auto wpath = GetWideString(path);
-    return Get(wpath);
-}
+    // インスタンス生成
+    auto tex = std::make_shared<Texture2D>();
 
-// Getメソッドをキャッシュ対応に修正
-std::shared_ptr<Texture2D> Texture2D::Get(std::wstring path)
-{
-    // 1. キャッシュにテクスチャがあるか探す
-    auto it = m_TextureCache.find(path);
-    if (it != m_TextureCache.end())
+    // 内部ロード処理を実行
+    if (!tex->InternalLoad(path))
     {
-        // あればそれを返す
-        return it->second;
+        // 失敗したらnullptrを返す
+        return nullptr;
     }
-
-    // 2. なければ新しく作る (make_sharedを使う)
-    auto tex = std::make_shared<Texture2D>(path);
-    if (!tex->IsValid())
-    {
-        return GetWhite(); // 失敗したら白テクスチャを返す
-    }
-
-    // 3. 作成したテクスチャをキャッシュに保存
-    m_TextureCache[path] = tex;
     return tex;
 }
 
-// GetWhiteもキャッシュ対応に
-std::shared_ptr<Texture2D> Texture2D::GetWhite()
+std::shared_ptr<Texture2D> Texture2D::CreateWhiteTexture()
 {
-    if (m_WhiteTexture)
-    {
-        return m_WhiteTexture;
-    }
+    auto tex = std::make_shared<Texture2D>();
 
-    const size_t width = 4;
-    const size_t height = 4;
+    // 1x1ピクセルの白データ (RGBA = 0xFF, 0xFF, 0xFF, 0xFF)
+    uint32_t whitePixel = 0x00000000;
+	uint32_t blackPixel = 0x000000FF;
 
-    // 1. リソースを確保
-    ComPtr<ID3D12Resource> buff = GetDefaultResource(width, height);
-    if (buff == nullptr) {
-        return nullptr;
-    }
-
-    // 2. 4x4ピクセル分の白色データを作成 (RGBA, 各色255)
-    std::vector<UINT8> data(width * height * 4, 255);
-
-    // 3. 作成したデータをリソースに書き込む
-    HRESULT hr = buff->WriteToSubresource(
-        0,
-        nullptr,
-        data.data(),
-        static_cast<UINT>(width * 4), // 1ラインのバイト数 (幅 * 4チャンネル)
-        static_cast<UINT>(data.size()) // 全体のバイト数
+    // 内部メソッドでDX12リソースを作成
+    bool success = tex->InternalCreateFromData(
+        reinterpret_cast<const uint8_t*>(&whitePixel),
+        sizeof(uint32_t),
+        1,
+        1
     );
-    
-    if (FAILED(hr)) {
-        // エラー処理
+
+    if (!success)
+    {
+        printf("白テクスチャの作成に失敗\n");
         return nullptr;
     }
 
-    // 4. データが書き込まれたリソースでテクスチャオブジェクトを作成
-    m_WhiteTexture = std::make_shared<Texture2D>(buff);
-    return m_WhiteTexture;
+    return tex;
 }
 
-bool Texture2D::IsValid()
-{
-    return m_IsValid;
-}
+// --- 内部実装 ---
 
-ComPtr<ID3D12Resource> Texture2D::Resource()
+bool Texture2D::InternalLoad(const std::wstring& path)
 {
-    return m_pResource.Get();
-}
+    m_path = path;
 
-D3D12_SHADER_RESOURCE_VIEW_DESC Texture2D::ViewDesc()
-{
-    D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
-    desc.Format = m_pResource->GetDesc().Format;
-    desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; //2Dテクスチャ
-    desc.Texture2D.MipLevels = 1; //ミップマップは使用しないので1
-    return desc;
-}
-
-bool Texture2D::Load(std::string& path)
-{
-    auto wpath = GetWideString(path);
-    return Load(wpath);
-}
-
-bool Texture2D::Load(std::wstring& path)
-{
-    //WICテクスチャのロード
+    // DirectXTexを使って画像をロード
     TexMetadata meta = {};
     ScratchImage scratch = {};
-    auto ext = FileExtension(path);
+    std::wstring ext = FileExtension(path);
+    HRESULT hr = E_FAIL;
 
-    HRESULT hr = S_FALSE;
-    if (ext == L"png") // pngの時はWICFileを使う
-    {
-        LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
-    }
-    else if (ext == L"jpg") // jpgの時はWICFileを使う
-    {
-        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
-    }
-    else if (ext == L"bmp") // bmpの時はWICFileを使う
-    {
-        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
-    }
-    else if (ext == L"dds") // ddsの時はDDSFileを使う
-    {
-        hr = LoadFromDDSFile(path.c_str(), DDS_FLAGS_NONE, &meta, scratch);
-    }
-    else if (ext == L"hdr") // hdrの時はHDRFileを使う
-    {
-        hr = LoadFromHDRFile(path.c_str(), &meta, scratch);
-    }
-    else if (ext == L"tiff") // tiffの時はWICFileを使う
-    {
-        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
-    }
-    else if (ext == L"gif") // gifの時はWICFileを使う
-    {
-        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
-    }
-    else if (ext == L"ico") // icoの時はWICFileを使う
-    {
-        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
-    }
-    else if (ext == L"tga") // tgaの時はTGAFileを使う
+    // 拡張子による分岐 (小文字化比較などが望ましいですが簡易実装)
+    if (ext == L"tga" || ext == L"TGA")
     {
         hr = LoadFromTGAFile(path.c_str(), &meta, scratch);
     }
+    else
+    {
+        // png, jpg, bmp などはWIC
+        hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
+    }
 
     if (FAILED(hr))
     {
+        printf("画像ロード失敗: %ls\n", path.c_str());
         return false;
     }
 
-    auto img = scratch.GetImage(0, 0, 0);
-    auto prop = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(meta.format,
+    // メタデータの保存
+    m_width = static_cast<uint32_t>(meta.width);
+    m_height = static_cast<uint32_t>(meta.height);
+
+    // リソースの作成 (DirectXTexの情報を元に確保)
+    // メモ: GetDefaultResourceはR8G8B8A8_UNORM固定なので、元のフォーマットを使いたい場合は修正が必要
+    // ここではシンプルにするため、元コードのWriteToSubresourceパターンに合わせてリソースを作ります
+
+    const Image* img = scratch.GetImage(0, 0, 0);
+
+    // リソースを確保 (フォーマットは画像に合わせる)
+    auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+        meta.format,
         meta.width,
         meta.height,
         static_cast<UINT16>(meta.arraySize),
-        static_cast<UINT16>(meta.mipLevels));
+        static_cast<UINT16>(meta.mipLevels)
+    );
 
-    // リソースを生成
+    auto texHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
+
     hr = g_Engine->Device()->CreateCommittedResource(
-        &prop,
+        &texHeapProp,
         D3D12_HEAP_FLAG_NONE,
-        &desc,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        &resDesc,
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // 最初からシェーダーリソースとして使用
         nullptr,
-        IID_PPV_ARGS(m_pResource.ReleaseAndGetAddressOf())
+        IID_PPV_ARGS(&m_resource)
     );
 
     if (FAILED(hr))
@@ -214,33 +147,82 @@ bool Texture2D::Load(std::wstring& path)
         return false;
     }
 
-    hr = m_pResource->WriteToSubresource(0,
-        nullptr, //全領域へコピー
-        img->pixels, //元データアドレス
-        static_cast<UINT>(img->rowPitch), //1ラインサイズ
-        static_cast<UINT>(img->slicePitch) //全サイズ
+    // データの転送 (WriteToSubresource)
+    hr = m_resource->WriteToSubresource(
+        0,
+        nullptr, // 全領域
+        img->pixels,
+        static_cast<UINT>(img->rowPitch),
+        static_cast<UINT>(img->slicePitch)
     );
+
     if (FAILED(hr))
     {
         return false;
     }
+
+    // SRV設定の作成
+    m_srvDesc.Format = resDesc.Format;
+    m_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    m_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    m_srvDesc.Texture2D.MipLevels = resDesc.MipLevels;
+    // m_srvDesc.Texture2D.MostDetailedMip = 0;
+    // m_srvDesc.Texture2D.PlaneSlice = 0;
+    // m_srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
     return true;
 }
 
-ComPtr<ID3D12Resource> Texture2D::GetDefaultResource(size_t width, size_t height)
+bool Texture2D::InternalCreateFromData(const uint8_t* data, size_t dataSize, uint32_t width, uint32_t height)
 {
+    m_width = width;
+    m_height = height;
+
+    // リソースを確保 (GetDefaultResourceを使用)
+    m_resource = GetDefaultResource(width, height);
+    if (m_resource == nullptr) {
+        return false;
+    }
+
+    // データの書き込み
+    HRESULT hr = m_resource->WriteToSubresource(
+        0,
+        nullptr,
+        data,
+        static_cast<UINT>(width * 4), // RowPitch: 1ラインのバイト数 (R8G8B8A8想定)
+        static_cast<UINT>(dataSize)   // SlicePitch: 全体のバイト数
+    );
+
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    // SRV設定の作成
+    m_srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    m_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    m_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    m_srvDesc.Texture2D.MipLevels = 1;
+
+    return true;
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> Texture2D::GetDefaultResource(size_t width, size_t height)
+{
+    // R8G8B8A8_UNORM 固定でリソースを作成するヘルパー
     auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height);
     auto texHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
-    ComPtr<ID3D12Resource> buff = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> buff = nullptr;
+
     auto result = g_Engine->Device()->CreateCommittedResource(
         &texHeapProp,
-        D3D12_HEAP_FLAG_NONE, //特に指定なし
+        D3D12_HEAP_FLAG_NONE,
         &resDesc,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
         nullptr,
         IID_PPV_ARGS(&buff)
     );
+
     if (FAILED(result))
     {
         assert(SUCCEEDED(result));
@@ -248,4 +230,3 @@ ComPtr<ID3D12Resource> Texture2D::GetDefaultResource(size_t width, size_t height
     }
     return buff;
 }
-

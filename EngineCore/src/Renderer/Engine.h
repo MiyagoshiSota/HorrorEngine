@@ -36,9 +36,11 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDsvHeap() { return m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(); }
 	D3D12_VIEWPORT GetViewPort() { return m_Viewport; }
 	D3D12_RECT GetScissorRect() { return m_Scissor; }
+	std::shared_ptr<Texture2D> GetTextureResource() { return m_TextureResource; }
 
 	// 各種アロケーター
 	D3D12_CPU_DESCRIPTOR_HANDLE AllocateRtvHandle();
+	D3D12_CPU_DESCRIPTOR_HANDLE AllocateDsvHandle();
 
 public:
 	ID3D12Device6* Device();
@@ -94,7 +96,9 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	std::shared_ptr<DescriptorHeap> m_DescriptorHeap; // SRVヒープ
 
 	UINT m_rtvHeapOffset; // RTVヒープのオフセット管理用
+	UINT m_dsvHeapOffset; // DSVヒープのオフセット管理用
 
+	std::shared_ptr<Texture2D> m_TextureResource; 
 private:
 	ComPtr < ID3D12Resource > m_currentRenderTarget = nullptr; // 現在のフレームのレンダーターゲットを一時的に保存しておく関数
 	void WaitRender(); // 描画完了を待つ関数

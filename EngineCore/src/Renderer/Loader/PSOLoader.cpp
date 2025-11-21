@@ -115,6 +115,7 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
             {
                 std::wstring vsPath = engine_string::to_wstring(psoJson["vertexShader"]);
                 std::wstring psPath = engine_string::to_wstring(psoJson["pixelShader"]);
+				UINT SampleCount = psoJson.value("sampleCount", 1);
                 std::wstring gsPath = L"";
 
                 if (psoJson.contains("geometryShader"))
@@ -136,7 +137,7 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                 }
 
                 // ジオメトリシェーダー無しの場合
-                manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, useWireframe,inputLayout, depthEnable, blendEnable);   
+                manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, SampleCount, useWireframe,inputLayout, depthEnable, blendEnable);   
             }
             // Computeシェーダー用PSO
             else if (psoJson.contains("computeShader"))

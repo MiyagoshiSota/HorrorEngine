@@ -28,14 +28,10 @@ public:
 		model_name = jsonData["model_name"].get<std::string>();
 		
 		// モデルのロード
-		const auto model = g_ModelLoader->GetModel(model_name);
+		model = g_ModelLoader->GetModel(model_name);
 
 		// 既にロードされているなら何もしない
-		if (model)
-		{
-			// GameObjectにモデルをセット
-			gameObject->set_model(model);
-		}else
+		if (model == nullptr)
 		{
 			printf("存在しないモデルパス:%s\n",model_name.c_str());
 		} 
@@ -53,6 +49,6 @@ public:
 
 public:
 	std::string model_name;
-
+	std::shared_ptr<Model> model = nullptr;
 };
 

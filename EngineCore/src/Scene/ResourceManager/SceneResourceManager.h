@@ -1,6 +1,8 @@
 #pragma once
 #include <memory> // std::shared_ptr
 
+#include "Renderer/StandardShader/Struct/SharedStruct.h"
+
 // 前方宣言
 class GameObject;
 class Model;
@@ -15,20 +17,26 @@ public:
 	SceneResourceManager &operator=(const SceneResourceManager &) = delete;
 	SceneResourceManager(SceneResourceManager &&) = delete;
 	SceneResourceManager &operator=(SceneResourceManager &&) = delete;
-	
+
+	// シングルトンの取得
 	static SceneResourceManager &GetInstance() {
 		static SceneResourceManager instance;
 		return instance;
 	}
 
+
+	// モデルデータの構造体
+	struct ModelData;
+
 	/// <summary>
-	/// GameObjectのリソースを読み込んでバッファを確保
+	/// ModelのGPUリソースを作成する
 	/// </summary>
-	/// <param name="obj"></param>
-	void initialize_gpu_resources_for(std::shared_ptr<GameObject> obj);
+	/// <param name="origin_data"></param>
+	/// <param name="model"></param>
+	void initialize_gpu_resources_for(std::vector<SharedStruct::Mesh> origin_data, std::shared_ptr<Model> model);
 	
-	void create_vertex_buffer(std::shared_ptr<Model> meshes);
-	void create_index_buffer(std::shared_ptr<Model> model);
-	void read_material(std::shared_ptr<Model> model);
-	void create_mesh_classes(std::shared_ptr<Model> meshes);
+	void create_vertex_buffer(ModelData meshes);
+	void create_index_buffer(ModelData model);
+	void read_material(ModelData model);
+	void create_mesh_classes(ModelData meshes);
 };

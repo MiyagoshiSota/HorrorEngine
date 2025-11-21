@@ -10,17 +10,17 @@ void SceneCamera::Init()
     // Y-up座標系を前提とします（DirectXの標準）
     // もしZ-upが良い場合は、m_WorldUpを(0,0,1)にし、
     // SetEyePos/TargetPosのYとZを入れ替えてください。
-    SetEyePos(0.0f, 100.0f, 300.0f, 1.0f); // X, Y, Z, W
+    SetEyePos(0.0f, 1.0f, 3.0f, 1.0f); // X, Y, Z, W
     SetTargetPos(0.0f, 0.0f, 0.0f, 1.0f);
     m_WorldUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-    m_Fov = DirectX::XMConvertToRadians(90.0f);
+    m_Fov = DirectX::XMConvertToRadians(120.0f);
     
     // アスペクト比はウィンドウサイズから計算
     m_Aspect = WINDOW_WIDTH / WINDOW_HEIGHT;
 
     // 感度設定
-    m_MoveSpeed = 50.0f;
+    m_MoveSpeed = 10.0f;
     m_RotationSpeed = 0.005f; // マウスの移動量1ピクセルあたりのラジアン
     m_ZoomSpeed = 0.01f;      // ホイール1目盛りあたりの処理量
 

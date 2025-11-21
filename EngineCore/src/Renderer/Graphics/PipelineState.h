@@ -18,6 +18,7 @@ public:
 	void SetPS(std::wstring filePath); // ピクセルシェーダーを設定
 	void SetGS(std::wstring filePath); // ジオメトリシェーダーを設定
 	void SetCS(std::wstring filePath); // コンピュートシェーダーを設定
+	void SetSampleDescCount(UINT count); // サンプル数を設定
 	void CreateGraphicsPSO(); // パイプラインステートを生成
 	void CreateComputePSO(); // コンピュートパイプラインステートを生成
 	void SetBlendEnable(bool blendEnable); // ブレンドを有効化するかどうか

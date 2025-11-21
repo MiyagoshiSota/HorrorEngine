@@ -34,6 +34,7 @@ void PipelineStateManager::create_pipeline_state(
     const std::string& rootSignatureName,
     const std::wstring& vsFilePath,
     const std::wstring& psFilePath,
+	UINT SampleCount,
     bool useWireframe,
     bool useInputLayout,
     bool useDepthFormat,
@@ -67,6 +68,7 @@ void PipelineStateManager::create_pipeline_state(
     pipelineState->SetRootSignature(rootSignature->get());
     pipelineState->SetVS(vsFilePath);
     pipelineState->SetPS(psFilePath);
+	pipelineState->SetSampleDescCount(SampleCount);
     pipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
     pipelineState->SetBlendEnable(blendEnable);
 
