@@ -1,7 +1,6 @@
 #include "DefaultScene.h"
 #include "Core/App.h"
 #include "Renderer/Assimp/AssimpLoader.h"
-#include "Scene/ResourceManager/SceneResourceManager.h"
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Core/Components/TriggerComponent.h"
 #include "Core/Components/Reward/StartWorkReward.h"
@@ -51,7 +50,7 @@ bool DefaultScene::Init(std::string go_file_path)
     m_LightingManager->add_directional_light(
         LightType::Directional,
         DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f),
-        3.0f,
+        1.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f)
     );
     //m_LightingManager->add_point_light(

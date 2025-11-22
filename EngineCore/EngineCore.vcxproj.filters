@@ -152,6 +152,10 @@
     <ClInclude Include="src\Renderer\Pass\ComputeProcess\RainParticleSystem.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHeap.h" />
     <ClInclude Include="src\Renderer\Texture\TextureResourceManager.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\Extraction.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\GaussianBlurPass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\BloomPass.h" />
+    <ClInclude Include="src\Renderer\RenderContext\TempRenderTargetPool.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />
@@ -172,6 +176,12 @@
     <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticleGS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticleVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticlePS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\ExtractionVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\ExtractionPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\GaussianBlurVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\GaussianBlurPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\BloomCombineVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\BloomCombinePS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

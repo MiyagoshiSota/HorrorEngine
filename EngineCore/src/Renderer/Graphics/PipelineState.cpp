@@ -15,7 +15,6 @@ PipelineState::PipelineState()
 	descGS.SampleMask = UINT_MAX;
 	descGS.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; // 三角形を描画
 	descGS.NumRenderTargets = 1; // 描画対象は1
-	descGS.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	descGS.SampleDesc.Count = 1; // サンプラーは1
 	descGS.SampleDesc.Quality = 0;
 }
@@ -95,6 +94,11 @@ void PipelineState::SetCS(std::wstring filePath)
 void PipelineState::SetSampleDescCount(UINT count)
 {
 	descGS.SampleDesc.Count = count;
+}
+
+void PipelineState::SetFormat(DXGI_FORMAT format)
+{
+	descGS.RTVFormats[0] = format;
 }
 
 void PipelineState::CreateGraphicsPSO()

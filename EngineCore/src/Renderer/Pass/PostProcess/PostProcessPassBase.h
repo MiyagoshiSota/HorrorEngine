@@ -1,4 +1,5 @@
 #pragma once
+#include "Preset/PostProcessPreset.h"
 #include "Renderer/Pass/IRenderPass.h"
 #include "Renderer/RenderContext/RenderContext.h"
 #include "Renderer/Target/ITargetBase.h"
@@ -13,7 +14,7 @@ public:
 	/// 通常の描画パスとして実行する場合の関数
     /// </summary>
     /// <param name="context"></param>
-    void Execute(RenderContext& context) final override
+    void Execute(RenderContext& context) override
     {
 		auto cmdList = context.CommandList;
 
@@ -41,7 +42,7 @@ public:
     /// </summary>
     /// <param name="context"></param>
     /// <param name="backBufferHandle"></param>
-    void LastExecute(RenderContext& context, D3D12_CPU_DESCRIPTOR_HANDLE backBufferHandle)
+    virtual void LastExecute(RenderContext& context, D3D12_CPU_DESCRIPTOR_HANDLE backBufferHandle)
     {
         auto cmdList = context.CommandList;
 

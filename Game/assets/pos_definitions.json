@@ -75,9 +75,7 @@
           "shaderRegister": 0
         }
       ],
-      "flags": [
-
-      ]
+      "flags": []
     },
     "PostProcess_SingleTexture": {
       "descriptorTables": [
@@ -93,9 +91,7 @@
           "addressMode": "WRAP"
         }
       ],
-      "flags": [
-        "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
-      ]
+      "flags": [ "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT" ]
     },
     "PostProcess_TextureAndCBV": {
       "constantBufferViews": [
@@ -110,6 +106,27 @@
           "num": 1,
           "shaderRegister": 0,
           "space": 0
+        }
+      ],
+      "staticSamplers": [
+        {
+          "shaderRegister": 0,
+          "filter": "LINEAR",
+          "addressMode": "WRAP"
+        }
+      ]
+    },
+    "PostProcess_MultiTexture": {
+      "descriptorTables": [
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 0
+        },
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 1
         }
       ],
       "staticSamplers": [
@@ -182,6 +199,26 @@
       "rootSignature": "PostProcess_TextureAndCBV",
       "vertexShader": "../x64/Debug/FilmGrainVS.cso",
       "pixelShader": "../x64/Debug/FilmGrainPS.cso",
+      "depthEnable": false
+    },
+    "BloomExtraction": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/ExtractionVS.cso",
+      "pixelShader": "../x64/Debug/ExtractionPS.cso",
+      "format": "DXGI_FORMAT_R16G16B16A16_FLOAT",
+      "depthEnable": false
+    },
+    "BloomBlur": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/GaussianBlurVS.cso",
+      "pixelShader": "../x64/Debug/GaussianBlurPS.cso",
+      "format": "DXGI_FORMAT_R16G16B16A16_FLOAT",
+      "depthEnable": false
+    },
+    "BloomCombine": {
+      "rootSignature": "PostProcess_MultiTexture",
+      "vertexShader": "../x64/Debug/BloomCombineVS.cso",
+      "pixelShader": "../x64/Debug/BloomCombinePS.cso",
       "depthEnable": false
     }
   }

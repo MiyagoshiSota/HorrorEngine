@@ -116,7 +116,24 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                 std::wstring vsPath = engine_string::to_wstring(psoJson["vertexShader"]);
                 std::wstring psPath = engine_string::to_wstring(psoJson["pixelShader"]);
 				UINT SampleCount = psoJson.value("sampleCount", 1);
-                std::wstring gsPath = L"";
+
+				// format指定がある場合の処理
+                DXGI_FORMAT renderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+                if (psoJson.contains("format"))
+                {
+                    std::string formatStr = psoJson["format"];
+                    if (formatStr == "DXGI_FORMAT_R8G8B8A8_UNORM") {
+                        renderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+                    }
+                    else if (formatStr == "DXGI_FORMAT_B8G8R8A8_UNORM") {
+                        renderTargetFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
+                    }
+                    else if (formatStr == "DXGI_FORMAT_R16G16B16A16_FLOAT"){
+                        renderTargetFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
+					}
+                }
+
+				std::wstring gsPath = L"";
 
                 if (psoJson.contains("geometryShader"))
                 {
@@ -137,7 +154,7 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                 }
 
                 // ジオメトリシェーダー無しの場合
-                manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, SampleCount, useWireframe,inputLayout, depthEnable, blendEnable);   
+                manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, SampleCount, renderTargetFormat, useWireframe,inputLayout, depthEnable, blendEnable);
             }
             // Computeシェーダー用PSO
             else if (psoJson.contains("computeShader"))

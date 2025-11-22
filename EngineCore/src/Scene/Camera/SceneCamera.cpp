@@ -14,10 +14,10 @@ void SceneCamera::Init()
     SetTargetPos(0.0f, 0.0f, 0.0f, 1.0f);
     m_WorldUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-    m_Fov = DirectX::XMConvertToRadians(120.0f);
+    m_Fov = DirectX::XMConvertToRadians(90.0f);
     
     // アスペクト比はウィンドウサイズから計算
-    m_Aspect = WINDOW_WIDTH / WINDOW_HEIGHT;
+    m_Aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
 
     // 感度設定
     m_MoveSpeed = 10.0f;

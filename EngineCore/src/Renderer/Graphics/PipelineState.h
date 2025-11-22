@@ -19,6 +19,7 @@ public:
 	void SetGS(std::wstring filePath); // ジオメトリシェーダーを設定
 	void SetCS(std::wstring filePath); // コンピュートシェーダーを設定
 	void SetSampleDescCount(UINT count); // サンプル数を設定
+	void SetFormat(DXGI_FORMAT format);
 	void CreateGraphicsPSO(); // パイプラインステートを生成
 	void CreateComputePSO(); // コンピュートパイプラインステートを生成
 	void SetBlendEnable(bool blendEnable); // ブレンドを有効化するかどうか

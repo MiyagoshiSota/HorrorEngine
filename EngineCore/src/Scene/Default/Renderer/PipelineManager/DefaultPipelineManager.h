@@ -26,5 +26,6 @@ private:
 private:
     std::shared_ptr<PostProcessManager> m_postProcessManager;
     std::shared_ptr<RainParticleSystem> m_rainParticleSystem;
+	std::shared_ptr<TempRenderTargetPool> m_tempRenderTargetPool;
 };
 

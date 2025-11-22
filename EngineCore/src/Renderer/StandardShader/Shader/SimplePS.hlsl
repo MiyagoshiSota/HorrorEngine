@@ -296,7 +296,7 @@ float4 main(PSInput input) : SV_TARGET
     // -----------------------------------------------------
     // AOは一般的に環境光（Ambient）にのみ乗算します
 	float3 ambient = AmbientColor.rgb * albedo * ao;
-    float3 color = ambient + Lo + emissive * 2;
+    float3 color = ambient + Lo + emissive;
 
     // 1. ACESトーンマッピングを適用 (HDR -> LDR)
     //color = ACESFilm(color);

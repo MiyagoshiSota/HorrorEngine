@@ -43,6 +43,8 @@ public:
         D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
         std::shared_ptr<DescriptorHandle> srvHandle
     ) override{};
+
+	DXGI_FORMAT GetFormat() const { return m_Format; }
     
 private:
    DXGI_FORMAT m_Format = DXGI_FORMAT_UNKNOWN;

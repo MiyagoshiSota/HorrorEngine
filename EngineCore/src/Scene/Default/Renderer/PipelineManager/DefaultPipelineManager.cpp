@@ -35,12 +35,15 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_postProcessManager = std::make_shared<PostProcessManager>();
     m_postProcessManager->LoadPresets(const_path_pref::PostProcessPresetsPath);
 	m_postProcessManager->Init();
+
+	// 一時レンダーターゲットプールの生成
+	m_tempRenderTargetPool = std::make_shared<TempRenderTargetPool>();
 };
 
 void DefaultPipelineManager::Execute()
 {
     // コンテキストを生成
-    RenderContext context(g_Engine->CommandList(),g_Scene->get_scene_camera(),g_Scene->get_game_objects(), m_sceneColor, m_sceneDepth, WINDOW_WIDTH,WINDOW_HEIGHT,g_Scene->get_pipeline_state_manager());
+    RenderContext context(g_Engine->CommandList(),g_Scene->get_scene_camera(),g_Scene->get_game_objects(), m_sceneColor, m_sceneDepth, WINDOW_WIDTH,WINDOW_HEIGHT,g_Scene->get_pipeline_state_manager(),m_tempRenderTargetPool);
 
     // レンダーターゲットを設定
     context.AddRenderTarget(const_render_pref::SceneColor,m_sceneColor);

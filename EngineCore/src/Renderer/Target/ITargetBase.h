@@ -49,6 +49,9 @@ public:
     ComPtr<ID3D12Resource> GetResource() const { return m_pResource.Get(); }
     D3D12_RESOURCE_STATES GetCurrentState() const { return m_CurrentState; }
 
+	UINT GetWidth() const { return m_Width; }
+	UINT GetHeight() const { return m_Height; }
+
 protected:
     ComPtr<ID3D12Resource> m_pResource;
     D3D12_RESOURCE_STATES m_CurrentState;

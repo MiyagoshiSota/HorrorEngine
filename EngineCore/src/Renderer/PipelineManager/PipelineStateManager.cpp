@@ -35,6 +35,7 @@ void PipelineStateManager::create_pipeline_state(
     const std::wstring& vsFilePath,
     const std::wstring& psFilePath,
 	UINT SampleCount,
+	DXGI_FORMAT renderTargetFormat,
     bool useWireframe,
     bool useInputLayout,
     bool useDepthFormat,
@@ -69,7 +70,7 @@ void PipelineStateManager::create_pipeline_state(
     pipelineState->SetVS(vsFilePath);
     pipelineState->SetPS(psFilePath);
 	pipelineState->SetSampleDescCount(SampleCount);
-    pipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	pipelineState->SetRenderTargetFormat(renderTargetFormat);
     pipelineState->SetBlendEnable(blendEnable);
 
     // 深度ステンシルのフォーマットを設定
