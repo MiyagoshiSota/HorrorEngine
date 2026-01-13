@@ -19,10 +19,10 @@ public:
         for (int i = 0; i < g_Engine->FRAME_BUFFER_COUNT; ++i)
         {
             // TODO:野生のConstantBufferを作ってる,Heapで管理したい感ある
-            //m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
-			//m_ShadowConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
-			m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::CascadedShadowMapTransform));
-			m_ShadowConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::CascadedShadowMapTransform));
+            m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
+			m_ShadowConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
+			//m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::CascadedShadowMapTransform));
+			//m_ShadowConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::CascadedShadowMapTransform));
         }
     };
 	void init();

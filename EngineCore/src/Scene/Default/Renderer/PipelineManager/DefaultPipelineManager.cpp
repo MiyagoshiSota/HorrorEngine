@@ -11,8 +11,8 @@
 DefaultPipelineManager::DefaultPipelineManager()
 {
 	// SimpleShadowMapPassの初期化
-	//m_simpleShadowMapPass = std::make_shared<SimpleShadowMapPass>();
-	m_simpleShadowMapPass = std::make_shared<CascadesShadowMapPass>();
+	m_simpleShadowMapPass = std::make_shared<SimpleShadowMapPass>();
+	//m_simpleShadowMapPass = std::make_shared<CascadesShadowMapPass>();
 
 	// ParticleSystemの初期化
 	m_rainParticleSystem = std::make_shared<RainParticleSystem>();
@@ -37,6 +37,7 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_msaaTarget->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 8, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
 	m_cascadedShadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 3, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(3));
     m_msaaDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 8, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// PostProcessManagerの初期化

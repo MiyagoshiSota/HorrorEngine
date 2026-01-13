@@ -28,8 +28,8 @@ private:
     std::shared_ptr<RenderTarget> m_tmpColorB;
 
 private:
-	//std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
-	std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
+	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
+	//std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
     std::shared_ptr<PostProcessManager> m_postProcessManager;
     std::shared_ptr<RainParticleSystem> m_rainParticleSystem;
 	std::shared_ptr<TempRenderTargetPool> m_tempRenderTargetPool;

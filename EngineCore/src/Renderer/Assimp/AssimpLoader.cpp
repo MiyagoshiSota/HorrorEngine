@@ -81,7 +81,7 @@ bool AssimpLoader::Load(ImportSettings settings)
     Assimp::Importer importer;
     int flag = 0;
     flag |= aiProcess_Triangulate;
-    flag |= aiProcess_PreTransformVertices; // PreTransformVertices は行わない方が柔軟性が高い
+    flag |= aiProcess_PreTransformVertices; 
     flag |= aiProcess_CalcTangentSpace;
     flag |= aiProcess_GenSmoothNormals;
     flag |= aiProcess_GenUVCoords;

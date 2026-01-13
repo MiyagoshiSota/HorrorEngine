@@ -25,8 +25,6 @@ public:
         auto cmdList = context.CommandList;
 
         // パイプラインステートの設定
-        // 影生成専用のPSOとRootSignatureを使用します
-        // ※ VertexShaderのみ、またはPixelShaderがNullの構成
         auto name = "Geometry_Default";
         auto PSOname = "CascadedShadowMap";
 
@@ -124,7 +122,7 @@ public:
             CD3DX12_CPU_DESCRIPTOR_HANDLE currentDSVHandle = dsvHandle;
             currentDSVHandle.Offset(cascadeIdx, dsvDescriptorSize);
 
-            // ここで「今のスライス」をクリアする
+            // 今のスライスをクリアする
             cmdList->ClearDepthStencilView(currentDSVHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
             // ターゲットセット

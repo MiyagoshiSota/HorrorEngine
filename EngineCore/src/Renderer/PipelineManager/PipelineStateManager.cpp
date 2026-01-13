@@ -215,3 +215,4 @@ std::shared_ptr<PipelineState> PipelineStateManager::get_pipeline_state(const st
     }
     return nullptr;
 }
+

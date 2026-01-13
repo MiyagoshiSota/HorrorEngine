@@ -9,7 +9,7 @@
 class SimpleShadowMapPass : public SceneRenderPassBase
 {
 public:
-    const std::string TARGET_NAME = const_render_pref::CascadedShadowMap;
+    const std::string TARGET_NAME = const_render_pref::ShadowMap;
 
     void Collect(RenderContext& context) override
     {

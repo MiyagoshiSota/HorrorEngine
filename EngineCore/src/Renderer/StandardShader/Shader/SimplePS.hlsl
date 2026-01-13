@@ -5,26 +5,26 @@ Texture2D g_AlbedoMap : register(t0);
 Texture2D g_NormalMap : register(t1);
 Texture2D g_MetallicRoughnessMap : register(t2);
 Texture2D g_EmissiveMap : register(t3);
-// Texture2D g_shadowMap : register(t4); 
-Texture2DArray g_ShadowMap : register(t4); // ShadowMap (Array)
+
+// Texture2DArray から Texture2D (単一テクスチャ) に変更
+Texture2D g_ShadowMap : register(t4);
 
 SamplerState g_Sampler : register(s0);
 SamplerComparisonState g_ShadowSampler : register(s1);
 
+// =========================================================
 // 影判定関数 (0.0=影, 1.0=日向)
-// 引数を変更: ライト空間座標(float4) と カスケードインデックス(float) を受け取る
-float CalculateShadow(float4 posLight, float sliceIndex)
+// =========================================================
+float CalculateShadow(float4 posLight)
 {
     // 1. 射影変換 (w除算)
-    // 頂点シェーダから来た座標を正規化します
     float3 projCoords = posLight.xyz / posLight.w;
 
     // 2. NDC座標(-1~1) を UV座標(0~1) に変換
-    // DX12のUVは左上原点、Y下向きなのでYを反転
     projCoords.x = projCoords.x * 0.5 + 0.5;
     projCoords.y = -projCoords.y * 0.5 + 0.5;
 
-    // ライトの範囲外なら影判定しない
+    // ライトの範囲外なら影判定しない（日向扱い）
     if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
     {
         return 1.0;
@@ -32,13 +32,12 @@ float CalculateShadow(float4 posLight, float sliceIndex)
 
     // 3. 深度比較
     float currentDepth = projCoords.z;
-    float bias = 0.005; // 調整値
-
-    // ★Texture2DArray用のサンプリング
-    // 第2引数は float3(u, v, sliceIndex) になります
+    float bias = 0.005;
+		
+    // Texture2D に対する SampleCmpLevelZero
     float shadow = g_ShadowMap.SampleCmpLevelZero(
         g_ShadowSampler,
-        float3(projCoords.xy, sliceIndex),
+        projCoords.xy,
         currentDepth - bias
     );
 
@@ -50,20 +49,13 @@ float CalculateShadow(float4 posLight, float sliceIndex)
 // =========================================================
 cbuffer Transform : register(b0)
 {
-    // Shadow Passでは、ここに「ライトのView行列」と「ライトのProj行列」が入ってきます
-    matrix World;
-    matrix View;
-    matrix Proj;
-    float3 CameraPos;
+    float4x4 World;
+    float4x4 View;
+    float4x4 Proj;
+    float3 CameraPosition;
     float Padding0;
-
-    // CSM用の追加データ
-    matrix LightViewProj[3];
-    float3 SplitDepths;
-    int NumCascades;
-    float3 Padding1;
+    float4x4 LightViewProj;
 }
-
 
 cbuffer LightParams : register(b1)
 {
@@ -109,7 +101,7 @@ struct PSInput
     float2 uv : TEXCOORD0;
     float3 worldPos : TEXCOORD1;
     float3 normal : TEXCOORD2;
-    float4 posLight : TEXCOORD3;
+    float4 posLight : TEXCOORD3; // ライト空間座標
 };
 
 // =========================================================
@@ -174,23 +166,12 @@ float3 GetNormalFromMap(float2 uv, float3 worldPos, float3 faceNormal)
     return normalize(mul(tangentNormal, TBN));
 }
 
-// ACESフィルムのトーンマッピング近似関数
-float3 ACESFilm(float3 x)
-{
-    float a = 2.51f;
-    float b = 0.03f;
-    float c = 2.43f;
-    float d = 0.59f;
-    float e = 0.14f;
-    return saturate((x * (a * x + b)) / (x * (c * x + d) + e));
-}
-
 // =========================================================
 // メインシェーダー
 // =========================================================
 float4 main(PSInput input) : SV_TARGET
 {
-    // 1. テクスチャサンプリング
+	// テクスチャサンプリング
     float4 albedoSample = g_AlbedoMap.Sample(g_Sampler, input.uv);
     float3 albedo = albedoSample.rgb * g_BaseColorFactor.rgb;
 
@@ -201,21 +182,19 @@ float4 main(PSInput input) : SV_TARGET
 
     float3 emissive = g_EmissiveMap.Sample(g_Sampler, input.uv).rgb;
 
-    // 2. 法線計算
-    float3 N = GetNormalFromMap(input.uv, input.worldPos, input.normal);
+    // 法線計算
+    float3 N = normalize(input.normal);
     
     // 視線ベクトル V
-    float3 V = normalize(CameraPos - input.worldPos);
+    float3 V = normalize(CameraPosition - input.worldPos);
 
-    // 3. PBRパラメータ準備
+    // PBRパラメータ準備
     float3 F0 = float3(0.04, 0.04, 0.04);
     F0 = lerp(F0, albedo, metallic);
 
     float3 Lo = float3(0.0, 0.0, 0.0);
 
-    // -----------------------------------------------------
-    // Directional Lights
-    // -----------------------------------------------------
+    // --- Directional Lights ---
     for (int i = 0; i < NumDirectionalLights; i++)
     {
         float3 L = normalize(-g_DirectionalLights[i].Direction.xyz);
@@ -236,7 +215,7 @@ float4 main(PSInput input) : SV_TARGET
         float3 kS = F;
         float3 kD = float3(1.0, 1.0, 1.0) - kS;
         kD *= 1.0 - metallic;
-   
+    
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
@@ -273,7 +252,7 @@ float4 main(PSInput input) : SV_TARGET
         float3 kS = F;
         float3 kD = float3(1.0, 1.0, 1.0) - kS;
         kD *= 1.0 - metallic;
-   
+    
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
@@ -317,42 +296,18 @@ float4 main(PSInput input) : SV_TARGET
         float3 kS = F;
         float3 kD = float3(1.0, 1.0, 1.0) - kS;
         kD *= 1.0 - metallic;
-   
+    
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
     
-    // 4. 判定 (CSM対応)
-    float viewDepth = input.svpos.w;
-
-    // カスケードの選択ロジック (C++の分割距離と合わせる)
-    // 0:赤(近), 1:緑(中), 2:青(遠)
-    float cascadeIndex = 0.0;
-    float3 debugColor = float3(1, 0, 0); // 近景 = 赤
-
-    // ※ split distanceは定数バッファで送るのが正解ですが、デバッグ用に直書きします
-    if (viewDepth > 10.0) // 10m以上
-    {
-        cascadeIndex = 1.0;
-        debugColor = float3(0, 1, 0); // 中景 = 緑
-    }
-    if (viewDepth > 50.0) // 50m以上
-    {
-        cascadeIndex = 2.0;
-        debugColor = float3(0, 0, 1); // 遠景 = 青
-    }
-
     // 影の計算
-    float shadowFactor = CalculateShadow(input.posLight, cascadeIndex);
+    float shadowFactor = CalculateShadow(input.posLight);
 
-    // ★デバッグ出力: 影の計算結果 × カスケードの色
-    // 影になっていれば「暗い色」、日向なら「鮮やかな赤/緑/青」になります
-    //return float4(debugColor * shadowFactor, 1.0);
-
-    // -----------------------------------------------------
-    // 環境光 & エミッシブ & AO適用
-    // -----------------------------------------------------
+	// 合成
     float3 ambient = AmbientColor.rgb * albedo * ao;
+    
+    // 影は直接光(Lo)にのみ影響させる
     float3 color = ambient + Lo * shadowFactor + emissive;
     
     return float4(color, albedoSample.a);

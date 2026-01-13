@@ -161,7 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\postprocess_presets.json" />
-    <None Include="assets\pos_definitions.json" />
+    <None Include="assets\pso_definitions.json" />
     <None Include="assets\scene.json" />
     <None Include="packages.config" />
   </ItemGroup>

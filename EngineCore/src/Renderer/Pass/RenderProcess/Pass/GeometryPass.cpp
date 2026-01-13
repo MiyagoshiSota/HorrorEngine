@@ -15,83 +15,45 @@
 using namespace DirectX;
 
 // --- 定数定義 ---
-static const int CASCADE_COUNT = 3;
 static const float SHADOW_MAP_SIZE = 2048.0f;
-static const std::array<float, CASCADE_COUNT> CASCADE_SPLITS = { 10.0f, 50.0f, 200.0f };
+static const float SHADOW_DISTANCE = 10000.0f;
 
-// --- ヘルパー関数: CSM用行列計算 ---
-// (CascadesShadowMapPassと同じロジック)
+// --- ヘルパー関数: シンプルなシャドウマップ用行列計算 ---
 void CalculateLightViewProj_Geometry(
     XMVECTOR lightDir,
-    float nearPlane,
-    float farPlane,
-    XMMATRIX& outView,
-    XMMATRIX& outProj)
+    XMMATRIX& outViewProj)
 {
-	auto camera = g_Scene->get_scene_camera();
-    float fov = camera->GetFOV();
-    float aspect = camera->GetAspect();
-    XMVECTOR eye = camera->GetEyePos();
-    XMVECTOR target = camera->GetTargetPos();
-    XMVECTOR up = camera->GetUpward();
+    // ライトのビュー行列 (View)
+    XMVECTOR targetPos = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-    XMMATRIX camView = XMMatrixLookAtRH(eye, target, up);
-    XMMATRIX camProj = XMMatrixPerspectiveFovRH(fov, aspect, nearPlane, farPlane);
-    XMMATRIX camViewProj = XMMatrixMultiply(camView, camProj);
+    // ライトの位置を逆算 (原点からライト方向へバックした位置)
+    XMVECTOR lightPos = XMVectorAdd(targetPos, XMVectorScale(lightDir, -100.0f));
 
-    std::vector<XMVECTOR> ndcCorners = {
-        XMVectorSet(-1.0f, -1.0f, 0.0f, 1.0f),
-        XMVectorSet(-1.0f,  1.0f, 0.0f, 1.0f),
-        XMVectorSet(1.0f,  1.0f, 0.0f, 1.0f),
-        XMVectorSet(1.0f, -1.0f, 0.0f, 1.0f),
-        XMVectorSet(-1.0f, -1.0f, 1.0f, 1.0f),
-        XMVectorSet(-1.0f,  1.0f, 1.0f, 1.0f),
-        XMVectorSet(1.0f,  1.0f, 1.0f, 1.0f),
-        XMVectorSet(1.0f, -1.0f, 1.0f, 1.0f),
-    };
+    // ライトの上方向 
+    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    
+    XMMATRIX lightView = XMMatrixLookAtRH(lightPos, targetPos, up);
 
-    XMVECTOR det;
-    XMMATRIX invViewProj = XMMatrixInverse(&det, camViewProj);
-    std::vector<XMVECTOR> corners;
-    for (const auto& ndc : ndcCorners) {
-        XMVECTOR worldPos = XMVector3Transform(ndc, invViewProj);
-        worldPos = XMVectorDivide(worldPos, XMVectorSplatW(worldPos));
-        corners.push_back(worldPos);
-    }
+    // ライトの射影行列
+    float sceneWidth = 40.0f;
+    float sceneHeight = 40.0f;
 
-    XMVECTOR center = XMVectorSet(0, 0, 0, 0);
-    for (const auto& v : corners) center = XMVectorAdd(center, v);
-    center = XMVectorScale(center, 1.0f / 8.0f);
+    // 原点を中心に左右上下に広げる
+    float minX = -sceneWidth / 2.0f;
+    float maxX = sceneWidth / 2.0f;
+    float minY = -sceneHeight / 2.0f;
+    float maxY = sceneHeight / 2.0f;
 
-    XMVECTOR lightPos = XMVectorSubtract(center, XMVectorScale(lightDir, 100.0f));
-    outView = XMMatrixLookAtRH(lightPos, center, XMVectorSet(0, 1, 0, 0));
+    // Z深度の範囲 (Near/Far)
+    // ライト位置からターゲットまでの距離が100.0fなので、
+    // それを挟み込むように十分な範囲を取る
+    float minZ = 1.0f;     // Near
+    float maxZ = 500.0f;   // Far (奥)
+    
+    XMMATRIX lightProj = XMMatrixOrthographicOffCenterRH(minX, maxX, minY, maxY, minZ, maxZ);
 
-    float minX = std::numeric_limits<float>::max();
-    float maxX = std::numeric_limits<float>::lowest();
-    float minY = std::numeric_limits<float>::max();
-    float maxY = std::numeric_limits<float>::lowest();
-    float minZ = std::numeric_limits<float>::max();
-    float maxZ = std::numeric_limits<float>::lowest();
-
-    for (const auto& v : corners) {
-        XMVECTOR lv = XMVector3Transform(v, outView);
-        XMFLOAT3 fv;
-        XMStoreFloat3(&fv, lv);
-        minX = std::min(minX, fv.x); maxX = std::max(maxX, fv.x);
-        minY = std::min(minY, fv.y); maxY = std::max(maxY, fv.y);
-        minZ = std::min(minZ, fv.z); maxZ = std::max(maxZ, fv.z);
-    }
-
-    float worldUnitsPerTexel = (maxX - minX) / SHADOW_MAP_SIZE;
-    minX = floor(minX / worldUnitsPerTexel) * worldUnitsPerTexel;
-    minY = floor(minY / worldUnitsPerTexel) * worldUnitsPerTexel;
-    maxX = floor(maxX / worldUnitsPerTexel) * worldUnitsPerTexel;
-    maxY = floor(maxY / worldUnitsPerTexel) * worldUnitsPerTexel;
-
-    float zMult = 10.0f;
-    if (minZ < 0) minZ *= zMult; else minZ /= zMult;
-    if (maxZ > 0) maxZ *= zMult; else maxZ /= zMult;
-    outProj = XMMatrixOrthographicOffCenterRH(minX, maxX, minY, maxY, -maxZ, -minZ);
+    // 行列合成
+    outViewProj = XMMatrixMultiply(lightView, lightProj);
 }
 
 // =========================================================
@@ -112,7 +74,7 @@ void GeometryPass::Collect(RenderContext& context)
     m_RenderQueue.clear();
     for (auto& obj : context.GameObjects)
     {
-    	m_RenderQueue.push_back(obj);
+        m_RenderQueue.push_back(obj);
     }
 
     auto msaaColorRT = context.GetRenderTarget(const_render_pref::MSAART);
@@ -187,59 +149,41 @@ void GeometryPass::Draw(RenderContext& context)
     cmdList->SetDescriptorHeaps(1, &materialHeap);
 
     // Shadow Map SRV
-    auto shadowMapRT = context.GetRenderTarget(const_render_pref::CascadedShadowMap);
+    auto shadowMapRT = context.GetRenderTarget(const_render_pref::ShadowMap);
     cmdList->SetGraphicsRootDescriptorTable(4, shadowMapRT->GetSRVHandle()->gpuHandle);
 
-    // --- CSM用行列計算 (CascadesShadowMapPassと共通) ---
+    // --- ライト行列の計算 (シングルパス) ---
     auto lightManager = g_Scene->get_lighting_manager();
+    // TODO: ライトがない場合のガード
     auto directionLight = lightManager->get_directional_lights()[0];
 
     XMFLOAT3 lightDirF = directionLight->Direction;
     XMVECTOR lightDir = XMVector3Normalize(XMVectorSet(lightDirF.x, lightDirF.y, lightDirF.z, 0.0f));
 
-    XMMATRIX lightViewProjs[CASCADE_COUNT];
-    float nearPlane = 0.1f;
-    float previousSplitDist = nearPlane;
+    XMMATRIX lightViewProj;
+    CalculateLightViewProj_Geometry(lightDir, lightViewProj);
 
-    for (int i = 0; i < CASCADE_COUNT; ++i)
-    {
-        float splitDist = CASCADE_SPLITS[i];
-        XMMATRIX lView, lProj;
-
-        CalculateLightViewProj_Geometry(lightDir, previousSplitDist, splitDist, lView, lProj);
-
-        // ここで結合＆転置しておく
-        lightViewProjs[i] = XMMatrixTranspose(XMMatrixMultiply(lView, lProj));
-
-        previousSplitDist = splitDist;
-    }
-    // --------------------------------------------------
+    // 定数バッファ用に転置
+    lightViewProj = XMMatrixTranspose(lightViewProj);
+    // ------------------------------------
 
     for (auto& obj : m_RenderQueue)
     {
         auto constantBuffer = obj->get_constant_buffer(frameIndex);
 
-        // ★重要: CascadedShadowMapTransform として取得
-        auto pTransform = constantBuffer->GetPtr<SharedStruct::CascadedShadowMapTransform>();
+        auto pTransform = constantBuffer->GetPtr<SharedStruct::Transform>();
 
         // 基本情報のセット
         pTransform->World = obj->get_transform();
         pTransform->View = view;
         pTransform->Proj = proj;
 
-        // CameraPos (XMFLOAT3 -> XMVECTOR)
+        // CameraPos
         XMFLOAT3 camPosF = context.Camera->GetEyePosFloat3();
         pTransform->CameraPosition = camPosF;
 
-        // CSM情報のセット
-        for (int i = 0; i < CASCADE_COUNT; ++i) {
-            pTransform->LightViewProj[i] = lightViewProjs[i];
-        }
-
-        // SplitDepths (XMVECTOR)
-        pTransform->SplitDepths = XMVectorSet(CASCADE_SPLITS[0], CASCADE_SPLITS[1], CASCADE_SPLITS[2], 0.0f);
-
-        pTransform->NumCascades = CASCADE_COUNT;
+        // シングルシャドウマップ用の行列をセット
+        pTransform->LightViewProj = lightViewProj;
 
         // GPUセット
         cmdList->SetGraphicsRootConstantBufferView(0, constantBuffer->GetAddress());
