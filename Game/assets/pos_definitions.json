@@ -17,13 +17,27 @@
           "type": "SRV",
           "num": 4,
           "shaderRegister": 0
+        },
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 4
         }
       ],
       "staticSamplers": [
         {
           "shaderRegister": 0,
-          "filter": "LINEAR",
+          "filter": "MIN_MAG_MIP_LINEAR",
           "addressMode": "WRAP"
+        },
+        {
+          "shaderRegister": 1,
+          "filter": "COMPARISON_MIN_MAG_MIP_LINEAR",
+          "addressU": "BORDER",
+          "addressV": "BORDER",
+          "addressW": "BORDER",
+          "comparisonFunc": "LESS_EQUAL",
+          "borderColor": "OPAQUE_WHITE"
         }
       ],
       "flags": [
@@ -220,6 +234,20 @@
       "vertexShader": "../x64/Debug/BloomCombineVS.cso",
       "pixelShader": "../x64/Debug/BloomCombinePS.cso",
       "depthEnable": false
+    },
+    "ShadowMap": {
+      "rootSignature": "Geometry_Default",
+      "vertexShader": "../x64/Debug/ShadowMapVS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": true,
+      "cullMode": "BACK"
+    },
+    "CascadedShadowMap": {
+      "rootSignature": "Geometry_Default",
+      "vertexShader": "../x64/Debug/CascadedShadowMapVS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": true,
+      "cullMode": "BACK"
     }
   }
 }

@@ -56,6 +56,7 @@ public:
     float ScreenWidth;
     float ScreenHeight;
 
+public:
     // --- 名前付きレンダーターゲット管理--
     std::shared_ptr<ITargetBase> GetRenderTarget(const std::string& name)
     {
@@ -120,9 +121,7 @@ public:
         return ScopedTempTarget(this, width, height, format);
     }
 
-
 private:
     std::map<std::string, std::shared_ptr<ITargetBase>> m_TargetPool;
-
     std::shared_ptr<TempRenderTargetPool> m_ExternalTempPool;
 };

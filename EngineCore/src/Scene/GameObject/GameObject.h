@@ -15,10 +15,14 @@ public:
 
         // コンストラクタでフレーム数分のバッファを全て作成する
         m_ConstantBuffers.resize(g_Engine->FRAME_BUFFER_COUNT + 1);
+		m_ShadowConstantBuffers.resize(g_Engine->FRAME_BUFFER_COUNT + 1);
         for (int i = 0; i < g_Engine->FRAME_BUFFER_COUNT; ++i)
         {
             // TODO:野生のConstantBufferを作ってる,Heapで管理したい感ある
-            m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
+            //m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
+			//m_ShadowConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
+			m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::CascadedShadowMapTransform));
+			m_ShadowConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::CascadedShadowMapTransform));
         }
     };
 	void init();
@@ -107,6 +111,10 @@ public:
         return m_ConstantBuffers[frameIndex];
     }
 
+    std::shared_ptr<ConstantBuffer> get_shadow_constant_buffer(UINT frameIndex) const {
+        return m_ShadowConstantBuffers[frameIndex];
+	}
+
 public:
     std::string name;
 	std::vector<std::unique_ptr<Component>> components;
@@ -114,6 +122,7 @@ public:
 private:
     std::shared_ptr<ConstantBuffer> constantBuffer = nullptr;
     std::vector<std::shared_ptr<ConstantBuffer>> m_ConstantBuffers;
+    std::vector<std::shared_ptr<ConstantBuffer>> m_ShadowConstantBuffers;
 
     DirectX::XMMATRIX m_Transform;
 	DirectX::XMFLOAT3 m_Rotation = { 0.0f, 0.0f, 0.0f };

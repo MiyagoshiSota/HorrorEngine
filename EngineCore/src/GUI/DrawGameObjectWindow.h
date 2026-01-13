@@ -167,6 +167,20 @@
                     }
                 }
 
+				// DirectionalLightの編集
+                if (s_SelectedLight->Type == LightType::Directional)
+                {
+                    auto dirLight = std::dynamic_pointer_cast<DirectionalLight>(s_SelectedLight);
+                    if (dirLight)
+                    {
+                        auto direction = dirLight->Direction;
+                        if (ImGui::DragFloat3("Direction", &direction.x, 0.1f))
+                        {
+                            dirLight->Direction = direction;
+                        }
+                    }
+				}
+
                 // SpotLightの編集
                 if (s_SelectedLight->Type == LightType::Spot)
                 {

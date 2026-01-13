@@ -507,7 +507,7 @@ bool Engine::CreateDepthStencil()
     // DSV用のディスクリプタヒープを作成する
     D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 
-    heapDesc.NumDescriptors = FRAME_BUFFER_COUNT + 10;
+    heapDesc.NumDescriptors = FRAME_BUFFER_COUNT + 30;
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     auto hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pDsvHeap));

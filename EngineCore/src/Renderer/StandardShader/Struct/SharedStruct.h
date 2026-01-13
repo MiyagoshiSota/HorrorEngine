@@ -51,7 +51,22 @@ public:
 		DirectX::XMMATRIX View; // ビュー行列
 		DirectX::XMMATRIX Proj; // 東映行列
 		DirectX::XMFLOAT3 CameraPosition; // カメラの位置
+		DirectX::XMMATRIX LightViewProj; // ライトのViewProj行列
 		float Padding; // 16バイトアライメント調整用
+	};
+
+	struct CascadedShadowMapTransform
+	{
+		DirectX::XMMATRIX World;
+		DirectX::XMMATRIX View;
+		DirectX::XMMATRIX Proj;
+		DirectX::XMFLOAT3 CameraPosition;
+		float Padding0;
+
+		DirectX::XMMATRIX LightViewProj[3]; // 配列にする
+		DirectX::XMVECTOR SplitDepths;        // 分割距離
+		int NumCascades;
+		float Padding1[3];
 	};
 	
 	struct alignas(256) LightingParams

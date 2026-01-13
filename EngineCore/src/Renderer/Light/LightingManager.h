@@ -61,6 +61,21 @@ public:
         return lights;
     }
 
+    std::vector<std::shared_ptr<DirectionalLight>> get_directional_lights() const
+    {
+        return m_DirectionalLights;
+	}
+
+    std::vector<std::shared_ptr<PointLight>> get_point_lights() const
+    {
+        return m_PointLights;
+	}
+
+    std::vector<std::shared_ptr<SpotLight>> get_spot_lights() const
+    {
+        return m_SpotLights;
+    }
+
 private:
     std::vector<std::shared_ptr<DirectionalLight>> m_DirectionalLights;
     std::vector<std::shared_ptr<PointLight>> m_PointLights;

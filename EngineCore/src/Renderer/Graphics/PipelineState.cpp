@@ -50,6 +50,11 @@ void PipelineState::SetVS(std::wstring filePath)
 
 void PipelineState::SetPS(std::wstring filePath)
 {
+	if (filePath == L"")
+	{
+		return;
+	}
+	
 	// ピクセルシェーダー読み込み
 	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
 	if (FAILED(hr))

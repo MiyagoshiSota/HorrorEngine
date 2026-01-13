@@ -1,26 +1,69 @@
 // =========================================================
 // テクスチャ & サンプラー定義
 // =========================================================
-Texture2D g_AlbedoMap : register(t0); // BaseColor
-Texture2D g_NormalMap : register(t1); // Normal
-Texture2D g_MetallicRoughnessMap : register(t2); // Metallic(B) + Roughness(G) (+ AO(R)?)
-Texture2D g_EmissiveMap : register(t3); // Emissive
-TextureCube g_SpecularIBLMap : register(t4);
+Texture2D g_AlbedoMap : register(t0);
+Texture2D g_NormalMap : register(t1);
+Texture2D g_MetallicRoughnessMap : register(t2);
+Texture2D g_EmissiveMap : register(t3);
+// Texture2D g_shadowMap : register(t4); 
+Texture2DArray g_ShadowMap : register(t4); // ShadowMap (Array)
 
 SamplerState g_Sampler : register(s0);
+SamplerComparisonState g_ShadowSampler : register(s1);
+
+// 影判定関数 (0.0=影, 1.0=日向)
+// 引数を変更: ライト空間座標(float4) と カスケードインデックス(float) を受け取る
+float CalculateShadow(float4 posLight, float sliceIndex)
+{
+    // 1. 射影変換 (w除算)
+    // 頂点シェーダから来た座標を正規化します
+    float3 projCoords = posLight.xyz / posLight.w;
+
+    // 2. NDC座標(-1~1) を UV座標(0~1) に変換
+    // DX12のUVは左上原点、Y下向きなのでYを反転
+    projCoords.x = projCoords.x * 0.5 + 0.5;
+    projCoords.y = -projCoords.y * 0.5 + 0.5;
+
+    // ライトの範囲外なら影判定しない
+    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+    {
+        return 1.0;
+    }
+
+    // 3. 深度比較
+    float currentDepth = projCoords.z;
+    float bias = 0.005; // 調整値
+
+    // ★Texture2DArray用のサンプリング
+    // 第2引数は float3(u, v, sliceIndex) になります
+    float shadow = g_ShadowMap.SampleCmpLevelZero(
+        g_ShadowSampler,
+        float3(projCoords.xy, sliceIndex),
+        currentDepth - bias
+    );
+
+    return shadow;
+}
 
 // =========================================================
 // 定数バッファ定義
 // =========================================================
-
 cbuffer Transform : register(b0)
 {
-    float4x4 World;
-    float4x4 View;
-    float4x4 Proj;
-    float3 CameraPos; // ★追加: 正しいスペキュラ計算に必須
+    // Shadow Passでは、ここに「ライトのView行列」と「ライトのProj行列」が入ってきます
+    matrix World;
+    matrix View;
+    matrix Proj;
+    float3 CameraPos;
     float Padding0;
+
+    // CSM用の追加データ
+    matrix LightViewProj[3];
+    float3 SplitDepths;
+    int NumCascades;
+    float3 Padding1;
 }
+
 
 cbuffer LightParams : register(b1)
 {
@@ -66,6 +109,7 @@ struct PSInput
     float2 uv : TEXCOORD0;
     float3 worldPos : TEXCOORD1;
     float3 normal : TEXCOORD2;
+    float4 posLight : TEXCOORD3;
 };
 
 // =========================================================
@@ -115,7 +159,6 @@ float3 FresnelSchlick(float cosTheta, float3 F0)
 
 float3 GetNormalFromMap(float2 uv, float3 worldPos, float3 faceNormal)
 {
-    // 法線マップがDirectX形式かOpenGL形式か確認が必要。ここではそのまま使用。
     float3 tangentNormal = g_NormalMap.Sample(g_Sampler, uv).xyz * 2.0 - 1.0;
 
     float3 Q1 = ddx(worldPos);
@@ -151,27 +194,17 @@ float4 main(PSInput input) : SV_TARGET
     float4 albedoSample = g_AlbedoMap.Sample(g_Sampler, input.uv);
     float3 albedo = albedoSample.rgb * g_BaseColorFactor.rgb;
 
-    // ★修正箇所: MetallicRoughnessMapの分離
-    // 一般的なglTF (ORM) 形式を想定:
-    // R = Occlusion (AO)
-    // G = Roughness
-    // B = Metallic
     float4 mrSample = g_MetallicRoughnessMap.Sample(g_Sampler, input.uv);
-
-    float ao = mrSample.r; // AOが含まれていない場合は 1.0 とする
-    float roughness = mrSample.g; // Roughness
-    float metallic = mrSample.b; // Metallic
-
-    // もしAOがテクスチャに含まれていない(入力リストにない)場合は以下を有効化
-    // float ao = 1.0; 
+    float ao = mrSample.r;
+    float roughness = mrSample.g;
+    float metallic = mrSample.b;
 
     float3 emissive = g_EmissiveMap.Sample(g_Sampler, input.uv).rgb;
 
     // 2. 法線計算
     float3 N = GetNormalFromMap(input.uv, input.worldPos, input.normal);
     
-    // ★修正箇所: 視線ベクトル V の計算
-    // ピクセル位置からカメラ位置へのベクトルが必要です
+    // 視線ベクトル V
     float3 V = normalize(CameraPos - input.worldPos);
 
     // 3. PBRパラメータ準備
@@ -182,7 +215,6 @@ float4 main(PSInput input) : SV_TARGET
 
     // -----------------------------------------------------
     // Directional Lights
-    // Cook-Torrance BRDF
     // -----------------------------------------------------
     for (int i = 0; i < NumDirectionalLights; i++)
     {
@@ -224,7 +256,6 @@ float4 main(PSInput input) : SV_TARGET
         float3 L = normalize(lightVec);
         float3 H = normalize(V + L);
         
-        // 減衰
         float attenuation = 1.0 / (distance * distance + 1.0);
         
         float3 lightColor = g_PointLights[j].ColorAndIntensity.rgb;
@@ -289,23 +320,40 @@ float4 main(PSInput input) : SV_TARGET
    
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-    }       
+    }
+    
+    // 4. 判定 (CSM対応)
+    float viewDepth = input.svpos.w;
+
+    // カスケードの選択ロジック (C++の分割距離と合わせる)
+    // 0:赤(近), 1:緑(中), 2:青(遠)
+    float cascadeIndex = 0.0;
+    float3 debugColor = float3(1, 0, 0); // 近景 = 赤
+
+    // ※ split distanceは定数バッファで送るのが正解ですが、デバッグ用に直書きします
+    if (viewDepth > 10.0) // 10m以上
+    {
+        cascadeIndex = 1.0;
+        debugColor = float3(0, 1, 0); // 中景 = 緑
+    }
+    if (viewDepth > 50.0) // 50m以上
+    {
+        cascadeIndex = 2.0;
+        debugColor = float3(0, 0, 1); // 遠景 = 青
+    }
+
+    // 影の計算
+    float shadowFactor = CalculateShadow(input.posLight, cascadeIndex);
+
+    // ★デバッグ出力: 影の計算結果 × カスケードの色
+    // 影になっていれば「暗い色」、日向なら「鮮やかな赤/緑/青」になります
+    //return float4(debugColor * shadowFactor, 1.0);
 
     // -----------------------------------------------------
     // 環境光 & エミッシブ & AO適用
     // -----------------------------------------------------
-    // AOは一般的に環境光（Ambient）にのみ乗算します
-	float3 ambient = AmbientColor.rgb * albedo * ao;
-    float3 color = ambient + Lo + emissive;
-
-    // 1. ACESトーンマッピングを適用 (HDR -> LDR)
-    //color = ACESFilm(color);
-
-    // 2. ガンマ補正 (Linear -> sRGB)
-    // これをしないと暗部が極端に黒く潰れます
-    //color = pow(color, 1.0 / 2.2);
-
-    //return float4(color, albedoSample.a);
-		
+    float3 ambient = AmbientColor.rgb * albedo * ao;
+    float3 color = ambient + Lo * shadowFactor + emissive;
+    
     return float4(color, albedoSample.a);
 }

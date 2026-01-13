@@ -1,11 +1,27 @@
- cbuffer Transform : register(b0)
+/* cbuffer Transform : register(b0)
 {
     float4x4 World;
     float4x4 View;
     float4x4 Proj;
     float3 CameraPos; // ★追加: 正しいスペキュラ計算に必須
+    float4x4 LightViewProj;
     float Padding0;
+}*/
+
+cbuffer Transform : register(b0)
+{
+    matrix World;
+    matrix View;
+    matrix Proj;
+    float3 CameraPosition;
+    float Padding0;
+
+    matrix LightViewProj[3];
+    float3 SplitDepths;
+    int NumCascades;
+    float3 Padding1;
 }
+
 
 struct VSInput
 {
@@ -22,6 +38,7 @@ struct VSOutput
     float2 uv : TEXCOORD0;
     float3 worldPos : TEXCOORD1;
     float3 normal : TEXCOORD2;
+    float4 posLight : TEXCOORD3;
 };
 
 VSOutput main(VSInput input)
@@ -36,6 +53,7 @@ VSOutput main(VSInput input)
 	output.uv = input.uv;
 	output.normal = input.normal;
 	output.worldPos = worldPos.xyz;
+    output.posLight = mul(worldPos, LightViewProj[NumCascades]);
 	
     return output;
 }

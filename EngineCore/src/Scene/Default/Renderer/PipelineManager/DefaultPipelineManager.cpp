@@ -10,6 +10,11 @@
 
 DefaultPipelineManager::DefaultPipelineManager()
 {
+	// SimpleShadowMapPassの初期化
+	//m_simpleShadowMapPass = std::make_shared<SimpleShadowMapPass>();
+	m_simpleShadowMapPass = std::make_shared<CascadesShadowMapPass>();
+
+	// ParticleSystemの初期化
 	m_rainParticleSystem = std::make_shared<RainParticleSystem>();
 	
     // Passを追加
@@ -21,6 +26,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_tmpColorA = std::make_shared<RenderTarget>();
 	m_tmpColorB = std::make_shared<RenderTarget>();
 	m_msaaTarget = std::make_shared<RenderTarget>();
+	m_shadowDepth = std::make_shared<DepthStencilTarget>();
+	m_cascadedShadowDepth = std::make_shared<DepthStencilTarget>();
 	m_msaaDepth = std::make_shared<DepthStencilTarget>();
     m_sceneDepth = std::make_shared<DepthStencilTarget>();
 
@@ -28,9 +35,10 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_tmpColorA->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_tmpColorB->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_msaaTarget->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 8, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_cascadedShadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 3, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(3));
     m_msaaDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 8, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
-
 	// PostProcessManagerの初期化
 	m_postProcessManager = std::make_shared<PostProcessManager>();
     m_postProcessManager->LoadPresets(const_path_pref::PostProcessPresetsPath);
@@ -52,16 +60,21 @@ void DefaultPipelineManager::Execute()
     context.AddRenderTarget(const_render_pref::TmpColorB, m_tmpColorB);
 	context.AddRenderTarget(const_render_pref::MSAART, m_msaaTarget);
 	context.AddRenderTarget(const_render_pref::MSAA_Depth, m_msaaDepth);
+	context.AddRenderTarget(const_render_pref::ShadowMap,m_shadowDepth);
+	context.AddRenderTarget(const_render_pref::CascadedShadowMap, m_cascadedShadowDepth);
 
-    // RenderPassを実行
+    // Shadow
+	m_simpleShadowMapPass->LastExecute(context);
+
+    // Mesh
     for (auto& pass : m_sceneRenderPasses)
     {
         pass->Execute(context);
     }
 
-	// レインパーティクルシステムの実行
+	// Particle
 	m_rainParticleSystem->Execute(context);
 
-	// ポストプロセスマネージャーの実行
+	// PostProcess
     m_postProcessManager->ExecutePasses(context);
 }
