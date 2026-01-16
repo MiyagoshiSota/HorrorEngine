@@ -3,32 +3,14 @@
         {
             "components": [
                 {
-                    "model_name": "Alicia_solid_Unity",
+                    "model_name": "ForestEnvironment",
                     "type": "MeshRenderer"
-                },
-                {
-                    "MoveSpeed": 100.0,
-                    "type": "PlayerController"
-                },
-                {
-                    "bodyType": "DYNAMIC",
-                    "collider": {
-                        "halfExtents": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ],
-                        "isTrigger": false,
-                        "shape": "Box"
-                    },
-                    "isGravityEnabled": true,
-                    "type": "Rigidbody"
                 }
             ],
-            "name": "Player",
+            "name": "ForestEnvironment",
             "position": [
                 0.0,
-                118.30000305175781,
+                0.0,
                 0.0
             ],
             "rotation": [
@@ -49,16 +31,7 @@
                     "type": "MeshRenderer"
                 },
                 {
-                    "bodyType": "STATIC",
-                    "collider": {
-                        "halfExtents": [
-                            2313.60986328125,
-                            8.985966815089341e-06,
-                            184.9600067138672
-                        ],
-                        "isTrigger": false,
-                        "shape": "Box"
-                    },
+                    "bodyType": "DYNAMIC",
                     "isGravityEnabled": true,
                     "type": "Rigidbody"
                 }
@@ -75,57 +48,9 @@
                 0.0
             ],
             "scale": [
-                48.099998474121094,
-                1.0,
-                13.600000381469727
-            ]
-        },
-        {
-            "components": [
-                {
-                    "model_name": "primitive/quad",
-                    "type": "MeshRenderer"
-                }
-            ],
-            "name": "primitive/quad",
-            "position": [
-                62.20000076293945,
-                110.0,
-                0.0
-            ],
-            "rotation": [
-                0.0,
-                90.0,
-                0.0
-            ],
-            "scale": [
-                3.0999999046325684,
-                2.0999999046325684,
-                1.0
-            ]
-        },
-        {
-            "components": [
-                {
-                    "model_name": "primitive/cube",
-                    "type": "MeshRenderer"
-                }
-            ],
-            "name": "primitive/cube1",
-            "position": [
-                -92.0,
-                106.80000305175781,
-                0.0
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": [
-                1.0,
-                10.0,
-                10.0
+                -0.4000000059604645,
+                1.100000023841858,
+                0.4000000059604645
             ]
         }
     ],
