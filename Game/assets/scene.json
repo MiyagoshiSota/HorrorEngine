@@ -1,57 +1,29 @@
 {
-	"scene_name": "Test Level 1",
-	"gameObjects": [
-		{
-			"name": "Player",
-			"position": [ 0.0, 100.0, 0.0 ],
-			"scale": [ 1.0, 1.0, 1.0 ],
-			"rotation": [ 0.0, 0.0, 0.0 ],
-			"components": [
-				{
-					"type": "MeshRenderer",
-					"model_name": "Alicia_solid_Unity"
-				},
-				{
-					"type": "Rigidbody",
-					"isGravityEnabled": true,
-					"bodyType": "DYNAMIC",
-					"isCollider": {
-						"shape": "Capsule",
-						"height": 10,
-						"radius": 30
-					}
-				}
-			]
-		},
-		{
-			"name": "Block",
-			"position": [ 0.0, 20.0, 0.0 ],
-			"scale": [ 10.0, 1.0, 10.0 ],
-			"rotation": [ 0.0, 0.0, 0.0 ],
-			"components": [
-				{
-					"type": "MeshRenderer",
-					"model_name": "primitive/cube"
-				},
-				{
-					"type": "Rigidbody",
-					"isGravityEnabled": false,
-					"bodyType": "STATIC",
-					"isCollider": {
-						"shape": "Box",
-						"direction": [ 20.0, 5.0, 20.0 ]
-					}
-				},
-				{
-					"type": "Trigger",
-					"Trigger": {
-						"name": "OnGameObjectEnterCondition"
-					},
-					"Action": {
-						"name": "StartWorkReward"
-					}
-				}
-			]
-		}
-	]
+    "gameObjects": [
+        {
+            "components": [
+                {
+                    "model_name": "ForestEnvironment",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "ForestEnvironment",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    ],
+    "scene_name": "assets/scene.json"
 }

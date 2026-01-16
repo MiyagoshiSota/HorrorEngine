@@ -2,7 +2,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 
-#include "Graphics/DescriptorHeap/SrvDescriptorHeap.h"
+#include "Graphics/DescriptorHeap/DescriptorHeap.h"
 #include "GUI/IDrawWindow.h"
 #include "Modules/ComPtr.h"
 
@@ -31,14 +31,16 @@ public:
 
 	// 各種ゲッター
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHeap() { return m_pRtvHeap->GetCPUDescriptorHandleForHeapStart(); }
-	std::shared_ptr<SrvDescriptorHeap> GetSrvHeap() { return m_SRVHeap; }
+	std::shared_ptr<DescriptorHeap> GetDescriptorHeap() { return m_DescriptorHeap; }
 	// std::shared_ptr<CbvDescriptorHeap> GetCbvHeap() { return m_CBVHeap; }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDsvHeap() { return m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(); }
 	D3D12_VIEWPORT GetViewPort() { return m_Viewport; }
 	D3D12_RECT GetScissorRect() { return m_Scissor; }
+	std::shared_ptr<Texture2D> GetTextureResource() { return m_TextureResource; }
 
 	// 各種アロケーター
 	D3D12_CPU_DESCRIPTOR_HANDLE AllocateRtvHandle();
+	D3D12_CPU_DESCRIPTOR_HANDLE AllocateDsvHandle();
 
 public:
 	ID3D12Device6* Device();
@@ -77,8 +79,7 @@ private:
 
 private: // 描画に使うオブジェクトとその生成関数たち
 	bool CreateRenderTarget(); // レンダーターゲットを作成
-	bool CreateShaderResourceViewHeap(); // SRVヒープを作成
-	// bool CreateConstantBufferView(); // CBVを作成
+	bool CreateDescriptorHeap(); // ディスクリプタヒープを作成
 	bool CreateDepthStencil(); // 深度ステンシルバッファを生成
 	void DrawImGui(); // ImGuiの描画
 
@@ -92,11 +93,12 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	std::vector<std::shared_ptr<IDrawWindow>> m_drawWindows; // 描画するウィンドウのリスト
 	ComPtr<ID3D12Resource> m_pDepthStencilBuffer = nullptr; // 深度ステンシルバッファ
 
-	std::shared_ptr<SrvDescriptorHeap> m_SRVHeap; // SRVヒープ
-	// std::shared_ptr<CbvDescriptorHeap> m_CBVHeap; // CBVヒープ
+	std::shared_ptr<DescriptorHeap> m_DescriptorHeap; // SRVヒープ
 
 	UINT m_rtvHeapOffset; // RTVヒープのオフセット管理用
+	UINT m_dsvHeapOffset; // DSVヒープのオフセット管理用
 
+	std::shared_ptr<Texture2D> m_TextureResource; 
 private:
 	ComPtr < ID3D12Resource > m_currentRenderTarget = nullptr; // 現在のフレームのレンダーターゲットを一時的に保存しておく関数
 	void WaitRender(); // 描画完了を待つ関数

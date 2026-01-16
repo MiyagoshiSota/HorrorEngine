@@ -15,7 +15,7 @@ public:
 		if (it != mappings.end())
 		{
 			// 登録された関数を呼び出してComponentを生成
-			return std::unique_ptr<Component>(it->second());
+			return std::unique_ptr(it->second());
 		}
 		return nullptr;
 	};
@@ -24,8 +24,7 @@ public:
 	static void Register(const std::string& type){
 		get_mappings()[type] = []() -> std::unique_ptr<Component> { return std::make_unique<T>(); };
 	}
-
-private:
+	
 	static std::map<std::string, CreateComponentFunc>& get_mappings()
 	{
 		static std::map<std::string, CreateComponentFunc> mappings;

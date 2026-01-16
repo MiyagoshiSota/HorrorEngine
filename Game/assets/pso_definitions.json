@@ -1,0 +1,253 @@
+{
+  "RootSignatures": {
+    "Geometry_Default": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0
+        },
+        {
+          "shaderRegister": 1
+        },
+        {
+          "shaderRegister": 2
+        }
+      ],
+      "descriptorTables": [
+        {
+          "type": "SRV",
+          "num": 4,
+          "shaderRegister": 0
+        },
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 4
+        }
+      ],
+      "staticSamplers": [
+        {
+          "shaderRegister": 0,
+          "filter": "MIN_MAG_MIP_LINEAR",
+          "addressMode": "WRAP"
+        },
+        {
+          "shaderRegister": 1,
+          "filter": "COMPARISON_MIN_MAG_MIP_LINEAR",
+          "addressU": "BORDER",
+          "addressV": "BORDER",
+          "addressW": "BORDER",
+          "comparisonFunc": "LESS_EQUAL",
+          "borderColor": "OPAQUE_WHITE"
+        }
+      ],
+      "flags": [
+        "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT",
+        "DENY_HULL_SHADER_ROOT_ACCESS",
+        "DENY_DOMAIN_SHADER_ROOT_ACCESS",
+        "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+      ]
+    },
+    "Debug_Default": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0,
+          "space": 0
+        }
+      ],
+      "flags": [
+        "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT",
+        "DENY_HULL_SHADER_ROOT_ACCESS",
+        "DENY_DOMAIN_SHADER_ROOT_ACCESS",
+        "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+      ]
+    },
+    "Rain_Particles": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "unorderedAccessViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "flags": [
+        "DENY_HULL_SHADER_ROOT_ACCESS",
+        "DENY_DOMAIN_SHADER_ROOT_ACCESS",
+        "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+      ]
+    },
+    "Rain_Particle_Render": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "shaderResourceViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "flags": []
+    },
+    "PostProcess_SingleTexture": {
+      "descriptorTables": [
+        {
+          "type": "SRV",
+          "num": 1,
+          "baseRegister": 0
+        }
+      ],
+      "staticSamplers": [
+        {
+          "filter": "LINEAR",
+          "addressMode": "WRAP"
+        }
+      ],
+      "flags": [ "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT" ]
+    },
+    "PostProcess_TextureAndCBV": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0,
+          "space": 0
+        }
+      ],
+      "descriptorTables": [
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 0,
+          "space": 0
+        }
+      ],
+      "staticSamplers": [
+        {
+          "shaderRegister": 0,
+          "filter": "LINEAR",
+          "addressMode": "WRAP"
+        }
+      ]
+    },
+    "PostProcess_MultiTexture": {
+      "descriptorTables": [
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 0
+        },
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 1
+        }
+      ],
+      "staticSamplers": [
+        {
+          "shaderRegister": 0,
+          "filter": "LINEAR",
+          "addressMode": "WRAP"
+        }
+      ]
+    }
+  },
+  "PipelineStates": {
+    "DefaultPipelinePass": {
+      "rootSignature": "Geometry_Default",
+      "vertexShader": "../x64/Debug/SimpleVS.cso",
+      "pixelShader": "../x64/Debug/SimplePS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": true,
+      "sampleCount": 8,
+      "cullMode": "BACK"
+    },
+    "DebugPipelinePass": {
+      "rootSignature": "Debug_Default",
+      "vertexShader": "../x64/Debug/DebugVS.cso",
+      "pixelShader": "../x64/Debug/DebugPS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": true,
+      "wireframeEnable": true,
+      "cullMode": "NONE"
+    },
+    "RainParticlePass": {
+      "rootSignature": "Rain_Particles",
+      "computeShader": "../x64/Debug/RainParticle.cso"
+    },
+    "RainParticleRenderPass": {
+      "rootSignature": "Rain_Particle_Render",
+      "vertexShader": "../x64/Debug/RainParticleVS.cso",
+      "pixelShader": "../x64/Debug/RainParticlePS.cso",
+      "geometryShader": "../x64/Debug/RainParticleGS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": false,
+      "blendEnable": true,
+      "cullMode": "NONE"
+    },
+    "VHS": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/VHSFilterVS.cso",
+      "pixelShader": "../x64/Debug/VHSFilterPS.cso",
+      "depthEnable": false
+    },
+    "Monochrome": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/MonochromeVS.cso",
+      "pixelShader": "../x64/Debug/MonochromePS.cso",
+      "depthEnable": false
+    },
+    "Vignette": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/VignetteVS.cso",
+      "pixelShader": "../x64/Debug/VignettePS.cso",
+      "depthEnable": false
+    },
+    "ChromaticAberration": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/ChromaticAberrationVS.cso",
+      "pixelShader": "../x64/Debug/ChromaticAberrationPS.cso",
+      "depthEnable": false
+    },
+    "FilmGrain": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/FilmGrainVS.cso",
+      "pixelShader": "../x64/Debug/FilmGrainPS.cso",
+      "depthEnable": false
+    },
+    "BloomExtraction": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/ExtractionVS.cso",
+      "pixelShader": "../x64/Debug/ExtractionPS.cso",
+      "format": "DXGI_FORMAT_R16G16B16A16_FLOAT",
+      "depthEnable": false
+    },
+    "BloomBlur": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/GaussianBlurVS.cso",
+      "pixelShader": "../x64/Debug/GaussianBlurPS.cso",
+      "format": "DXGI_FORMAT_R16G16B16A16_FLOAT",
+      "depthEnable": false
+    },
+    "BloomCombine": {
+      "rootSignature": "PostProcess_MultiTexture",
+      "vertexShader": "../x64/Debug/BloomCombineVS.cso",
+      "pixelShader": "../x64/Debug/BloomCombinePS.cso",
+      "depthEnable": false
+    },
+    "ShadowMap": {
+      "rootSignature": "Geometry_Default",
+      "vertexShader": "../x64/Debug/ShadowMapVS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": true,
+      "cullMode": "BACK"
+    },
+    "CascadedShadowMap": {
+      "rootSignature": "Geometry_Default",
+      "vertexShader": "../x64/Debug/CascadedShadowMapVS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": true,
+      "cullMode": "BACK"
+    }
+  }
+}

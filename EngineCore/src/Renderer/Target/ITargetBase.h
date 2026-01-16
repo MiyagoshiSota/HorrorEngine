@@ -8,7 +8,8 @@
 class ITargetBase
 {
 public:
-    // DSV用
+	virtual ~ITargetBase() = default;
+	// DSV用
     virtual void Create(
         ID3D12Device* pDevice,
         UINT width,
@@ -16,6 +17,10 @@ public:
         DXGI_FORMAT resourceFormat,
         DXGI_FORMAT dsvFormat,
         DXGI_FORMAT srvFormat,
+        UINT16 array_size,
+        UINT16 mip_levels,
+        UINT sample_count,
+        UINT sample_quality,
         D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
         std::shared_ptr<DescriptorHandle> srvHandle
     ) = 0;
@@ -27,6 +32,10 @@ public:
         UINT width,
         UINT height,
         DXGI_FORMAT format,
+        UINT16 array_size,
+        UINT16 mip_levels,
+        UINT sample_count,
+        UINT sample_quality,
         D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
         std::shared_ptr<DescriptorHandle> srvHandle
     )= 0;
@@ -39,6 +48,9 @@ public:
     void SetCurrentState(D3D12_RESOURCE_STATES state) { m_CurrentState = state; }
     ComPtr<ID3D12Resource> GetResource() const { return m_pResource.Get(); }
     D3D12_RESOURCE_STATES GetCurrentState() const { return m_CurrentState; }
+
+	UINT GetWidth() const { return m_Width; }
+	UINT GetHeight() const { return m_Height; }
 
 protected:
     ComPtr<ID3D12Resource> m_pResource;

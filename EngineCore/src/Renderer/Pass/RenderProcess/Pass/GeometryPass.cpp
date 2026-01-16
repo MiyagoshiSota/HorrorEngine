@@ -1,60 +1,131 @@
 ﻿#include "GeometryPass.h"
 
-#include "Core/App.h"
-#include "Modules/Renderer/RendereUtility.h"
+#include <vector>
+#include <array>
+#include <algorithm>
+#include <limits>
+#include <cmath>
 
+#include "Core/App.h"
+#include "Modules/PublicConst/const_render_pref.h"
+#include "Modules/Renderer/RendereUtility.h"
+#include "Scene/GameObject/Component/MeshRenderer.h"
+#include "Scene/GameObject/Model/Model.h"
+
+using namespace DirectX;
+
+// --- 定数定義 ---
+static const float SHADOW_MAP_SIZE = 2048.0f;
+static const float SHADOW_DISTANCE = 10000.0f;
+
+// --- ヘルパー関数: シンプルなシャドウマップ用行列計算 ---
+void CalculateLightViewProj_Geometry(
+    XMVECTOR lightDir,
+    XMMATRIX& outViewProj)
+{
+    // ライトのビュー行列 (View)
+    XMVECTOR targetPos = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // ライトの位置を逆算 (原点からライト方向へバックした位置)
+    XMVECTOR lightPos = XMVectorAdd(targetPos, XMVectorScale(lightDir, -100.0f));
+
+    // ライトの上方向 
+    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    
+    XMMATRIX lightView = XMMatrixLookAtRH(lightPos, targetPos, up);
+
+    // ライトの射影行列
+    float sceneWidth = 40.0f;
+    float sceneHeight = 40.0f;
+
+    // 原点を中心に左右上下に広げる
+    float minX = -sceneWidth / 2.0f;
+    float maxX = sceneWidth / 2.0f;
+    float minY = -sceneHeight / 2.0f;
+    float maxY = sceneHeight / 2.0f;
+
+    // Z深度の範囲 (Near/Far)
+    // ライト位置からターゲットまでの距離が100.0fなので、
+    // それを挟み込むように十分な範囲を取る
+    float minZ = 1.0f;     // Near
+    float maxZ = 500.0f;   // Far (奥)
+    
+    XMMATRIX lightProj = XMMatrixOrthographicOffCenterRH(minX, maxX, minY, maxY, minZ, maxZ);
+
+    // 行列合成
+    outViewProj = XMMatrixMultiply(lightView, lightProj);
+}
+
+// =========================================================
+// Collect
+// =========================================================
 void GeometryPass::Collect(RenderContext& context)
 {
-	auto cmdList = context.CommandList;
+    auto cmdList = context.CommandList;
 
-	// パイプラインステートとルートシグネチャの設定
+    // パイプラインステートとルートシグネチャの設定
     auto name = "Geometry_Default";
     auto PSOname = "DefaultPipelinePass";
 
-    // ルートシグネチャを設定
     cmdList->SetGraphicsRootSignature(g_Scene->get_pipeline_state_manager()->get_root_signature(name)->get());
-
-    // PSOを設定
+    // ※注意: ここのPSOは MSAA Count=8 に設定されている必要があります
     cmdList->SetPipelineState(g_Scene->get_pipeline_state_manager()->get_pipeline_state(PSOname)->Get());
 
-	// 描画対象のオブジェクトを収集する
     m_RenderQueue.clear();
     for (auto& obj : context.GameObjects)
     {
         m_RenderQueue.push_back(obj);
     }
 
-	// RenderTargetの取得
-    auto sceneColorRT = context.GetSourceRT();
-    auto sceneDepthRT = context.GetDestRT();
+    auto msaaColorRT = context.GetRenderTarget(const_render_pref::MSAART);
+    auto msaaDepthRT = context.GetRenderTarget(const_render_pref::MSAA_Depth);
 
-	// RTVとDSVを書き込み可能状態に変更
-	std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
-    RendererUtility::simple_change_target_state(barriers, sceneColorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    RendererUtility::simple_change_target_state(barriers, sceneDepthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    // バリア設定
+    std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
+    RendererUtility::simple_change_target_state(barriers, msaaColorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    RendererUtility::simple_change_target_state(barriers, msaaDepthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-    // 遷移が必要なバリアが1つ以上ある場合のみ実行
     if (!barriers->empty())
     {
         cmdList->ResourceBarrier(barriers->size(), barriers->data());
     }
 
-	// 状態を更新
-    sceneColorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-    sceneDepthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    msaaColorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+    msaaDepthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     // Clear
-    const float clearColor[] = { 0.0,0.0,0.0,1 };
-    cmdList->ClearRenderTargetView(sceneColorRT->GetRTVHandle(), clearColor, 0, nullptr);
-    cmdList->ClearDepthStencilView(sceneDepthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    const float clearColor[] = { 0.0, 0.0, 0.0, 1 };
+    cmdList->ClearRenderTargetView(msaaColorRT->GetRTVHandle(), clearColor, 0, nullptr);
+    cmdList->ClearDepthStencilView(msaaDepthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+    auto sceneDepthRHandle = msaaDepthRT->GetDSVHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[] = { msaaColorRT->GetRTVHandle() };
 
-	// 出力先としてレンダーターゲットと深度バッファを設定
-    auto sceneDepthRHandle = sceneDepthRT->GetDSVHandle();
-    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[] = { sceneColorRT->GetRTVHandle() };
+    // Viewport & Scissor (画面サイズ)
+    auto resourceDesc = msaaColorRT->GetResource()->GetDesc();
+    D3D12_VIEWPORT viewport = {};
+    viewport.Width = static_cast<float>(resourceDesc.Width);
+    viewport.Height = static_cast<float>(resourceDesc.Height);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+
+    D3D12_RECT scissorRect = {};
+    scissorRect.left = 0;
+    scissorRect.top = 0;
+    scissorRect.right = static_cast<LONG>(resourceDesc.Width);
+    scissorRect.bottom = static_cast<LONG>(resourceDesc.Height);
+
+    cmdList->RSSetViewports(1, &viewport);
+    cmdList->RSSetScissorRects(1, &scissorRect);
+
     cmdList->OMSetRenderTargets(1, sceneColorRTVHandle, FALSE, &sceneDepthRHandle);
 }
 
+// =========================================================
+// Draw
+// =========================================================
 void GeometryPass::Draw(RenderContext& context)
 {
     auto cmdList = context.CommandList;
@@ -65,53 +136,130 @@ void GeometryPass::Draw(RenderContext& context)
 
     UINT frameIndex = g_Engine->CurrentBackBufferIndex();
 
-    // ライト情報の定数バッファをスロット1にセット
-    auto lightingCB = g_Scene->get_lighting_manager()->get_constant_buffer();
+    // 定数バッファ (Light)
+    const auto& lightingCB = g_Scene->get_lighting_manager()->get_constant_buffer();
     cmdList->SetGraphicsRootConstantBufferView(1, lightingCB->GetAddress());
 
-	// view, proj行列の計算
+    // View, Proj行列 (Main Camera)
     const auto view = DirectX::XMMatrixLookAtRH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(), context.Camera->GetUpward());
-    const auto proj = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 1000.0f);
+    const auto proj = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 5000.0f);
 
-	// マテリアルのディスクリプタヒープをセット
-    auto materialHeap = g_Engine->GetSrvHeap()->GetHeap();
+    // Descriptor Heap
+    auto materialHeap = g_Engine->GetDescriptorHeap()->GetHeap();
     cmdList->SetDescriptorHeaps(1, &materialHeap);
+
+    // Shadow Map SRV
+    auto shadowMapRT = context.GetRenderTarget(const_render_pref::ShadowMap);
+    cmdList->SetGraphicsRootDescriptorTable(4, shadowMapRT->GetSRVHandle()->gpuHandle);
+
+    // --- ライト行列の計算 (シングルパス) ---
+    auto lightManager = g_Scene->get_lighting_manager();
+    // TODO: ライトがない場合のガード
+    auto directionLight = lightManager->get_directional_lights()[0];
+
+    XMFLOAT3 lightDirF = directionLight->Direction;
+    XMVECTOR lightDir = XMVector3Normalize(XMVectorSet(lightDirF.x, lightDirF.y, lightDirF.z, 0.0f));
+
+    XMMATRIX lightViewProj;
+    CalculateLightViewProj_Geometry(lightDir, lightViewProj);
+
+    // 定数バッファ用に転置
+    lightViewProj = XMMatrixTranspose(lightViewProj);
+    // ------------------------------------
 
     for (auto& obj : m_RenderQueue)
     {
-        // フレームインデックスを渡して、現在のフレーム用の定数バッファを取得します
         auto constantBuffer = obj->get_constant_buffer(frameIndex);
 
-        // 取得したバッファを更新します
         auto pTransform = constantBuffer->GetPtr<SharedStruct::Transform>();
+
+        // 基本情報のセット
         pTransform->World = obj->get_transform();
         pTransform->View = view;
         pTransform->Proj = proj;
 
-        // 更新した定数バッファを GPU にセット
+        // CameraPos
+        XMFLOAT3 camPosF = context.Camera->GetEyePosFloat3();
+        pTransform->CameraPosition = camPosF;
+
+        // シングルシャドウマップ用の行列をセット
+        pTransform->LightViewProj = lightViewProj;
+
+        // GPUセット
         cmdList->SetGraphicsRootConstantBufferView(0, constantBuffer->GetAddress());
 
-        // オブジェクトを描画
-        auto model = obj->get_model();
-        for (size_t i = 0; i < model->m_InputMesh.size(); i++)
+        // 描画
+        auto model = obj->find_component<MeshRenderer>()->model;
+        auto origin_data = g_ModelLoader->GetModelOriginData(model->name);
+
+        for (size_t i = 0; i < model->m_Meshes.size(); i++)
         {
             auto vbView = model->m_Meshes[i]->get_vertex_buffer()->View();
             auto ibView = model->m_Meshes[i]->get_index_buffer()->View();
+
+            auto materialBuffer = model->m_Materials[i]->get_constant_buffer();
+            auto pMaterial = materialBuffer->GetPtr<DirectX::XMFLOAT4>();
+            pMaterial[0] = model->m_Materials[i]->get_color();
+            cmdList->SetGraphicsRootConstantBufferView(2, materialBuffer->GetAddress());
 
             cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmdList->IASetVertexBuffers(0, 1, &vbView);
             cmdList->IASetIndexBuffer(&ibView);
 
-            cmdList->SetGraphicsRootDescriptorTable(2, model->m_Materials[i]->get_srv_handle()->gpuHandle);
+            cmdList->SetGraphicsRootDescriptorTable(3, model->m_Materials[i]->get_srv_handle()->gpuHandle);
 
-            cmdList->DrawIndexedInstanced(model->m_InputMesh[i].Indeices.size(), 1, 0, 0, 0);
+            cmdList->DrawIndexedInstanced(origin_data[i].Indeices.size(), 1, 0, 0, 0);
         }
     }
 
-	// 描画後、RTVとDSVを読み取り可能状態に変更
+    // MSAA Resolve処理
+    auto msaaColorRT = context.GetRenderTarget(const_render_pref::MSAART);
     auto sceneColorRT = context.GetRenderTarget("SceneColor");
-    std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriersOld = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
-    RendererUtility::simple_change_target_state(barriersOld, sceneColorRT, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    cmdList->ResourceBarrier(barriersOld->size(), barriersOld->data());
-    sceneColorRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    // Barrier: SceneColor -> ResolveDest
+    if (sceneColorRT->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+    {
+        D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            sceneColorRT->GetResource().Get(),
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_RENDER_TARGET
+        );
+        cmdList->ResourceBarrier(1, &barrier);
+    }
+
+    D3D12_RESOURCE_BARRIER resolveBarriers[2];
+    resolveBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(
+        msaaColorRT->GetResource().Get(),
+        D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_RESOLVE_SOURCE
+    );
+    resolveBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(
+        sceneColorRT->GetResource().Get(),
+        D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_RESOLVE_DEST
+    );
+    cmdList->ResourceBarrier(2, resolveBarriers);
+
+    cmdList->ResolveSubresource(
+        sceneColorRT->GetResource().Get(), 0,
+        msaaColorRT->GetResource().Get(), 0,
+        sceneColorRT->GetResource()->GetDesc().Format
+    );
+
+    // Barrier Restore
+    std::vector<D3D12_RESOURCE_BARRIER> barriersPost;
+    barriersPost.push_back(CD3DX12_RESOURCE_BARRIER::Transition(
+        msaaColorRT->GetResource().Get(),
+        D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
+        D3D12_RESOURCE_STATE_RENDER_TARGET
+    ));
+    barriersPost.push_back(CD3DX12_RESOURCE_BARRIER::Transition(
+        sceneColorRT->GetResource().Get(),
+        D3D12_RESOURCE_STATE_RESOLVE_DEST,
+        D3D12_RESOURCE_STATE_RENDER_TARGET
+    ));
+    cmdList->ResourceBarrier(barriersPost.size(), barriersPost.data());
+
+    sceneColorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+    msaaColorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
 }

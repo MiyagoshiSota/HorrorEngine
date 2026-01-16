@@ -15,7 +15,7 @@ class WorkFlow
 public:
     std::string m_name;
     EWorkFlowMode m_mode = EWorkFlowMode::Sequential;
-    std::vector<std::shared_ptr<TriggerComponent>> m_tasks; // シーン内のTriggerComponentへのポインタを保持
+    std::vector<TriggerComponent*> m_tasks; // シーン内のTriggerComponentへのポインタを保持
 
     WorkFlow(std::string name) : m_name(std::move(name)), m_currentTaskIndex(0), m_isComplete(false) {}
 
@@ -29,7 +29,7 @@ public:
             // シーケンシャルモード
             if (m_currentTaskIndex < m_tasks.size())
             {
-                std::shared_ptr<TriggerComponent> currentTask = m_tasks[m_currentTaskIndex];
+                TriggerComponent* currentTask = m_tasks[m_currentTaskIndex];
                 
                 // 現在のタスクをアクティベート
                 currentTask->Activate(); 

@@ -16,14 +16,24 @@ using json = nlohmann::json;
 namespace JsonParserHelpers
 {
     D3D12_FILTER ParseFilter(const std::string& str) {
-        if (str == "LINEAR") return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        // ... 他のフィルタータイプも同様に追加 ...
+        if (str == "MIN_MAG_MIP_POINT") return D3D12_FILTER_MIN_MAG_MIP_POINT;
+        else if (str == "MIN_MAG_POINT_MIP_LINEAR") return D3D12_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+        else if (str == "MIN_POINT_MAG_LINEAR_MIP_POINT") return D3D12_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT;
+        else if (str == "MIN_POINT_MAG_MIP_LINEAR") return D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+        else if (str == "MIN_LINEAR_MAG_MIP_POINT") return D3D12_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+        else if (str == "MIN_LINEAR_MAG_POINT_MIP_LINEAR") return D3D12_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
+        else if (str == "MIN_MAG_LINEAR_MIP_POINT") return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+        else if (str == "MIN_MAG_MIP_LINEAR") return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        else if (str == "ANISOTROPIC") return D3D12_FILTER_ANISOTROPIC;
         return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-    }
+	}
 
     D3D12_TEXTURE_ADDRESS_MODE ParseAddressMode(const std::string& str) {
         if (str == "WRAP") return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        // ... 他のアドレスモードも同様に追加 ...
+        else if (str == "MIRROR") return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        else if (str == "CLAMP") return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        else if (str == "BORDER") return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        else if (str == "MIRROR_ONCE") return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
         return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
     }
 
@@ -37,6 +47,25 @@ namespace JsonParserHelpers
         }
         return flags;
     }
+
+    D3D12_COMPARISON_FUNC ParseComparisonFunc(const std::string& str) {
+        if (str == "NEVER") return D3D12_COMPARISON_FUNC_NEVER;
+        else if (str == "LESS") return D3D12_COMPARISON_FUNC_LESS;
+        else if (str == "EQUAL") return D3D12_COMPARISON_FUNC_EQUAL;
+        else if (str == "LESS_EQUAL") return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+        else if (str == "GREATER") return D3D12_COMPARISON_FUNC_GREATER;
+        else if (str == "NOT_EQUAL") return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+        else if (str == "GREATER_EQUAL") return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+        else if (str == "ALWAYS") return D3D12_COMPARISON_FUNC_ALWAYS;
+        return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	}
+
+    D3D12_STATIC_BORDER_COLOR ParseBorderColor(const std::string& str) {
+        if (str == "TRANSPARENT_BLACK") return D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+        else if (str == "OPAQUE_BLACK") return D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+        else if (str == "OPAQUE_WHITE") return D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+        return D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	}
 }
 
 
@@ -63,6 +92,18 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                     builder->add_constant_buffer_view(cbv.value("shaderRegister", 0));
                 }
             }
+            // UAV
+            if (rsJson.contains("unorderedAccessViews")) {
+                for (const auto& uav : rsJson["unorderedAccessViews"]) {
+                    builder->add_unordered_access_view(uav.value("shaderRegister", 0));
+                }
+            }
+            // SRV
+            if (rsJson.contains("shaderResourceViews")) {
+                for (const auto& srv : rsJson["shaderResourceViews"]) {
+                    builder->add_shader_resource_view(srv.value("shaderRegister", 0));
+                }
+            }
             // Descriptor Tables
             if (rsJson.contains("descriptorTables")) {
                 for (const auto& table : rsJson["descriptorTables"]) {
@@ -77,10 +118,25 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
             // Static Samplers
             if (rsJson.contains("staticSamplers")) {
                 for (const auto& sampler : rsJson["staticSamplers"]) {
+
+                    // ヘルパー関数等で文字列からenumへ変換すると仮定
+                    auto filter = JsonParserHelpers::ParseFilter(sampler.value("filter", "LINEAR"));
+                    auto addressMode = JsonParserHelpers::ParseAddressMode(sampler.value("addressU", "WRAP")); // U,V,W共通で簡略化
+                    auto comparisonFunc = JsonParserHelpers::ParseComparisonFunc(sampler.value("comparisonFunc", "NEVER"));
+                    auto borderColor = JsonParserHelpers::ParseBorderColor(sampler.value("borderColor", "TRANSPARENT_BLACK"));
+
                     CD3DX12_STATIC_SAMPLER_DESC samplerDesc(
                         sampler.value("shaderRegister", 0),
-                        JsonParserHelpers::ParseFilter(sampler.value("filter", "LINEAR"))
+                        filter,
+                        addressMode, // AddressU
+                        addressMode, // AddressV
+                        addressMode, // AddressW
+                        0.0f,        // MipLODBias
+                        16,          // MaxAnisotropy
+                        comparisonFunc, // LESS_EQUALなどを渡す
+                        borderColor     // OPAQUE_WHITEなどを渡す
                     );
+
                     builder->add_static_sampler(samplerDesc);
                 }
             }
@@ -98,13 +154,68 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
     if (psoJson.contains("PipelineStates")) {
         for (auto& [name, psoJson] : psoJson["PipelineStates"].items()) {
             std::string rootSignatureName = psoJson["rootSignature"];
-            std::wstring vsPath = engine_string::to_wstring(psoJson["vertexShader"]);
-            std::wstring psPath = engine_string::to_wstring(psoJson["pixelShader"]);
-            bool depthEnable = psoJson.value("depthEnable", true);
-			bool inputLayout = psoJson.value("inputLayoutEnable", false);
+            // グラフィックスシェーダー用PSO
+            if (psoJson.contains("vertexShader") || psoJson.contains("pixelShader"))
+            {
+                std::wstring vs_path = L"";
+                std::wstring ps_path = L"";
+                std::wstring gs_path = L"";
+	            
+            	if (psoJson.contains("vertexShader"))
+	            {
+                    vs_path = engine_string::to_wstring(psoJson["vertexShader"]);
+	            }
 
-            // マネージャーにPSOを生成・登録させる
-            manager->create_pipeline_state(name, rootSignatureName,vsPath, psPath, inputLayout, depthEnable);
+                if (psoJson.contains("pixelShader"))
+                {
+                	ps_path = engine_string::to_wstring(psoJson["pixelShader"]);
+                }
+
+                if (psoJson.contains("geometryShader"))
+                {
+                    gs_path = engine_string::to_wstring(psoJson["geometryShader"]);
+                }
+
+				UINT SampleCount = psoJson.value("sampleCount", 1);
+
+				// format指定がある場合の処理
+                DXGI_FORMAT renderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+                if (psoJson.contains("format"))
+                {
+                    std::string formatStr = psoJson["format"];
+                    if (formatStr == "DXGI_FORMAT_R8G8B8A8_UNORM") {
+                        renderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+                    }
+                    else if (formatStr == "DXGI_FORMAT_B8G8R8A8_UNORM") {
+                        renderTargetFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
+                    }
+                    else if (formatStr == "DXGI_FORMAT_R16G16B16A16_FLOAT"){
+                        renderTargetFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
+					}
+                }
+
+                bool depthEnable = psoJson.value("depthEnable", true);
+                bool inputLayout = psoJson.value("inputLayoutEnable", false);
+                bool useWireframe = psoJson.value("wireframeEnable", false);
+                bool blendEnable = psoJson.value("blendEnable", false);
+
+                // マネージャーにPSOを生成・登録させる
+
+                // ジオメトリシェーダー有りの場合
+                if(!gs_path.empty())
+                {
+                    manager->create_pipeline_state(name, rootSignatureName,vs_path, ps_path, gs_path, useWireframe,inputLayout, depthEnable, blendEnable);
+                }
+                // ジオメトリシェーダー無しの場合
+                manager->create_pipeline_state(name, rootSignatureName,vs_path, ps_path, SampleCount, renderTargetFormat, useWireframe,inputLayout, depthEnable, blendEnable);
+            }
+            // Computeシェーダー用PSO
+            else if (psoJson.contains("computeShader"))
+            {
+                std::wstring csPath = engine_string::to_wstring(psoJson["computeShader"]);
+
+                manager->create_pipeline_state(name, rootSignatureName, csPath);
+            }
         }
     }
 

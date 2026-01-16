@@ -1,0 +1,63 @@
+{
+    "gameObjects": [
+        {
+            "components": [
+                {
+                    "model_name": "Alicia_solid_Unity",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "DYNAMIC",
+                    "isCollider": {
+                        "height": 30.0,
+                        "radius": 10.0,
+                        "shape": "Capsule"
+                    },
+                    "isGravityEnabled": true,
+                    "type": "Rigidbody"
+                }
+            ],
+            "name": "Player",
+            "position": [
+                0.0,
+                100.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube",
+            "position": [
+                0.0,
+                23.600000381469727,
+                0.0
+            ],
+            "rotation": [
+                8.5,
+                6.5,
+                0.0
+            ],
+            "scale": [
+                8.0,
+                1.5,
+                18.5
+            ]
+        }
+    ],
+    "scene_name": "assets/Days/Day1.json"
+}

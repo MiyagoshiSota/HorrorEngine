@@ -26,9 +26,18 @@ RootSignatureBuilder& RootSignatureBuilder::add_unordered_access_view(UINT shade
 
 RootSignatureBuilder& RootSignatureBuilder::add_descriptor_table(UINT rangeCount, const D3D12_DESCRIPTOR_RANGE* ranges, D3D12_SHADER_VISIBILITY visibility)
 {
+	auto& storedRanges = m_RangeStorage.emplace_back();
+
+    storedRanges.resize(rangeCount);
+    for (UINT i = 0; i < rangeCount; ++i)
+    {
+        storedRanges[i] = ranges[i];
+    }
+
     CD3DX12_ROOT_PARAMETER param;
-    param.InitAsDescriptorTable(rangeCount, ranges, visibility);
+    param.InitAsDescriptorTable(rangeCount, storedRanges.data(), visibility);
     m_RootParameters.push_back(param);
+
     return *this;
 }
 

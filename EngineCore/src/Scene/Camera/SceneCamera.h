@@ -9,6 +9,11 @@ public:
     void Init();
 
     DirectX::XMVECTOR GetEyePos() const { return m_EyePos; }
+    DirectX::XMFLOAT3 GetEyePosFloat3() const {
+        DirectX::XMFLOAT3 eyePos;
+        DirectX::XMStoreFloat3(&eyePos, m_EyePos);
+        return eyePos;
+	}
     DirectX::XMVECTOR GetTargetPos() const { return m_TargetPos; }
     DirectX::XMVECTOR GetUpward() const { return m_CameraUp; } // m_Upwardから変更
     float GetFOV() const { return m_Fov; }

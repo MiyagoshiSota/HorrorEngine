@@ -16,6 +16,11 @@ public:
     std::unique_ptr<ITriggerCondition> Condition;
     std::vector<std::unique_ptr<IReward>> Actions;
 
+    void initialize(std::shared_ptr<GameObject> game_object) override
+    {
+        Component::initialize(game_object);
+    };
+
     // start
     void start() override
     {
@@ -41,10 +46,9 @@ public:
         }
     }
 
-    void deserialize(const nlohmann::json& jsonData, std::shared_ptr<GameObject> game_object) override
+    void deserialize(const nlohmann::json& jsonData) override
     {
         // 親ゲームオブジェクトを設定
-        gameObject = game_object;
         context = TriggerContext();
         context.m_Owner = gameObject;
 
@@ -179,23 +183,22 @@ public:
             // --- 新しいActionを追加するUI ---
             
             // 追加するActionを選択するためのコンボボックス
-            static std::string actionToAddName = ""; // staticで選択状態を保持
             auto actionNames = factory.GetRegisteredActionNames();
             
             // デフォルト選択
-            if (actionToAddName.empty() && !actionNames.empty())
+            if (m_action_to_add_name_.empty() && !actionNames.empty())
             {
-                actionToAddName = actionNames[0];
+                m_action_to_add_name_ = actionNames[0];
             }
             
-            if (ImGui::BeginCombo("##AddActionCombo", actionToAddName.c_str()))
+            if (ImGui::BeginCombo("##AddActionCombo", m_action_to_add_name_.c_str()))
             {
                 for (const auto& name : actionNames)
                 {
-                    bool is_selected = (actionToAddName == name);
+                    bool is_selected = (m_action_to_add_name_ == name);
                     if (ImGui::Selectable(name.c_str(), is_selected))
                     {
-                        actionToAddName = name;
+                        m_action_to_add_name_ = name;
                     }
                     if (is_selected)
                     {
@@ -210,10 +213,10 @@ public:
             // "Add"ボタン
             if (ImGui::Button("Add Action"))
             {
-                if (!actionToAddName.empty())
+                if (!m_action_to_add_name_.empty())
                 {
                     // ファクトリで生成してvectorの末尾に追加
-                    if (auto newAction = factory.CreateAction(actionToAddName))
+                    if (auto newAction = factory.CreateAction(m_action_to_add_name_))
                     {
                         Actions.push_back(std::move(newAction));
                     }
@@ -236,5 +239,8 @@ private:
     bool m_isActivated = true; 
     bool m_isCompleted = false; // 既に実行が完了したか
     std::string m_taskName = "Untitled Task"; // GUIで表示するための名前
+
+private:
+    std::string m_action_to_add_name_;
 };
 

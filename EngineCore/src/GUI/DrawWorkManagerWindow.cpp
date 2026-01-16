@@ -293,7 +293,7 @@ void DrawWorkManagerWindow::DrawTaskColumn()
         const auto task = m_selectedWorkflow->m_tasks[i];
         if (!task) continue; // 安全確認
 
-        ImGui::PushID(task.get());
+        ImGui::PushID(task);
         
         std::string task_label = task->GetTaskName() + " (on " + task->gameObject->get_name() + ")";
         ImGui::Selectable(task_label.c_str());
@@ -333,13 +333,12 @@ void DrawWorkManagerWindow::DrawTaskColumn()
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TASK_PAYLOAD"))
         {
-            std::shared_ptr<TriggerComponent>* ptr_to_shared_ptr =
-                static_cast<std::shared_ptr<TriggerComponent>*>(payload->Data);
+            TriggerComponent* receivedTask =
+                static_cast<TriggerComponent*>(payload->Data);
 
-            std::shared_ptr<TriggerComponent> receivedTask = *ptr_to_shared_ptr;
             // 既に追加されていないかチェック
             bool alreadyAdded = false;
-            for(auto t : m_selectedWorkflow->m_tasks) {
+            for(const auto t : m_selectedWorkflow->m_tasks) {
                 if (t == receivedTask) {
                     alreadyAdded = true;
                     break;
@@ -357,7 +356,7 @@ void DrawWorkManagerWindow::DrawTaskColumn()
     // --- 利用可能なTask一覧 (ドラッグ元) ---
     ImGui::Text("Available Tasks in Scene (Drag to add)");
     ImGui::BeginChild("AvailableTasks", ImVec2(0, 150), true);
-    for (auto task : m_sceneTriggersCache)
+    for (const auto task : m_sceneTriggersCache)
     {
         // 既にこのWorkFlowに含まれているタスクはグレーアウト
         const bool in_workflow = std::find(m_selectedWorkflow->m_tasks.begin(), m_selectedWorkflow->m_tasks.end(), task)
@@ -462,11 +461,11 @@ void DrawWorkManagerWindow::DrawTaskCreatorPanel()
         std::shared_ptr<GameObject> targetObject = g_Scene->get_game_objects()[m_selectedGameObjectIndex];
         
         // GameObjectにTriggerComponentを追加
-        std::shared_ptr<TriggerComponent> newTrigger = targetObject->AddComponent<TriggerComponent>(); // AddComponentはT*を返すと仮定
+        auto newTrigger = targetObject->AddComponent<TriggerComponent>(); // AddComponentはT*を返すと仮定
 
         // TargetComponentの初期化
         newTrigger->SetTaskName(m_newTaskNameBuffer);
-        newTrigger->gameObject = targetObject;
+        newTrigger->initialize(targetObject);
         newTrigger->ResetTask();
         
         // ConditionとActionをFactoryから作成してセット
@@ -505,7 +504,7 @@ void DrawWorkManagerWindow::RefreshTriggerCache()
     for (const auto& obj : g_Scene->get_game_objects())
     {
         // GameObject::GetComponentsOfType<T>() が `std::vector<T*>` を返すと仮定
-        auto triggers = obj->find_components<TriggerComponent>(); 
+        const auto triggers = obj->find_components<TriggerComponent>(); 
         m_sceneTriggersCache.insert(m_sceneTriggersCache.end(), triggers.begin(), triggers.end());
     }
 }

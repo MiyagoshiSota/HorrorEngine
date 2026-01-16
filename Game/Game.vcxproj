@@ -161,13 +161,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\postprocess_presets.json" />
-    <None Include="assets\pos_definitions.json" />
+    <None Include="assets\pso_definitions.json" />
     <None Include="assets\scene.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\Days\Day1.json" />
     <Content Include="assets\models.json" />
+    <Content Include="assets\scene_save_test.json" />
     <Content Include="assets\temp\scene_temp.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -140,19 +140,19 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 	// Windowの初期化
 	init_window(appName);
 
-	// ModelLoaderの初期化
-	g_ModelLoader = std::make_unique<ModelLoader>();
-	if (!g_ModelLoader->init())
-	{
-		printf("モデルの読み込みに失敗しました。\n");
-		return;
-	}
-
 	// 描画エンジンの初期化
 	g_Engine = new Engine();
 	if (!g_Engine->Init(g_hWnd,WINDOW_WIDTH,WINDOW_HEIGHT))
 	{
 		printf("描画エンジンの初期化に失敗しました。\n");
+		return;
+	}
+
+	// ModelLoaderの初期化
+	g_ModelLoader = std::make_unique<ModelLoader>();
+	if (!g_ModelLoader->init())
+	{
+		printf("モデルの読み込みに失敗しました。\n");
 		return;
 	}
 

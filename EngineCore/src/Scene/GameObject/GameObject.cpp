@@ -3,7 +3,7 @@
 void GameObject::init()
 {
 	// コンポーネントのStart処理
-	for (auto& comp : components)
+	for (const auto& comp : components)
 	{
 		comp->start();
 	}

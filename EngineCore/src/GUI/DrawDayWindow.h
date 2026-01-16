@@ -26,7 +26,8 @@ public:
                     ImGui::EndMenu();
                 }
                 if (ImGui::MenuItem("Save Day")) {
-                    // 現在のDayを保存する処理を呼び出す
+                    auto now_scene = g_SceneManager->GetNextScenePath();
+                    g_Scene->serialize_game_objects(now_scene);
                 }
                 ImGui::EndMenu();
             }

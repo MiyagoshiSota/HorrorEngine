@@ -3,6 +3,7 @@
 #include <set>
 
 #include "Modules/PublicConst/const_render_pref.h"
+#include "Renderer/Pass/PostProcess/Pass/BloomPass.h"
 #include "Renderer/Pass/PostProcess/Pass/ChromaticAberration.h"
 #include "Renderer/Pass/PostProcess/Pass/FilmGrainPass.h"
 #include "Renderer/Pass/PostProcess/Pass/MonochromePass.h"
@@ -24,6 +25,7 @@ PostProcessManager::PostProcessManager()
 	m_AvailablePasses["Vignette"] = std::make_shared<VignettePass>();
 	m_AvailablePasses["FilmGrain"] = std::make_shared<FilmGrainPass>();
 	m_AvailablePasses["ChromaticAberration"] = std::make_shared<ChromaticAberration>();
+	m_AvailablePasses["Bloom"] = std::make_shared<Bloom>();
 }
 
 void PostProcessManager::Init()

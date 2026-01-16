@@ -33,4 +33,7 @@ protected:
     std::vector<CD3DX12_ROOT_PARAMETER> m_RootParameters;
     std::vector<D3D12_STATIC_SAMPLER_DESC> m_StaticSamplers;
     D3D12_ROOT_SIGNATURE_FLAGS m_Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+
+private:
+	std::list<std::vector<D3D12_DESCRIPTOR_RANGE>> m_RangeStorage;
 };

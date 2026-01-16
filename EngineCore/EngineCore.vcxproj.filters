@@ -16,8 +16,6 @@
     <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
     <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
-    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\RtvDescriptorHeap.cpp" />
-    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\SrvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
@@ -40,13 +38,22 @@
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.cpp" />
     <ClCompile Include="src\Renderer\Pass\PostProcess\Manager\PostProcessManager.cpp" />
-    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
     <ClCompile Include="src\Renderer\Light\LightingManager.cpp" />
     <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
     <ClCompile Include="src\Scene\Default\Scene\DefaultScene.cpp" />
+    <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
+    <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
+    <ClCompile Include="src\GUI\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\Input\InputDevice.cpp" />
+    <ClCompile Include="src\Physics\EngineCollider.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.cpp" />
+    <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
+    <ClCompile Include="src\Renderer\Pass\ComputeProcess\RainParticleSystem.cpp" />
+    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHeap.cpp" />
+    <ClCompile Include="src\Renderer\Texture\TextureResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -71,8 +78,6 @@
     <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
     <ClInclude Include="src\Renderer\PipelineManager\IPipelineManager.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHandle.h" />
-    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\RtvDescriptorHeap.h" />
-    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\SrvDescriptorHeap.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
@@ -111,7 +116,6 @@
     <ClInclude Include="src\Modules\PublicConst\const_render_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\MonochromePass.h" />
-    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\CbvDescriptorHeap.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VignettePass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\FilmGrainPass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\ChromaticAberration.h" />
@@ -119,8 +123,6 @@
     <ClInclude Include="src\Renderer\Light\LightingManager.h" />
     <ClInclude Include="src\Core\Components\TriggerComponent.h" />
     <ClInclude Include="src\Core\Components\Trigger\ITriggerCondition.h" />
-    <ClInclude Include="src\Core\Components\Action\IAction.h" />
-    <ClInclude Include="src\Core\Components\Action\PlaySoundAction.h" />
     <ClInclude Include="src\Core\Components\TriggerContext\TriggerContext.h" />
     <ClInclude Include="src\Core\Components\TriggerFactory.h" />
     <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
@@ -131,6 +133,32 @@
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="src\Scene\Default\Scene\DefaultScene.h" />
+    <ClInclude Include="src\Core\Components\Reward\IReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\PlaySoundReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\PrintHelloReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\StartWorkReward.h" />
+    <ClInclude Include="src\Core\Components\Trigger\CountDownCondition.h" />
+    <ClInclude Include="src\Core\Components\WorkFlow\WorkFlow.h" />
+    <ClInclude Include="src\Core\Components\Work\Work.h" />
+    <ClInclude Include="src\Core\Components\Work\WorkManager.h" />
+    <ClInclude Include="src\GUI\DrawModelsWindow.h" />
+    <ClInclude Include="src\GUI\DrawTaskManagerWindow.h" />
+    <ClInclude Include="src\GUI\DrawWorkManagerWindow.h" />
+    <ClInclude Include="src\Input\InputDevice.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_gameobject_save_param_pref.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.h" />
+    <ClInclude Include="src\Scene\Character\Player\PlayerController.h" />
+    <ClInclude Include="src\Source\3DModel\Loader\ModelLoader.h" />
+    <ClInclude Include="src\Renderer\Pass\ComputeProcess\RainParticleSystem.h" />
+    <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHeap.h" />
+    <ClInclude Include="src\Renderer\Texture\TextureResourceManager.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\Extraction.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\GaussianBlurPass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\BloomPass.h" />
+    <ClInclude Include="src\Renderer\RenderContext\TempRenderTargetPool.h" />
+    <ClInclude Include="src\Renderer\Pass\ShadowProcess\ShadowProcessPassBase.h" />
+    <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\SimpleShadowMapPass.h" />
+    <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\CascadedShadowMapPass.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />
@@ -145,6 +173,20 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\ChromaticAberrationPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimplePS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\DebugVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\DebugPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticle.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticleGS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticleVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticlePS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\ExtractionVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\ExtractionPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\GaussianBlurVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\GaussianBlurPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\BloomCombineVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\BloomCombinePS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\ShadowMapVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\CascadedShadowMapVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

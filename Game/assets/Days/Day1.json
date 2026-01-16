@@ -1,27 +1,133 @@
-﻿{
-  "scene_name": "Test Level 1",
-  "gameObjects": [
-    {
-      "name": "Player",
-      "position": [ 0.0, 100.0, 0.0 ],
-      "scale": [ 1.0, 1.0, 1.0 ],
-      "rotation": [ 0.0, 0.0, 0.0 ],
-      "components": [
+{
+    "gameObjects": [
         {
-          "type": "MeshRenderer",
-          "model_name": "Alicia_solid_Unity"
+            "components": [
+                {
+                    "model_name": "Alicia_solid_Unity",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "MoveSpeed": 100.0,
+                    "type": "PlayerController"
+                },
+                {
+                    "bodyType": "DYNAMIC",
+                    "collider": {
+                        "halfExtents": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": true,
+                    "type": "Rigidbody"
+                }
+            ],
+            "name": "Player",
+            "position": [
+                0.0,
+                118.30000305175781,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
         },
         {
-          "type": "Rigidbody",
-          "isGravityEnabled": true,
-          "bodyType": "DYNAMIC",
-          "isCollider": {
-            "shape": "Capsule",
-            "height": 10,
-            "radius": 30
-          }
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "STATIC",
+                    "collider": {
+                        "halfExtents": [
+                            1.0,
+                            8.985966815089341e-06,
+                            1.0
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": true,
+                    "type": "Rigidbody"
+                }
+            ],
+            "name": "primitive/cube",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                48.099998474121094,
+                1.0,
+                13.600000381469727
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/quad",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/quad",
+            "position": [
+                62.20000076293945,
+                110.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                90.0,
+                0.0
+            ],
+            "scale": [
+                3.0999999046325684,
+                2.0999999046325684,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube1",
+            "position": [
+                -92.0,
+                106.80000305175781,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                10.0,
+                10.0
+            ]
         }
-      ]
-    }
-  ]
+    ],
+    "scene_name": "assets/Days/Day1.json"
 }

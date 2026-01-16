@@ -6,8 +6,8 @@
 #include "imgui.h"
 #include "Source/3DModel/Loader/ModelLoader.h"
 
-const UINT WINDOW_WIDTH = 1920;
-const UINT WINDOW_HEIGHT = 1080;
+const UINT WINDOW_WIDTH = 1700;
+const UINT WINDOW_HEIGHT = 1000;
 
 enum class scene_type { editor_mode, play_mode };
 

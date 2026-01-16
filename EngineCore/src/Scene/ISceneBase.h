@@ -14,7 +14,6 @@ class ISceneBase
 {
 public:
 	ISceneBase() {
-		m_SceneResourceManager = std::make_unique<SceneResourceManager>();
 	}
 
 	virtual ~ISceneBase() = default;
@@ -74,7 +73,6 @@ public:
 	std::shared_ptr<SceneCamera> get_scene_camera() { return m_Camera; }
 	std::shared_ptr<PipelineStateManager> get_pipeline_state_manager() { return m_PipelineStateManager; }
 	std::shared_ptr<IPipelineManager> get_pipeline_manager() { return m_PipelineManager; }
-	std::unique_ptr<SceneResourceManager> get_scene_resource_manager() { return std::move(m_SceneResourceManager); }
 	std::shared_ptr<TimeManager> get_time_manager() { return m_TimeManager; }
 	std::shared_ptr<AudioManager> get_audio_manager() { return m_AudioManager; }
 	std::shared_ptr<LightingManager> get_lighting_manager() { return m_LightingManager; }
@@ -99,7 +97,6 @@ protected:
 	// Manager
 	std::shared_ptr<IPipelineManager> m_PipelineManager;
 	std::shared_ptr<PipelineStateManager> m_PipelineStateManager;
-	std::unique_ptr<SceneResourceManager> m_SceneResourceManager;
 	std::shared_ptr<AudioManager> m_AudioManager;
 	std::shared_ptr<TimeManager> m_TimeManager;
 	std::shared_ptr<LightingManager> m_LightingManager;

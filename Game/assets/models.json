@@ -1,8 +1,8 @@
 ﻿{
   "models": {
-    "PlayerCharacter": {
-      "model_path": "assets/Alicia/Alicia/FBX/Alicia_solid_Unity.FBX",
-      "model_name": "Alicia_solid_Unity"
+    "WorldEnvironment": {
+      "model_path": "assets/japanese_street_at_night/scene.gltf",
+      "model_name": "ForestEnvironment"
     }
   }
 }

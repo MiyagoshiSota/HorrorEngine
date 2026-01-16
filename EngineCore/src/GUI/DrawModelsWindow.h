@@ -13,29 +13,23 @@ public:
         ImGui::Begin("Models Window");
 
         // 登録されているモデルの一覧を表示
-        const auto& models = g_ModelLoader->get_all_models();
+        const auto& models = g_ModelLoader->get_all_models_data();
         for (const auto& [model_name, model_ptr] : models)
         {
             // 各モデルを選択したら、そのモデルを使って新しいゲームオブジェクトを作成
             if (ImGui::Button(model_name.c_str()))
             {
                 // 新しいゲームオブジェクトを作成
-                const auto new_game_object = std::make_shared<GameObject>();
+                auto new_game_object = std::make_shared<GameObject>();
                 new_game_object->name = set_name_find(model_name);
                 const auto shared_ptr = g_ModelLoader->GetModel(model_name);
 
                 //　デフォルトのコンポーネントを設定
                 // MeshRenderer
                 auto renderer_component = ComponentFactory::create("MeshRenderer");
-                renderer_component->gameObject = new_game_object;
-                renderer_component->deserialize(
-                    nlohmann::json{{"model_name", model_name}},
-                    new_game_object
-                );
+                renderer_component->initialize(new_game_object);
+                renderer_component->deserialize(nlohmann::json{{"model_name", model_name}});
                 new_game_object->components.push_back(std::move(renderer_component));
-
-                // リソースの確保
-                g_Scene->get_scene_resource_manager()->initialize_gpu_resources_for(new_game_object);
                 
                 // ゲームオブジェクトのInitを実行
                 new_game_object->init();

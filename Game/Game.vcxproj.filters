@@ -2,20 +2,14 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Sctipts\main.cpp" />
-    <ClCompile Include="Sctipts\Scene\DefaultScene.cpp" />
-    <ClCompile Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
-    <ClCompile Include="Sctipts\Renderer\Pass\MonochromePass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Sctipts\main.h" />
-    <ClInclude Include="Sctipts\Scene\DefaultScene.h" />
-    <ClInclude Include="Sctipts\Renderer\PipelineManager\DefaultPipelineManager.h" />
-    <ClInclude Include="Sctipts\Renderer\Pass\MonochromePass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="assets\scene.json" />
-    <None Include="assets\pos_definitions.json" />
+    <None Include="assets\pso_definitions.json" />
     <None Include="assets\postprocess_presets.json" />
   </ItemGroup>
 </Project>
