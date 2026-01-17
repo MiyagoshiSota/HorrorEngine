@@ -24,6 +24,9 @@ public:
     // シーン読み込みが予約されているか取得
     std::string GetNextScenePath() const { return m_nextScenePath; }
     
+    // 現在のシーンパスを更新する（シーンを再読み込みせずにパスのみ更新）
+    void UpdateCurrentScenePath(const std::string& scenePath) { SetNextScenePath(scenePath); }
+    
 private:
     void SetNextScenePath(std::string scenePath) { m_nextScenePath = scenePath; }
     void SetIsRequested(bool isRequested) { m_isLoadRequested = isRequested; }

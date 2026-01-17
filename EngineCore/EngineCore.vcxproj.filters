@@ -159,6 +159,8 @@
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\ShadowProcessPassBase.h" />
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\SimpleShadowMapPass.h" />
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\CascadedShadowMapPass.h" />
+    <ClInclude Include="src\GUI\DrawPostProcessPresetWindow.h" />
+    <ClInclude Include="src\GUI\DrawModeWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />

@@ -1,4 +1,4 @@
-﻿#include "SceneManager.h"
+#include "SceneManager.h"
 #include "Scene/ISceneBase.h"
 #include "Scene/Default/Scene/DefaultScene.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
@@ -23,14 +23,17 @@ void SceneManager::ProcessSceneRequest()
     // 古いシーンのリソースを解放する
     if (g_Scene)
     {
+        // コマンドリストが開いている場合、閉じて実行する
+        g_Engine->CloseAndExecuteCommandList();
+        
         // 描画が完全に終了するのを待つ
-        g_Engine->WaitForGPU(); 
+        g_Engine->WaitForGPU();
         g_Scene->shutdown();
     }
 
     // 新しいシーンを生成
     auto newScene = std::make_shared<DefaultScene>();
-    
+
     // 4. 新しいシーンを初期化
     if (!newScene->Init(m_nextScenePath))
     {

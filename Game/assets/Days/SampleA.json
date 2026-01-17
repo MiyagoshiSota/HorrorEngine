@@ -1,0 +1,53 @@
+{
+    "gameObjects": [
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "ForestEnvironment",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "ForestEnvironment",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    ],
+    "scene_name": "../Game/assets/Days\\SampleA.json"
+}

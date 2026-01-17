@@ -150,6 +150,7 @@ void Engine::BeginRender()
     // コマンドを初期化してためる準備をする
     m_pAllocator[m_CurrentBackBufferIndex]->Reset();
     m_pCommandList->Reset(m_pAllocator[m_CurrentBackBufferIndex].Get(), nullptr);
+    m_isCommandListOpen = true; // コマンドリストが開いたことを記録
 
     // ビューポートとシザー矩形を設定
     m_pCommandList->RSSetViewports(1, &m_Viewport);
@@ -208,15 +209,22 @@ void Engine::EndRender()
     // ImGuiの描画
     DrawImGui();
 
-    // BackBufferをRENDER_TARGET → PRESENT に戻す
-    imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-    m_pCommandList->ResourceBarrier(1, &imGuibarrier);
+    // コマンドリストがまだ開いている場合のみ、残りの処理を実行
+    if (m_isCommandListOpen) {
+        // BackBufferをRENDER_TARGET → PRESENT に戻す
+        imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+        m_pCommandList->ResourceBarrier(1, &imGuibarrier);
 
-    // コマンドを完了して送信
-    m_pCommandList->Close();
-    ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
-    m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+        // コマンドを完了して送信
+        m_pCommandList->Close();
+        m_isCommandListOpen = false; // コマンドリストが閉じられたことを記録
+        
+        ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
+        m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+    }
+    // もしコマンドリストが既に閉じられている場合（ProcessSceneRequestが呼ばれた場合）、
+    // ここでは何もしない（既に実行済み）
 
     // スワップチェインを切り替える
     m_pSwapChain->Present(1, 0);
@@ -240,9 +248,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE Engine::AllocateDsvHandle()
 {
 	auto handle = m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += m_dsvHeapOffset * m_DsvDescriptorSize;
-    
+
 	m_dsvHeapOffset++;
-	
+
 	return handle;
 }
 
@@ -289,7 +297,7 @@ bool Engine::CreateSwapChain()
         return false;
     }
 
-    // スワップチェインの作成  
+    // スワップチェインの作成
     DXGI_SWAP_CHAIN_DESC desc = {};
     desc.BufferDesc.Width = m_FrameBufferWidth;
     desc.BufferDesc.Height = m_FrameBufferHeight;
@@ -363,6 +371,7 @@ bool Engine::CreateCommandList()
 
     // コマンドリストは開かれている状態で作成されるのでいったん閉じる
     m_pCommandList->Close();
+    m_isCommandListOpen = false; // 初期状態は閉じている
 
     return true;
 }
@@ -455,7 +464,7 @@ bool Engine::InitImGui()
     m_drawWindows.push_back(std::make_shared<DrawDayWindow>());
     m_drawWindows.push_back(std::make_shared<DrawModelsWindow>());
     m_drawWindows.push_back(std::make_shared<DrawWorkManagerWindow>());
-    
+
     return true;
 }
 
@@ -465,7 +474,7 @@ bool Engine::CreateRenderTarget()
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 
     // HACK:格納できるHeap数注意
-    desc.NumDescriptors = FRAME_BUFFER_COUNT + 10;
+    desc.NumDescriptors = FRAME_BUFFER_COUNT + 256;
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     auto hr = m_pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pRtvHeap.ReleaseAndGetAddressOf()));
@@ -507,7 +516,8 @@ bool Engine::CreateDepthStencil()
     // DSV用のディスクリプタヒープを作成する
     D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 
-    heapDesc.NumDescriptors = FRAME_BUFFER_COUNT + 30;
+    // TODO:確保している領域が固定になるので確保する方法を考える
+    heapDesc.NumDescriptors = FRAME_BUFFER_COUNT + 256;
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     auto hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pDsvHeap));
@@ -571,11 +581,16 @@ void Engine::DrawImGui()
     {
         window->draw();
     }
-    
+
     ImGui::Render();
 
-    // ImGui の描画実行
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
+    // コマンドリストが開いている場合のみ、ImGuiの描画を実行
+    // （ProcessSceneRequestが呼ばれてコマンドリストが閉じられた場合はスキップ）
+    if (m_isCommandListOpen)
+    {
+        // ImGui の描画実行
+        ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
+    }
 }
 
 void Engine::MoveToNextFrame()
@@ -606,6 +621,40 @@ D3D12_CPU_DESCRIPTOR_HANDLE Engine::GetCurrentRtvHandle() const
     return rtvHandle;
 }
 
+void Engine::CloseAndExecuteCommandList()
+{
+    // コマンドリストが開いている場合、閉じて実行する
+    if (m_isCommandListOpen)
+    {
+        // ImGuiの描画がまだ完了していない場合、先に完了させる
+        // （DrawImGui()内でProcessSceneRequestが呼ばれた場合、ImGui::Render()は完了しているが
+        //  ImGui_ImplDX12_RenderDrawDataはまだ呼ばれていない可能性がある）
+        ImDrawData* drawData = ImGui::GetDrawData();
+        if (drawData && drawData->Valid)
+        {
+            // ImGuiの描画コマンドを追加
+            ImGui_ImplDX12_RenderDrawData(drawData, m_pCommandList.Get());
+        }
+
+        // レンダーターゲットをPRESENT状態に戻す（まだ戻っていない場合）
+        if (m_currentRenderTarget)
+        {
+            auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+                m_currentRenderTarget.Get(), 
+                D3D12_RESOURCE_STATE_RENDER_TARGET, 
+                D3D12_RESOURCE_STATE_PRESENT);
+            m_pCommandList->ResourceBarrier(1, &barrier);
+        }
+
+        // コマンドリストを閉じて実行
+        m_pCommandList->Close();
+        m_isCommandListOpen = false;
+        
+        ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
+        m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+    }
+}
+
 void Engine::WaitForGPU()
 {
     // コマンドキューに、現在のフェンス値を完了目標として設定（シグナル）
@@ -617,7 +666,7 @@ void Engine::WaitForGPU()
     {
         // 到達していなければ、完了時にイベントを発行するようGPUに指示
         m_pFence->SetEventOnCompletion(fenceValue, m_fenceEvent);
-        
+
         // イベントが発行される（GPUの処理が終わる）まで、CPUをここで待機させる
         WaitForSingleObject(m_fenceEvent, INFINITE);
     }

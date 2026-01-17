@@ -21,6 +21,7 @@ public:
 	}
 
 	void WaitForGPU();
+	void CloseAndExecuteCommandList(); // コマンドリストを閉じて実行する（シーン切り替え時などに使用）
 
 	bool Init(HWND hwnd, UINT windowWidth, UINT windowHeight); // エンジン初期化
 	void Shutdown(); // エンジン終了処理
@@ -98,7 +99,8 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	UINT m_rtvHeapOffset; // RTVヒープのオフセット管理用
 	UINT m_dsvHeapOffset; // DSVヒープのオフセット管理用
 
-	std::shared_ptr<Texture2D> m_TextureResource; 
+	std::shared_ptr<Texture2D> m_TextureResource;
+	bool m_isCommandListOpen = false; // コマンドリストが開いているかどうかを追跡
 private:
 	ComPtr < ID3D12Resource > m_currentRenderTarget = nullptr; // 現在のフレームのレンダーターゲットを一時的に保存しておく関数
 	void WaitRender(); // 描画完了を待つ関数

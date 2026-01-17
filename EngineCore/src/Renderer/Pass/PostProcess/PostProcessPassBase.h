@@ -4,6 +4,7 @@
 #include "Renderer/RenderContext/RenderContext.h"
 #include "Renderer/Target/ITargetBase.h"
 #include "Scene/ISceneBase.h"
+#include "Renderer/Engine.h"
 
 class PostProcessPassBase : public IRenderPass
 {
@@ -28,6 +29,10 @@ public:
 
         cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state(m_PsoName)->Get());
         cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature(m_RootSignatureName)->get());
+
+        // Descriptor Heapを設定（SetGraphicsRootDescriptorTableを使用する前に必要）
+        auto descriptorHeap = g_Engine->GetDescriptorHeap()->GetHeap();
+        cmdList->SetDescriptorHeaps(1, &descriptorHeap);
 
         // 派生クラスに固有のパラメータ設定を依頼
         ApplyParameters(cmdList, context, context.GetSourceRT(),GetCurrentParameters());
@@ -57,6 +62,10 @@ public:
         // PSOとルートシグネチャを設定
         cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state(m_PsoName)->Get());
         cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature(m_RootSignatureName)->get());
+
+        // Descriptor Heapを設定（SetGraphicsRootDescriptorTableを使用する前に必要）
+        auto descriptorHeap = g_Engine->GetDescriptorHeap()->GetHeap();
+        cmdList->SetDescriptorHeaps(1, &descriptorHeap);
 
         // 派生クラスに固有のパラメータ設定を依頼
         ApplyParameters(cmdList, context, context.GetSourceRT(),GetCurrentParameters());
