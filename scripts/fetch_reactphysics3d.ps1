@@ -17,7 +17,9 @@ if (Test-Path $ext) { Remove-Item $ext -Recurse -Force }
 Expand-Archive -Path $zip -DestinationPath $ext -Force
 
 $fold = Get-ChildItem $ext -Directory | Select-Object -First 1
-Copy-Item -Path "$($fold.FullName)\include\*" -Destination (Join-Path $dst "include") -Recurse -Force
+$incDst = Join-Path $dst "include"
+New-Item -ItemType Directory -Force -Path $incDst | Out-Null
+Copy-Item -Path "$($fold.FullName)\include\*" -Destination $incDst -Recurse -Force
 
 # LICENSE
 if (Test-Path "$($fold.FullName)\LICENSE") {

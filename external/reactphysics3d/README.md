@@ -1,19 +1,8 @@
 # ReactPhysics3D
 
-このフォルダに ReactPhysics3D の `include/` と `lib/` を配置してください。
+`include/` と `lib/` が必要です。`#include <reactphysics3d/reactphysics3d.h>` が `include/reactphysics3d/reactphysics3d.h` を参照します。
 
-## 手順
+## 自動（推奨）
 
-1. [Releases](https://github.com/DanielChappuis/reactphysics3d/releases) からソースを取得
-2. CMake でビルドするか、公式のプリビルドがあれば利用
-3. 以下にコピー:
-   - `include/` … ヘッダー一式（`fetch_reactphysics3d.ps1` で取得済みなら不要）
-   - `lib/x64/Debug/` および `lib/x64/Release/` … `reactphysics3d.lib`
-
-## 自動取得（PowerShell）
-
-```powershell
-.\scripts\fetch_reactphysics3d.ps1
-```
-
-スクリプトはソースを取得し、`include` を展開します。`lib` はビルド後に手動で配置してください。
+`.\scripts\setup.ps1` 実行時に `fetch_reactphysics3d.ps1` と `build_reactphysics3d.ps1` が動き、`include/` と `lib/` を用意します。  
+`build_reactphysics3d.ps1` 単体でも `include/` と `lib/` の両方をコピーします。

@@ -37,5 +37,14 @@ if ($libD) { Copy-Item $libD.FullName (Join-Path $dst "lib\x64\Debug\reactphysic
 if ($libR) { Copy-Item $libR.FullName (Join-Path $dst "lib\x64\Release\reactphysics3d.lib") -Force; Write-Host "Copied Release lib." }
 if (-not $libD -and -not $libR) { Write-Warning "ビルド出力の .lib が見つかりません。CMake/Visual Studio のバージョンを確認してください。" }
 
+# include もコピー（fetch 未実行や include 欠損時に備える）
+$incSrc = Join-Path $src "include"
+if (Test-Path $incSrc) {
+    $incDst = Join-Path $dst "include"
+    New-Item -ItemType Directory -Force -Path $incDst | Out-Null
+    Copy-Item -Path "$incSrc\*" -Destination $incDst -Recurse -Force
+    Write-Host "Copied include/."
+}
+
 Remove-Item $zip -Force -ErrorAction SilentlyContinue
 Remove-Item $ext -Recurse -Force -ErrorAction SilentlyContinue
