@@ -82,13 +82,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)EngineCore/src;$(SolutionDir)DirectXTex-main/DirectXTex;$(SolutionDir)Game/Scripts;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug;$(SolutionDir)EngineCore\src;$(SolutionDir)Game/Scripts;C:\Program Files (x86)\ReactPhysics3D\lib;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\lib;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\build\vs2022\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration);$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\lib\$(Platform)\$(Configuration);$(SolutionDir)external\soloud\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>reactphysics3d.lib;soloud_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -100,7 +100,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)EngineCore/src;$(SolutionDir)DirectXTex-main/DirectXTex;$(SolutionDir)Game/Scripts;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -108,7 +108,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug;$(SolutionDir)EngineCore\src;$(SolutionDir)Game/Scripts;C:\Program Files (x86)\ReactPhysics3D\lib;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\lib;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\build\vs2022\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration);$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\lib\$(Platform)\$(Configuration);$(SolutionDir)external\soloud\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>reactphysics3d.lib;soloud_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -118,13 +118,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)EngineCore/src;$(SolutionDir)DirectXTex-main/DirectXTex;$(SolutionDir)Game/Scripts;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug;$(SolutionDir)EngineCore\src;$(SolutionDir)Game/Scripts;C:\Program Files (x86)\ReactPhysics3D\lib;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\lib;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\build\vs2022\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration);$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\lib\$(Platform)\$(Configuration);$(SolutionDir)external\soloud\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>reactphysics3d.lib;soloud_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -136,7 +136,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)EngineCore/src;$(SolutionDir)DirectXTex-main/DirectXTex;$(SolutionDir)Game/Scripts;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -144,7 +144,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug;$(SolutionDir)EngineCore\src;$(SolutionDir)Game/Scripts;C:\Program Files (x86)\ReactPhysics3D\lib;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\lib;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\build\vs2022\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration);$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\lib\$(Platform)\$(Configuration);$(SolutionDir)external\soloud\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>reactphysics3d.lib;soloud_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

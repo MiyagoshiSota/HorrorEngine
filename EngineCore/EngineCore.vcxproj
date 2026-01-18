@@ -19,13 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="external\imgui\imgui.cpp" />
-    <ClCompile Include="external\imgui\imgui_demo.cpp" />
-    <ClCompile Include="external\imgui\imgui_draw.cpp" />
-    <ClCompile Include="external\imgui\imgui_impl_dx12.cpp" />
-    <ClCompile Include="external\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="external\imgui\imgui_tables.cpp" />
-    <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\external\imgui\imgui.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_impl_dx12.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
     <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
     <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
@@ -119,7 +119,7 @@
       <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
       <PreprocessorDefinitions>HAS_ASSIMP;_DEBUG;_CONSOLE;_UNICODE;UNICODE;</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\AssimpCpp.5.0.1.6\build\native\include;C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\../..//build/native/include/;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex;C:\Users\souta\source\repos\HorrorGengine\EngineCore/src/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)packages\AssimpCpp.5.0.1.6\build\native\include;$(SolutionDir)packages\assimp_native.4.0.1\build\native\..\..\build\native\include;$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src</AdditionalIncludeDirectories>
       <LibCompiled>true</LibCompiled>
     </ClCompile>
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
@@ -149,14 +149,14 @@
     <ClCompile Include="src\Renderer\Texture\TextureResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="external\imgui\imconfig.h" />
-    <ClInclude Include="external\imgui\imgui.h" />
-    <ClInclude Include="external\imgui\imgui_impl_dx12.h" />
-    <ClInclude Include="external\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="external\imgui\imgui_internal.h" />
-    <ClInclude Include="external\imgui\imstb_rectpack.h" />
-    <ClInclude Include="external\imgui\imstb_textedit.h" />
-    <ClInclude Include="external\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\external\imgui\imconfig.h" />
+    <ClInclude Include="..\external\imgui\imgui.h" />
+    <ClInclude Include="..\external\imgui\imgui_impl_dx12.h" />
+    <ClInclude Include="..\external\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="..\external\imgui\imgui_internal.h" />
+    <ClInclude Include="..\external\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\external\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\external\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Core\Components\Reward\IReward.h" />
     <ClInclude Include="src\Core\Components\Reward\PlaySoundReward.h" />
     <ClInclude Include="src\Core\Components\Reward\PrintHelloReward.h" />
@@ -557,12 +557,12 @@
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)DirectXTex-main/DirectXTex/;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui-master\imgui-master;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\lib\x64\v140\Debug\assimp-vc140-mt.lib;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)packages\assimp_native.4.0.1\build\native\lib\x64\v140\$(Configuration);$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -578,14 +578,14 @@
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)DirectXTex-main/DirectXTex/;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui-master\imgui-master;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\lib\x64\v140\Debug\assimp-vc140-mt.lib;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)packages\assimp_native.4.0.1\build\native\lib\x64\v140\$(Configuration);$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -598,13 +598,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DirectXTex-main/DirectXTex/;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui-master\imgui-master;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\lib\x64\v140\Debug\assimp-vc140-mt.lib;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)packages\assimp_native.4.0.1\build\native\lib\x64\v140\$(Configuration);$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -620,14 +620,14 @@
       <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)DirectXTex-main/DirectXTex/;$(SolutionDir)EngineCore/src/;C:\Program Files (x86)\ReactPhysics3D\include;C:\Program Files (x86)\nlohmann_json\include;C:\Users\souta\source\repos\HorrorGengine\soloud20200207\include;$(SolutionDir)EngineCore\external\imgui-master\imgui-master;$(SolutionDir)EngineCore\external\imgui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\souta\source\repos\HorrorGengine\packages\assimp_native.4.0.1\build\native\lib\x64\v140\Debug\assimp-vc140-mt.lib;C:\Users\souta\DirectXTex-main\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)packages\assimp_native.4.0.1\build\native\lib\x64\v140\$(Configuration);$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>

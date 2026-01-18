@@ -2,7 +2,7 @@
 #include "Renderer/Texture/Texture2D.h"
 #include <d3dx12.h>
 #include "Renderer/Engine.h"
-#include "Modules/ComPtr.h"
+#include "../../../Modules/ComPtr.h"
 
 const UINT HANDLE_MAX = 512;
 

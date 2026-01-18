@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/ComPtr.h"
+#include "../../../Modules/ComPtr.h"
 #include <mutex>
 #include <vector>
 #include "DescriptorHandle.h"

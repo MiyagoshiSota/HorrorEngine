@@ -1,0 +1,21 @@
+CompileFlags:
+  Add:
+    - -IEngineCore/src
+    - -Iexternal/directxtex
+    - -IGame/Scripts
+    - -Iexternal/imgui
+    - -Iexternal/soloud/include
+    - -Iexternal/reactphysics3d/include
+    - -Iexternal/nlohmann_json
+    - -Ipackages/AssimpCpp.5.0.1.6/build/native/include
+    - -Ipackages/assimp_native.4.0.1/build/native/../../build/native/include
+    - -DNOMINMAX
+    - -DWITH_WINMM
+    - -DHAS_ASSIMP
+    - -D_DEBUG
+    - -DUNICODE
+    - -D_UNICODE
+    - -std=c++17
+  Remove:
+    - -W*
+    - -w
