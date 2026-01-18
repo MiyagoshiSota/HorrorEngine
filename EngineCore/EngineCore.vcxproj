@@ -554,7 +554,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
@@ -575,7 +575,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
@@ -596,7 +596,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -617,7 +617,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>

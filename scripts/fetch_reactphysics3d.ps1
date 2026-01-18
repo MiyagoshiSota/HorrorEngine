@@ -21,6 +21,16 @@ $incDst = Join-Path $dst "include"
 New-Item -ItemType Directory -Force -Path $incDst | Out-Null
 Copy-Item -Path "$($fold.FullName)\include\*" -Destination $incDst -Recurse -Force
 
+# v0.9.0 の DefaultLogger.h に #include <chrono> が無いため MSVC でエラーになる。パッチ適用。
+$defLog = Join-Path $incDst "reactphysics3d\utils\DefaultLogger.h"
+if (Test-Path $defLog) {
+    $t = [System.IO.File]::ReadAllText($defLog)
+    if ($t -notmatch '#include\s*<chrono>') {
+        $t = [regex]::Replace($t, '(#include\s+[^\r\n]+)', "`$1`r`n#include <chrono>", 1)
+        [System.IO.File]::WriteAllText($defLog, $t)
+    }
+}
+
 # LICENSE
 if (Test-Path "$($fold.FullName)\LICENSE") {
     Copy-Item "$($fold.FullName)\LICENSE" (Join-Path $dst "LICENSE") -Force

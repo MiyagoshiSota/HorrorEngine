@@ -17,6 +17,18 @@ Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
 Expand-Archive -Path $zip -DestinationPath $ext -Force
 $src = Get-ChildItem $ext -Directory | Select-Object -First 1 | ForEach-Object { $_.FullName }
 
+# v0.9.0 の DefaultLogger は std::chrono を使用するが #include <chrono> が無く MSVC で失敗するためパッチ
+$patch = {
+    param($path)
+    if (-not (Test-Path $path)) { return }
+    $t = [System.IO.File]::ReadAllText($path)
+    if ($t -match '#include\s*<chrono>') { return }
+    $t = [regex]::Replace($t, '(#include\s+[^\r\n]+)', "`$1`r`n#include <chrono>", 1)
+    [System.IO.File]::WriteAllText($path, $t)
+}
+& $patch (Join-Path $src "include\reactphysics3d\utils\DefaultLogger.h")
+& $patch (Join-Path $src "src\utils\DefaultLogger.cpp")
+
 $bld = Join-Path $src "build"
 Write-Host "CMake configure..."
 cmake -B $bld -G "Visual Studio 17 2022" -A x64 $src
