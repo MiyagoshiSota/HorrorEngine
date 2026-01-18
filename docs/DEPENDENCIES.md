@@ -124,30 +124,16 @@ HorrorGengine/
 
 ## 4. clone した人向け・やること一覧（external/ 構成）
 
-1. **clone**
-   ```bash
-   git clone https://github.com/.../HorrorGengine.git
-   cd HorrorGengine
-   ```
+**コマンドラインで完結する具体的な手順は [README のセットアップ](../README.md#セットアップ初回ビルド) を参照。**
 
-2. **NuGet の復元**  
-   - ソリューション右クリック → 「NuGet パッケージの復元」  
-   - `packages/` に Assimp が入る。
+1. **clone** → `git clone` で取得
+2. **NuGet の復元** → `msbuild -t:restore` または `nuget restore`
+3. **ReactPhysics3D** → `.\scripts\fetch_reactphysics3d.ps1` のあと `.\scripts\build_reactphysics3d.ps1`
+4. **DirectXTex の lib** → `msbuild DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj` でビルドし、`Bin\Desktop_2022_Win10\x64\{Debug,Release}\DirectXTex.lib` を `external\directxtex\lib\x64\{Debug,Release}\` にコピー
+5. **SoLoud の lib** → `msbuild soloud20200207\build\vs2022\SoloudStatic.vcxproj` でビルドし、`soloud20200207\lib\soloud_static.lib` を `external\soloud\lib\x64\{Debug,Release}\` にコピー（Debug/Release で 2 回ビルド）
+6. **ビルド** → `msbuild HorrorEngine.sln -p:Configuration=Debug -p:Platform=x64`
 
-3. **ReactPhysics3D**  
-   - `.\scripts\fetch_reactphysics3d.ps1` を実行 → `external\reactphysics3d\include` にヘッダーが入る。  
-   - [ReactPhysics3D](https://github.com/DanielChappuis/reactphysics3d) をビルドし、`reactphysics3d.lib` を `external\reactphysics3d\lib` に配置。
-
-4. **DirectXTex の lib**  
-   - `DirectXTex-main\DirectXTex` の vcxproj でビルドし、`DirectXTex.lib` を `external\directxtex\lib\x64\Debug`（および Release）にコピー。  
-   - 手順: `external\directxtex\lib\README.md` を参照。
-
-5. **SoLoud の lib**  
-   - `soloud20200207\build\vs2022\SoloudStatic.vcxproj` でビルドし、`soloud_static.lib` を `external\soloud\lib\x64\Debug`（および Release）にコピー。  
-   - 手順: `external\soloud\lib\README.md` を参照。
-
-6. **ビルド**  
-   - `HorrorEngine.sln` を開き、Game をビルド・実行。
+一括実行: `.\scripts\setup.ps1`（[README](../README.md) の「一括実行」参照）。
 
 ---
 

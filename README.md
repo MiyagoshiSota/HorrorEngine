@@ -15,29 +15,67 @@ GUIにより、開発者はシーン上にオブジェクトを置き、 エデ�
 
 ## セットアップ（初回ビルド）
 
-外部ライブラリは **`external/`** に集約されています。詳細は [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) を参照してください。
+**前提**: Windows、Visual Studio 2022（C++ ワークロード）、CMake（ReactPhysics3D 用）。  
+推奨: **Developer PowerShell for VS 2022** で実行（`msbuild` が PATH に入る）。
 
-1. **clone**
-   ```bash
-   git clone https://github.com/MiyagoshiSota/HorrorEngine.git
-   cd HorrorEngine
-   ```
+### 一括実行（推奨）
 
-2. **NuGet パッケージの復元**  
-   - ソリューション右クリック → **「NuGet パッケージの復元」**  
-   - `packages/` に Assimp が入ります。
+```powershell
+git clone https://github.com/MiyagoshiSota/HorrorEngine.git
+cd HorrorEngine
+.\scripts\setup.ps1
+```
 
-3. **ReactPhysics3D**  
-   - `.\scripts\fetch_reactphysics3d.ps1` を実行 → `external\reactphysics3d\include` にヘッダーが入ります。  
-   - [ReactPhysics3D](https://github.com/DanielChappuis/reactphysics3d) をビルドし、`reactphysics3d.lib` を `external\reactphysics3d\lib` に配置してください。
+`setup.ps1` が NuGet 復元 → ReactPhysics3D 取得・ビルド → DirectXTex ビルド → SoLoud ビルド → 本プロジェクトのビルド を順に実行します。  
+（`setup.ps1` は vswhere で MSBuild を探すため、通常の PowerShell からでも実行できます。手動の手順では **Developer PowerShell for VS 2022** 推奨。）
 
-4. **DirectXTex の lib**  
-   - `DirectXTex-main\DirectXTex` の vcxproj でビルドし、`DirectXTex.lib` を `external\directxtex\lib\x64\Debug` および `x64\Release` にコピー。  
-   - 手順: `external\directxtex\lib\README.md` を参照。
+---
 
-5. **SoLoud の lib**  
-   - `soloud20200207\build\vs2022\SoloudStatic.vcxproj` でビルドし、`soloud_static.lib` を `external\soloud\lib\x64\Debug` および `x64\Release` にコピー。  
-   - 手順: `external\soloud\lib\README.md` を参照。
+### 手順ごとに実行する場合
 
-6. **ビルド**  
-   - `HorrorEngine.sln` を開き、Game をスタートアップにしてビルド・実行。
+いずれも **リポジトリルート** をカレントにし、**Developer PowerShell for VS 2022** で実行。
+
+```powershell
+# 0. clone と移動
+git clone https://github.com/MiyagoshiSota/HorrorEngine.git
+cd HorrorEngine
+```
+
+```powershell
+# 1. NuGet パッケージの復元（Assimp）
+msbuild HorrorEngine.sln -t:restore -p:RestorePackagesConfig=true -v:m
+# 上で packages が作られない場合:
+#   nuget restore HorrorEngine.sln
+# （nuget.exe は https://www.nuget.org/downloads から取得）
+```
+
+```powershell
+# 2. ReactPhysics3D（include 取得 + ビルドして lib 配置）
+.\scripts\fetch_reactphysics3d.ps1
+.\scripts\build_reactphysics3d.ps1
+```
+
+```powershell
+# 3. DirectXTex（lib を external にコピー）
+msbuild DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj -p:Configuration=Debug -p:Platform=x64 -v:m
+msbuild DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj -p:Configuration=Release -p:Platform=x64 -v:m
+New-Item -ItemType Directory -Force -Path external\directxtex\lib\x64\Debug, external\directxtex\lib\x64\Release | Out-Null
+Copy-Item DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug\DirectXTex.lib external\directxtex\lib\x64\Debug\
+Copy-Item DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Release\DirectXTex.lib external\directxtex\lib\x64\Release\
+```
+
+```powershell
+# 4. SoLoud（lib を external にコピー）
+New-Item -ItemType Directory -Force -Path external\soloud\lib\x64\Debug, external\soloud\lib\x64\Release | Out-Null
+msbuild soloud20200207\build\vs2022\SoloudStatic.vcxproj -p:Configuration=Debug -p:Platform=x64 -v:m
+Copy-Item soloud20200207\lib\soloud_static.lib external\soloud\lib\x64\Debug\
+msbuild soloud20200207\build\vs2022\SoloudStatic.vcxproj -p:Configuration=Release -p:Platform=x64 -v:m
+Copy-Item soloud20200207\lib\soloud_static.lib external\soloud\lib\x64\Release\
+```
+
+```powershell
+# 5. ビルド
+msbuild HorrorEngine.sln -p:Configuration=Debug -p:Platform=x64 -v:m
+```
+
+実行ファイルは `Game\x64\Debug\Game.exe` などに出力されます。詳細は [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) を参照。
