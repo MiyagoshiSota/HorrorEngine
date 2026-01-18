@@ -68,9 +68,9 @@ Copy-Item DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Release\DirectXT
 # 4. SoLoud（lib を external にコピー）
 New-Item -ItemType Directory -Force -Path external\soloud\lib\x64\Debug, external\soloud\lib\x64\Release | Out-Null
 msbuild soloud20200207\build\vs2022\SoloudStatic.vcxproj -p:Configuration=Debug -p:Platform=x64 -v:m
-Copy-Item soloud20200207\lib\soloud_static.lib external\soloud\lib\x64\Debug\
+Copy-Item soloud20200207\build\vs2022\x64\Debug\soloud_static.lib external\soloud\lib\x64\Debug\
 msbuild soloud20200207\build\vs2022\SoloudStatic.vcxproj -p:Configuration=Release -p:Platform=x64 -v:m
-Copy-Item soloud20200207\lib\soloud_static.lib external\soloud\lib\x64\Release\
+Copy-Item soloud20200207\build\vs2022\x64\Release\soloud_static.lib external\soloud\lib\x64\Release\
 ```
 
 ```powershell
