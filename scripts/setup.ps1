@@ -54,4 +54,4 @@ Copy-Item "soloud20200207\build\vs2022\x64\Release\soloud_static.lib" "external\
 Write-Host "`n=== 5. HorrorGengine のビルド ===" -ForegroundColor Cyan
 & $msbuild HorrorEngine.sln -p:Configuration=Debug -p:Platform=x64 -v:m
 
-Write-Host "`nセットアップ完了。Game\x64\Debug\Game.exe 等を実行してください。" -ForegroundColor Green
+Write-Host "`nセットアップ完了。Game\Game.exe を実行してください。" -ForegroundColor Green

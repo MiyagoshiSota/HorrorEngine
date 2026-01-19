@@ -72,9 +72,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)</OutDir>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)</OutDir>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)</OutDir>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)</OutDir>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,7 +107,6 @@
       <Command>if not exist "$(OutDir)assets" mkdir "$(OutDir)assets"
 xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     </PostBuildEvent>
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -120,7 +131,6 @@ xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
       <Command>if not exist "$(OutDir)assets" mkdir "$(OutDir)assets"
 xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     </PostBuildEvent>
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -141,7 +151,6 @@ xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
       <Command>if not exist "$(OutDir)assets" mkdir "$(OutDir)assets"
 xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     </PostBuildEvent>
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -166,7 +175,6 @@ xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
       <Command>if not exist "$(OutDir)assets" mkdir "$(OutDir)assets"
 xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
     </PostBuildEvent>
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Sctipts\main.cpp" />

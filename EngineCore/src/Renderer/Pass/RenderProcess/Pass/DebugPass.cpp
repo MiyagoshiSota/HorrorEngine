@@ -31,7 +31,7 @@ void DebugPass::Collect(RenderContext& context)
         // Rigidbodyがあり、Colliderもある場合に追加
         if (rb && rb->get_collider_object())
         {
-            m_collidersToDraw.push_back(rb);
+           // m_collidersToDraw.push_back(rb);
         }
     }
 
