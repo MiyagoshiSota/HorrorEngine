@@ -93,7 +93,7 @@ void DebugPass::Draw(RenderContext& context)
         auto rb = obj->find_component<Rigidbody>();
         if (rb && rb->get_rigidbody())
         {
-            rb->get_rigidbody()->setIsDebugEnabled(true);
+         //   rb->get_rigidbody()->setIsDebugEnabled(true);
         }
     }
 
