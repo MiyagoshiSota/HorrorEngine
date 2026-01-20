@@ -57,11 +57,11 @@ msbuild HorrorEngine.sln -t:restore -p:RestorePackagesConfig=true -v:m
 
 ```powershell
 # 3. DirectXTex（lib を external にコピー）
-msbuild DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj -p:Configuration=Debug -p:Platform=x64 -v:m
-msbuild DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj -p:Configuration=Release -p:Platform=x64 -v:m
+msbuild external\DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj -p:Configuration=Debug -p:Platform=x64 -v:m
+msbuild external\DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj -p:Configuration=Release -p:Platform=x64 -v:m
 New-Item -ItemType Directory -Force -Path external\directxtex\lib\x64\Debug, external\directxtex\lib\x64\Release | Out-Null
-Copy-Item DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug\DirectXTex.lib external\directxtex\lib\x64\Debug\
-Copy-Item DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Release\DirectXTex.lib external\directxtex\lib\x64\Release\
+Copy-Item external\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Debug\DirectXTex.lib external\directxtex\lib\x64\Debug\
+Copy-Item external\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64\Release\DirectXTex.lib external\directxtex\lib\x64\Release\
 ```
 
 ```powershell

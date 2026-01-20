@@ -34,10 +34,10 @@ Write-Host "`n=== 2. ReactPhysics3D（include + lib） ===" -ForegroundColor Cya
 & (Join-Path $PSScriptRoot "build_reactphysics3d.ps1")
 
 Write-Host "`n=== 3. DirectXTex（lib） ===" -ForegroundColor Cyan
-$dxProj = "DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj"
+$dxProj = "external\DirectXTex-main\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj"
 & $msbuild $dxProj -p:Configuration=Debug -p:Platform=x64 -v:m
 & $msbuild $dxProj -p:Configuration=Release -p:Platform=x64 -v:m
-$dxOut = "DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64"
+$dxOut = "external\DirectXTex-main\DirectXTex\Bin\Desktop_2022_Win10\x64"
 New-Item -ItemType Directory -Force -Path "external\directxtex\lib\x64\Debug" | Out-Null
 New-Item -ItemType Directory -Force -Path "external\directxtex\lib\x64\Release" | Out-Null
 Copy-Item "$dxOut\Debug\DirectXTex.lib" "external\directxtex\lib\x64\Debug\" -Force
