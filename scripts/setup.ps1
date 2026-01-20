@@ -45,11 +45,11 @@ Copy-Item "$dxOut\Release\DirectXTex.lib" "external\directxtex\lib\x64\Release\"
 
 Write-Host "`n=== 4. SoLoud（lib） ===" -ForegroundColor Cyan
 New-Item -ItemType Directory -Force -Path "external\soloud\lib\x64\Debug", "external\soloud\lib\x64\Release" | Out-Null
-$slProj = "soloud20200207\build\vs2022\SoloudStatic.vcxproj"
+$slProj = "external\soloud20200207\build\vs2022\SoloudStatic.vcxproj"
 & $msbuild $slProj -p:Configuration=Debug -p:Platform=x64 -v:m
-Copy-Item "soloud20200207\build\vs2022\x64\Debug\soloud_static.lib" "external\soloud\lib\x64\Debug\" -Force
+Copy-Item "external\soloud20200207\build\vs2022\x64\Debug\soloud_static.lib" "external\soloud\lib\x64\Debug\" -Force
 & $msbuild $slProj -p:Configuration=Release -p:Platform=x64 -v:m
-Copy-Item "soloud20200207\build\vs2022\x64\Release\soloud_static.lib" "external\soloud\lib\x64\Release\" -Force
+Copy-Item "external\soloud20200207\build\vs2022\x64\Release\soloud_static.lib" "external\soloud\lib\x64\Release\" -Force
 
 Write-Host "`n=== 5. HorrorGengine のビルド ===" -ForegroundColor Cyan
 & $msbuild HorrorEngine.sln -p:Configuration=Debug -p:Platform=x64 -v:m
