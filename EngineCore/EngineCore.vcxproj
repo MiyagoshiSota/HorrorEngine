@@ -121,6 +121,8 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)packages\AssimpCpp.5.0.1.6\build\native\include;$(SolutionDir)packages\assimp_native.4.0.1\build\native\..\..\build\native\include;$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src</AdditionalIncludeDirectories>
       <LibCompiled>true</LibCompiled>
+      <ProgramDataBaseFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)EngineCore.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)EngineCore.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
@@ -558,6 +560,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <ProgramDataBaseFileName>$(IntDir)EngineCore.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -600,6 +604,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <ProgramDataBaseFileName>$(IntDir)EngineCore.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

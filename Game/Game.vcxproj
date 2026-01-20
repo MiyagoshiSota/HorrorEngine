@@ -114,6 +114,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +151,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
