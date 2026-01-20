@@ -1,23 +1,23 @@
 #include "Engine.h"
+#include "GUI/Managers/LayoutPresetManager.h"
 #include <d3d12.h>
 #include <d3dx12.h>
 #include <stdio.h>
 #include <Windows.h>
-#include <DirectXTex.h>
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
 #include "Scene/Default/Scene/DefaultScene.h"
 
 #include "Graphics/DescriptorHeap/DescriptorHeap.h"
-#include "GUI/DrawGameObjectWindow.h"
-#include "GUI/DrawModeWindow.h"
-#include "GUI/DrawPostProcessPresetWindow.h"
-#include <GUI/DrawDayWindow.h>
-
-#include "GUI/DrawModelsWindow.h"
-#include "GUI/DrawTaskManagerWindow.h"
-#include "GUI/DrawWorkManagerWindow.h"
+#include "GUI/Windows/DrawGameObjectWindow.h"
+#include "GUI/Windows/DrawModeWindow.h"
+#include "GUI/Windows/DrawPostProcessPresetWindow.h"
+#include "GUI/Windows/DrawDayWindow.h"
+#include "GUI/Windows/DrawMainMenuBar.h"
+#include "GUI/Windows/DrawModelsWindow.h"
+#include "GUI/Windows/DrawTaskManagerWindow.h"
+#include "GUI/Windows/DrawWorkManagerWindow.h"
 #include "Texture/Texture2D.h"
 
 Engine* g_Engine;
@@ -130,8 +130,12 @@ void Engine::Shutdown()
 	}
 
 	// ImGuiの終了処理
+	// ドッキング状態を明示的に保存
+	ImGui::SaveIniSettingsToDisk(ImGui::GetIO().IniFilename);
+	
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyPlatformWindows();  // ビューポートウィンドウのクリーンアップ（dockingブランチで必要）
 	ImGui::DestroyContext();
 
 	if (m_fenceEvent) {
@@ -427,6 +431,11 @@ bool Engine::InitImGui()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    
+    // ドッキング状態の保存/復元を有効化
+    io.IniFilename = "imgui.ini";  // Gameディレクトリに保存される
+    
     ImGui::StyleColorsDark();
 
     // 3. バックエンド初期化 (新API)
@@ -456,12 +465,18 @@ bool Engine::InitImGui()
     // 4. フォント読み込み（省略可能）
     io.Fonts->AddFontDefault();
 
-    // 描画するウィンドウのリストに追加
-    m_drawWindows.push_back(std::make_shared<DrawModeWindow>());
+    // メインメニューバーを初期化（ドッキング不可能な固定UI）
+    m_mainMenuBar = std::make_shared<DrawMainMenuBar>();
+    
+    // モードウィンドウを初期化
+    m_modeWindow = std::make_shared<DrawModeWindow>();
+
+    // 描画するウィンドウのリストに追加（ModeWindowは除く、固定UIとして別途描画）
     m_drawWindows.push_back(std::make_shared<DrawGameObjectWindow>());
     m_drawWindows.push_back(std::make_shared<DrawPostProcessPresetWindow>());
     m_drawWindows.push_back(std::make_shared<DrawDayWindow>());
     m_drawWindows.push_back(std::make_shared<DrawModelsWindow>());
+    m_drawWindows.push_back(std::make_shared<DrawTaskManagerWindow>());
     m_drawWindows.push_back(std::make_shared<DrawWorkManagerWindow>());
 
     return true;
@@ -571,14 +586,58 @@ bool Engine::CreateDepthStencil()
 
 void Engine::DrawImGui()
 {
+    // 最初の呼び出し時に前回選択したプリセットを適用（初回起動時のみ）
+    // ただし、Game/imgui.iniが存在する場合は、ImGuiが自動的に読み込むので
+    // プリセットを適用する必要はない（ユーザーが調整したレイアウトを優先）
+    if (!m_presetApplied)
+    {
+        m_presetApplied = true;
+        auto& presetManager = LayoutPresetManager::GetInstance();
+        LayoutPresetType lastPreset = presetManager.LoadLastPreset();
+        
+        // Game/imgui.iniが存在しない場合のみ、前回選択したプリセットを適用
+        std::string imguiIniPath = "imgui.ini";
+        if (!std::filesystem::exists(imguiIniPath))
+        {
+            // NewFrame()の前にレイアウトを読み込む
+            presetManager.LoadPresetLayout(lastPreset);
+        }
+        
+        // ウィンドウの表示/非表示を設定（レイアウトに関係なく設定）
+        presetManager.ApplyPreset(lastPreset);
+    }
+    
+    // メニューからプリセットが選択された場合、次フレームでレイアウトを読み込む
+    if (m_hasPendingPresetLoad)
+    {
+        m_hasPendingPresetLoad = false;
+        auto& presetManager = LayoutPresetManager::GetInstance();
+        // NewFrame()の前にレイアウトを読み込む
+        presetManager.LoadPresetLayout(m_pendingPresetLoad);
+    }
+
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    // 登録されているウィンドウを順番に描画
+    // メインメニューバーを最初に描画（ドッキング不可能な固定UI）
+    // モードウィンドウはメニューバー内に統合されている
+    if (m_mainMenuBar)
+    {
+        m_mainMenuBar->draw();
+    }
+
+    // ドッキングスペースを作成（全ビューポートをカバー）
+    // メインメニューバーの下にドッキングスペースを作成
+    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+    // 登録されているウィンドウを順番に描画（表示フラグがtrueのもののみ）
     for (const auto& window : m_drawWindows)
     {
-        window->draw();
+        if (window->is_visible())
+        {
+            window->draw();
+        }
     }
 
     ImGui::Render();

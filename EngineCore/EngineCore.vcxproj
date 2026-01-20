@@ -29,7 +29,8 @@
     <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
     <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
     <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
-    <ClCompile Include="src\GUI\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\GUI\Windows\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\GUI\Managers\LayoutPresetManager.cpp" />
     <ClCompile Include="src\Input\InputDevice.cpp" />
     <ClCompile Include="src\Physics\EngineCollider.cpp" />
     <ClCompile Include="src\Renderer\Light\Light.cpp" />
@@ -172,20 +173,24 @@
     <ClInclude Include="src\Core\Components\WorkFlow\WorkFlow.h" />
     <ClInclude Include="src\Core\Components\Work\Work.h" />
     <ClInclude Include="src\Core\Components\Work\WorkManager.h" />
-    <ClInclude Include="src\GUI\DrawDayWindow.h" />
-    <ClInclude Include="src\GUI\DrawGameObjectWindow.h" />
-    <ClInclude Include="src\GUI\DrawModelsWindow.h" />
-    <ClInclude Include="src\GUI\DrawModeWindow.h" />
-    <ClInclude Include="src\GUI\DrawPostProcessPresetWindow.h" />
-    <ClInclude Include="src\GUI\DrawTaskManagerWindow.h" />
-    <ClInclude Include="src\GUI\DrawWorkManagerWindow.h" />
-    <ClInclude Include="src\GUI\IDrawWindow.h" />
+    <ClInclude Include="src\GUI\Core\IDrawWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawDayWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawGameObjectWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawMainMenuBar.h" />
+    <ClInclude Include="src\GUI\Windows\DrawModelsWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawModeWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawPostProcessPresetWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawTaskManagerWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawWorkManagerWindow.h" />
+    <ClInclude Include="src\GUI\Managers\LayoutPresetManager.h" />
+    <ClInclude Include="src\GUI\Managers\LayoutPresetType.h" />
     <ClInclude Include="src\Input\InputDevice.h" />
     <ClInclude Include="src\Modules\PublicConst\const_name_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_gameobject_save_param_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_render_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_gui_pref.h" />
     <ClInclude Include="src\Physics\MyCollisionListener.h" />
     <ClInclude Include="src\Renderer\Light\Light.h" />
     <ClInclude Include="src\Renderer\Light\LightingManager.h" />
@@ -487,8 +492,8 @@
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="src\GUI\DrawModeWindow.h" />
-    <Content Include="src\GUI\DrawPostProcessPresetWindow.h" />
+    <Content Include="src\GUI\Windows\DrawModeWindow.h" />
+    <Content Include="src\GUI\Windows\DrawPostProcessPresetWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\Renderer\StandardShader\ComputeShader\" />
@@ -548,9 +553,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

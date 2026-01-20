@@ -1,0 +1,284 @@
+#pragma once
+#include "GUI/Core/IDrawWindow.h"
+#include "imgui.h"
+#include "Scene/SceneManager.h"
+#include "Modules/PublicConst/const_day_pref.h"
+#include "Renderer/Engine.h"
+#include "GUI/Windows/DrawGameObjectWindow.h"
+#include "GUI/Windows/DrawPostProcessPresetWindow.h"
+#include "GUI/Windows/DrawModelsWindow.h"
+#include "GUI/Windows/DrawTaskManagerWindow.h"
+#include "GUI/Windows/DrawWorkManagerWindow.h"
+#include "GUI/Windows/DrawDayWindow.h"
+#include "GUI/Windows/DrawModeWindow.h"
+#include "GUI/Managers/LayoutPresetManager.h"
+#include <string>
+#include <filesystem>
+#include <memory>
+
+class DrawMainMenuBar : public IDrawWindow
+{
+public:
+    void draw() override
+    {
+        // メニューバーの高さを調整（モードウィンドウ用に太くする）
+        // BeginMainMenuBar()の前にスタイルを変更する必要がある
+        ImGuiStyle& style = ImGui::GetStyle();
+        float originalFramePaddingY = style.FramePadding.y;
+        float originalItemSpacingY = style.ItemSpacing.y;
+        
+        // メニューバーを太くする（FramePaddingを大きくする）
+        style.FramePadding.y = 12.0f; // 上下のパディングを大きく増やす
+        
+        if (ImGui::BeginMainMenuBar())
+        {
+            draw_file_menu();
+            draw_edit_menu();
+            draw_window_menu();
+            draw_mode_window_in_center();
+            
+            ImGui::EndMainMenuBar();
+        }
+        
+        // スタイルを元に戻す（EndMainMenuBar()の後）
+        style.FramePadding.y = originalFramePaddingY;
+        style.ItemSpacing.y = originalItemSpacingY;
+    }
+
+private:
+    // Fileメニューの描画
+    void draw_file_menu()
+    {
+        if (ImGui::BeginMenu("File"))
+            {
+                // 新しいシーンを作成
+                if (ImGui::MenuItem("New Day")) {
+                    g_SceneManager->LoadScene(const_day_pref::TmpDayPath);
+                    g_SceneManager->ProcessSceneRequest();
+                }
+
+                // シーンを開く
+                if (ImGui::BeginMenu("Open Day"))
+                {
+                    // シーンのリストを動的に生成する                    
+                    std::filesystem::path daysDir = const_day_pref::DaysDirectoryPathGame; 
+                    for (const auto& entry : std::filesystem::directory_iterator(daysDir))
+                    {
+                        // ファイルの拡張子が.jsonの場合
+                        if (entry.is_regular_file() && entry.path().extension() == const_day_pref::DayFileExtension)
+                        {
+                            // ファイル名を取得
+                            std::string dayName = entry.path().stem().string();
+                            // メニューに追加
+                            if (ImGui::MenuItem(dayName.c_str())) {
+                                // シーンを読み込み
+                                g_SceneManager->LoadScene(entry.path().string());
+                                g_SceneManager->ProcessSceneRequest();
+                            }
+                        }
+                    }
+
+                    ImGui::EndMenu();
+                }
+                if (ImGui::MenuItem("Save Day")) {
+                    auto now_scene = g_SceneManager->GetNextScenePath();
+                    
+                    // TmpDayの場合は名前入力ダイアログを表示
+                    if (now_scene == const_day_pref::TmpDayPath || 
+                        now_scene.find(const_day_pref::TmpDayFileName) != std::string::npos) {
+                        // DrawDayWindowに保存ダイアログを表示させる
+                        if (g_Engine)
+                        {
+                            auto& windows = g_Engine->GetDrawWindows();
+                            for (auto& window : windows)
+                            {
+                                if (auto dayWindow = std::dynamic_pointer_cast<DrawDayWindow>(window))
+                                {
+                                    dayWindow->ShowSaveDialog();
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // 通常の保存処理
+                        g_Scene->serialize_game_objects(now_scene);
+                    }
+                }
+                ImGui::EndMenu();
+            }
+    }
+    
+    // Editメニューの描画
+    void draw_edit_menu()
+    {
+        if (ImGui::BeginMenu("Edit"))
+        {
+            // ... (Undo, Redoなど) ...
+            ImGui::EndMenu();
+        }
+    }
+    
+    // Windowメニューの描画
+    void draw_window_menu()
+    {
+            if (ImGui::BeginMenu("Window"))
+            {
+                // レイアウトプリセット
+                draw_layout_preset_menu();
+                
+                ImGui::Separator();
+                
+                // 各ウィンドウの表示/非表示を切り替え
+                draw_window_visibility_menu();
+                
+                ImGui::EndMenu();
+            }
+    }
+    
+    // レイアウトプリセットメニューの描画
+    void draw_layout_preset_menu()
+    {
+        if (ImGui::BeginMenu("Layout"))
+        {
+            auto& presetManager = LayoutPresetManager::GetInstance();
+            LayoutPresetType currentPreset = presetManager.GetCurrentPreset();
+            
+            if (ImGui::MenuItem("Make Mode", nullptr, currentPreset == LayoutPresetType::MakeMode))
+            {
+                presetManager.ApplyPreset(LayoutPresetType::MakeMode);
+                // 次フレームでレイアウトを読み込むように予約
+                if (g_Engine)
+                {
+                    g_Engine->SchedulePresetLoad(LayoutPresetType::MakeMode);
+                }
+            }
+            
+            if (ImGui::MenuItem("Debug Mode", nullptr, currentPreset == LayoutPresetType::DebugMode))
+            {
+                presetManager.ApplyPreset(LayoutPresetType::DebugMode);
+                // 次フレームでレイアウトを読み込むように予約
+                if (g_Engine)
+                {
+                    g_Engine->SchedulePresetLoad(LayoutPresetType::DebugMode);
+                }
+            }
+            
+            ImGui::EndMenu();
+        }
+    }
+    
+    // ウィンドウの表示/非表示切り替えメニューの描画
+    void draw_window_visibility_menu()
+    {
+        if (!g_Engine)
+            return;
+            
+        auto& windows = g_Engine->GetDrawWindows();
+        
+        // 各ウィンドウを型で検索して表示/非表示を切り替え
+        std::shared_ptr<DrawGameObjectWindow> gameObjectWindow;
+        std::shared_ptr<DrawPostProcessPresetWindow> postProcessWindow;
+        std::shared_ptr<DrawModelsWindow> modelsWindow;
+        std::shared_ptr<DrawTaskManagerWindow> taskManagerWindow;
+        std::shared_ptr<DrawWorkManagerWindow> workManagerWindow;
+        
+        // ウィンドウリストから各型のウィンドウを検索
+        for (auto& window : windows)
+        {
+            if (!gameObjectWindow) gameObjectWindow = std::dynamic_pointer_cast<DrawGameObjectWindow>(window);
+            if (!postProcessWindow) postProcessWindow = std::dynamic_pointer_cast<DrawPostProcessPresetWindow>(window);
+            if (!modelsWindow) modelsWindow = std::dynamic_pointer_cast<DrawModelsWindow>(window);
+            if (!taskManagerWindow) taskManagerWindow = std::dynamic_pointer_cast<DrawTaskManagerWindow>(window);
+            if (!workManagerWindow) workManagerWindow = std::dynamic_pointer_cast<DrawWorkManagerWindow>(window);
+        }
+        
+        // Game Object Window
+        if (gameObjectWindow)
+        {
+            bool visible = gameObjectWindow->is_visible();
+            if (ImGui::MenuItem("Game Object Window", nullptr, &visible))
+            {
+                gameObjectWindow->set_visible(visible);
+            }
+        }
+        
+        // Mode Window は固定UIなのでメニューから除外
+        
+        // Post Process Preset Window
+        if (postProcessWindow)
+        {
+            bool visible = postProcessWindow->is_visible();
+            if (ImGui::MenuItem("Post Process Preset Window", nullptr, &visible))
+            {
+                postProcessWindow->set_visible(visible);
+            }
+        }
+        
+        // Models Window
+        if (modelsWindow)
+        {
+            bool visible = modelsWindow->is_visible();
+            if (ImGui::MenuItem("Models Window", nullptr, &visible))
+            {
+                modelsWindow->set_visible(visible);
+            }
+        }
+        
+        // Task Manager Window
+        if (taskManagerWindow)
+        {
+            bool visible = taskManagerWindow->is_visible();
+            if (ImGui::MenuItem("Task Manager Window", nullptr, &visible))
+            {
+                taskManagerWindow->set_visible(visible);
+            }
+        }
+        
+        // Work Manager Window
+        if (workManagerWindow)
+        {
+            bool visible = workManagerWindow->is_visible();
+            if (ImGui::MenuItem("Work Manager Window", nullptr, &visible))
+            {
+                workManagerWindow->set_visible(visible);
+            }
+        }
+    }
+    
+    // メニューバーの中央にモードウィンドウを配置
+    void draw_mode_window_in_center()
+    {
+        if (!g_Engine)
+            return;
+            
+        std::shared_ptr<IDrawWindow> modeWindow = g_Engine->GetModeWindow();
+        if (!modeWindow)
+            return;
+        
+        // 中央に配置するためのスペーシング
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        float menuBarWidth = viewport->WorkSize.x;
+        float leftMenuWidth = ImGui::GetCursorPosX(); // 左側のメニュー項目の幅
+        
+        // モードウィンドウの推定幅を計算（ボタン + テキスト）
+        float modeWindowWidth = 200.0f; // おおよその幅
+        float centerX = menuBarWidth * 0.5f;
+        float targetX = centerX - modeWindowWidth * 0.5f;
+        
+        // 左側のメニューより右側に配置し、中央に近づける
+        if (targetX > leftMenuWidth + 20.0f)
+        {
+            ImGui::SetCursorPosX(targetX);
+        }
+        else
+        {
+            ImGui::SameLine(0, 20.0f); // スペースが足りない場合は少し右に
+        }
+        
+        // モードウィンドウの内容を描画
+        if (auto modeWindowTyped = std::dynamic_pointer_cast<DrawModeWindow>(modeWindow))
+        {
+            modeWindowTyped->draw_content();
+        }
+    }
+};

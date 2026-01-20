@@ -3,7 +3,8 @@
 #include <dxgi1_4.h>
 
 #include "Graphics/DescriptorHeap/DescriptorHeap.h"
-#include "GUI/IDrawWindow.h"
+#include "GUI/Core/IDrawWindow.h"
+#include "GUI/Managers/LayoutPresetType.h"
 #include "Modules/ComPtr.h"
 
 #pragma comment(lib,"d3d12.lib") // d3d12ライブラリをリンクする
@@ -38,6 +39,20 @@ public:
 	D3D12_VIEWPORT GetViewPort() { return m_Viewport; }
 	D3D12_RECT GetScissorRect() { return m_Scissor; }
 	std::shared_ptr<Texture2D> GetTextureResource() { return m_TextureResource; }
+	
+	// ウィンドウリストへのアクセス
+	const std::vector<std::shared_ptr<IDrawWindow>>& GetDrawWindows() const { return m_drawWindows; }
+	std::vector<std::shared_ptr<IDrawWindow>>& GetDrawWindows() { return m_drawWindows; }
+	
+	// モードウィンドウへのアクセス
+	std::shared_ptr<IDrawWindow> GetModeWindow() { return m_modeWindow; }
+	
+	// プリセット読み込みの予約（次フレームで読み込む）
+	void SchedulePresetLoad(LayoutPresetType presetType) 
+	{ 
+		m_pendingPresetLoad = presetType; 
+		m_hasPendingPresetLoad = true; 
+	}
 
 	// 各種アロケーター
 	D3D12_CPU_DESCRIPTOR_HANDLE AllocateRtvHandle();
@@ -91,6 +106,8 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	UINT m_DsvDescriptorSize = 0; // 深度ステンシルのディスクリプタサイズ
 	ComPtr<ID3D12DescriptorHeap> m_pDsvHeap = nullptr; // 深度ステンシルのディスクリプタヒープ
 	ComPtr<ID3D12DescriptorHeap> m_ImGuiSrvHeap; // ImGui専用のSRVヒープ
+	std::shared_ptr<IDrawWindow> m_mainMenuBar; // メインメニューバー（ドッキング不可能な固定UI）
+	std::shared_ptr<IDrawWindow> m_modeWindow; // モードウィンドウ（Unity風の固定UI）
 	std::vector<std::shared_ptr<IDrawWindow>> m_drawWindows; // 描画するウィンドウのリスト
 	ComPtr<ID3D12Resource> m_pDepthStencilBuffer = nullptr; // 深度ステンシルバッファ
 
@@ -101,6 +118,9 @@ private: // 描画に使うオブジェクトとその生成関数たち
 
 	std::shared_ptr<Texture2D> m_TextureResource;
 	bool m_isCommandListOpen = false; // コマンドリストが開いているかどうかを追跡
+	bool m_presetApplied = false; // プリセットが適用済みかどうか
+	LayoutPresetType m_pendingPresetLoad = LayoutPresetType::MakeMode; // 次フレームで読み込むプリセット
+	bool m_hasPendingPresetLoad = false; // 次フレームでプリセットを読み込む必要があるか
 private:
 	ComPtr < ID3D12Resource > m_currentRenderTarget = nullptr; // 現在のフレームのレンダーターゲットを一時的に保存しておく関数
 	void WaitRender(); // 描画完了を待つ関数

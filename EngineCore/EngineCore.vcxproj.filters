@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\Core\App.cpp" />
@@ -39,7 +39,8 @@
     <ClCompile Include="src\Scene\Default\Scene\DefaultScene.cpp" />
     <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
     <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
-    <ClCompile Include="src\GUI\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\GUI\Windows\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\GUI\Managers\LayoutPresetManager.cpp" />
     <ClCompile Include="src\Input\InputDevice.cpp" />
     <ClCompile Include="src\Physics\EngineCollider.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="src\Modules\PublicConst\const_path_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_render_pref.h" />
     <ClInclude Include="src\Modules\PublicConst\const_premitive_gameobject_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_gui_pref.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\MonochromePass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VignettePass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\FilmGrainPass.h" />
@@ -119,9 +121,10 @@
     <ClInclude Include="src\Core\Components\TriggerFactory.h" />
     <ClInclude Include="src\Core\Components\Trigger\OnGameObjectEnterCondition.h" />
     <ClInclude Include="src\Physics\MyCollisionListener.h" />
-    <ClInclude Include="src\GUI\DrawDayWindow.h" />
-    <ClInclude Include="src\GUI\DrawGameObjectWindow.h" />
-    <ClInclude Include="src\GUI\IDrawWindow.h" />
+    <ClInclude Include="src\GUI\Core\IDrawWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawDayWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawGameObjectWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawMainMenuBar.h" />
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="src\Scene\Default\Scene\DefaultScene.h" />
@@ -133,11 +136,12 @@
     <ClInclude Include="src\Core\Components\WorkFlow\WorkFlow.h" />
     <ClInclude Include="src\Core\Components\Work\Work.h" />
     <ClInclude Include="src\Core\Components\Work\WorkManager.h" />
-    <ClInclude Include="src\GUI\DrawModelsWindow.h" />
-    <ClInclude Include="src\GUI\DrawTaskManagerWindow.h" />
-    <ClInclude Include="src\GUI\DrawWorkManagerWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawModelsWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawTaskManagerWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawWorkManagerWindow.h" />
     <ClInclude Include="src\Input\InputDevice.h" />
     <ClInclude Include="src\Modules\PublicConst\const_gameobject_save_param_pref.h" />
+    <ClInclude Include="src\Modules\PublicConst\const_day_pref.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.h" />
     <ClInclude Include="src\Scene\Character\Player\PlayerController.h" />
     <ClInclude Include="src\Source\3DModel\Loader\ModelLoader.h" />
@@ -151,8 +155,9 @@
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\ShadowProcessPassBase.h" />
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\SimpleShadowMapPass.h" />
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\CascadedShadowMapPass.h" />
-    <ClInclude Include="src\GUI\DrawPostProcessPresetWindow.h" />
-    <ClInclude Include="src\GUI\DrawModeWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawPostProcessPresetWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawModeWindow.h" />
+    <ClInclude Include="src\GUI\Managers\LayoutPresetManager.h" />
     <ClInclude Include="..\external\imgui\imconfig.h" />
     <ClInclude Include="..\external\imgui\imgui.h" />
     <ClInclude Include="..\external\imgui\imgui_impl_dx12.h" />

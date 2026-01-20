@@ -3,30 +3,6 @@
         {
             "components": [
                 {
-                    "model_name": "ForestEnvironment",
-                    "type": "MeshRenderer"
-                }
-            ],
-            "name": "ForestEnvironment",
-            "position": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "components": [
-                {
                     "model_name": "primitive/quad",
                     "type": "MeshRenderer"
                 }

@@ -3,30 +3,6 @@
         {
             "components": [
                 {
-                    "model_name": "ForestEnvironment",
-                    "type": "MeshRenderer"
-                }
-            ],
-            "name": "ForestEnvironment",
-            "position": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": [
-                2.0,
-                2.0,
-                2.0
-            ]
-        },
-        {
-            "components": [
-                {
                     "model_name": "primitive/cube",
                     "type": "MeshRenderer"
                 }
