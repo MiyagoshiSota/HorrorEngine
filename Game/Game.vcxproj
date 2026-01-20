@@ -103,10 +103,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration);$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\lib\$(Platform)\$(Configuration);$(SolutionDir)external\soloud\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>reactphysics3d.lib;soloud_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>if not exist "$(OutDir)assets" mkdir "$(OutDir)assets"
-xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -127,10 +123,6 @@ xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration);$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\lib\$(Platform)\$(Configuration);$(SolutionDir)external\soloud\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>reactphysics3d.lib;soloud_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>if not exist "$(OutDir)assets" mkdir "$(OutDir)assets"
-xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -147,10 +139,6 @@ xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration);$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\lib\$(Platform)\$(Configuration);$(SolutionDir)external\soloud\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>reactphysics3d.lib;soloud_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>if not exist "$(OutDir)assets" mkdir "$(OutDir)assets"
-xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -171,10 +159,6 @@ xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)external\directxtex\lib\$(Platform)\$(Configuration);$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\lib\$(Platform)\$(Configuration);$(SolutionDir)external\soloud\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>reactphysics3d.lib;soloud_static.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>if not exist "$(OutDir)assets" mkdir "$(OutDir)assets"
-xcopy /Y /I "$(ProjectDir)assets\*" "$(OutDir)assets\"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Sctipts\main.cpp" />

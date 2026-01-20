@@ -105,7 +105,7 @@ void DebugPass::Draw(RenderContext& context)
     debugRenderer.setIsDebugItemDisplayed(reactphysics3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
 
     const auto& lines = debugRenderer.getLines();
-    if (lines.size() == 0)
+    if (lines.size() == 0)  
     {
         return;
     }{
