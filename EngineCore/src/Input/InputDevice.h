@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Windows.h>      // Windows API (MSG, WPARAM, LPARAM, VK_...)
 #include <windowsx.h>   // GET_X_LPARAM, GET_Y_LPARAM
@@ -22,8 +22,9 @@ public:
     /**
      * @brief 毎フレームの開始時に呼び出します。
      * キー/ボタンの「前フレーム」の状態を更新し、デルタ値をリセットします。
+     * @param deltaTime 前フレームからの経過時間（秒）
      */
-    void Update();
+    void Update(float deltaTime);
 
     /**
      * @brief Windowsメッセージプロシージャ(WndProc)から呼び出します。
@@ -89,6 +90,13 @@ public:
      */
     float GetMouseWheelDelta();
 
+    /**
+     * @brief キーが押され続けている時間（秒）を返します。
+     * @param vKey 仮想キーコード
+     * @return キーが押され続けている時間（秒）。押されていない場合は0.0f
+     */
+    float GetKeyDownDuration(int vKey) const;
+
 private:
     // プライベートコンストラクタ（シングルトン）
     InputDevice();
@@ -112,4 +120,7 @@ private:
     int m_mouseDeltaX;
     int m_mouseDeltaY;
     float m_mouseWheelDelta;
+
+    // キーが押され続けている時間（秒）
+    float m_keyDownDuration[MAX_KEYS];
 };

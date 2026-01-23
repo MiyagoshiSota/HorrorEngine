@@ -1,0 +1,716 @@
+描画エンジンの初期化成功
+Post-process presets loaded successfully.
+AudioManager Initialize SuccessPSOの生成シーンの初期化に成功
+ゲームオブジェクトの初期化を設定msg: 799
+msg: 49320
+msg: 96
+msg: 512
+msg: 96
+msg: 512
+msg: 96
+msg: 96
+msg: 15
+msg: 96
+msg: 275
+msg: 96
+msg: 49242
+msg: 49242
+msg: 512
+msg: 96
+msg: 512
+msg: 96
+msg: 512
+msg: 96
+msg: 96
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 275
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 513
+msg: 512
+msg: 512
+msg: 514
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 642
+msg: 96
+msg: 96
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.000 seconds
+msg: 96
+D key down duration: 0.000 seconds
+D key down duration: 0.017 seconds
+D key down duration: 0.033 seconds
+D key down duration: 0.050 seconds
+D key down duration: 0.067 seconds
+D key down duration: 0.083 seconds
+D key down duration: 0.100 seconds
+D key down duration: 0.117 seconds
+D key down duration: 0.134 seconds
+D key down duration: 0.150 seconds
+D key down duration: 0.167 seconds
+D key down duration: 0.184 seconds
+D key down duration: 0.201 seconds
+D key down duration: 0.217 seconds
+D key down duration: 0.234 seconds
+D key down duration: 0.250 seconds
+D key down duration: 0.267 seconds
+D key down duration: 0.284 seconds
+D key down duration: 0.300 seconds
+D key down duration: 0.317 seconds
+D key down duration: 0.334 seconds
+D key down duration: 0.350 seconds
+D key down duration: 0.367 seconds
+D key down duration: 0.384 seconds
+D key down duration: 0.400 seconds
+D key down duration: 0.417 seconds
+D key down duration: 0.434 seconds
+D key down duration: 0.451 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.451 seconds
+msg: 96
+D key down duration: 0.451 seconds
+msg: 96
+D key down duration: 0.451 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.451 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+D key down duration: 0.451 seconds
+msg: 96
+D key down duration: 0.451 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.451 seconds
+msg: 96
+D key down duration: 0.451 seconds
+msg: 96
+D key down duration: 0.451 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.451 seconds
+msg: 96
+D key down duration: 0.451 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.451 seconds
+msg: 96
+D key down duration: 0.452 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.452 seconds
+msg: 96
+D key down duration: 0.452 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.452 seconds
+msg: 96
+D key down duration: 0.452 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.452 seconds
+msg: 96
+D key down duration: 0.452 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.452 seconds
+msg: 96
+D key down duration: 0.453 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.453 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+D key down duration: 0.453 seconds
+msg: 96
+D key down duration: 0.453 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.453 seconds
+msg: 96
+D key down duration: 0.453 seconds
+msg: 96
+D key down duration: 0.453 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.453 seconds
+msg: 96
+D key down duration: 0.453 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.453 seconds
+msg: 96
+D key down duration: 0.453 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.453 seconds
+msg: 96
+D key down duration: 0.454 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.454 seconds
+msg: 96
+D key down duration: 0.454 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.454 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+D key down duration: 0.454 seconds
+msg: 96
+D key down duration: 0.454 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.454 seconds
+msg: 96
+D key down duration: 0.454 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.454 seconds
+msg: 96
+D key down duration: 0.454 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.454 seconds
+msg: 96
+D key down duration: 0.454 seconds
+msg: 96
+D key down duration: 0.454 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.455 seconds
+msg: 96
+D key down duration: 0.455 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.455 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+D key down duration: 0.455 seconds
+msg: 96
+D key down duration: 0.455 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.455 seconds
+msg: 96
+D key down duration: 0.455 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.455 seconds
+msg: 96
+D key down duration: 0.455 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.455 seconds
+msg: 96
+D key down duration: 0.456 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.456 seconds
+msg: 96
+D key down duration: 0.456 seconds
+msg: 96
+D key down duration: 0.456 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.456 seconds
+msg: 96
+D key down duration: 0.456 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.456 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+D key down duration: 0.456 seconds
+msg: 96
+D key down duration: 0.456 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.456 seconds
+msg: 96
+D key down duration: 0.456 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.456 seconds
+msg: 96
+D key down duration: 0.456 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.456 seconds
+msg: 96
+D key down duration: 0.456 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.456 seconds
+msg: 96
+D key down duration: 0.457 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.457 seconds
+msg: 96
+D key down duration: 0.457 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.457 seconds
+msg: 96
+D key down duration: 0.457 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+D key down duration: 0.457 seconds
+msg: 96
+D key down duration: 0.457 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.457 seconds
+msg: 96
+D key down duration: 0.457 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.457 seconds
+msg: 96
+D key down duration: 0.457 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.457 seconds
+msg: 96
+D key down duration: 0.457 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.457 seconds
+msg: 96
+D key down duration: 0.458 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.458 seconds
+msg: 96
+D key down duration: 0.458 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.458 seconds
+msg: 96
+D key down duration: 0.458 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.458 seconds
+msg: 96
+D key down duration: 0.458 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.458 seconds
+msg: 96
+D key down duration: 0.458 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.458 seconds
+msg: 96
+D key down duration: 0.458 seconds
+msg: 96
+msg: 256
+msg: 258
+D key down duration: 0.458 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+D key down duration: 0.458 seconds
+msg: 96
+D key down duration: 0.458 seconds
+msg: 96
+msg: 257
+msg: 96
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.000 seconds
+msg: 96
+A key down duration: 0.000 seconds
+A key down duration: 0.017 seconds
+A key down duration: 0.034 seconds
+A key down duration: 0.050 seconds
+A key down duration: 0.067 seconds
+A key down duration: 0.083 seconds
+A key down duration: 0.100 seconds
+A key down duration: 0.117 seconds
+A key down duration: 0.134 seconds
+A key down duration: 0.150 seconds
+A key down duration: 0.167 seconds
+A key down duration: 0.184 seconds
+A key down duration: 0.200 seconds
+A key down duration: 0.217 seconds
+A key down duration: 0.234 seconds
+A key down duration: 0.250 seconds
+A key down duration: 0.267 seconds
+A key down duration: 0.284 seconds
+A key down duration: 0.300 seconds
+A key down duration: 0.317 seconds
+A key down duration: 0.334 seconds
+A key down duration: 0.351 seconds
+A key down duration: 0.367 seconds
+A key down duration: 0.384 seconds
+A key down duration: 0.401 seconds
+A key down duration: 0.417 seconds
+A key down duration: 0.434 seconds
+A key down duration: 0.450 seconds
+A key down duration: 0.467 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.467 seconds
+msg: 96
+A key down duration: 0.467 seconds
+msg: 96
+A key down duration: 0.467 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.467 seconds
+msg: 96
+A key down duration: 0.468 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.468 seconds
+msg: 96
+A key down duration: 0.468 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.468 seconds
+msg: 96
+A key down duration: 0.468 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.468 seconds
+msg: 96
+A key down duration: 0.468 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.468 seconds
+msg: 96
+A key down duration: 0.468 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.468 seconds
+msg: 96
+A key down duration: 0.469 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.469 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+A key down duration: 0.469 seconds
+msg: 96
+A key down duration: 0.469 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.469 seconds
+msg: 96
+A key down duration: 0.469 seconds
+msg: 96
+A key down duration: 0.469 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.469 seconds
+msg: 96
+A key down duration: 0.469 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.469 seconds
+msg: 96
+A key down duration: 0.469 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.469 seconds
+msg: 96
+A key down duration: 0.470 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.470 seconds
+msg: 96
+A key down duration: 0.470 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.470 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+A key down duration: 0.470 seconds
+msg: 96
+A key down duration: 0.470 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.470 seconds
+msg: 96
+A key down duration: 0.470 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.470 seconds
+msg: 96
+A key down duration: 0.470 seconds
+msg: 96
+A key down duration: 0.471 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.471 seconds
+msg: 96
+A key down duration: 0.471 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.471 seconds
+msg: 96
+A key down duration: 0.471 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.471 seconds
+msg: 96
+A key down duration: 0.471 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.471 seconds
+msg: 96
+A key down duration: 0.471 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.471 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+A key down duration: 0.471 seconds
+msg: 96
+A key down duration: 0.471 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.471 seconds
+msg: 96
+A key down duration: 0.471 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.471 seconds
+msg: 96
+A key down duration: 0.472 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.472 seconds
+msg: 96
+A key down duration: 0.472 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.472 seconds
+msg: 96
+A key down duration: 0.472 seconds
+msg: 96
+A key down duration: 0.472 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.472 seconds
+msg: 96
+A key down duration: 0.473 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.473 seconds
+msg: 96
+msg: 256
+msg: 96
+msg: 258
+A key down duration: 0.473 seconds
+msg: 96
+A key down duration: 0.473 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.473 seconds
+msg: 96
+A key down duration: 0.473 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.473 seconds
+msg: 96
+A key down duration: 0.473 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.473 seconds
+msg: 96
+A key down duration: 0.473 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.473 seconds
+msg: 96
+A key down duration: 0.473 seconds
+msg: 96
+A key down duration: 0.474 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.474 seconds
+msg: 96
+A key down duration: 0.474 seconds
+msg: 96
+msg: 256
+msg: 258
+A key down duration: 0.474 seconds
+msg: 96
+msg: 257
+msg: 96
+msg: 512
+msg: 512
+msg: 96
+msg: 512
+msg: 96
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 512
+msg: 675
+msg: 160
+msg: 160
+msg: 160
+msg: 160
+msg: 512
+msg: 674
+msg: 160
+msg: 675
+msg: 160
+msg: 674
+msg: 96
+msg: 96
+msg: 96
+msg: 275
+msg: 275

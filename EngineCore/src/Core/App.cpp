@@ -17,6 +17,15 @@ std::unique_ptr<SceneManager> g_SceneManager;
 std::unique_ptr<ModelLoader> g_ModelLoader;
 std::chrono::steady_clock::time_point g_lastFrameTime;
 
+// WM_KEYUP遅延測定用の統計情報
+struct KeyUpDelayStats
+{
+    float maxDelay = 0.0f;      // 最大遅延（ミリ秒）
+    float totalDelay = 0.0f;    // 累積遅延（ミリ秒）
+    int count = 0;              // 処理されたWM_KEYUPの数
+    float lastDelay = 0.0f;     // 最後の遅延（ミリ秒）
+} g_keyUpDelayStats;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) 
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wp, lp)) return true;
@@ -104,35 +113,40 @@ void main_loop() {
 
 		// 次のフレームのために、現在の時刻を「最後の時刻」として保存
 		g_lastFrameTime = currentTime;
-
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE == TRUE)) {
+		
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				break;
+			}
+			
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}
-		else 
-		{
-			// 経過時間を秒単位で取得
-			auto delta_time = deltaTime.count();
-
-			// 入力デバイスの更新
-			InputDevice::GetInstance().Update();
 			
-			// SceneTypeに応じて更新処理を分岐
-			if (g_scene_type == scene_type::play_mode)
-			{
-				g_Scene->Update(delta_time);
-				WorkManager::GetInstance().Update(delta_time);
-			}
-			else if (g_scene_type == scene_type::editor_mode)
-			{
-				g_Scene->EditorUpdate(deltaTime.count());
-			}
+		}
 
-			g_Engine->BeginRender();
-			g_Scene->Draw();
-			g_Engine->EndRender();
-			g_Engine->MoveToNextFrame();
-		} 
+		// 経過時間を秒単位で取得
+		auto delta_time = deltaTime.count();
+
+		// 入力デバイスの更新
+		InputDevice::GetInstance().Update(delta_time);
+		
+		// SceneTypeに応じて更新処理を分岐
+		if (g_scene_type == scene_type::play_mode)
+		{
+			g_Scene->Update(delta_time);
+			WorkManager::GetInstance().Update(delta_time);
+		}
+		else if (g_scene_type == scene_type::editor_mode)
+		{
+			g_Scene->EditorUpdate(deltaTime.count());
+		}
+
+		g_Engine->BeginRender();
+		g_Scene->Draw();
+		g_Engine->EndRender();
+		g_Engine->MoveToNextFrame();
 	}
 }
 

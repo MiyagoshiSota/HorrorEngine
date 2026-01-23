@@ -1,4 +1,4 @@
-﻿#include "InputDevice.h"
+#include "InputDevice.h"
 #include <cstring> // for memset
 
 InputDevice::InputDevice()
@@ -12,13 +12,28 @@ InputDevice::InputDevice()
     memset(m_prevKeyState, false, sizeof(m_prevKeyState));
     memset(m_mouseState, false, sizeof(m_mouseState));
     memset(m_prevMouseState, false, sizeof(m_prevMouseState));
+    // キーが押され続けている時間を0で初期化
+    memset(m_keyDownDuration, 0, sizeof(m_keyDownDuration));
 }
 
-void InputDevice::Update()
+void InputDevice::Update(float deltaTime)
 {
     // 現在の状態を前のフレームの状態としてコピー
     memcpy(m_prevKeyState, m_keyState, sizeof(m_keyState));
     memcpy(m_prevMouseState, m_mouseState, sizeof(m_mouseState));
+
+    // キーが押され続けている時間を更新
+    for (int i = 0; i < MAX_KEYS; i++)
+    {
+        if (m_keyState[i])
+        {
+            m_keyDownDuration[i] += deltaTime;
+        }
+        else
+        {
+            m_keyDownDuration[i] = 0.0f;
+        }
+    }
 
     // マウスのデルタを計算
     m_mouseDeltaX = m_mouseX - m_prevMouseX;
@@ -129,4 +144,10 @@ float InputDevice::GetMouseWheelDelta()
     float delta = m_mouseWheelDelta;
     m_mouseWheelDelta = 0.0f;
     return delta;
+}
+
+float InputDevice::GetKeyDownDuration(int vKey) const
+{
+    if (vKey < 0 || vKey >= MAX_KEYS) return 0.0f;
+    return m_keyDownDuration[vKey];
 }
