@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
+#include "DefaultGameObjectConfig.h"
 
 namespace DefaultMeshes
 {
@@ -21,8 +22,12 @@ namespace DefaultMeshes
         // インデックスデータ
         quad.Indeices = { 0, 2, 1, 1, 2, 3 };
 
-        // デフォルトのテクスチャ
-        quad.hAlbedoMap = L"assets/DefaultTexture/default_diffuse_white.png";
+        // デフォルトのテクスチャとマテリアル設定
+        const auto& settings = DefaultGameObjectConfig::QuadSettings;
+        quad.hAlbedoMap = settings.AlbedoTexturePath;
+        quad.albedoFactor = settings.AlbedoFactor;
+        quad.metallicFactor = settings.MetallicFactor;
+        quad.roughnessFactor = settings.RoughnessFactor;
 
         return quad;
     }
@@ -72,7 +77,7 @@ namespace DefaultMeshes
         };
 
 
-        // インデックスデータ (変更なし)
+        // インデックスデータ
         cube.Indeices = {
             0, 1, 2, 0, 2, 3,
             4, 5, 6, 4, 6, 7,
@@ -82,7 +87,12 @@ namespace DefaultMeshes
             20, 21, 22, 20, 22, 23
         };
 
-        cube.hAlbedoMap = L"assets/DefaultTexture/default_diffuse_white.png";
+        // デフォルトのテクスチャとマテリアル設定
+        const auto& settings = DefaultGameObjectConfig::CubeSettings;
+        cube.hAlbedoMap = settings.AlbedoTexturePath;
+        cube.albedoFactor = settings.AlbedoFactor;
+        cube.metallicFactor = settings.MetallicFactor;
+        cube.roughnessFactor = settings.RoughnessFactor;
 
         return cube;
     }

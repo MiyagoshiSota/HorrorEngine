@@ -1,10 +1,11 @@
-﻿#include "ModelLoader.h"
+#include "ModelLoader.h"
 
 #include "Core/App.h"
 #include "Modules/Other/engineString.h"
 #include "Modules/PublicConst/const_path_pref.h"
 #include "Renderer/Assimp/AssimpLoader.h"
 #include "Scene/GameObject/DefaultMesh/DefaultMeshes.h"
+#include "Scene/GameObject/DefaultMesh/DefaultGameObjectConfig.h"
 #include "Scene/GameObject/Model/Model.h"
 
 bool ModelLoader::init()
@@ -112,8 +113,8 @@ bool ModelLoader::set_model(const std::string& model_name, const std::string& mo
 void ModelLoader::create_primitive_objects()
 {
     // ~~平面~~
-	const auto quad_name = "primitive/quad";
-    auto quad_model = std::make_shared<Model>(quad_name);
+    const auto& quad_settings = DefaultGameObjectConfig::QuadSettings;
+    auto quad_model = std::make_shared<Model>(quad_settings.Name);
     std::vector<SharedStruct::Mesh> quad_origin_data;
 
 	// 平面メッシュの作成
@@ -121,15 +122,15 @@ void ModelLoader::create_primitive_objects()
 	quad_origin_data.push_back(DefaultMeshes::create_quad());
 
 	// モデルデータの作成
-    SceneResourceManager::GetInstance().initialize_gpu_resources_for(quad_origin_data,quad_model);
+    SceneResourceManager::GetInstance().initialize_gpu_resources_for(quad_origin_data, quad_model);
 
 	// キャッシュに登録
-    m_ModelDataCache[quad_name] = quad_origin_data;
-    m_ModelCache[quad_name] = quad_model;
+    m_ModelDataCache[quad_settings.Name] = quad_origin_data;
+    m_ModelCache[quad_settings.Name] = quad_model;
 
     // ~~立方体~~
-	const auto cube_name = "primitive/cube";
-    auto cube_model = std::make_shared<Model>(cube_name);
+    const auto& cube_settings = DefaultGameObjectConfig::CubeSettings;
+    auto cube_model = std::make_shared<Model>(cube_settings.Name);
     std::vector<SharedStruct::Mesh> cube_origin_data;
 
 	// 立方体メッシュの作成
@@ -140,6 +141,6 @@ void ModelLoader::create_primitive_objects()
     SceneResourceManager::GetInstance().initialize_gpu_resources_for(cube_origin_data, cube_model);
 	
 	// キャッシュに登録
-    m_ModelDataCache[cube_name] = cube_origin_data;
-    m_ModelCache[cube_name] = cube_model;
+    m_ModelDataCache[cube_settings.Name] = cube_origin_data;
+    m_ModelCache[cube_settings.Name] = cube_model;
 }

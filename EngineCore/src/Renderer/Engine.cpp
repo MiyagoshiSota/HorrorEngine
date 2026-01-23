@@ -629,7 +629,7 @@ void Engine::DrawImGui()
 
     // ドッキングスペースを作成（全ビューポートをカバー）
     // メインメニューバーの下にドッキングスペースを作成
-    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(),ImGuiDockNodeFlags_PassthruCentralNode);
 
     // 登録されているウィンドウを順番に描画（表示フラグがtrueのもののみ）
     for (const auto& window : m_drawWindows)

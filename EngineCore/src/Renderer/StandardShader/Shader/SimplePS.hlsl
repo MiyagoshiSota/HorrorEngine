@@ -305,7 +305,7 @@ float4 main(PSInput input) : SV_TARGET
     float shadowFactor = CalculateShadow(input.posLight);
 
 	// 合成
-    float3 ambient = AmbientColor.rgb * albedo * ao;
+    float3 ambient = AmbientColor.rgb * albedo;
     
     // 影は直接光(Lo)にのみ影響させる
     float3 color = ambient + Lo * shadowFactor + emissive;
