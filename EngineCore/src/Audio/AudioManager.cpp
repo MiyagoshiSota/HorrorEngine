@@ -9,11 +9,11 @@ void AudioManager::init()
 
     // 初期化が成功したかを確認
     if (result != SoLoud::SO_NO_ERROR) {
-        printf("AudioManager Initialize Field");
+        printf("AudioManager Initialize Field\n");
         return;
     }
 
-	printf("AudioManager Initialize Success");
+	printf("AudioManager Initialize Success\n");
 }
 
 // AudioManagerの終了処理
@@ -25,7 +25,7 @@ void AudioManager::shutdown()
     // SoLoudコアを終了させ、リソースを解放
     m_Soloud.deinit();
 
-    printf("AudioManager Close");
+    printf("AudioManager Close\n");
 }
 void AudioManager::update3d_audio()
 {

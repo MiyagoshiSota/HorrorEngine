@@ -19,7 +19,7 @@ DescriptorHeap::DescriptorHeap(UINT numDescriptors) : m_NumDescriptors(numDescri
 	// SRV用のヒープを生成
 	HRESULT hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pHeap));
 	if (FAILED(hr)) {
-		printf("Failed to create SRV descriptor heap.");
+		printf("Failed to create SRV descriptor heap.\n");
 	}
 
 	m_IncrementSize = device->GetDescriptorHandleIncrementSize(desc.Type);

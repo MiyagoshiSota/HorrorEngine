@@ -67,7 +67,7 @@ public:
             g_Scene->get_audio_manager()->init(); // オーディオマネージャのリセット
             g_Scene->get_time_manager()->reset(); // タイムマネージャのリセット
 
-            printf("ゲームオブジェクトの初期化");
+            printf("ゲームオブジェクトの初期化\n");
         }
 
         ImGui::SameLine();

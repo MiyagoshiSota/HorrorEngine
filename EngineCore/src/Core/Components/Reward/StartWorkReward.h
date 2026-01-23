@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "IReward.h"
 #include "Core/Components/Work/Work.h"
 #include "Core/Components/Work/WorkManager.h"
@@ -13,7 +13,7 @@ public:
             m_Work->m_isActive = true;
             return;
         }
-        printf("スタートするWorkが設定されていません。");
+        printf("スタートするWorkが設定されていません。\n");
     }
 
     void DrawInspectorUI() override

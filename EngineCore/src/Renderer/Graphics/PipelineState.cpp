@@ -41,7 +41,7 @@ void PipelineState::SetVS(std::wstring filePath)
 	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pVsBlob.GetAddressOf());
 	if (FAILED(hr))
 	{
-		printf("頂点シェーダーの読み込みに失敗");
+		printf("頂点シェーダーの読み込みに失敗\n");
 		return;
 	}
 
@@ -59,7 +59,7 @@ void PipelineState::SetPS(std::wstring filePath)
 	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
 	if (FAILED(hr))
 	{
-		printf("ピクセルシェーダーの読み込みに失敗");
+		printf("ピクセルシェーダーの読み込みに失敗\n");
 		return;
 	}
 
@@ -72,7 +72,7 @@ void PipelineState::SetGS(std::wstring filePath)
 	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
 	if (FAILED(hr))
 	{
-		printf("ジオメトリシェーダーの読み込みに失敗");
+		printf("ジオメトリシェーダーの読み込みに失敗\n");
 		return;
 	}
 
@@ -89,7 +89,7 @@ void PipelineState::SetCS(std::wstring filePath)
 	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
 	if (FAILED(hr))
 	{
-		printf("コンピュートシェーダーの読み込みに失敗");
+		printf("コンピュートシェーダーの読み込みに失敗\n");
 		return;
 	}
 
@@ -112,7 +112,7 @@ void PipelineState::CreateGraphicsPSO()
 	auto hr = g_Engine->Device()->CreateGraphicsPipelineState(&descGS, IID_PPV_ARGS(m_pPipelineState.ReleaseAndGetAddressOf()));
 	if (FAILED(hr))
 	{
-		printf("パイプラインステートの生成に失敗");
+		printf("パイプラインステートの生成に失敗\n");
 		return;
 	}
 
@@ -125,7 +125,7 @@ void PipelineState::CreateComputePSO()
 	auto hr = g_Engine->Device()->CreateComputePipelineState(&descCS, IID_PPV_ARGS(m_pPipelineState.ReleaseAndGetAddressOf()));
 	if (FAILED(hr))
 	{
-		printf("コンピュートパイプラインステートの生成に失敗");
+		printf("コンピュートパイプラインステートの生成に失敗\n");
 		return;
 	}
 

@@ -3,37 +3,8 @@
         {
             "components": [
                 {
-                    "model_name": "ForestEnvironment",
-                    "type": "MeshRenderer"
-                }
-            ],
-            "name": "ForestEnvironment",
-            "position": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ]
-        },
-        {
-            "components": [
-                {
                     "model_name": "primitive/cube",
                     "type": "MeshRenderer"
-                },
-                {
-                    "bodyType": "DYNAMIC",
-                    "isGravityEnabled": true,
-                    "type": "Rigidbody"
                 }
             ],
             "name": "primitive/cube",
@@ -44,15 +15,15 @@
             ],
             "rotation": [
                 0.0,
-                0.0,
+                30.0,
                 0.0
             ],
             "scale": [
-                -0.4000000059604645,
-                1.100000023841858,
-                0.4000000059604645
+                1.0,
+                1.0,
+                1.0
             ]
         }
     ],
-    "scene_name": "assets/temp/scene_temp.json"
+    "scene_name": "assets/Tmp/edit_scene_tmp.json"
 }

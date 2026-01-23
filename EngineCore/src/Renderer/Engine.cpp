@@ -39,7 +39,7 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 #endif
 
     if (!CreateDevice()) {
-        printf("デバイスの初期化に失敗");
+        printf("デバイスの初期化に失敗\n");
         return false;
     }
 
@@ -65,22 +65,22 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 
     if (!CreateCommandQueue())
     {
-        printf("コマンドキューの生成に失敗");
+        printf("コマンドキューの生成に失敗\n");
         return false;
     }
 
     if (!CreateSwapChain()) {
-        printf("スワップチェインの作成に失敗");
+        printf("スワップチェインの作成に失敗\n");
         return false;
     }
 
     if (!CreateCommandList()) {
-        printf("コマンドリストの作成に失敗");
+        printf("コマンドリストの作成に失敗\n");
         return false;
     }
 
     if (!CreateFence()) {
-        printf("フェンスの作成に失敗");
+        printf("フェンスの作成に失敗\n");
         return false;
     }
 
@@ -89,7 +89,7 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 
     if (!CreateDescriptorHeap())
     {
-        printf("SRVHeapの作成に失敗");
+        printf("SRVHeapの作成に失敗\n");
         return false;
     }
 
@@ -100,18 +100,18 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
     // }
 
     if (!CreateRenderTarget()) {
-        printf("レンダーターゲットの作成に失敗");
+        printf("レンダーターゲットの作成に失敗\n");
         return false;
     }
 
     if (!CreateDepthStencil()) {
-        printf("デプスステンシルバッファの生成に失敗");
+        printf("デプスステンシルバッファの生成に失敗\n");
         return false;
     }
 
     if (!InitImGui())
     {
-        printf("ImGuiの初期化に失敗");
+        printf("ImGuiの初期化に失敗\n");
 		return false;
     }
 

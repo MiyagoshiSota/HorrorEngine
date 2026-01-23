@@ -70,7 +70,7 @@ bool DefaultScene::Init(std::string go_file_path)
     //    0.7f, 1.0f,100, 0.01f
     //);
 
-    printf("PSOの生成");
+    printf("PSOの生成\n");
 
     PSOLoader::load_from_file(const_path_pref::PSO_JsonPath, m_PipelineStateManager);
 
@@ -78,7 +78,7 @@ bool DefaultScene::Init(std::string go_file_path)
 
     InitializeGameObject(go_file_path);
 
-    printf("ゲームオブジェクトの初期化を設定");
+    printf("ゲームオブジェクトの初期化を設定\n");
 
     g_lastFrameTime = std::chrono::steady_clock::now();
 

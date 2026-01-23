@@ -19,14 +19,14 @@ ConstantBuffer::ConstantBuffer(size_t size)
 	);
 	if (FAILED(hr))
 	{
-		printf("定数バッファの生成に失敗");
+		printf("定数バッファの生成に失敗\n");
 		return;
 	}
 
 	hr = m_pBuffer->Map(0, nullptr, &m_pMappedPtr);
 	if (FAILED(hr))
 	{
-		printf("定数バッファのマッピングに失敗");
+		printf("定数バッファのマッピングに失敗\n");
 		return;
 	}
 
