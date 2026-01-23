@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <memory>
 
 #include "Light.h"
@@ -7,16 +7,16 @@
 class LightingManager
 {
 public:
-    void init();
+    void Init();
 
     // DirectionalLightを追加する
-    std::shared_ptr<Light> add_directional_light(LightType type,
+    std::shared_ptr<Light> AddDirectionalLight(LightType type,
                                                  const DirectX::XMFLOAT3& color,
                                                  float intensity,
                                                  const DirectX::XMFLOAT3& direction);;
 
     // PointLightを追加する
-    std::shared_ptr<Light> add_point_light(LightType type,
+    std::shared_ptr<Light> AddPointLight(LightType type,
                                            const DirectX::XMFLOAT3& color,
                                            float intensity,
                                            const DirectX::XMFLOAT3& position,
@@ -24,7 +24,7 @@ public:
                                            float attenuation);
 
     // SpotLightを追加する
-    std::shared_ptr<Light> add_spot_light(LightType type,
+    std::shared_ptr<Light> AddSpotLight(LightType type,
                                           const DirectX::XMFLOAT3& color,
                                           float intensity,
                                           const DirectX::XMFLOAT3& position,
@@ -32,12 +32,12 @@ public:
                                           float inngerAngle, float outerAngle,float range, float attenuation);
 
     // 毎フレーム呼び出し、定数バッファを更新する
-    void update_constant_buffer() const;
+    void UpdateConstantBuffer() const;
 
     // 定数バッファを取得する
-    std::shared_ptr<ConstantBuffer> get_constant_buffer() const { return m_LightingConstantBuffer; }
+    std::shared_ptr<ConstantBuffer> GetConstantBuffer() const { return m_LightingConstantBuffer; }
 
-    std::vector<std::shared_ptr<Light>> get_lights()
+    std::vector<std::shared_ptr<Light>> GetLights()
     {
         auto lights = std::vector<std::shared_ptr<Light>>();
 
@@ -61,17 +61,17 @@ public:
         return lights;
     }
 
-    std::vector<std::shared_ptr<DirectionalLight>> get_directional_lights() const
+    std::vector<std::shared_ptr<DirectionalLight>> GetDirectionalLights() const
     {
         return m_DirectionalLights;
 	}
 
-    std::vector<std::shared_ptr<PointLight>> get_point_lights() const
+    std::vector<std::shared_ptr<PointLight>> GetPointLights() const
     {
         return m_PointLights;
 	}
 
-    std::vector<std::shared_ptr<SpotLight>> get_spot_lights() const
+    std::vector<std::shared_ptr<SpotLight>> GetSpotLights() const
     {
         return m_SpotLights;
     }

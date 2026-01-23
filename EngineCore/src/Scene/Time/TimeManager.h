@@ -12,14 +12,14 @@ public:
 		m_TotalTime = 0.0f;
     };
 
-    void init();
-    void update();
-    void reset();
+    void Init();
+    void Update();
+    void Reset();
 
-    std::shared_ptr<ConstantBuffer> get_constant_buffer() const { return m_TimeConstantBuffer; }
+    std::shared_ptr<ConstantBuffer> GetConstantBuffer() const { return m_TimeConstantBuffer; }
 
-    float get_delta_time() const { return m_DeltaTime; }
-    float get_total_time() const { return m_TotalTime; }
+    float GetDeltaTime() const { return m_DeltaTime; }
+    float GetTotalTime() const { return m_TotalTime; }
 
 private:
 

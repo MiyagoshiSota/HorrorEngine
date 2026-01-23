@@ -1,6 +1,6 @@
 #pragma once
 
-class const_name_pref
+class ConstNamePref
 {
 public:
 	// App

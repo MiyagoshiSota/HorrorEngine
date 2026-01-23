@@ -298,7 +298,7 @@ void DrawWorkManagerWindow::DrawTaskColumn()
 
         ImGui::PushID(task);
         
-        std::string task_label = task->GetTaskName() + " (on " + task->gameObject->get_name() + ")";
+        std::string task_label = task->GetTaskName() + " (on " + task->gameObject->GetName() + ")";
         ImGui::Selectable(task_label.c_str());
 
         // ドラッグ＆ドロップ (並べ替え用)
@@ -367,11 +367,11 @@ void DrawWorkManagerWindow::DrawTaskColumn()
         
         if (in_workflow) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-            ImGui::Selectable((task->GetTaskName() + " (on " + task->gameObject->get_name() + ")").c_str());
+            ImGui::Selectable((task->GetTaskName() + " (on " + task->gameObject->GetName() + ")").c_str());
             ImGui::PopStyleColor();
         } else {
             // ドラッグ可能なアイテムとして設定
-            ImGui::Selectable((task->GetTaskName() + " (on " + task->gameObject->get_name() + ")").c_str());
+            ImGui::Selectable((task->GetTaskName() + " (on " + task->gameObject->GetName() + ")").c_str());
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
             {
                 ImGui::SetDragDropPayload("TASK_PAYLOAD", &task, sizeof(TriggerComponent*)); 
@@ -401,17 +401,17 @@ void DrawWorkManagerWindow::DrawTaskCreatorPanel()
     
     // Target GameObject
     std::string currentTargetName = "Select GameObject...";
-    if (m_selectedGameObjectIndex >= 0 && m_selectedGameObjectIndex < g_Scene->get_game_objects().size()) {
-        currentTargetName = g_Scene->get_game_objects()[m_selectedGameObjectIndex]->get_name();
+    if (m_selectedGameObjectIndex >= 0 && m_selectedGameObjectIndex < g_Scene->GetGameObjects().size()) {
+        currentTargetName = g_Scene->GetGameObjects()[m_selectedGameObjectIndex]->GetName();
     }
 
     if (ImGui::BeginCombo("Target GameObject", currentTargetName.c_str()))
     {
-        auto gameObjects = g_Scene->get_game_objects();
+        auto gameObjects = g_Scene->GetGameObjects();
         for (int i = 0; i < gameObjects.size(); ++i)
         {
             bool isSelected = (m_selectedGameObjectIndex == i);
-            if (ImGui::Selectable(gameObjects[i]->get_name().c_str(), isSelected))
+            if (ImGui::Selectable(gameObjects[i]->GetName().c_str(), isSelected))
             {
                 m_selectedGameObjectIndex = i;
             }
@@ -461,14 +461,14 @@ void DrawWorkManagerWindow::DrawTaskCreatorPanel()
     
     if (ImGui::Button("Create & Add to Selected Workflow") && canCreate)
     {
-        std::shared_ptr<GameObject> targetObject = g_Scene->get_game_objects()[m_selectedGameObjectIndex];
+        std::shared_ptr<GameObject> targetObject = g_Scene->GetGameObjects()[m_selectedGameObjectIndex];
         
         // GameObjectにTriggerComponentを追加
         auto newTrigger = targetObject->AddComponent<TriggerComponent>(); // AddComponentはT*を返すと仮定
 
         // TargetComponentの初期化
         newTrigger->SetTaskName(m_newTaskNameBuffer);
-        newTrigger->initialize(targetObject);
+        newTrigger->Initialize(targetObject);
         newTrigger->ResetTask();
         
         // ConditionとActionをFactoryから作成してセット
@@ -504,7 +504,7 @@ void DrawWorkManagerWindow::RefreshTriggerCache()
 {
     m_sceneTriggersCache.clear();
 
-    for (const auto& obj : g_Scene->get_game_objects())
+    for (const auto& obj : g_Scene->GetGameObjects())
     {
         // GameObject::GetComponentsOfType<T>() が `std::vector<T*>` を返すと仮定
         const auto triggers = obj->find_components<TriggerComponent>(); 

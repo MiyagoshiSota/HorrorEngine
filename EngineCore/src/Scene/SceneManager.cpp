@@ -28,7 +28,7 @@ void SceneManager::ProcessSceneRequest()
         
         // 描画が完全に終了するのを待つ
         g_Engine->WaitForGPU();
-        g_Scene->shutdown();
+        g_Scene->Shutdown();
     }
 
     // 新しいシーンを生成

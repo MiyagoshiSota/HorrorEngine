@@ -17,7 +17,7 @@ void SceneCamera::Init()
     m_Fov = DirectX::XMConvertToRadians(90.0f);
     
     // アスペクト比はウィンドウサイズから計算
-    m_Aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT);
+    m_Aspect = static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight);
 
     // 感度設定
     m_MoveSpeed = 10.0f;

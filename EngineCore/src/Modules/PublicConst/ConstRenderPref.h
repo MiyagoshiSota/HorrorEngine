@@ -1,6 +1,6 @@
 #pragma once
 
-class const_render_pref
+class ConstRenderPref
 {
 public:
 	// RenderTargetName

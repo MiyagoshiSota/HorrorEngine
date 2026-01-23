@@ -7,7 +7,7 @@
 
 #include "Renderer/Texture/Texture2D.h"
 #include "Renderer/Texture/TextureResourceManager.h"
-#include "Modules/Other/engineString.h"
+#include "Modules/Other/EngineString.h"
 #include "Renderer/Engine.h"
 #include "Renderer/Graphics/Buffer/ConstantBuffer.h"
 #include "Renderer/Graphics/DescriptorHeap/DescriptorHeap.h"
@@ -23,10 +23,10 @@ public:
 
         // --- デフォルトのテクスチャスロット定義 ---
         // シェーダー側のレジスタ番号(t0, t1...)と名前を紐付けます
-        define_texture_slot("_MainTex", 0);      // Albedo
-        define_texture_slot("_NormalMap", 1);    // Normal
-        define_texture_slot("_MetallicRoughnessMap", 2);  // Metallic
-        define_texture_slot("_EmissiveMap", 3);  // Emissive
+        DefineTextureSlot("_MainTex", 0);      // Albedo
+        DefineTextureSlot("_NormalMap", 1);    // Normal
+        DefineTextureSlot("_MetallicRoughnessMap", 2);  // Metallic
+        DefineTextureSlot("_EmissiveMap", 3);  // Emissive
 
         // 初期化時は「変更あり」としてマーク
         m_isDirty = true;
@@ -39,7 +39,7 @@ public:
     // テクスチャをパスからロードしてセットする汎用関数
     // name: "_MainTex" や "_NormalMap" など
     // path: ファイルパス
-    bool set_texture(const std::string& name, const std::wstring& path)
+    bool SetTexture(const std::string& name, const std::wstring& path)
     {
         std::shared_ptr<Texture2D> tex;
 
@@ -65,14 +65,14 @@ public:
     }
 
     // カラー設定
-    void set_color(DirectX::XMFLOAT4 color) { m_BaseColor = color; }
-    DirectX::XMFLOAT4 get_color() { return m_BaseColor; }
+    void SetColor(DirectX::XMFLOAT4 color) { m_BaseColor = color; }
+    DirectX::XMFLOAT4 GetColor() { return m_BaseColor; }
 
 
     // --- DirectX 12 内部処理 ---
 
     // 描画前に呼び出し、ディスクリプタヒープを更新する
-    void update_descriptors()
+    void UpdateDescriptors()
     {
         if (!m_isDirty) return;
 
@@ -125,17 +125,17 @@ public:
     }
 
     // GPUハンドルを取得 (描画コマンド用)
-    std::shared_ptr<DescriptorHandle> get_srv_handle()
+    std::shared_ptr<DescriptorHandle> GetSrvHandle()
     {
-        update_descriptors(); // 必要なら更新してから返す
+        UpdateDescriptors(); // 必要なら更新してから返す
         return m_SrvHandle;
     }
 
-    std::shared_ptr<ConstantBuffer> get_constant_buffer() { return constantBuffer; }
+    std::shared_ptr<ConstantBuffer> GetConstantBuffer() { return constantBuffer; }
 
 private:
     // スロット定義ヘルパー
-    void define_texture_slot(const std::string& name, int slot)
+    void DefineTextureSlot(const std::string& name, int slot)
     {
         m_slotMap[name] = slot;
         if (slot > m_maxSlotIndex) m_maxSlotIndex = slot;

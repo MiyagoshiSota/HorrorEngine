@@ -9,30 +9,30 @@ public:
 	DefaultScene() = default;
 	~DefaultScene()
 	{
-		DefaultScene::shutdown();
+		DefaultScene::Shutdown();
 	};
 	
-	bool Init(std::string go_file_path) override;
-	void Update(float delta_time) override;
-	void EditorUpdate(float delta_time) override;
+	bool Init(std::string goFilePath) override;
+	void Update(float deltaTime) override;
+	void EditorUpdate(float deltaTime) override;
 	void Draw() override;
-	void shutdown() override;
+	void Shutdown() override;
 
 	void RebuidPhysicsWorld() override;
-	void InitializeGameObject(std::string file_path) override;
+	void InitializeGameObject(std::string filePath) override;
 
-	bool serialize_game_objects(const std::string& go_file_path) override;
-	void deserialize_game_objects(const std::string& go_file_path) override;
+	bool SerializeGameObjects(const std::string& goFilePath) override;
+	void DeserializeGameObjects(const std::string& goFilePath) override;
 
 public:
-	std::shared_ptr<PostProcessManager> get_post_process_manager()
+	std::shared_ptr<PostProcessManager> GetPostProcessManager()
 	{
-		return m_default_pipeline_manager->get_post_process_manager();
+		return m_defaultPipelineManager->GetPostProcessManager();
 	};
 
 	
 private:
-	std::shared_ptr<DefaultPipelineManager> m_default_pipeline_manager;
+	std::shared_ptr<DefaultPipelineManager> m_defaultPipelineManager;
 	std::shared_ptr<MyCollisionListener> m_CollisionListener;
 };
 

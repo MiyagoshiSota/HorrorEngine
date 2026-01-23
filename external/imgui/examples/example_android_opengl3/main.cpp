@@ -171,7 +171,7 @@ void Init(struct android_app* app)
     // - Read 'docs/FONTS.md' for more instructions and details.
     // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use FreeType for higher quality font rendering.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    // - Android: The TTF files have to be placed into the assets/ directory (android/app/src/main/assets), we use our GetAssetData() helper to retrieve them.
+    // - Android: The TTF files have to be placed into the Assets/ directory (android/app/src/main/assets), we use our GetAssetData() helper to retrieve them.
     //style.FontSizeBase = 20.0f;
     //io.Fonts->AddFontDefaultVector();
     //io.Fonts->AddFontDefaultBitmap();
@@ -374,7 +374,7 @@ static int PollUnicodeChars()
     return 0;
 }
 
-// Helper to retrieve data placed into the assets/ directory (android/app/src/main/assets)
+// Helper to retrieve data placed into the Assets/ directory (android/app/src/main/assets)
 static int GetAssetData(const char* filename, void** outData)
 {
     int num_bytes = 0;

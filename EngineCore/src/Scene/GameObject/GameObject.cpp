@@ -1,6 +1,6 @@
 #include "GameObject.h"
 
-void GameObject::init()
+void GameObject::Init()
 {
 	// コンポーネントのStart処理
 	for (const auto& comp : components)
@@ -26,7 +26,7 @@ void GameObject::init()
 	m_Transform = scaleMat * rotXMat * transMatrix;
 }
 
-void GameObject::transform_update()
+void GameObject::TransformUpdate()
 {
 	// Scale
 	DirectX::XMMATRIX scaleMat = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
@@ -44,11 +44,11 @@ void GameObject::transform_update()
 	m_Transform = scaleMat * rotXMat * transMatrix;
 }
 
-void GameObject::component_update(float delta_time) const
+void GameObject::ComponentUpdate(float deltaTime) const
 {
 		// コンポーネントのUpdate処理
 	for (auto& comp : components)
 	{
-		comp->update(delta_time);
+		comp->update(deltaTime);
 	}
 }

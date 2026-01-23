@@ -125,7 +125,7 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 void Engine::Shutdown()
 {
 	// GPUの処理が終わるまで待つ
-	for (int i = 0; i < FRAME_BUFFER_COUNT; i++) {
+	for (int i = 0; i < kFrameBufferCount; i++) {
 		MoveToNextFrame();
 	}
 
@@ -312,7 +312,7 @@ bool Engine::CreateSwapChain()
     desc.SampleDesc.Count = 1;
     desc.SampleDesc.Quality = 0;
     desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    desc.BufferCount = FRAME_BUFFER_COUNT;
+    desc.BufferCount = kFrameBufferCount;
     desc.OutputWindow = m_hWnd;
     desc.Windowed = TRUE;
     desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -347,7 +347,7 @@ bool Engine::CreateCommandList()
 {
     // コマンドアロケータの作成
     HRESULT hr;
-    for (size_t i = 0; i < FRAME_BUFFER_COUNT; i++)
+    for (size_t i = 0; i < kFrameBufferCount; i++)
     {
         hr = m_pDevice->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -381,7 +381,7 @@ bool Engine::CreateCommandList()
 
 bool Engine::CreateFence()
 {
-    for (auto i = 0u; i < FRAME_BUFFER_COUNT; i++)
+    for (auto i = 0u; i < kFrameBufferCount; i++)
     {
         m_fenceValue[i] = 0;
     }
@@ -444,7 +444,7 @@ bool Engine::InitImGui()
     ImGui_ImplDX12_InitInfo init_info = {};
     init_info.Device = m_pDevice.Get();
     init_info.CommandQueue = m_pQueue.Get();
-    init_info.NumFramesInFlight = FRAME_BUFFER_COUNT;
+    init_info.NumFramesInFlight = kFrameBufferCount;
     init_info.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     init_info.DSVFormat = DXGI_FORMAT_D32_FLOAT;
     init_info.SrvDescriptorHeap = m_ImGuiSrvHeap.Get();
@@ -488,7 +488,7 @@ bool Engine::CreateRenderTarget()
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 
     // HACK:格納できるHeap数注意
-    desc.NumDescriptors = FRAME_BUFFER_COUNT + 256;
+    desc.NumDescriptors = kFrameBufferCount + 256;
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     auto hr = m_pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pRtvHeap.ReleaseAndGetAddressOf()));
@@ -501,14 +501,14 @@ bool Engine::CreateRenderTarget()
     m_RtvDescriptorSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
 
-    for (UINT i = 0; i < FRAME_BUFFER_COUNT; i++)
+    for (UINT i = 0; i < kFrameBufferCount; i++)
     {
         m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(m_pRenderTargets[i].ReleaseAndGetAddressOf()));
         m_pDevice->CreateRenderTargetView(m_pRenderTargets[i].Get(), nullptr, rtvHandle);
         rtvHandle.ptr += m_RtvDescriptorSize;
     }
 
-    m_rtvHeapOffset = FRAME_BUFFER_COUNT;
+    m_rtvHeapOffset = kFrameBufferCount;
 
     return true;
 }
@@ -531,7 +531,7 @@ bool Engine::CreateDepthStencil()
     D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 
     // TODO:確保している領域が固定になるので確保する方法を考える
-    heapDesc.NumDescriptors = FRAME_BUFFER_COUNT + 256;
+    heapDesc.NumDescriptors = kFrameBufferCount + 256;
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     auto hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pDsvHeap));
@@ -634,7 +634,7 @@ void Engine::DrawImGui()
     // 登録されているウィンドウを順番に描画（表示フラグがtrueのもののみ）
     for (const auto& window : m_drawWindows)
     {
-        if (window->is_visible())
+        if (window->IsVisible())
         {
             window->draw();
         }

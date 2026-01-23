@@ -1,4 +1,4 @@
-﻿#include "DebugPass.h"
+#include "DebugPass.h"
 
 #include "Core/App.h"
 #include "Modules/Renderer/RendereUtility.h"
@@ -13,12 +13,12 @@ void DebugPass::Collect(RenderContext& context)
     auto PSOname = "DebugPipelinePass";
 
     // ルートシグネチャを設定
-    auto rootSig = g_Scene->get_pipeline_state_manager()->get_root_signature(name);
+    auto rootSig = g_Scene->GetPipelineStateManager()->GetRootSignature(name);
     if (!rootSig) return;
-    cmdList->SetGraphicsRootSignature(rootSig->get());
+    cmdList->SetGraphicsRootSignature(rootSig->Get());
 
     // PSOを設定
-    auto pso = g_Scene->get_pipeline_state_manager()->get_pipeline_state(PSOname);
+    auto pso = g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname);
     if (!pso) return;
     cmdList->SetPipelineState(pso->Get());
 
@@ -29,7 +29,7 @@ void DebugPass::Collect(RenderContext& context)
         const auto rb = obj->find_component<Rigidbody>();
 
         // Rigidbodyがあり、Colliderもある場合に追加
-        if (rb && rb->get_collider_object())
+        if (rb && rb->GetColliderObject())
         {
            // m_collidersToDraw.push_back(rb);
         }
@@ -88,20 +88,20 @@ void DebugPass::Draw(RenderContext& context)
     const auto world = view * proj;
 
     // Debug
-    for (const auto & obj : g_Scene->get_game_objects())
+    for (const auto & obj : g_Scene->GetGameObjects())
     {
         auto rb = obj->find_component<Rigidbody>();
-        if (rb && rb->get_rigidbody())
+        if (rb && rb->GetRigidbody())
         {
-         //   rb->get_rigidbody()->setIsDebugEnabled(true);
+         //   rb->GetRigidbody()->setIsDebugEnabled(true);
         }
     }
 
-    auto constant_buffer = m_debugConstantBuffer->GetPtr<DebugConstants>();
-    constant_buffer->world = world;
+    auto constantBuffer = m_debugConstantBuffer->GetPtr<DebugConstants>();
+    constantBuffer->world = world;
     cmdList->SetGraphicsRootConstantBufferView(0, m_debugConstantBuffer->GetAddress());
     
-    auto& debugRenderer = g_Scene->get_physics_world()->getDebugRenderer();
+    auto& debugRenderer = g_Scene->GetPhysicsWorld()->getDebugRenderer();
     debugRenderer.setIsDebugItemDisplayed(reactphysics3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
 
     const auto& lines = debugRenderer.getLines();
@@ -140,7 +140,7 @@ void DebugPass::Draw(RenderContext& context)
         auto vertexBufferSize = stride * m_debugTriangleVertices.size();
 
         // ★★★ [FIX] 毎フレーム make_shared するのをやめる
-        // m_debugVertexBuffer = std::make_shared<VertexBuffer>(vertexBufferSize, stride, m_debug_vertices_.data());
+        // m_debugVertexBuffer = std::make_shared<VertexBuffer>(vertexBufferSize, stride, m_debugVertices.data());
         
         // ★★★ [ADD] 現在のフレーム用の頂点バッファを取得
         auto currentVB = m_debugTriangleVertexBuffers[frameIndex];
@@ -152,9 +152,9 @@ void DebugPass::Draw(RenderContext& context)
         currentVB->CopyData(vertexBufferSize, m_debugTriangleVertices.data());
         
         // ★★★ [FIX] m_debugVertexBuffer ではなく currentVB を使う
-        const auto vb_view = currentVB->View();
+        const auto vbView = currentVB->View();
         
-        cmdList->IASetVertexBuffers(0, 1, &vb_view);
+        cmdList->IASetVertexBuffers(0, 1, &vbView);
         cmdList->DrawInstanced(static_cast<UINT>(m_debugTriangleVertices.size()), 1, 0, 0);
     }
     

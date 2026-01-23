@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <vector>
 #include <string>
@@ -16,7 +16,7 @@ public:
     WorkManager(const WorkManager&) = delete;
     WorkManager& operator=(const WorkManager&) = delete;
     
-    void Update(float delta_time);
+    void Update(float deltaTime);
     
     Work* CreateWork(const std::string& name);
     

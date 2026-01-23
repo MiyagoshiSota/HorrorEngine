@@ -14,9 +14,9 @@ public:
         m_Transform = DirectX::XMMatrixIdentity();
 
         // コンストラクタでフレーム数分のバッファを全て作成する
-        m_ConstantBuffers.resize(g_Engine->FRAME_BUFFER_COUNT + 1);
-		m_ShadowConstantBuffers.resize(g_Engine->FRAME_BUFFER_COUNT + 1);
-        for (int i = 0; i < g_Engine->FRAME_BUFFER_COUNT; ++i)
+        m_ConstantBuffers.resize(g_Engine->kFrameBufferCount + 1);
+		m_ShadowConstantBuffers.resize(g_Engine->kFrameBufferCount + 1);
+        for (int i = 0; i < g_Engine->kFrameBufferCount; ++i)
         {
             // TODO:野生のConstantBufferを作ってる,Heapで管理したい感ある
             m_ConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::Transform));
@@ -25,22 +25,22 @@ public:
 			//m_ShadowConstantBuffers[i] = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::CascadedShadowMapTransform));
         }
     };
-	void init();
-    void transform_update();
-    void component_update(float delta_time) const;
+	void Init();
+    void TransformUpdate();
+    void ComponentUpdate(float deltaTime) const;
     
     // 各種Getter
-	std::string get_name() const { return name; }
-    DirectX::XMMATRIX get_transform() const { return m_Transform; }
-    DirectX::XMFLOAT3 get_position() const { return m_Position; }
-	DirectX::XMFLOAT3 get_rotation() const { return m_Rotation; }
-	DirectX::XMFLOAT3 get_scale() const { return m_Scale; }
-    std::shared_ptr<ConstantBuffer> get_constant_buffer() const { return  constantBuffer; }
+	std::string GetName() const { return name; }
+    DirectX::XMMATRIX GetTransform() const { return m_Transform; }
+    DirectX::XMFLOAT3 GetPosition() const { return m_Position; }
+	DirectX::XMFLOAT3 GetRotation() const { return m_Rotation; }
+	DirectX::XMFLOAT3 GetScale() const { return m_Scale; }
+    std::shared_ptr<ConstantBuffer> GetConstantBuffer() const { return  constantBuffer; }
 
 	// 各種Setter
-    void set_position(float x, float y, float z) { m_Position = { x, y, z }; }
-	void set_rotation(float x, float y, float z) { m_Rotation = { x, y, z }; }
-	void set_scale(float x, float y, float z) { m_Scale = { x, y, z }; }
+    void SetPosition(float x, float y, float z) { m_Position = { x, y, z }; }
+	void SetRotation(float x, float y, float z) { m_Rotation = { x, y, z }; }
+	void SetScale(float x, float y, float z) { m_Scale = { x, y, z }; }
 	
     // 各種Find
     template<typename T>
@@ -105,13 +105,13 @@ public:
     /// size分のコンスタントバッファを新しく作成する
     /// </summary>
     /// <param name="size"></param>
-    void create_constant_buffer(size_t size) { constantBuffer = std::make_shared<ConstantBuffer>(size); }
+    void CreateConstantBuffer(size_t size) { constantBuffer = std::make_shared<ConstantBuffer>(size); }
 
-    std::shared_ptr<ConstantBuffer> get_constant_buffer(UINT frameIndex) const {
+    std::shared_ptr<ConstantBuffer> GetConstantBuffer(UINT frameIndex) const {
         return m_ConstantBuffers[frameIndex];
     }
 
-    std::shared_ptr<ConstantBuffer> get_shadow_constant_buffer(UINT frameIndex) const {
+    std::shared_ptr<ConstantBuffer> GetShadowConstantBuffer(UINT frameIndex) const {
         return m_ShadowConstantBuffers[frameIndex];
 	}
 

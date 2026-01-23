@@ -4,7 +4,7 @@
 #include "Core/App.h"
 #include "Renderer/Assimp/AssimpLoader.h"
 #include "Scene/GameObject/Component/Component.h"
-#include "Modules/Other/engineString.h"
+#include "Modules/Other/EngineString.h"
 
 class MeshRenderer : public Component
 {
@@ -12,16 +12,16 @@ public:
 	MeshRenderer() = default;
 	~MeshRenderer() override = default;
 
-	void initialize(std::shared_ptr<GameObject> game_object) override
+	void Initialize(std::shared_ptr<GameObject> game_object) override
 	{
-		Component::initialize(game_object);
+		Component::Initialize(game_object);
 	};
 
 	void start() override {}
 	void update(float deltaTime) override {
 	}
 
-	void deserialize(const nlohmann::json& jsonData) override {
+	void Deserialize(const nlohmann::json& jsonData) override {
 
 		if (!jsonData.contains("model_name")) return;
 
@@ -37,11 +37,11 @@ public:
 		} 
 	}
 
-	std::string get_type() override {;
+	std::string GetType() override {;
 		return "MeshRenderer";
 	}
 
-	void on_gui() override {
+	void OnGui() override {
 		ImGui::Text("MeshRenderer Component");
 		ImGui::Separator();
 		ImGui::Text("Model Name: %s", model_name.c_str());

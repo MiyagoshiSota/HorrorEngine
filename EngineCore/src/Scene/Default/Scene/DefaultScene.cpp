@@ -4,7 +4,7 @@
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Core/Components/TriggerComponent.h"
 #include "Core/Components/Reward/StartWorkReward.h"
-#include "Modules/PublicConst/const_path_pref.h"
+#include "Modules/PublicConst/ConstPathPref.h"
 #include "Physics/MyCollisionListener.h"
 #include "Physics/Component/Rigidbody.h"
 #include "Renderer/Loader/PSOLoader.h"
@@ -17,7 +17,7 @@
 using namespace DirectX;
 using json = nlohmann::json;
 
-bool DefaultScene::Init(std::string go_file_path)
+bool DefaultScene::Init(std::string goFilePath)
 {
     // カメラの初期化
     m_Camera = std::make_unique<SceneCamera>();
@@ -30,30 +30,30 @@ bool DefaultScene::Init(std::string go_file_path)
     m_PipelineManager = std::make_unique<DefaultPipelineManager>();
     // DefaultPipelineManager型にキャスト
     // NOTE:DefaultPipelineManagerのメソッドを使用可能にするため
-    m_default_pipeline_manager = std::dynamic_pointer_cast<DefaultPipelineManager>(get_pipeline_manager());
+    m_defaultPipelineManager = std::dynamic_pointer_cast<DefaultPipelineManager>(GetPipelineManager());
 
     // PhysicsWorldの初期化
     RebuidPhysicsWorld();
 
     // AudioManagerの初期化
     m_AudioManager = std::make_shared<AudioManager>();
-    m_AudioManager->init();
+    m_AudioManager->Init();
 
     // TimeManagerの初期化
     m_TimeManager = std::make_unique<TimeManager>();
-    m_TimeManager->init();
+    m_TimeManager->Init();
 
     // LightingManagerの初期化
     m_LightingManager = std::make_unique<LightingManager>();
-    m_LightingManager->init();
+    m_LightingManager->Init();
     // TEST:Lightを環境光とポイントライトを一個だけ追加
-    m_LightingManager->add_directional_light(
+    m_LightingManager->AddDirectionalLight(
         LightType::Directional,
         DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f),
         1.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, 0.5f)
     );
-    //m_LightingManager->add_point_light(
+    //m_LightingManager->AddPointLight(
     //    LightType::Point,
     //    DirectX::XMFLOAT3(1.0f, .0f, .0f),
     //    3.0f,
@@ -61,7 +61,7 @@ bool DefaultScene::Init(std::string go_file_path)
     //    500.0f,
     //    0.005f
     //);
-    //m_LightingManager->add_spot_light(
+    //m_LightingManager->AddSpotLight(
     //    LightType::Spot,
     //    DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f),
     //    5.0f,
@@ -72,11 +72,11 @@ bool DefaultScene::Init(std::string go_file_path)
 
     printf("PSOの生成\n");
 
-    PSOLoader::load_from_file(const_path_pref::PSO_JsonPath, m_PipelineStateManager);
+    PSOLoader::LoadFromFile(ConstPathPref::kPSOJsonPath, m_PipelineStateManager);
 
     printf("シーンの初期化に成功\n");
 
-    InitializeGameObject(go_file_path);
+    InitializeGameObject(goFilePath);
 
     printf("ゲームオブジェクトの初期化を設定\n");
 
@@ -85,34 +85,34 @@ bool DefaultScene::Init(std::string go_file_path)
     return true;
 }
 
-void DefaultScene::Update(float delta_time)
+void DefaultScene::Update(float deltaTime)
 {
-    ISceneBase::Update(delta_time);
+    ISceneBase::Update(deltaTime);
 
     // ポストプロセスマネージャの更新
-    m_default_pipeline_manager->get_post_process_manager()->Update(delta_time);
+    m_defaultPipelineManager->GetPostProcessManager()->Update(deltaTime);
 
-    get_physics_world()->setIsDebugRenderingEnabled(true);
+    GetPhysicsWorld()->setIsDebugRenderingEnabled(true);
     
     // 物理演算の更新
-    m_physicsWorld->update(delta_time);
+    m_physicsWorld->update(deltaTime);
 
-    m_LightingManager->update_constant_buffer();
+    m_LightingManager->UpdateConstantBuffer();
 }
 
-void DefaultScene::EditorUpdate(float delta_time)
+void DefaultScene::EditorUpdate(float deltaTime)
 {
-    ISceneBase::EditorUpdate(delta_time);
+    ISceneBase::EditorUpdate(deltaTime);
 
     // ポストプロセスマネージャの更新
-    m_default_pipeline_manager->get_post_process_manager()->Update(delta_time);
+    m_defaultPipelineManager->GetPostProcessManager()->Update(deltaTime);
 
-    m_LightingManager->update_constant_buffer();
+    m_LightingManager->UpdateConstantBuffer();
 
     // SceneCameraの更新
-    m_Camera->Update(delta_time);
+    m_Camera->Update(deltaTime);
 
-    get_physics_world()->setIsDebugRenderingEnabled(true);
+    GetPhysicsWorld()->setIsDebugRenderingEnabled(true);
 }
 
 void DefaultScene::Draw()
@@ -120,13 +120,13 @@ void DefaultScene::Draw()
     m_PipelineManager->Execute();
 }
 
-void DefaultScene::shutdown()
+void DefaultScene::Shutdown()
 {
-    // AudioManagerの終了処理
-    if (m_AudioManager)
-    {
-        m_AudioManager->shutdown();
-    }
+	// AudioManagerの終了処理
+	if (m_AudioManager)
+	{
+		m_AudioManager->Shutdown();
+	}
 }
 
 void DefaultScene::RebuidPhysicsWorld()
@@ -144,40 +144,40 @@ void DefaultScene::RebuidPhysicsWorld()
     m_physicsWorld->setIsDebugRenderingEnabled(true);
 }
 
-void DefaultScene::InitializeGameObject(std::string file_path)
+void DefaultScene::InitializeGameObject(std::string filePath)
 {
     // ゲームオブジェクトの読み込み
-    m_GameObjects = GameObjectLoader::load_from_file(file_path);
+    m_GameObjects = GameObjectLoader::LoadFromFile(filePath);
 
     // ゲームオブジェクトのInitを実行
     for (auto& obj : m_GameObjects)
     {
-        obj->init();
+        obj->Init();
     }
 }
 
 // TODO:SceneClassが持つべきか怪しい
-bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
+bool DefaultScene::SerializeGameObjects(const std::string& goFilePath)
 {
     json sceneJson;
-    sceneJson[const_gameobject_save_param_pref::SceneName] = go_file_path; // or maybe scene name?
+    sceneJson[ConstGameObjectSaveParamPref::kSceneName] = goFilePath; // or maybe scene name?
 
     json gameObjectsJson = json::array();
 
-    for (const auto& obj : this->get_game_objects())
+    for (const auto& obj : this->GetGameObjects())
     {
         json objJson;
-        objJson[const_gameobject_save_param_pref::GameObjectName] = obj->get_name();
+        objJson[ConstGameObjectSaveParamPref::kGameObjectName] = obj->GetName();
 
         // Transform
         {
-            auto pos = obj->get_position();
-            auto scale = obj->get_scale();
-            auto rot = obj->get_rotation();
+            auto pos = obj->GetPosition();
+            auto scale = obj->GetScale();
+            auto rot = obj->GetRotation();
 
-            objJson[const_gameobject_save_param_pref::TransformPosition] = {pos.x, pos.y, pos.z};
-            objJson[const_gameobject_save_param_pref::TransformScale] = {scale.x, scale.y, scale.z};
-            objJson[const_gameobject_save_param_pref::TransformRotation] = {rot.x, rot.y, rot.z};
+            objJson[ConstGameObjectSaveParamPref::kTransformPosition] = {pos.x, pos.y, pos.z};
+            objJson[ConstGameObjectSaveParamPref::kTransformScale] = {scale.x, scale.y, scale.z};
+            objJson[ConstGameObjectSaveParamPref::kTransformRotation] = {rot.x, rot.y, rot.z};
         }
 
         // Components
@@ -187,11 +187,11 @@ bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
             if (!comp) continue; // nullptr チェック
 
             json compJson;
-            const std::string type = comp->get_type();
+            const std::string type = comp->GetType();
 
-            compJson[const_gameobject_save_param_pref::ComponentType] = type;
+            compJson[ConstGameObjectSaveParamPref::kComponentType] = type;
 
-            if (type == const_gameobject_save_param_pref::ComponentMeshRenderer)
+            if (type == ConstGameObjectSaveParamPref::kComponentMeshRenderer)
             {
                 const auto* meshRenderer = dynamic_cast<MeshRenderer*>(comp.get());
                 if (meshRenderer)
@@ -200,16 +200,16 @@ bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
                     compJson["model_name"] = meshRenderer->model_name; // "model_name" は定数クラスに追加しても良い
                 }
             }
-            else if (type == const_gameobject_save_param_pref::ComponentRigidbody)
+            else if (type == ConstGameObjectSaveParamPref::kComponentRigidbody)
             {
                 auto* rigidbody = dynamic_cast<Rigidbody*>(comp.get());
-                if (rigidbody && rigidbody->get_rigidbody())
+                if (rigidbody && rigidbody->GetRigidbody())
                 {
                     // キャスト成功 & RigidBodyが存在するか確認
-                    compJson[const_gameobject_save_param_pref::RigidbodyIsGravityEnabled] = rigidbody->
-                        is_gravity_enabled();
-                    auto body = rigidbody->get_body_type();
-                    compJson[const_gameobject_save_param_pref::RigidbodyBodyType] =
+                    compJson[ConstGameObjectSaveParamPref::kRigidbodyIsGravityEnabled] = rigidbody->
+                        IsGravityEnabled();
+                    auto body = rigidbody->GetBodyType();
+                    compJson[ConstGameObjectSaveParamPref::kRigidbodyBodyType] =
                         (body == reactphysics3d::BodyType::DYNAMIC)
                             ? "DYNAMIC"
                             : (body == reactphysics3d::BodyType::KINEMATIC)
@@ -217,53 +217,53 @@ bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
                             : "STATIC";
 
                     // Collider情報
-                    const auto engineCollider = rigidbody->get_collider_object(); // shared_ptr<engine_collider> を取得
-                    // engine_collider と reactphysics3d::Collider の両方が存在するか確認
-                    if (engineCollider && engineCollider->get_collider())
+                    const auto engineCollider = rigidbody->GetColliderObject(); // shared_ptr<EngineCollider> を取得
+                    // EngineCollider と reactphysics3d::Collider の両方が存在するか確認
+                    if (engineCollider && engineCollider->GetCollider())
                     {
                         json colliderJson;
-                        reactphysics3d::Collider* rp3dCollider = engineCollider->get_collider();
-                        engine_collider::ShapeType shapeType = engineCollider->get_shape_type();
+                        reactphysics3d::Collider* rp3dCollider = engineCollider->GetCollider();
+                        EngineCollider::ShapeType shapeType = engineCollider->GetShapeType();
 
-                        if (shapeType == engine_collider::ShapeType::CAPSULE)
+                        if (shapeType == EngineCollider::ShapeType::CAPSULE)
                         {
-                            colliderJson[const_gameobject_save_param_pref::ColliderShape] =
-                                const_gameobject_save_param_pref::ColliderShapeCapsule;
-                            colliderJson[const_gameobject_save_param_pref::ColliderCapsuleHeight] = engineCollider->
-                                get_capsule_height();
-                            colliderJson[const_gameobject_save_param_pref::ColliderCapsuleRadius] = engineCollider->
-                                get_capsule_radius();
+                            colliderJson[ConstGameObjectSaveParamPref::kColliderShape] =
+                                ConstGameObjectSaveParamPref::kColliderShapeCapsule;
+                            colliderJson[ConstGameObjectSaveParamPref::kColliderCapsuleHeight] = engineCollider->
+                                GetCapsuleHeight();
+                            colliderJson[ConstGameObjectSaveParamPref::kColliderCapsuleRadius] = engineCollider->
+                                GetCapsuleRadius();
                         }
-                        else if (shapeType == engine_collider::ShapeType::BOX)
+                        else if (shapeType == EngineCollider::ShapeType::BOX)
                         {
-                            colliderJson[const_gameobject_save_param_pref::ColliderShape] =
-                                const_gameobject_save_param_pref::ColliderShapeBox;
-                            reactphysics3d::Vector3 halfExtents = engineCollider->get_box_half_extents();
-                            colliderJson[const_gameobject_save_param_pref::ColliderBoxHalfExtents] = {
+                            colliderJson[ConstGameObjectSaveParamPref::kColliderShape] =
+                                ConstGameObjectSaveParamPref::kColliderShapeBox;
+                            reactphysics3d::Vector3 halfExtents = engineCollider->GetBoxHalfExtents();
+                            colliderJson[ConstGameObjectSaveParamPref::kColliderBoxHalfExtents] = {
                                 halfExtents.x, halfExtents.y, halfExtents.z
                             };
                         }
-                        else if (shapeType == engine_collider::ShapeType::SPHERE) // SPHERE を追加
+                        else if (shapeType == EngineCollider::ShapeType::SPHERE) // SPHERE を追加
                         {
-                            colliderJson[const_gameobject_save_param_pref::ColliderShape] =
-                                const_gameobject_save_param_pref::ColliderShapeSphere;
-                            colliderJson[const_gameobject_save_param_pref::ColliderSphereRadius] = engineCollider->
-                                get_sphere_radius();
+                            colliderJson[ConstGameObjectSaveParamPref::kColliderShape] =
+                                ConstGameObjectSaveParamPref::kColliderShapeSphere;
+                            colliderJson[ConstGameObjectSaveParamPref::kColliderSphereRadius] = engineCollider->
+                                GetSphereRadius();
                         }
 
                         // Trigger設定も保存
-                        colliderJson[const_gameobject_save_param_pref::ColliderIsTrigger] = rp3dCollider->
+                        colliderJson[ConstGameObjectSaveParamPref::kColliderIsTrigger] = rp3dCollider->
                             getIsTrigger();
 
                         // Colliderのローカルトランスフォームも保存 (必要なら)
                         // reactphysics3d::Transform localTransform = rp3dCollider->getLocalToBodyTransform();
                         // ... localTransform をJSONに保存する処理 ...
 
-                        compJson[const_gameobject_save_param_pref::RigidbodyCollider] = colliderJson;
+                        compJson[ConstGameObjectSaveParamPref::kRigidbodyCollider] = colliderJson;
                     }
                 }
             }
-            else if (type == const_gameobject_save_param_pref::ComponentTrigger)
+            else if (type == ConstGameObjectSaveParamPref::kComponentTrigger)
             {
                 auto* trigger_comp = dynamic_cast<TriggerComponent*>(comp.get());
                 if (trigger_comp)
@@ -274,10 +274,10 @@ bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
                     {
                         // JSON オブジェクトを作成して Condition の情報を格納
                         json conditionJson;
-                        conditionJson[const_gameobject_save_param_pref::TriggerConditionName] = trigger_comp->Condition->
+                        conditionJson[ConstGameObjectSaveParamPref::kTriggerConditionName] = trigger_comp->Condition->
                             GetName();
                         // TODO: Condition にパラメータがあればここに追加
-                        compJson[const_gameobject_save_param_pref::TriggerCondition] = conditionJson;
+                        compJson[ConstGameObjectSaveParamPref::kTriggerCondition] = conditionJson;
                     }
 
                     // Reward
@@ -289,55 +289,55 @@ bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
                             if (action)
                             {
                                 json actionJson;
-                                actionJson[const_gameobject_save_param_pref::TriggerActionName] = action->GetName();
+                                actionJson[ConstGameObjectSaveParamPref::kTriggerActionName] = action->GetName();
 
                                 // TODO: Action ごとのパラメータを保存する処理
                                 if (action->GetName() == "StartWork")
                                 {
                                     auto* startWorkAction = dynamic_cast<StartWorkReward*>(action.get());
-                                    if (startWorkAction && startWorkAction->get_work())
+                                    if (startWorkAction && startWorkAction->GetWork())
                                     {
-                                        actionJson["workName"] = startWorkAction->get_work()->m_name;
+                                        actionJson["workName"] = startWorkAction->GetWork()->m_name;
                                     }
                                 }
                                 actionsJson.push_back(actionJson);
                             }
                         }
                         // "Reward" ではなく複数のActionを格納するキー名を使用
-                        compJson[const_gameobject_save_param_pref::TriggerActions] = actionsJson;
+                        compJson[ConstGameObjectSaveParamPref::kTriggerActions] = actionsJson;
                     }
                 }
             }
-            else if (type == const_gameobject_save_param_pref::ComponentPlayerController)
+            else if (type == ConstGameObjectSaveParamPref::kComponentPlayerController)
             {
                 auto* playerController = dynamic_cast<PLayerController*>(comp.get());
                 if (playerController)
                 {
                     // キャスト成功確認
-                    compJson[const_gameobject_save_param_pref::PlayerControllerMoveSpeed] = playerController->
-                        get_move_speed();
+                    compJson[ConstGameObjectSaveParamPref::kPlayerControllerMoveSpeed] = playerController->
+                        GetMoveSpeed();
                 }
             }
 
             componentsJson.push_back(compJson);
         }
 
-        objJson[const_gameobject_save_param_pref::Components] = componentsJson;
+        objJson[ConstGameObjectSaveParamPref::kComponents] = componentsJson;
         gameObjectsJson.push_back(objJson);
     }
 
-    sceneJson[const_gameobject_save_param_pref::GameObjects] = gameObjectsJson;
+    sceneJson[ConstGameObjectSaveParamPref::kGameObjects] = gameObjectsJson;
 
     // JSONを整形して文字列化
     std::string result_json = sceneJson.dump(4); // 4はインデント幅
 
     // ファイルストリームを開く
-    std::ofstream ofs(go_file_path);
+    std::ofstream ofs(goFilePath);
 
     // ファイルが開けたか確認
     if (!ofs.is_open())
     {
-        std::cerr << "Error: Failed to open file for writing: " << go_file_path << std::endl;
+        std::cerr << "Error: Failed to open file for writing: " << goFilePath << std::endl;
         return false;
     }
 
@@ -351,6 +351,6 @@ bool DefaultScene::serialize_game_objects(const std::string& go_file_path)
 }
 
 // TODO:SceneClassが持つべきか怪しい
-void DefaultScene::deserialize_game_objects(const std::string& go_file_path)
+void DefaultScene::DeserializeGameObjects(const std::string& goFilePath)
 {
 }

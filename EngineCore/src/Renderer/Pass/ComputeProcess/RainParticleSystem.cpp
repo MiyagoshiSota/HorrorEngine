@@ -1,4 +1,4 @@
-﻿#include "RainParticleSystem.h"
+#include "RainParticleSystem.h"
 
 #include "Core/App.h"
 #include "Modules/Renderer/RendereUtility.h"
@@ -101,8 +101,8 @@ void RainParticleSystem::Execute(RenderContext& context)
 
     // 定数バッファの更新
     auto cons = constantBuffer->GetPtr<FrameConstants>();
-    const auto time_manager = g_Scene->get_time_manager();
-    cons->deltaTime = time_manager->get_delta_time(); // 経過時間
+    const auto timeManager = g_Scene->GetTimeManager();
+    cons->deltaTime = timeManager->GetDeltaTime(); // 経過時間
     cons->windForce = DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f); // 風の力
     cons->emitCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f); // エミット中心位置
     cons->emitRadius = 200.0f; // エミット半径
@@ -112,10 +112,10 @@ void RainParticleSystem::Execute(RenderContext& context)
     cons->initialLifeMax = 10.0f; // パーティクルの初期寿命最大値
 
     // ルートシグネチャを設定
-    cmdList->SetComputeRootSignature(g_Scene->get_pipeline_state_manager()->get_root_signature(name)->get());
+    cmdList->SetComputeRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
 
     // PSOを設定
-    cmdList->SetPipelineState(g_Scene->get_pipeline_state_manager()->get_pipeline_state(PSOname)->Get());
+    cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
 
     // 初回フレーム時のみ、UPLOAD バッファから DEFAULT バッファへデータをコピー
     if (firstFrame)
@@ -130,12 +130,12 @@ void RainParticleSystem::Execute(RenderContext& context)
 
         // m_pParticleBuffer の状態を UAV (計算用) に遷移
         // コピー完了後、コンピュートシェーダーで使えるように状態遷移
-        D3D12_RESOURCE_BARRIER particle_barrier = {};
-        particle_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        particle_barrier.Transition.pResource = m_pParticleBuffer.Get();
-        particle_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-        particle_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-        cmdList->ResourceBarrier(1, &particle_barrier);
+        D3D12_RESOURCE_BARRIER particleBarrier = {};
+        particleBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        particleBarrier.Transition.pResource = m_pParticleBuffer.Get();
+        particleBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+        particleBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+        cmdList->ResourceBarrier(1, &particleBarrier);
         
         firstFrame = false;
     }
@@ -187,12 +187,12 @@ void RainParticleSystem::Draw(RenderContext& context)
     sceneConstant->rainLength = 1.0f;
 
     // UAVからSRVへ状態遷移
-    D3D12_RESOURCE_BARRIER srv_barrier = {};
-    srv_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    srv_barrier.Transition.pResource = m_pParticleBuffer.Get();
-    srv_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-    srv_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-    cmdList->ResourceBarrier(1, &srv_barrier);
+    D3D12_RESOURCE_BARRIER srvBarrier = {};
+    srvBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    srvBarrier.Transition.pResource = m_pParticleBuffer.Get();
+    srvBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    srvBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    cmdList->ResourceBarrier(1, &srvBarrier);
 
     // 出力先としてレンダーターゲットと深度バッファを設定
     auto sceneDepthRHandle = sceneDepthRT->GetDSVHandle();
@@ -200,10 +200,10 @@ void RainParticleSystem::Draw(RenderContext& context)
     cmdList->OMSetRenderTargets(1, sceneColorRTVHandle, FALSE, &sceneDepthRHandle);
 
     // ルートシグネチャを設定
-    cmdList->SetGraphicsRootSignature(g_Scene->get_pipeline_state_manager()->get_root_signature(name)->get());
+    cmdList->SetGraphicsRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
 
     // PSOを設定
-    cmdList->SetPipelineState(g_Scene->get_pipeline_state_manager()->get_pipeline_state(PSOname)->Get());
+    cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
 
     // (ルートパラメータの設定)
     cmdList->SetGraphicsRootConstantBufferView(0, sceneConstantBuffer->GetAddress()); // b0
@@ -214,12 +214,12 @@ void RainParticleSystem::Draw(RenderContext& context)
     cmdList->DrawInstanced(MAX_PARTICLES, 1, 0, 0);
 
     // SRVからCOPY_DESTへ状態遷移
-    D3D12_RESOURCE_BARRIER particle_barrier = {};
-    particle_barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    particle_barrier.Transition.pResource = m_pParticleBuffer.Get();
-    particle_barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-    particle_barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-    cmdList->ResourceBarrier(1, &particle_barrier);
+    D3D12_RESOURCE_BARRIER particleBarrier = {};
+    particleBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    particleBarrier.Transition.pResource = m_pParticleBuffer.Get();
+    particleBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    particleBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    cmdList->ResourceBarrier(1, &particleBarrier);
 
     // 描画後、RTVとDSVを読み取り可能状態に変更
     std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriersOld = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();

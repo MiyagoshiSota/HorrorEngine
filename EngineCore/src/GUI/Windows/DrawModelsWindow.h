@@ -21,7 +21,7 @@ public:
         }
 
         // 登録されているモデルの一覧を表示
-        const auto& models = g_ModelLoader->get_all_models_data();
+        const auto& models = g_ModelLoader->GetAllModelsData();
         for (const auto& [model_name, model_ptr] : models)
         {
             // 各モデルを選択したら、そのモデルを使って新しいゲームオブジェクトを作成
@@ -35,15 +35,15 @@ public:
                 //　デフォルトのコンポーネントを設定
                 // MeshRenderer
                 auto renderer_component = ComponentFactory::create("MeshRenderer");
-                renderer_component->initialize(new_game_object);
-                renderer_component->deserialize(nlohmann::json{{"model_name", model_name}});
+                renderer_component->Initialize(new_game_object);
+                renderer_component->Deserialize(nlohmann::json{{"model_name", model_name}});
                 new_game_object->components.push_back(std::move(renderer_component));
                 
                 // ゲームオブジェクトのInitを実行
-                new_game_object->init();
+                new_game_object->Init();
 
                 // シーンに追加
-                g_Scene->add_game_object(new_game_object);
+                g_Scene->AddGameObject(new_game_object);
             }
             
         }
@@ -65,9 +65,9 @@ private:
         while (name_exists)
         {
             name_exists = false;
-            for (const auto& obj : g_Scene->get_game_objects())
+            for (const auto& obj : g_Scene->GetGameObjects())
             {
-                if (obj->get_name() == final_name)
+                if (obj->GetName() == final_name)
                 {
                     name_exists = true;
                     final_name = base_name + std::to_string(counter++);

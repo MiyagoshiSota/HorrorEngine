@@ -31,11 +31,11 @@ public:
         
         // 全GameObjectをスキャンしてTriggerComponentを収集
         std::map<std::shared_ptr<GameObject>, std::vector<TriggerComponent*>> taskMap;
-        for (const auto& obj : g_Scene->get_game_objects())
+        for (const auto& obj : g_Scene->GetGameObjects())
         {
             for (const auto& comp : obj->components)
             {
-                if (comp->get_type() == "Trigger")
+                if (comp->GetType() == "Trigger")
                 {
                     const auto& trigger = dynamic_cast<TriggerComponent*>(comp.get());
                     if (trigger)
@@ -50,7 +50,7 @@ public:
         for (auto& [gameObject, triggers] : taskMap)
         {
             // Target (GameObject)
-            if (ImGui::TreeNode(gameObject.get(), "Target: %s", gameObject->get_name().c_str()))
+            if (ImGui::TreeNode(gameObject.get(), "Target: %s", gameObject->GetName().c_str()))
             {
                 for (int i = 0; i < triggers.size(); ++i)
                 {
@@ -82,7 +82,7 @@ public:
         ImGui::Text("Create New Task");
         
         // [Target] : GameObjectを選択
-        std::string currentTargetName = s_TargetForNewTask ? s_TargetForNewTask->get_name() : "None";
+        std::string currentTargetName = s_TargetForNewTask ? s_TargetForNewTask->GetName() : "None";
         if (ImGui::BeginCombo("Target", currentTargetName.c_str()))
         {
             // "None"選択肢
@@ -92,10 +92,10 @@ public:
             }
             
             // シーン内の全オブジェクト
-            for (const auto& obj : g_Scene->get_game_objects())
+            for (const auto& obj : g_Scene->GetGameObjects())
             {
                 bool is_selected = (s_TargetForNewTask == obj);
-                if (ImGui::Selectable(obj->get_name().c_str(), is_selected))
+                if (ImGui::Selectable(obj->GetName().c_str(), is_selected))
                 {
                     s_TargetForNewTask = obj;
                 }
@@ -145,7 +145,7 @@ public:
                     newTrigger->Actions.push_back(std::move(new_action));
                 }
 
-                newTrigger->initialize(s_TargetForNewTask);
+                newTrigger->Initialize(s_TargetForNewTask);
             }
         }
         ImGui::End();

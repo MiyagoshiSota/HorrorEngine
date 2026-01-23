@@ -2,7 +2,7 @@
 #include "GUI/Core/IDrawWindow.h"
 #include "imgui.h"
 #include "Scene/SceneManager.h"
-#include "Modules/PublicConst/const_day_pref.h"
+#include "Modules/PublicConst/ConstDayPref.h"
 #include "Renderer/Engine.h"
 #include "GUI/Windows/DrawGameObjectWindow.h"
 #include "GUI/Windows/DrawPostProcessPresetWindow.h"
@@ -53,7 +53,7 @@ private:
             {
                 // 新しいシーンを作成
                 if (ImGui::MenuItem("New Day")) {
-                    g_SceneManager->LoadScene(const_day_pref::TmpDayPath);
+                    g_SceneManager->LoadScene(ConstDayPref::kTmpDayPath);
                     g_SceneManager->ProcessSceneRequest();
                 }
 
@@ -61,11 +61,11 @@ private:
                 if (ImGui::BeginMenu("Open Day"))
                 {
                     // シーンのリストを動的に生成する                    
-                    std::filesystem::path daysDir = const_day_pref::DaysDirectoryPathGame; 
+                    std::filesystem::path daysDir = ConstDayPref::kDaysDirectoryPathGame; 
                     for (const auto& entry : std::filesystem::directory_iterator(daysDir))
                     {
                         // ファイルの拡張子が.jsonの場合
-                        if (entry.is_regular_file() && entry.path().extension() == const_day_pref::DayFileExtension)
+                        if (entry.is_regular_file() && entry.path().extension() == ConstDayPref::kDayFileExtension)
                         {
                             // ファイル名を取得
                             std::string dayName = entry.path().stem().string();
@@ -84,8 +84,8 @@ private:
                     auto now_scene = g_SceneManager->GetNextScenePath();
                     
                     // TmpDayの場合は名前入力ダイアログを表示
-                    if (now_scene == const_day_pref::TmpDayPath || 
-                        now_scene.find(const_day_pref::TmpDayFileName) != std::string::npos) {
+                    if (now_scene == ConstDayPref::kTmpDayPath || 
+                        now_scene.find(ConstDayPref::kTmpDayFileName) != std::string::npos) {
                         // DrawDayWindowに保存ダイアログを表示させる
                         if (g_Engine)
                         {
@@ -101,7 +101,7 @@ private:
                         }
                     } else {
                         // 通常の保存処理
-                        g_Scene->serialize_game_objects(now_scene);
+                        g_Scene->SerializeGameObjects(now_scene);
                     }
                 }
                 ImGui::EndMenu();
@@ -195,10 +195,10 @@ private:
         // Game Object Window
         if (gameObjectWindow)
         {
-            bool visible = gameObjectWindow->is_visible();
+            bool visible = gameObjectWindow->IsVisible();
             if (ImGui::MenuItem("Game Object Window", nullptr, &visible))
             {
-                gameObjectWindow->set_visible(visible);
+                gameObjectWindow->SetVisible(visible);
             }
         }
         
@@ -207,40 +207,40 @@ private:
         // Post Process Preset Window
         if (postProcessWindow)
         {
-            bool visible = postProcessWindow->is_visible();
+            bool visible = postProcessWindow->IsVisible();
             if (ImGui::MenuItem("Post Process Preset Window", nullptr, &visible))
             {
-                postProcessWindow->set_visible(visible);
+                postProcessWindow->SetVisible(visible);
             }
         }
         
         // Models Window
         if (modelsWindow)
         {
-            bool visible = modelsWindow->is_visible();
+            bool visible = modelsWindow->IsVisible();
             if (ImGui::MenuItem("Models Window", nullptr, &visible))
             {
-                modelsWindow->set_visible(visible);
+                modelsWindow->SetVisible(visible);
             }
         }
         
         // Task Manager Window
         if (taskManagerWindow)
         {
-            bool visible = taskManagerWindow->is_visible();
+            bool visible = taskManagerWindow->IsVisible();
             if (ImGui::MenuItem("Task Manager Window", nullptr, &visible))
             {
-                taskManagerWindow->set_visible(visible);
+                taskManagerWindow->SetVisible(visible);
             }
         }
         
         // Work Manager Window
         if (workManagerWindow)
         {
-            bool visible = workManagerWindow->is_visible();
+            bool visible = workManagerWindow->IsVisible();
             if (ImGui::MenuItem("Work Manager Window", nullptr, &visible))
             {
-                workManagerWindow->set_visible(visible);
+                workManagerWindow->SetVisible(visible);
             }
         }
     }

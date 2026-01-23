@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <DirectXMath.h>
 #include <memory>
 #include <string>
@@ -22,13 +22,13 @@ struct Light
     float Intensity = 1.0f;
 
     // ライトの色を取得
-    void set_color(const DirectX::XMFLOAT3& color)
+    void SetColor(const DirectX::XMFLOAT3& color)
     {
         Color = color;
     }
     
     // ライトのタイプを文字列で取得
-    std::string get_type_string() const
+    std::string GetTypeString() const
     {
         switch (Type)
         {
@@ -43,7 +43,7 @@ struct Light
         }
     }
 
-    virtual void set_position(float x, float y, float z) = 0;
+    virtual void SetPosition(float x, float y, float z) = 0;
 };
 
 struct PointLight : Light
@@ -55,7 +55,7 @@ struct PointLight : Light
     // 点光源の距離による減衰率
     float Attenuation = 0.1f;
 
-    void set_position(float x, float y, float z) override
+    void SetPosition(float x, float y, float z) override
     {
         Position = { x, y, z };
     }
@@ -66,7 +66,7 @@ struct DirectionalLight : Light
     // ライトの方向（単位ベクトル）
     DirectX::XMFLOAT3 Direction = { -1.0f, -1.0f, -1.0f };
 
-    void set_position(float x, float y, float z) override
+    void SetPosition(float x, float y, float z) override
     {
         // ディレクショナルライトの場合、位置は方向ベクトルとして扱う
         Direction = { x, y, z };
@@ -89,7 +89,7 @@ struct SpotLight: Light
     // スポットの距離による減衰率
     float Attenuation = 0.1f;
     
-    void set_position(float x, float y, float z) override
+    void SetPosition(float x, float y, float z) override
     {
         Position = { x, y, z };
     }

@@ -55,7 +55,7 @@ bool RootSignature::is_valid() const
 	return m_IsValid;
 }
 
-ID3D12RootSignature* RootSignature::get() const
+ID3D12RootSignature* RootSignature::Get() const
 {
 	return m_pRootSignature.Get();
 }

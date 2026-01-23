@@ -20,9 +20,9 @@
 
             // === 左側：オブジェクト一覧 ===
             ImGui::BeginChild("Object List", ImVec2(200, 100), true);
-            for (const auto& obj : g_Scene->get_game_objects())
+            for (const auto& obj : g_Scene->GetGameObjects())
             {
-                std::string label = obj->get_name();
+                std::string label = obj->GetName();
                 if (ImGui::Selectable(label.c_str(), s_SelectedObject == obj))
                 {
                     s_SelectedObject = obj;
@@ -33,21 +33,21 @@
             // === 右側：オブジェクトのTransform編集 ===
             ImGui::SameLine();
 
-            bool is_selected_object_valid = false;
+            bool isSelectedObjectValid = false;
             if (s_SelectedObject)
             {
                 // 現在のシーンリストに s_SelectedObject が含まれているかチェック
-                for (const auto& obj : g_Scene->get_game_objects())
+                for (const auto& obj : g_Scene->GetGameObjects())
                 {
                     if (obj == s_SelectedObject)
                     {
-                        is_selected_object_valid = true;
+                        isSelectedObjectValid = true;
                         break;
                     }
                 }
             }
 
-            if (!is_selected_object_valid)
+            if (!isSelectedObjectValid)
             {
                 s_SelectedObject = nullptr;
             }
@@ -55,33 +55,33 @@
             ImGui::BeginChild("Object Properties", ImVec2(400, 100), true);
             if (s_SelectedObject)
             {
-                ImGui::Text("Editing: %s", s_SelectedObject->get_name().c_str());
+                ImGui::Text("Editing: %s", s_SelectedObject->GetName().c_str());
                 ImGui::Separator();
 
                 // Position
                 {
-                    auto pos = s_SelectedObject->get_position();
+                    auto pos = s_SelectedObject->GetPosition();
                     if (ImGui::DragFloat3("Position", &pos.x, 0.1f))
                     {
-                        s_SelectedObject->set_position(pos.x,pos.y,pos.z);
+                        s_SelectedObject->SetPosition(pos.x,pos.y,pos.z);
                     }
                 }
 
                 // Rotation
                 {
-                    auto rot = s_SelectedObject->get_rotation();
+                    auto rot = s_SelectedObject->GetRotation();
                     if (ImGui::DragFloat3("Rotation", &rot.x, 0.5f))
                     {
-                        s_SelectedObject->set_rotation(rot.x,rot.y,rot.z);
+                        s_SelectedObject->SetRotation(rot.x,rot.y,rot.z);
                     }
                 }
 
                 // Scale
                 {
-                    auto scale = s_SelectedObject->get_scale();
+                    auto scale = s_SelectedObject->GetScale();
                     if (ImGui::DragFloat3("Scale", &scale.x, 0.1f))
                     {
-                        s_SelectedObject->set_scale(scale.x,scale.y,scale.z);
+                        s_SelectedObject->SetScale(scale.x,scale.y,scale.z);
                     }
                 }
                 
@@ -92,7 +92,7 @@
 
                     ImGui::PushID(comp.get());
 
-                    std::string componentType = comp->get_type(); 
+                    std::string componentType = comp->GetType(); 
 
                     if (ImGui::CollapsingHeader(componentType.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
                     {
@@ -104,7 +104,7 @@
                             break; // コンポーネントリストが変更されたのでループを抜ける
                         }
                         
-                        comp->on_gui(); 
+                        comp->OnGui(); 
                     }
 
                     ImGui::PopID();
@@ -119,9 +119,9 @@
 
             // Lightの一覧
             ImGui::BeginChild("Light List", ImVec2(200, 100), true);
-            for (const auto& light : g_Scene->get_lighting_manager()->get_lights())
+            for (const auto& light : g_Scene->GetLightingManager()->GetLights())
             {
-                std::string label = light->get_type_string() + " Light";
+                std::string label = light->GetTypeString() + " Light";
                 if (ImGui::Selectable(label.c_str(), s_SelectedLight == light))
                 {
                     s_SelectedLight = light;
@@ -135,7 +135,7 @@
             // 以下に追記
             if (s_SelectedLight)
             {
-                ImGui::Text("Editing: %s Light", s_SelectedLight->get_type_string().c_str());
+                ImGui::Text("Editing: %s Light", s_SelectedLight->GetTypeString().c_str());
                 ImGui::Separator();
                 
                 // Color
@@ -144,7 +144,7 @@
                     float colorArr[3] = { color.x, color.y, color.z };
                     if (ImGui::ColorEdit3("Color", colorArr))
                     {
-                        s_SelectedLight->set_color(DirectX::XMFLOAT3(colorArr[0], colorArr[1], colorArr[2]));
+                        s_SelectedLight->SetColor(DirectX::XMFLOAT3(colorArr[0], colorArr[1], colorArr[2]));
                     }
                 }
 
@@ -157,7 +157,7 @@
                         auto position = pointLight->Position;
                         if (ImGui::DragFloat3("Position", &position.x, 0.1f))
                         {
-                            pointLight->set_position(position.x, position.y, position.z);
+                            pointLight->SetPosition(position.x, position.y, position.z);
                         }
 
                         float range = pointLight->Range;
@@ -197,7 +197,7 @@
                         auto position = spotLight->Position;
                         if (ImGui::DragFloat3("Position", &position.x, 0.1f))
                         {
-                            spotLight->set_position(position.x, position.y, position.z);
+                            spotLight->SetPosition(position.x, position.y, position.z);
                         }
 
                         auto direction = spotLight->Direction;
@@ -249,7 +249,7 @@
                 const auto& component_map = ComponentFactory::get_mappings();
 
                 // ドロップダウンリスト
-                static std::string selected_component_type;
+                static std::string selectedComponentType;
                 if (component_map.empty())
                 {
                     ImGui::Text("No components registered.");
@@ -257,18 +257,18 @@
                 else
                 {
                     // 選択肢が空なら、最初の要素をデフォルトにする
-                    if (selected_component_type.empty()) {
-                        selected_component_type = component_map.begin()->first;
+                    if (selectedComponentType.empty()) {
+                        selectedComponentType = component_map.begin()->first;
                     }
 
-                    if (ImGui::BeginCombo("Component Type", selected_component_type.c_str()))
+                    if (ImGui::BeginCombo("Component Type", selectedComponentType.c_str()))
                     {
                         for (const auto& pair : component_map)
                         {
-                            bool isSelected = (selected_component_type == pair.first);
+                            bool isSelected = (selectedComponentType == pair.first);
                             if (ImGui::Selectable(pair.first.c_str(), isSelected))
                             {
-                                selected_component_type = pair.first;
+                                selectedComponentType = pair.first;
                             }
                             if (isSelected) ImGui::SetItemDefaultFocus();
                         }
@@ -280,12 +280,12 @@
                     {
                         // ファクトリに文字列名を渡してコンポーネントを
                         auto newComp = 
-                            ComponentFactory::create(selected_component_type);
+                            ComponentFactory::create(selectedComponentType);
 
                         // 作成したコンポーネントを
                         if (newComp)
                         {
-                            newComp->initialize(s_SelectedObject);
+                            newComp->Initialize(s_SelectedObject);
                             s_SelectedObject->components.push_back(std::move(newComp));
                         }
                     }

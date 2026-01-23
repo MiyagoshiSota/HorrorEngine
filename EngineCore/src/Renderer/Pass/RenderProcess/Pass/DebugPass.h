@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Physics/Component/Rigidbody.h"
 #include "Renderer/Pass/RenderProcess/SceneRenderPassBase.h"
 
@@ -63,7 +63,7 @@ private:
     D3D12_GPU_VIRTUAL_ADDRESS m_currentFrameStartGpuAddress = 0; // 現在フレームのGPUアドレス先頭
 
     std::shared_ptr<VertexBuffer> m_debugVertexBuffer = nullptr;
-    std::vector<DebugConstants> m_debug_vertices_;
+    std::vector<DebugConstants> m_debugVertices;
 
     std::vector<std::shared_ptr<VertexBuffer>> m_debugTriangleVertexBuffers;
 

@@ -1,12 +1,12 @@
 #include "LightingManager.h"
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
 
-void LightingManager::init()
+void LightingManager::Init()
 {
     m_LightingConstantBuffer = std::make_shared<ConstantBuffer>(sizeof(SharedStruct::LightingParams));
 }
 
-std::shared_ptr<Light> LightingManager::add_directional_light(LightType type, const DirectX::XMFLOAT3& color,
+std::shared_ptr<Light> LightingManager::AddDirectionalLight(LightType type, const DirectX::XMFLOAT3& color,
                                                               float intensity, const DirectX::XMFLOAT3& direction)
 {
     auto newLight = std::make_shared<DirectionalLight>();
@@ -18,7 +18,7 @@ std::shared_ptr<Light> LightingManager::add_directional_light(LightType type, co
     return newLight;
 }
 
-std::shared_ptr<Light> LightingManager::add_point_light(LightType type, const DirectX::XMFLOAT3& color, float intensity,
+std::shared_ptr<Light> LightingManager::AddPointLight(LightType type, const DirectX::XMFLOAT3& color, float intensity,
                                                         const DirectX::XMFLOAT3& position, float range,
                                                         float attenuation)
 {
@@ -33,7 +33,7 @@ std::shared_ptr<Light> LightingManager::add_point_light(LightType type, const Di
     return newLight;
 }
 
-std::shared_ptr<Light> LightingManager::add_spot_light(LightType type, const DirectX::XMFLOAT3& color, float intensity,
+std::shared_ptr<Light> LightingManager::AddSpotLight(LightType type, const DirectX::XMFLOAT3& color, float intensity,
                                                        const DirectX::XMFLOAT3& position,
                                                        const DirectX::XMFLOAT3& direction, float inngerAngle,
                                                        float outerAngle, float range, float attenuation)
@@ -52,7 +52,7 @@ std::shared_ptr<Light> LightingManager::add_spot_light(LightType type, const Dir
     return newLight;
 }
 
-void LightingManager::update_constant_buffer() const
+void LightingManager::UpdateConstantBuffer() const
 {
     SharedStruct::LightingParams lightingParams = {};
 

@@ -22,40 +22,40 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <returns></returns>
-	virtual bool Init(std::string go_file_path) = 0;
+	virtual bool Init(std::string goFilePath) = 0;
 
 	/// <summary>
 	/// 終了処理
 	/// </summary>
-	virtual void shutdown() = 0;
+	virtual void Shutdown() = 0;
 
 	/// <summary>
 	/// 毎フレーム実行
 	/// </summary>
-	virtual void Update(float delta_time) {
+	virtual void Update(float deltaTime) {
 		// GameObjectのUpdate処理
 		for (auto& obj : m_GameObjects)
 		{
-			obj->transform_update();
-			obj->component_update(delta_time);
+			obj->TransformUpdate();
+			obj->ComponentUpdate(deltaTime);
 		}
 		
 		// TimeManagerの更新
-		m_TimeManager->update();
+		m_TimeManager->Update();
 	};
 
 	/// <summary>
 	/// Editorモード時の毎フレーム実行
 	/// </summary>
-	virtual void EditorUpdate(float delta_time) {
+	virtual void EditorUpdate(float deltaTime) {
 		// GameObjectのUpdate処理
 		for (auto& obj : m_GameObjects)
 		{
-			obj->transform_update();
+			obj->TransformUpdate();
 		}
 
 		// TimeManagerの更新
-		m_TimeManager->update();
+		m_TimeManager->Update();
 	};
 
 	/// <summary>
@@ -65,33 +65,33 @@ public:
 
 	virtual void RebuidPhysicsWorld() = 0;
 
-	virtual void InitializeGameObject(std::string go_file_path) = 0;
+	virtual void InitializeGameObject(std::string goFilePath) = 0;
 
 	// --Getter--
 
 	// Manager
-	std::shared_ptr<SceneCamera> get_scene_camera() { return m_Camera; }
-	std::shared_ptr<PipelineStateManager> get_pipeline_state_manager() { return m_PipelineStateManager; }
-	std::shared_ptr<IPipelineManager> get_pipeline_manager() { return m_PipelineManager; }
-	std::shared_ptr<TimeManager> get_time_manager() { return m_TimeManager; }
-	std::shared_ptr<AudioManager> get_audio_manager() { return m_AudioManager; }
-	std::shared_ptr<LightingManager> get_lighting_manager() { return m_LightingManager; }
+	std::shared_ptr<SceneCamera> GetSceneCamera() { return m_Camera; }
+	std::shared_ptr<PipelineStateManager> GetPipelineStateManager() { return m_PipelineStateManager; }
+	std::shared_ptr<IPipelineManager> GetPipelineManager() { return m_PipelineManager; }
+	std::shared_ptr<TimeManager> GetTimeManager() { return m_TimeManager; }
+	std::shared_ptr<AudioManager> GetAudioManager() { return m_AudioManager; }
+	std::shared_ptr<LightingManager> GetLightingManager() { return m_LightingManager; }
 
 	// Object
-	std::vector<std::shared_ptr <GameObject>> get_game_objects() { return m_GameObjects; }
-	void add_game_object(std::shared_ptr<GameObject> go) { m_GameObjects.push_back(go); }
+	std::vector<std::shared_ptr <GameObject>> GetGameObjects() { return m_GameObjects; }
+	void AddGameObject(std::shared_ptr<GameObject> go) { m_GameObjects.push_back(go); }
 
 	//	Physics
-	reactphysics3d::PhysicsWorld* get_physics_world() const { return m_physicsWorld; }
-	reactphysics3d::PhysicsCommon& get_physics_common() { return physics_common; }
+	reactphysics3d::PhysicsWorld* GetPhysicsWorld() const { return m_physicsWorld; }
+	reactphysics3d::PhysicsCommon& GetPhysicsCommon() { return physics_common; }
 
 	// --Setter--
-	void set_all_game_object(std::vector<std::shared_ptr <GameObject>> game_objects) { m_GameObjects = game_objects; }
+	void SetAllGameObject(std::vector<std::shared_ptr <GameObject>> game_objects) { m_GameObjects = game_objects; }
 
 
 	// --de/serializer--
-	virtual bool serialize_game_objects(const std::string& go_file_path) = 0;
-	virtual void deserialize_game_objects(const std::string& go_file_path) = 0;
+	virtual bool SerializeGameObjects(const std::string& goFilePath) = 0;
+	virtual void DeserializeGameObjects(const std::string& goFilePath) = 0;
 	
 protected:
 	// Manager

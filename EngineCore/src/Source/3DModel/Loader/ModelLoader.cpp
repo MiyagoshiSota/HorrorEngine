@@ -1,20 +1,20 @@
 #include "ModelLoader.h"
 
 #include "Core/App.h"
-#include "Modules/Other/engineString.h"
-#include "Modules/PublicConst/const_path_pref.h"
+#include "Modules/Other/EngineString.h"
+#include "Modules/PublicConst/ConstPathPref.h"
 #include "Renderer/Assimp/AssimpLoader.h"
 #include "Scene/GameObject/DefaultMesh/DefaultMeshes.h"
 #include "Scene/GameObject/DefaultMesh/DefaultGameObjectConfig.h"
 #include "Scene/GameObject/Model/Model.h"
 
-bool ModelLoader::init()
+bool ModelLoader::Init()
 {
 	// モデル設定ファイルからモデルを読み込み
-    desirialize(const_path_pref::DefaultModelsPath);
+    Deserialize(ConstPathPref::kDefaultModelsPath);
 
 	// プリミティブオブジェクトの作成
-    create_primitive_objects();
+    CreatePrimitiveObjects();
     return true;
 }
 
@@ -30,7 +30,7 @@ std::vector<SharedStruct::Mesh> ModelLoader::GetModelOriginData(const std::strin
 	return {};
 }
 
-bool ModelLoader::desirialize(const std::string& models_file_path)
+bool ModelLoader::Deserialize(const std::string& models_file_path)
 {
     std::ifstream file(models_file_path);
     if (!file.is_open())
@@ -55,7 +55,7 @@ bool ModelLoader::desirialize(const std::string& models_file_path)
             return false;
         }
         
-        set_model(model_name, model_path);
+        SetModel(model_name, model_path);
     }
     return true;
 }
@@ -71,7 +71,7 @@ std::shared_ptr<Model> ModelLoader::GetModel(const std::string& modelName)
     return nullptr;
 }
 
-bool ModelLoader::set_model(const std::string& model_name, const std::string& model_path)
+bool ModelLoader::SetModel(const std::string& model_name, const std::string& model_path)
 {
     // 既に登録されている場合はスルー
     if (m_ModelCache.find(model_name) != m_ModelCache.end())
@@ -82,7 +82,7 @@ bool ModelLoader::set_model(const std::string& model_name, const std::string& mo
     
     std::vector<SharedStruct::Mesh> input_data = {};
     
-    auto path2wst = engine_string::to_wstring(model_path);
+    auto path2wst = EngineString::to_wstring(model_path);
     ImportSettings importSetting =
     {
         path2wst.c_str(),
@@ -110,10 +110,10 @@ bool ModelLoader::set_model(const std::string& model_name, const std::string& mo
     return true;
 }
 
-void ModelLoader::create_primitive_objects()
+void ModelLoader::CreatePrimitiveObjects()
 {
     // ~~平面~~
-    const auto& quad_settings = DefaultGameObjectConfig::QuadSettings;
+    const auto& quad_settings = DefaultGameObjectConfig::kQuadSettings;
     auto quad_model = std::make_shared<Model>(quad_settings.Name);
     std::vector<SharedStruct::Mesh> quad_origin_data;
 
@@ -129,7 +129,7 @@ void ModelLoader::create_primitive_objects()
     m_ModelCache[quad_settings.Name] = quad_model;
 
     // ~~立方体~~
-    const auto& cube_settings = DefaultGameObjectConfig::CubeSettings;
+    const auto& cube_settings = DefaultGameObjectConfig::kCubeSettings;
     auto cube_model = std::make_shared<Model>(cube_settings.Name);
     std::vector<SharedStruct::Mesh> cube_origin_data;
 

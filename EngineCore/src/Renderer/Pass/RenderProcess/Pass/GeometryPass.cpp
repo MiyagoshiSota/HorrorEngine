@@ -1,4 +1,4 @@
-﻿#include "GeometryPass.h"
+#include "GeometryPass.h"
 
 #include <vector>
 #include <array>
@@ -7,7 +7,7 @@
 #include <cmath>
 
 #include "Core/App.h"
-#include "Modules/PublicConst/const_render_pref.h"
+#include "Modules/PublicConst/ConstRenderPref.h"
 #include "Modules/Renderer/RendereUtility.h"
 #include "Scene/GameObject/Component/MeshRenderer.h"
 #include "Scene/GameObject/Model/Model.h"
@@ -15,8 +15,8 @@
 using namespace DirectX;
 
 // --- 定数定義 ---
-static const float SHADOW_MAP_SIZE = 2048.0f;
-static const float SHADOW_DISTANCE = 10000.0f;
+static const float kShadowMapSize = 2048.0f;
+static const float kShadowDistance = 10000.0f;
 
 // --- ヘルパー関数: シンプルなシャドウマップ用行列計算 ---
 void CalculateLightViewProj_Geometry(
@@ -67,9 +67,9 @@ void GeometryPass::Collect(RenderContext& context)
     auto name = "Geometry_Default";
     auto PSOname = "DefaultPipelinePass";
 
-    cmdList->SetGraphicsRootSignature(g_Scene->get_pipeline_state_manager()->get_root_signature(name)->get());
+    cmdList->SetGraphicsRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
     // ※注意: ここのPSOは MSAA Count=8 に設定されている必要があります
-    cmdList->SetPipelineState(g_Scene->get_pipeline_state_manager()->get_pipeline_state(PSOname)->Get());
+    cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
 
     m_RenderQueue.clear();
     for (auto& obj : context.GameObjects)
@@ -77,8 +77,8 @@ void GeometryPass::Collect(RenderContext& context)
         m_RenderQueue.push_back(obj);
     }
 
-    auto msaaColorRT = context.GetRenderTarget(const_render_pref::MSAART);
-    auto msaaDepthRT = context.GetRenderTarget(const_render_pref::MSAA_Depth);
+    auto msaaColorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
+    auto msaaDepthRT = context.GetRenderTarget(ConstRenderPref::MSAA_Depth);
 
     // バリア設定
     std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
@@ -137,7 +137,7 @@ void GeometryPass::Draw(RenderContext& context)
     UINT frameIndex = g_Engine->CurrentBackBufferIndex();
 
     // 定数バッファ (Light)
-    const auto& lightingCB = g_Scene->get_lighting_manager()->get_constant_buffer();
+    const auto& lightingCB = g_Scene->GetLightingManager()->GetConstantBuffer();
     cmdList->SetGraphicsRootConstantBufferView(1, lightingCB->GetAddress());
 
     // View, Proj行列 (Main Camera)
@@ -149,13 +149,13 @@ void GeometryPass::Draw(RenderContext& context)
     cmdList->SetDescriptorHeaps(1, &materialHeap);
 
     // Shadow Map SRV
-    auto shadowMapRT = context.GetRenderTarget(const_render_pref::ShadowMap);
+    auto shadowMapRT = context.GetRenderTarget(ConstRenderPref::ShadowMap);
     cmdList->SetGraphicsRootDescriptorTable(4, shadowMapRT->GetSRVHandle()->gpuHandle);
 
     // --- ライト行列の計算 (シングルパス) ---
-    auto lightManager = g_Scene->get_lighting_manager();
+    auto lightManager = g_Scene->GetLightingManager();
     // TODO: ライトがない場合のガード
-    auto directionLight = lightManager->get_directional_lights()[0];
+    auto directionLight = lightManager->GetDirectionalLights()[0];
 
     XMFLOAT3 lightDirF = directionLight->Direction;
     XMVECTOR lightDir = XMVector3Normalize(XMVectorSet(lightDirF.x, lightDirF.y, lightDirF.z, 0.0f));
@@ -169,12 +169,12 @@ void GeometryPass::Draw(RenderContext& context)
 
     for (auto& obj : m_RenderQueue)
     {
-        auto constantBuffer = obj->get_constant_buffer(frameIndex);
+        auto constantBuffer = obj->GetConstantBuffer(frameIndex);
 
         auto pTransform = constantBuffer->GetPtr<SharedStruct::Transform>();
 
         // 基本情報のセット
-        pTransform->World = obj->get_transform();
+        pTransform->World = obj->GetTransform();
         pTransform->View = view;
         pTransform->Proj = proj;
 
@@ -197,23 +197,23 @@ void GeometryPass::Draw(RenderContext& context)
             auto vbView = model->m_Meshes[i]->get_vertex_buffer()->View();
             auto ibView = model->m_Meshes[i]->get_index_buffer()->View();
 
-            auto materialBuffer = model->m_Materials[i]->get_constant_buffer();
+            auto materialBuffer = model->m_Materials[i]->GetConstantBuffer();
             auto pMaterial = materialBuffer->GetPtr<DirectX::XMFLOAT4>();
-            pMaterial[0] = model->m_Materials[i]->get_color();
+            pMaterial[0] = model->m_Materials[i]->GetColor();
             cmdList->SetGraphicsRootConstantBufferView(2, materialBuffer->GetAddress());
 
             cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             cmdList->IASetVertexBuffers(0, 1, &vbView);
             cmdList->IASetIndexBuffer(&ibView);
 
-            cmdList->SetGraphicsRootDescriptorTable(3, model->m_Materials[i]->get_srv_handle()->gpuHandle);
+            cmdList->SetGraphicsRootDescriptorTable(3, model->m_Materials[i]->GetSrvHandle()->gpuHandle);
 
             cmdList->DrawIndexedInstanced(origin_data[i].Indeices.size(), 1, 0, 0, 0);
         }
     }
 
     // MSAA Resolve処理
-    auto msaaColorRT = context.GetRenderTarget(const_render_pref::MSAART);
+    auto msaaColorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
     auto sceneColorRT = context.GetRenderTarget("SceneColor");
 
     // Barrier: SceneColor -> ResolveDest

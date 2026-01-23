@@ -34,7 +34,7 @@ public:
         }
     }
 
-    Work* get_work()
+    Work* GetWork()
     {
         return m_Work;
     }

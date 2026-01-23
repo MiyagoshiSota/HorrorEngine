@@ -7,21 +7,21 @@
 class AudioManager
 {
 public:
-    void init();
-    void shutdown();
-    static void update3d_audio();
+    void Init();
+    void Shutdown();
+    static void Update3dAudio();
 
     /// <summary>
 	/// 2Dサウンド再生
     /// </summary>
     /// <param name="soundName"></param>
-    void play_sfx(const std::string& soundName);
+    void PlaySfx(const std::string& soundName);
 
     /// <summary>
 	/// 3Dサウンド再生
     /// </summary>
     /// <param name="soundName"></param>
-    void play_sfx3d(const std::string& soundName);
+    void PlaySfx3d(const std::string& soundName);
 
 private:
     SoLoud::Soloud m_Soloud;
@@ -30,5 +30,5 @@ private:
     std::map<std::string, SoLoud::Wav> m_SoundCache;
 
     // サウンドをロードまたはキャッシュから取得するヘルパー関数
-    SoLoud::Wav* load_sound(const std::string& soundName);
+    SoLoud::Wav* LoadSound(const std::string& soundName);
 };

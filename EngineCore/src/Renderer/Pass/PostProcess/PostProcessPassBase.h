@@ -27,8 +27,8 @@ public:
         const float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f }; // 通常は黒でクリア
         cmdList->ClearRenderTargetView(outputRT[0], clearColor, 0, nullptr);
 
-        cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state(m_PsoName)->Get());
-        cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature(m_RootSignatureName)->get());
+        cmdList->SetPipelineState(context.PipelineStateManager->GetPipelineState(m_PsoName)->Get());
+        cmdList->SetGraphicsRootSignature(context.PipelineStateManager->GetRootSignature(m_RootSignatureName)->Get());
 
         // Descriptor Heapを設定（SetGraphicsRootDescriptorTableを使用する前に必要）
         auto descriptorHeap = g_Engine->GetDescriptorHeap()->GetHeap();
@@ -60,8 +60,8 @@ public:
         cmdList->ClearRenderTargetView(outputRT[0], clearColor, 0, nullptr);
 
         // PSOとルートシグネチャを設定
-        cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state(m_PsoName)->Get());
-        cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature(m_RootSignatureName)->get());
+        cmdList->SetPipelineState(context.PipelineStateManager->GetPipelineState(m_PsoName)->Get());
+        cmdList->SetGraphicsRootSignature(context.PipelineStateManager->GetRootSignature(m_RootSignatureName)->Get());
 
         // Descriptor Heapを設定（SetGraphicsRootDescriptorTableを使用する前に必要）
         auto descriptorHeap = g_Engine->GetDescriptorHeap()->GetHeap();

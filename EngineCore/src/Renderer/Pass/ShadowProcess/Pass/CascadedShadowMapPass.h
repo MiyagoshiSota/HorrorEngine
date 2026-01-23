@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/App.h"
-#include "Modules/PublicConst/const_render_pref.h"
+#include "Modules/PublicConst/ConstRenderPref.h"
 #include "Modules/Renderer/RendereUtility.h"
 #include "Scene/GameObject/Component/MeshRenderer.h"
 #include "Scene/GameObject/Model/Model.h"
@@ -11,14 +11,14 @@ using namespace DirectX;
 class CascadesShadowMapPass : public SceneRenderPassBase
 {
 public:
-    const std::string TARGET_NAME = const_render_pref::CascadedShadowMap;
+    const std::string TARGET_NAME = ConstRenderPref::CascadedShadowMap;
 
     // カスケード設定
-    static const int CASCADE_COUNT = 3;
+    static const int kCascadeCount = 3;
     // 分割距離 (近景10m, 中景50m, 遠景200m)
-    const std::array<float, CASCADE_COUNT> m_CascadeSplits = { 20.0f, 30.0f, 40.0f };
+    const std::array<float, kCascadeCount> m_CascadeSplits = { 20.0f, 30.0f, 40.0f };
     // シャドウマップの解像度 (リソース作成時のサイズと合わせる)
-    const float SHADOW_MAP_SIZE = 2048.0f;
+    const float kShadowMapSize = 2048.0f;
 
     void Collect(RenderContext& context) override
     {
@@ -29,10 +29,10 @@ public:
         auto PSOname = "CascadedShadowMap";
 
         // ルートシグネチャを設定
-        cmdList->SetGraphicsRootSignature(g_Scene->get_pipeline_state_manager()->get_root_signature(name)->get());
+        cmdList->SetGraphicsRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
 
         // PSOを設定
-        cmdList->SetPipelineState(g_Scene->get_pipeline_state_manager()->get_pipeline_state(PSOname)->Get());
+        cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
 
         // 描画対象のオブジェクトを収集
         // TODO: シャドウキャスターのみ収集するようにフィルタリング
@@ -92,9 +92,9 @@ public:
         UINT frameIndex = g_Engine->CurrentBackBufferIndex();
 
         // ライト情報の取得
-        auto lightManager = g_Scene->get_lighting_manager();
+        auto lightManager = g_Scene->GetLightingManager();
         // TODO: 複数ライト対応や、ライトがない場合のガード処理
-        auto directionLight = lightManager->get_directional_lights()[0];
+        auto directionLight = lightManager->GetDirectionalLights()[0];
 
         XMFLOAT3 lightDirF = directionLight->Direction;
         // ライトの方向ベクトルを正規化
@@ -110,7 +110,7 @@ public:
         float nearPlane = 0.1f; // カメラのNear
         float previousSplitDist = nearPlane;
 
-        for (int cascadeIdx = 0; cascadeIdx < CASCADE_COUNT; ++cascadeIdx)
+        for (int cascadeIdx = 0; cascadeIdx < kCascadeCount; ++cascadeIdx)
         {
             float splitDist = m_CascadeSplits[cascadeIdx];
 
@@ -165,14 +165,14 @@ private:
 
         for (auto& obj : m_RenderQueue)
         {
-            auto constantBuffer = obj->get_shadow_constant_buffer(frameIndex);
+            auto constantBuffer = obj->GetShadowConstantBuffer(frameIndex);
 
             // 定数バッファの更新
             // ※ShadowPass用のShaderは、通常のTransform構造体の View/Proj を使って描画します
             auto pTransform = constantBuffer->GetPtr<SharedStruct::Transform>();
 
             // Transformの設定
-            pTransform->World = obj->get_transform(); // Worldは内部でTranspose済みならそのままでOK
+            pTransform->World = obj->GetTransform(); // Worldは内部でTranspose済みならそのままでOK
             pTransform->View = tView;                 // ここにライトのViewを入れる
             pTransform->Proj = tProj;                 // ここにライトのProjを入れる
 
@@ -238,7 +238,7 @@ private:
         XMMATRIX& outView,
         XMMATRIX& outProj)
     {
-        auto camera = g_Scene->get_scene_camera();
+        auto camera = g_Scene->GetSceneCamera();
 
         // 1. サブ視錐台を作るためのカメラ行列を計算
         float fov = camera->GetFOV();
@@ -288,7 +288,7 @@ private:
 
         // --- Texel Snapping (チラつき防止処理) ---
         // 1テクセルがワールド空間でどれくらいの大きさかを計算
-        float worldUnitsPerTexel = (maxX - minX) / SHADOW_MAP_SIZE;
+        float worldUnitsPerTexel = (maxX - minX) / kShadowMapSize;
 
         // Min座標をテクセルサイズの倍数に丸める (床関数 floor)
         minX = floor(minX / worldUnitsPerTexel) * worldUnitsPerTexel;

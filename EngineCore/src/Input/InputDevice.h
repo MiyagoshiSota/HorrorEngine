@@ -4,8 +4,8 @@
 #include <windowsx.h>   // GET_X_LPARAM, GET_Y_LPARAM
 #include <DirectXMath.h>  // DirectX::XMFLOAT2
 
-constexpr int MAX_KEYS = 256;
-constexpr int MAX_MOUSE_BUTTONS = 3; // 0=Left, 1=Right, 2=Middle
+constexpr int kMaxKeys = 256;
+constexpr int kMaxMouseButtons = 3; // 0=Left, 1=Right, 2=Middle
 
 class InputDevice
 {
@@ -103,12 +103,12 @@ private:
     ~InputDevice() = default;
 
     // キーボード状態
-    bool m_keyState[MAX_KEYS];
-    bool m_prevKeyState[MAX_KEYS];
+    bool m_keyState[kMaxKeys];
+    bool m_prevKeyState[kMaxKeys];
 
     // マウスボタン状態
-    bool m_mouseState[MAX_MOUSE_BUTTONS];
-    bool m_prevMouseState[MAX_MOUSE_BUTTONS];
+    bool m_mouseState[kMaxMouseButtons];
+    bool m_prevMouseState[kMaxMouseButtons];
 
     // マウス位置
     int m_mouseX;
@@ -122,5 +122,5 @@ private:
     float m_mouseWheelDelta;
 
     // キーが押され続けている時間（秒）
-    float m_keyDownDuration[MAX_KEYS];
+    float m_keyDownDuration[kMaxKeys];
 };

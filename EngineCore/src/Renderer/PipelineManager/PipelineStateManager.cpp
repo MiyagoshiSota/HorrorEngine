@@ -6,7 +6,7 @@
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
 #include "Renderer/Graphics/RootSignatureBuilder.h"
 
-void PipelineStateManager::create_root_signature(
+void PipelineStateManager::CreateRootSignature(
     const std::string& name,
     const std::shared_ptr<RootSignatureBuilder>& builder)
 {
@@ -29,7 +29,7 @@ void PipelineStateManager::create_root_signature(
     rootSignatureMap[name] = rootSignature;
 }
 
-void PipelineStateManager::create_pipeline_state(
+void PipelineStateManager::CreatePipelineState(
     const std::string& name,
     const std::string& rootSignatureName,
     const std::wstring& vsFilePath,
@@ -48,7 +48,7 @@ void PipelineStateManager::create_pipeline_state(
     }
 
     // 指定されたルートシグネチャを取得
-    auto rootSignature = get_root_signature(rootSignatureName);
+    auto rootSignature = GetRootSignature(rootSignatureName);
     if (rootSignature == nullptr)
     {
         printf("指定されたルートシグネチャが見つかりません: %s\n", rootSignatureName.c_str());
@@ -66,7 +66,7 @@ void PipelineStateManager::create_pipeline_state(
 
     // 色々設定
     pipelineState->SetWireFrame(useWireframe);
-    pipelineState->SetRootSignature(rootSignature->get());
+    pipelineState->SetRootSignature(rootSignature->Get());
     pipelineState->SetVS(vsFilePath);
     pipelineState->SetPS(psFilePath);
 	pipelineState->SetSampleDescCount(SampleCount);
@@ -95,7 +95,7 @@ void PipelineStateManager::create_pipeline_state(
     pipelineStateMap[name] = pipelineState;
 }
 
-void PipelineStateManager::create_pipeline_state(const std::string& name, const std::string& rootSignatureName,
+void PipelineStateManager::CreatePipelineState(const std::string& name, const std::string& rootSignatureName,
                                                  const std::wstring& vsFilePath, const std::wstring& psFilePath,
                                                  const std::wstring& gsFilePath, bool useWireframe,
                                                  bool useInputLayout, bool useDepthFormat, bool blendEnable)
@@ -107,7 +107,7 @@ void PipelineStateManager::create_pipeline_state(const std::string& name, const 
     }
 
     // 指定されたルートシグネチャを取得
-    auto rootSignature = get_root_signature(rootSignatureName);
+    auto rootSignature = GetRootSignature(rootSignatureName);
     if (rootSignature == nullptr)
     {
         printf("指定されたルートシグネチャが見つかりません: %s\n", rootSignatureName.c_str());
@@ -125,7 +125,7 @@ void PipelineStateManager::create_pipeline_state(const std::string& name, const 
 
     // 色々設定
     pipelineState->SetWireFrame(useWireframe);
-    pipelineState->SetRootSignature(rootSignature->get());
+    pipelineState->SetRootSignature(rootSignature->Get());
     pipelineState->SetVS(vsFilePath);
     pipelineState->SetPS(psFilePath);
     pipelineState->SetGS(gsFilePath);
@@ -154,7 +154,7 @@ void PipelineStateManager::create_pipeline_state(const std::string& name, const 
     pipelineStateMap[name] = pipelineState;
 }
 
-void PipelineStateManager::create_pipeline_state(
+void PipelineStateManager::CreatePipelineState(
     const std::string& name,
     const std::string& rootSignatureName,
     const std::wstring& csFilePath)
@@ -166,7 +166,7 @@ void PipelineStateManager::create_pipeline_state(
     }
 
     // 指定されたルートシグネチャを取得
-    auto rootSignature = get_root_signature(rootSignatureName);
+    auto rootSignature = GetRootSignature(rootSignatureName);
     if (rootSignature == nullptr)
     {
         printf("指定されたルートシグネチャが見つかりません: %s\n", rootSignatureName.c_str());
@@ -177,7 +177,7 @@ void PipelineStateManager::create_pipeline_state(
     auto pipelineState = std::make_shared<PipelineState>();
 
     // ルートシグネチャを設定
-    pipelineState->SetRootSignature(rootSignature->get());
+    pipelineState->SetRootSignature(rootSignature->Get());
     pipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 
     // コンピュートシェーダーを設定
@@ -198,7 +198,7 @@ void PipelineStateManager::create_pipeline_state(
     pipelineStateMap[name] = pipelineState;
 }
 
-std::shared_ptr<RootSignature> PipelineStateManager::get_root_signature(const std::string& name)
+std::shared_ptr<RootSignature> PipelineStateManager::GetRootSignature(const std::string& name)
 {
     if (rootSignatureMap.count(name))
     {
@@ -207,7 +207,7 @@ std::shared_ptr<RootSignature> PipelineStateManager::get_root_signature(const st
     return nullptr;
 }
 
-std::shared_ptr<PipelineState> PipelineStateManager::get_pipeline_state(const std::string& name)
+std::shared_ptr<PipelineState> PipelineStateManager::GetPipelineState(const std::string& name)
 {
     if (pipelineStateMap.count(name))
     {

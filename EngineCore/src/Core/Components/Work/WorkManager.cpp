@@ -1,4 +1,4 @@
-﻿#include "WorkManager.h"
+#include "WorkManager.h"
 #include "Work.h"
 #include <algorithm>
 
@@ -10,9 +10,9 @@ WorkManager& WorkManager::GetInstance()
     return instance;
 }
 
-void WorkManager::Update(float delta_time)
+void WorkManager::Update(float deltaTime)
 {
-    m_context.m_DeltaTime = delta_time;
+    m_context.m_DeltaTime = deltaTime;
     
     // すべてのWorkをイテレートし、アクティブなものを更新
     for (auto& work : m_works)
@@ -53,7 +53,7 @@ std::vector<std::shared_ptr<TriggerComponent>> WorkManager::FindAllTriggersInSce
 {
     std::vector<std::shared_ptr<TriggerComponent>> triggers;
 
-    for (const auto& obj : g_Scene->get_game_objects())
+    for (const auto& obj : g_Scene->GetGameObjects())
     {
         if (!obj) continue;
         // GameObjectからTriggerComponentのリストを取得

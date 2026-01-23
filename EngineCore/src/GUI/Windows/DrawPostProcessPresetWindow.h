@@ -32,7 +32,7 @@ public:
             auto scene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
             if (scene != nullptr)
             {
-                auto ppManager = scene->get_post_process_manager();
+                auto ppManager = scene->GetPostProcessManager();
                 // マネージャーが保持している全てのプリセット名を取得してループ
                 for (const auto& presetName : ppManager->get_preset_names())
                 {

@@ -3,7 +3,7 @@
 #include <string>
 #include <filesystem>
 #include <nlohmann/json.hpp>
-#include "Modules/PublicConst/const_gui_pref.h"
+#include "Modules/PublicConst/ConstGuiPref.h"
 #include "LayoutPresetType.h"
 
 // 前方宣言

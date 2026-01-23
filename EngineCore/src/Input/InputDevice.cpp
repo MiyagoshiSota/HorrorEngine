@@ -23,7 +23,7 @@ void InputDevice::Update(float deltaTime)
     memcpy(m_prevMouseState, m_mouseState, sizeof(m_mouseState));
 
     // キーが押され続けている時間を更新
-    for (int i = 0; i < MAX_KEYS; i++)
+    for (int i = 0; i < kMaxKeys; i++)
     {
         if (m_keyState[i])
         {
@@ -111,20 +111,20 @@ bool InputDevice::IsKeyReleased(int vKey) const
 // --- マウス ゲッター ---
 bool InputDevice::IsMouseDown(int button) const
 {
-    if (button < 0 || button >= MAX_MOUSE_BUTTONS) return false;
+    if (button < 0 || button >= kMaxMouseButtons) return false;
     return m_mouseState[button];
 }
 
 bool InputDevice::IsMousePressed(int button) const
 {
-    if (button < 0 || button >= MAX_MOUSE_BUTTONS) return false;
+    if (button < 0 || button >= kMaxMouseButtons) return false;
     // 現在押されていて、前は押されていなかった
     return m_mouseState[button] && !m_prevMouseState[button];
 }
 
 bool InputDevice::IsMouseReleased(int button) const
 {
-    if (button < 0 || button >= MAX_MOUSE_BUTTONS) return false;
+    if (button < 0 || button >= kMaxMouseButtons) return false;
     // 現在押されていなくて、前は押されていた
     return !m_mouseState[button] && m_prevMouseState[button];
 }
@@ -148,6 +148,6 @@ float InputDevice::GetMouseWheelDelta()
 
 float InputDevice::GetKeyDownDuration(int vKey) const
 {
-    if (vKey < 0 || vKey >= MAX_KEYS) return 0.0f;
+    if (vKey < 0 || vKey >= kMaxKeys) return 0.0f;
     return m_keyDownDuration[vKey];
 }

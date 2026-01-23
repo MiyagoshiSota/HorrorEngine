@@ -7,6 +7,6 @@
 class PSOLoader
 {
 public:
-	static std::shared_ptr<PipelineStateManager> load_from_file(const std::string& filePath, std::shared_ptr<PipelineStateManager> manager);
+	static std::shared_ptr<PipelineStateManager> LoadFromFile(const std::string& filePath, std::shared_ptr<PipelineStateManager> manager);
 };
 

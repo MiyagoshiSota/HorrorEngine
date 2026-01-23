@@ -15,7 +15,31 @@
             ],
             "rotation": [
                 0.0,
-                30.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "primitive/cube1",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                40.0,
                 0.0
             ],
             "scale": [
@@ -25,5 +49,5 @@
             ]
         }
     ],
-    "scene_name": "assets/Tmp/edit_scene_tmp.json"
+    "scene_name": "Assets/Tmp/edit_scene_tmp.json"
 }

@@ -12,13 +12,13 @@ public:
 	/// </summary>
 	/// <param name="name"></param>
 	/// <returns></returns>
-	static std::shared_ptr<GameObject> find_game_objects_by_name(const std::string& name)
+	static std::shared_ptr<GameObject> FindGameObjectsByName(const std::string& name)
 	{
 		if (g_Scene)
 		{
-			for (const auto& obj : g_Scene->get_game_objects())
+			for (const auto& obj : g_Scene->GetGameObjects())
 			{
-				if (obj->get_name() == name)
+				if (obj->GetName() == name)
 				{
 					return obj;
 				}

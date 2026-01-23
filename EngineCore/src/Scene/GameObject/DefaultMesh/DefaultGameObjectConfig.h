@@ -2,22 +2,22 @@
 
 #include <string>
 #include <DirectXMath.h>
-#include "Modules/PublicConst/const_premitive_gameobject_pref.h"
+#include "Modules/PublicConst/ConstPrimitiveGameObjectPref.h"
 
 namespace DefaultGameObjectConfig
 {
     // デフォルトテクスチャパス
     namespace TexturePaths
     {
-        static inline const wchar_t* DefaultWhiteDiffuse = L"assets/DefaultTexture/default_diffuse_white.png";
+        static inline const wchar_t* kDefaultWhiteDiffuse = L"Assets/DefaultTexture/default_diffuse_white.png";
     }
 
     // デフォルトマテリアル設定
     namespace MaterialDefaults
     {
-        static inline const DirectX::XMFLOAT4 DefaultAlbedoFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
-        static inline const float DefaultMetallicFactor = 1.0f;
-        static inline const float DefaultRoughnessFactor = 1.0f;
+        static inline const DirectX::XMFLOAT4 kDefaultAlbedoFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+        static inline const float kDefaultMetallicFactor = 1.0f;
+        static inline const float kDefaultRoughnessFactor = 1.0f;
     }
 
     // デフォルトGameObjectの設定構造体
@@ -31,20 +31,20 @@ namespace DefaultGameObjectConfig
     };
 
     // Quad設定
-    static inline const DefaultGameObjectSettings QuadSettings = {
-        const_premitive_gameobject_pref::QuadGameObjectKey,
-        TexturePaths::DefaultWhiteDiffuse,
-        MaterialDefaults::DefaultAlbedoFactor,
-        MaterialDefaults::DefaultMetallicFactor,
-        MaterialDefaults::DefaultRoughnessFactor
+    static inline const DefaultGameObjectSettings kQuadSettings = {
+        ConstPrimitiveGameObjectPref::kQuadGameObjectKey,
+        TexturePaths::kDefaultWhiteDiffuse,
+        MaterialDefaults::kDefaultAlbedoFactor,
+        MaterialDefaults::kDefaultMetallicFactor,
+        MaterialDefaults::kDefaultRoughnessFactor
     };
 
     // Cube設定
-    static inline const DefaultGameObjectSettings CubeSettings = {
-        const_premitive_gameobject_pref::CubeGameObjectKey,
-        TexturePaths::DefaultWhiteDiffuse,
-        MaterialDefaults::DefaultAlbedoFactor,
-        MaterialDefaults::DefaultMetallicFactor,
-        MaterialDefaults::DefaultRoughnessFactor
+    static inline const DefaultGameObjectSettings kCubeSettings = {
+        ConstPrimitiveGameObjectPref::kCubeGameObjectKey,
+        TexturePaths::kDefaultWhiteDiffuse,
+        MaterialDefaults::kDefaultAlbedoFactor,
+        MaterialDefaults::kDefaultMetallicFactor,
+        MaterialDefaults::kDefaultRoughnessFactor
     };
 }

@@ -23,7 +23,7 @@ namespace DefaultMeshes
         quad.Indeices = { 0, 2, 1, 1, 2, 3 };
 
         // デフォルトのテクスチャとマテリアル設定
-        const auto& settings = DefaultGameObjectConfig::QuadSettings;
+        const auto& settings = DefaultGameObjectConfig::kQuadSettings;
         quad.hAlbedoMap = settings.AlbedoTexturePath;
         quad.albedoFactor = settings.AlbedoFactor;
         quad.metallicFactor = settings.MetallicFactor;
@@ -88,7 +88,7 @@ namespace DefaultMeshes
         };
 
         // デフォルトのテクスチャとマテリアル設定
-        const auto& settings = DefaultGameObjectConfig::CubeSettings;
+        const auto& settings = DefaultGameObjectConfig::kCubeSettings;
         cube.hAlbedoMap = settings.AlbedoTexturePath;
         cube.albedoFactor = settings.AlbedoFactor;
         cube.metallicFactor = settings.MetallicFactor;

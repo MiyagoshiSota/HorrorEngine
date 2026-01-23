@@ -4,8 +4,8 @@
 #include "imgui_impl_win32.h"
 #include "Components/Work/WorkManager.h"
 #include "Input/InputDevice.h"
-#include "Modules/PublicConst//const_name_pref.h"
-#include "Modules/PublicConst/const_path_pref.h"
+#include "Modules/PublicConst/ConstNamePref.h"
+#include "Modules/PublicConst/ConstPathPref.h"
 #include "Renderer/Engine.h"
 #include "Scene/SceneManager.h"
 
@@ -44,7 +44,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	return DefWindowProc(hWnd, msg, wp,lp);
 }
 
-void init_window(const TCHAR* appName)
+void InitWindow(const TCHAR* appName)
 {
 	g_hInst = GetModuleHandle(nullptr);
 	if (g_hInst == nullptr) 
@@ -69,11 +69,11 @@ void init_window(const TCHAR* appName)
 
 	// ウィンドウサイズの登録
 	RECT rect = {};
-	rect.right = static_cast<LONG>(WINDOW_WIDTH);
-	rect.bottom = static_cast<LONG>(WINDOW_HEIGHT);	
+	rect.right = static_cast<LONG>(kWindowWidth);
+	rect.bottom = static_cast<LONG>(kWindowHeight);	
 	
 	// ウィンドウサイズを調整
-	auto style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+	const DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
 	AdjustWindowRect(&rect, style, FALSE);
 
 	// ウィンドウの生成
@@ -100,20 +100,20 @@ void init_window(const TCHAR* appName)
 	SetFocus(g_hWnd);
 }
 
-void main_loop() {
+void MainLoop() {
 	MSG msg = {};
 
 	while (WM_QUIT != msg.message)
 	{
 		// 現在の時刻を取得
-		auto currentTime = std::chrono::steady_clock::now();
+		const auto currentTime = std::chrono::steady_clock::now();
 
 		// 前のフレームからの経過時間を計算
 		std::chrono::duration<float> deltaTime = currentTime - g_lastFrameTime;
 
 		// 次のフレームのために、現在の時刻を「最後の時刻」として保存
 		g_lastFrameTime = currentTime;
-		
+
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			if (msg.message == WM_QUIT)
@@ -127,18 +127,18 @@ void main_loop() {
 		}
 
 		// 経過時間を秒単位で取得
-		auto delta_time = deltaTime.count();
+		const float deltaTimeFloat = deltaTime.count();
 
 		// 入力デバイスの更新
-		InputDevice::GetInstance().Update(delta_time);
+		InputDevice::GetInstance().Update(deltaTimeFloat);
 		
 		// SceneTypeに応じて更新処理を分岐
-		if (g_scene_type == scene_type::play_mode)
+		if (g_sceneType == SceneType::PlayMode)
 		{
-			g_Scene->Update(delta_time);
-			WorkManager::GetInstance().Update(delta_time);
+			g_Scene->Update(deltaTimeFloat);
+			WorkManager::GetInstance().Update(deltaTimeFloat);
 		}
-		else if (g_scene_type == scene_type::editor_mode)
+		else if (g_sceneType == SceneType::EditorMode)
 		{
 			g_Scene->EditorUpdate(deltaTime.count());
 		}
@@ -150,13 +150,13 @@ void main_loop() {
 	}
 }
 
-void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
+void  StartApp(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 	// Windowの初期化
-	init_window(appName);
+	InitWindow(appName);
 
 	// 描画エンジンの初期化
 	g_Engine = new Engine();
-	if (!g_Engine->Init(g_hWnd,WINDOW_WIDTH,WINDOW_HEIGHT))
+	if (!g_Engine->Init(g_hWnd,kWindowWidth,kWindowHeight))
 	{
 		printf("描画エンジンの初期化に失敗しました。\n");
 		return;
@@ -164,7 +164,7 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 
 	// ModelLoaderの初期化
 	g_ModelLoader = std::make_unique<ModelLoader>();
-	if (!g_ModelLoader->init())
+	if (!g_ModelLoader->Init())
 	{
 		printf("モデルの読み込みに失敗しました。\n");
 		return;
@@ -175,20 +175,20 @@ void  start_app(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
 	
 	// シーンの初期化
 	g_Scene = scene;
-if (!g_Scene->Init(const_path_pref::DefaultGameObjectPath))
+if (!g_Scene->Init(ConstPathPref::kDefaultGameObjectPath))
 	{
 		printf("シーンの初期化に失敗しました。\n");
 		return;
 	}
 
 	// メイン処理のループ
-	main_loop();
+	MainLoop();
 }
 
 
-void shutdown_app() {
+void ShutdownApp() {
 	// シーンの終了処理
-	g_Scene->shutdown();
+	g_Scene->Shutdown();
 
 	// 描画エンジンの終了処理
 	if (g_Engine)
@@ -203,5 +203,5 @@ void shutdown_app() {
 		g_hWnd = nullptr;
 	}
 	// ウィンドウクラスの登録解除
-	UnregisterClass(TEXT(const_name_pref::WindowName), g_hInst);
+	UnregisterClass(TEXT(ConstNamePref::WindowName), g_hInst);
 }

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <map>
 #include <string>
 #include <memory>
@@ -11,17 +11,17 @@ class Model; // 前方宣言
 class ModelLoader
 {
 public:
-    bool init();
+    bool Init();
     auto GetModel(const std::string& model_name) -> std::shared_ptr<Model>;
-    bool set_model(const std::string& model_name, const std::string& model_path);
-    std::map<std::string, std::vector<SharedStruct::Mesh>> get_all_models_data() const { return m_ModelDataCache; }
-	std::map < std::string, std::shared_ptr<Model> > get_all_models() const { return m_ModelCache; }
+    bool SetModel(const std::string& model_name, const std::string& model_path);
+    std::map<std::string, std::vector<SharedStruct::Mesh>> GetAllModelsData() const { return m_ModelDataCache; }
+	std::map < std::string, std::shared_ptr<Model> > GetAllModels() const { return m_ModelCache; }
 
     std::vector<SharedStruct::Mesh> GetModelOriginData(const std::string& model_name);
 
 private:
-    bool desirialize(const std::string& models_file_path);
-    void create_primitive_objects();
+    bool Deserialize(const std::string& models_file_path);
+    void CreatePrimitiveObjects();
     
 private:
 	// モデル名と、ロード済みのモデルデータのキャッシュ

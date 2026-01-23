@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 #include <string>
 #include <memory>
 
-#include "Modules/PublicConst/const_path_pref.h"
+#include "Modules/PublicConst/ConstPathPref.h"
 
 class ISceneBase; // 前方宣言
 
@@ -12,7 +12,7 @@ public:
     SceneManager()
     {
 		m_isLoadRequested = false;
-		m_nextScenePath = const_path_pref::DefaultGameObjectPath;
+		m_nextScenePath = ConstPathPref::kDefaultGameObjectPath;
     }
 
     // シーンの読み込みを予約する

@@ -4,7 +4,7 @@
 #include "Renderer/Engine.h"
 #include "../../../Modules/ComPtr.h"
 
-const UINT HANDLE_MAX = 512;
+const UINT kHandleMax = 512;
 
 DescriptorHeap::DescriptorHeap(UINT numDescriptors) : m_NumDescriptors(numDescriptors) , m_NextAvailableIndex(0)
 {

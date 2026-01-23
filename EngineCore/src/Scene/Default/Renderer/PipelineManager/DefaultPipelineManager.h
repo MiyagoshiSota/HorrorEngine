@@ -15,7 +15,7 @@ public:
     void Execute() override;
 
 public:
-    std::shared_ptr<PostProcessManager> get_post_process_manager() { return m_postProcessManager; };
+    std::shared_ptr<PostProcessManager> GetPostProcessManager() { return m_postProcessManager; };
 
 private:
     std::shared_ptr<RenderTarget> m_sceneColor;

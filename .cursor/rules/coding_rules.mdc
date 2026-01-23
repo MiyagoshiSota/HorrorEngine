@@ -1,0 +1,124 @@
+---
+alwaysApply: true
+---
+
+---
+description: DirectX 12 ゲームエンジン開発におけるC++コーディング規約とアーキテクチャルール
+globs: **/*.cpp, **/*.h, **/*.hpp, **/*.hlsl
+---
+
+# DirectX 12 Game Engine Development Rules
+
+このプロジェクトはパフォーマンスクリティカルなDirectX 12ゲームエンジンです。
+以下のルールは、高いフレームレート、メモリ安全性、および保守性を確保するために**厳格に適用**されます。
+
+## 1. 基本方針とアーキテクチャ
+
+### 1.1 データ指向設計 (Data-Oriented Design - DOD)
+オブジェクト指向（OOP）よりもデータ指向（DOD）を優先します。CPUキャッシュ効率を最優先してください。
+
+* **SoA (Structure of Arrays) の推奨:**
+    * 大量のオブジェクト（パーティクル、エンティティ等）を扱う際は、巨大なクラス配列 (`vector<Object>`) ではなく、コンポーネントごとの配列 (`struct { vector<float> x; vector<float> y; }`) を検討してください。
+* **継承の制限:**
+    * 深い継承階層は避けてください。`virtual` 関数の呼び出しは、ホットパス（毎フレーム実行されるループ内）では禁止です。
+    * ポリモーフィズムが必要な場合は、`std::variant` やテンプレート、またはエンティティコンポーネントシステム (ECS) パターンを使用してください。
+
+### 1.2 C++ Standard
+* C++17 または C++20 を使用します。
+* **C++ Core Guidelines** をベースにしますが、パフォーマンスのために以下のセクションで上書きされるルールが優先されます。
+
+---
+
+## 2. リソース管理 (DirectX & Memory)
+
+### 2.1 COMオブジェクトの所有権
+DirectXのリソース（`ID3D12Device`, `ID3D12Resource` 等）は、手動で `Release()` を呼ばないでください。
+
+* **所有権:** 必ず `Microsoft::WRL::ComPtr<T>` (または `winrt::com_ptr<T>`) でラップして保持します。
+* **アクセス:** 関数に渡す際、所有権を移譲しない場合は「生ポインタ (`T*`)」で渡してください。
+* **禁止:** `std::shared_ptr<ID3D12Resource>` はオーバーヘッドが大きいため、特別な理由がない限り使用禁止です。
+
+```cpp
+// Bad
+void Draw(ComPtr<ID3D12Resource> tex); // 不必要な参照カウント操作が発生
+void Init() { ID3D12Resource* pTex; ... } // リークの危険
+
+// Good
+void Draw(ID3D12Resource* tex); // 高速
+ComPtr<ID3D12Resource> m_texture; // 安全な所有
+
+```
+
+### 2.2 メモリアロケーション (Memory Allocation)
+
+ゲームループ（`Update`, `Render`）内での動的メモリ確保は、フレームレートのスパイク（ヒッチ）の原因となります。
+
+* **New/Delete の禁止:** メインループ内での `new`, `delete`, `malloc`, `free` は**厳禁**です。
+* **コンテナの予約:** `std::vector` を使用する場合は、必ず事前に `reserve()` で十分な容量を確保してください。
+* **一時メモリ:** フレーム内でのみ必要なデータは、スタックアロケータやリニアアロケータを使用してください。
+
+---
+
+## 3. エラーハンドリング
+
+### 3.1 HRESULT の扱い
+
+DirectX APIの戻り値 (`HRESULT`) を無視したり、生の `if (FAILED(hr))` で記述しないでください。
+
+* **Helperの使用:** 必ずプロジェクト指定のヘルパー関数（例: `ThrowIfFailed(hr)`）を通して呼び出してください。これにより、エラー発生時のファイル名、行数、エラーメッセージを確実に捕捉します。
+* **例外:** 致命的なエラー（デバイスロスト、初期化失敗）には例外 (`std::runtime_error` 派生) を使用し、戻り値によるエラー伝播は避けてください。
+
+```cpp
+// Bad
+HRESULT hr = device->CreateCommandAllocator(...);
+if (FAILED(hr)) { return false; }
+
+// Good
+ThrowIfFailed(device->CreateCommandAllocator(...));
+
+```
+
+---
+
+## 4. コーディングスタイル詳細
+
+### 4.1 ポインタと参照
+
+* **所有権なし:** `T*` （null許容） または `T&` （null不許可）。
+* **所有権あり:** `unique_ptr<T>`, `ComPtr<T>`.
+* `auto` は型が明白な場合（右辺が `make_unique` やキャスト等）のみ使用してください。
+
+### 4.2 const の徹底
+
+* 変更しない変数はすべて `const` にしてください。
+* メソッドがメンバ変数を変更しない場合は `const` 修飾してください。
+
+### 4.3 ネーミング規約
+
+* クラス/構造体: `PascalCase`
+* 関数/メソッド: `PascalCase`
+* 変数: `camelCase`
+* メンバ変数: `m_camelCase`
+* 定数/Enum: `kPascalCase`
+
+### 4.4 ファイル命名規則
+クラス名とファイル名の不一致はナビゲーションの妨げになります。
+
+* **基本ルール:** ファイル名は、そのファイルに含まれる主要なクラス名と**完全に一致（PascalCase）**させてください。
+* **拡張子:**
+    * C++ ヘッダ: `.h`
+    * C++ ソース: `.cpp`
+    * シェーダー: `.hlsl`
+    * インライン実装: `.inl`
+* **原則:** 1つのファイルには1つの主要クラスのみを定義します（小さなヘルパー構造体などは例外）。
+
+```cpp
+// 良い例
+// File: GraphicsCommandList.h
+class GraphicsCommandList { ... };
+
+// 悪い例
+// File: graphics_cmd_list.h (Google Styleだが、このプロジェクトではクラス名と一致させる)
+class GraphicsCommandList { ... };
+
+---

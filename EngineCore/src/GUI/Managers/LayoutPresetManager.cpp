@@ -8,7 +8,7 @@
 #include "GUI/Windows/DrawTaskManagerWindow.h"
 #include "GUI/Windows/DrawWorkManagerWindow.h"
 #include "GUI/Windows/DrawDayWindow.h"
-#include "Modules/PublicConst/const_gui_pref.h"
+#include "Modules/PublicConst/ConstGuiPref.h"
 #include <fstream>
 #include <iostream>
 #include <filesystem>
@@ -88,25 +88,25 @@ void LayoutPresetManager::SetWindowVisibility(LayoutPresetType presetType)
         // MakeMode: Day, Work Manager, Task Manager, Game Object Window, Models Window を表示
         // Mode Window は常に表示（固定UI）
         // Post Process Preset Window を非表示
-        if (dayWindow) dayWindow->set_visible(true);
-        if (workManagerWindow) workManagerWindow->set_visible(true);
-        if (taskManagerWindow) taskManagerWindow->set_visible(true);
-        if (gameObjectWindow) gameObjectWindow->set_visible(true);
-        if (modelsWindow) modelsWindow->set_visible(true);
-        if (modeWindowTyped) modeWindowTyped->set_visible(true); // 固定UIなので常に表示
-        if (postProcessWindow) postProcessWindow->set_visible(false);
+        if (dayWindow) dayWindow->SetVisible(true);
+        if (workManagerWindow) workManagerWindow->SetVisible(true);
+        if (taskManagerWindow) taskManagerWindow->SetVisible(true);
+        if (gameObjectWindow) gameObjectWindow->SetVisible(true);
+        if (modelsWindow) modelsWindow->SetVisible(true);
+        if (modeWindowTyped) modeWindowTyped->SetVisible(true); // 固定UIなので常に表示
+        if (postProcessWindow) postProcessWindow->SetVisible(false);
         break;
 
     case LayoutPresetType::DebugMode:
         // DebugMode: Post Process Preset Window のみ表示
         // Mode Window は常に表示（固定UI）
-        if (dayWindow) dayWindow->set_visible(false);
-        if (workManagerWindow) workManagerWindow->set_visible(false);
-        if (taskManagerWindow) taskManagerWindow->set_visible(false);
-        if (gameObjectWindow) gameObjectWindow->set_visible(false);
-        if (modelsWindow) modelsWindow->set_visible(false);
-        if (modeWindowTyped) modeWindowTyped->set_visible(true); // 固定UIなので常に表示
-        if (postProcessWindow) postProcessWindow->set_visible(true);
+        if (dayWindow) dayWindow->SetVisible(false);
+        if (workManagerWindow) workManagerWindow->SetVisible(false);
+        if (taskManagerWindow) taskManagerWindow->SetVisible(false);
+        if (gameObjectWindow) gameObjectWindow->SetVisible(false);
+        if (modelsWindow) modelsWindow->SetVisible(false);
+        if (modeWindowTyped) modeWindowTyped->SetVisible(true); // 固定UIなので常に表示
+        if (postProcessWindow) postProcessWindow->SetVisible(true);
         break;
     }
 }
@@ -118,18 +118,18 @@ std::string LayoutPresetManager::GetDefaultPresetFilePath(LayoutPresetType prese
     switch (presetType)
     {
     case LayoutPresetType::MakeMode:
-        filename = const_gui_pref::LayoutMakeModeDefaultFile;
+        filename = ConstGuiPref::kLayoutMakeModeDefaultFile;
         break;
     case LayoutPresetType::DebugMode:
-        filename = const_gui_pref::LayoutDebugModeDefaultFile;
+        filename = ConstGuiPref::kLayoutDebugModeDefaultFile;
         break;
     }
-    return std::string(const_gui_pref::DefaultPresetDirectory) + filename;
+    return std::string(ConstGuiPref::kDefaultPresetDirectory) + filename;
 }
 
 std::string LayoutPresetManager::GetConfigFilePath() const
 {
-    return m_configDir + const_gui_pref::LayoutConfigFile;
+    return m_configDir + ConstGuiPref::kLayoutConfigFile;
 }
 
 LayoutPresetType LayoutPresetManager::LoadLastPreset()
@@ -157,11 +157,11 @@ LayoutPresetType LayoutPresetManager::LoadLastPreset()
         if (config.contains("last_preset"))
         {
             std::string presetName = config["last_preset"];
-            if (presetName == const_gui_pref::PresetNameMakeMode)
+            if (presetName == ConstGuiPref::kPresetNameMakeMode)
             {
                 return LayoutPresetType::MakeMode;
             }
-            else if (presetName == const_gui_pref::PresetNameDebugMode)
+            else if (presetName == ConstGuiPref::kPresetNameDebugMode)
             {
                 return LayoutPresetType::DebugMode;
             }
@@ -193,10 +193,10 @@ void LayoutPresetManager::SaveCurrentPreset(LayoutPresetType presetType)
         switch (presetType)
         {
         case LayoutPresetType::MakeMode:
-            presetName = const_gui_pref::PresetNameMakeMode;
+            presetName = ConstGuiPref::kPresetNameMakeMode;
             break;
         case LayoutPresetType::DebugMode:
-            presetName = const_gui_pref::PresetNameDebugMode;
+            presetName = ConstGuiPref::kPresetNameDebugMode;
             break;
         }
         config["last_preset"] = presetName;

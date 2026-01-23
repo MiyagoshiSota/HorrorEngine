@@ -65,7 +65,7 @@ All loaded fonts glyphs are rendered into a single texture atlas ahead of time. 
 
 :rewind: This is often of byproduct of point 3. If you have large number of glyphs or multiple fonts, the texture may become too big for your graphics API. **The typical result of failing to upload a texture is if every glyph or everything appears as empty white rectangles.** Mind the fact that some graphics drivers have texture size limitation. If you are building a PC application, mind the fact that your users may use hardware with lower limitations than yours.
 
-![empty squares](https://github.com/user-attachments/assets/68b50fb5-8b9d-4c38-baec-6ac384f06d26)
+![empty squares](https://github.com/user-attachments/Assets/68b50fb5-8b9d-4c38-baec-6ac384f06d26)
 
 Some solutions:
 - You may reduce oversampling, e.g. `font_config.OversampleH = 1`, this will half your texture size for a quality loss.
@@ -364,7 +364,7 @@ ImFontConfig cfg2;
 cfg2.MergeMode = true;
 io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 0.0f, &cfg2);
 ```
-![image](https://github.com/user-attachments/assets/f3d751d3-1aee-4698-bd9b-f511902f56bb)
+![image](https://github.com/user-attachments/Assets/f3d751d3-1aee-4698-bd9b-f511902f56bb)
 
 You can use `Metrics/Debugger->Fonts->Font->Input Glyphs Overlap Detection Tool` to see list of glyphs available in multiple font sources. This can facilitate understanding which font input is providing which glyph.
 
@@ -514,7 +514,7 @@ ImGui::DebugTextEncoding(u8"こんにちは");
 ImGui::SeparatorText("INCORRECT");
 ImGui::DebugTextEncoding("こんにちは");
 ```
-![UTF-8 Encoding viewer](https://github.com/ocornut/imgui/assets/8225057/61c1696a-9a94-46c5-9627-cf91211111f0)
+![UTF-8 Encoding viewer](https://github.com/ocornut/imgui/Assets/8225057/61c1696a-9a94-46c5-9627-cf91211111f0)
 
 You can also find this tool under `Metrics/Debuggers->Tools->UTF-8 Encoding viewer` if you want to paste from clipboard, but this won't validate the UTF-8 encoding done by your compiler.
 
@@ -614,7 +614,7 @@ Some fonts files are available in the `misc/fonts/` folder:
 
 #### MONOSPACE FONTS
 
-<img width="1172" height="715" alt="image" src="https://github.com/user-attachments/assets/c9702534-4877-41c9-ae0d-252933c26ced" />
+<img width="1172" height="715" alt="image" src="https://github.com/user-attachments/Assets/c9702534-4877-41c9-ae0d-252933c26ced" />
 
 - Proggy Fonts, by Tristan Grimmer https://github.com/bluescan/proggyfonts
 - Sweet16, Sweet16 Mono, by Martin Sedlak (Latin + Supplemental + Extended A) https://github.com/kmar/Sweet16Font

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <d3dcompiler.h> // シェーダーをファイルから読み込むため
 
-#include "Modules/Other/engineString.h"
+#include "Modules/Other/EngineString.h"
 #pragma comment(lib, "d3dcompiler.lib")
 
 using json = nlohmann::json;
@@ -69,7 +69,7 @@ namespace JsonParserHelpers
 }
 
 
-std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::string& filePath, std::shared_ptr<PipelineStateManager> manager)
+std::shared_ptr<PipelineStateManager> PSOLoader::LoadFromFile(const std::string& filePath, std::shared_ptr<PipelineStateManager> manager)
 {
     // JSONファイルを読み込んでパース
     std::ifstream file(filePath);
@@ -89,19 +89,19 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
             // CBV
             if (rsJson.contains("constantBufferViews")) {
                 for (const auto& cbv : rsJson["constantBufferViews"]) {
-                    builder->add_constant_buffer_view(cbv.value("shaderRegister", 0));
+                    builder->AddConstantBufferView(cbv.value("shaderRegister", 0));
                 }
             }
             // UAV
             if (rsJson.contains("unorderedAccessViews")) {
                 for (const auto& uav : rsJson["unorderedAccessViews"]) {
-                    builder->add_unordered_access_view(uav.value("shaderRegister", 0));
+                    builder->AddUnorderedAccessView(uav.value("shaderRegister", 0));
                 }
             }
             // SRV
             if (rsJson.contains("shaderResourceViews")) {
                 for (const auto& srv : rsJson["shaderResourceViews"]) {
-                    builder->add_shader_resource_view(srv.value("shaderRegister", 0));
+                    builder->AddShaderResourceView(srv.value("shaderRegister", 0));
                 }
             }
             // Descriptor Tables
@@ -112,7 +112,7 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                         table.value("num", 1),
                         table.value("shaderRegister", 0)
                     );
-                    builder->add_descriptor_table(1, &range);
+                    builder->AddDescriptorTable(1, &range);
                 }
             }
             // Static Samplers
@@ -137,16 +137,16 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                         borderColor     // OPAQUE_WHITEなどを渡す
                     );
 
-                    builder->add_static_sampler(samplerDesc);
+                    builder->AddStaticSampler(samplerDesc);
                 }
             }
             // Flags
             if (rsJson.contains("flags")) {
-                builder->set_flags(JsonParserHelpers::ParseRootSignatureFlags(rsJson["flags"]));
+                builder->SetFlags(JsonParserHelpers::ParseRootSignatureFlags(rsJson["flags"]));
             }
 
             // マネージャーにルートシグネチャを生成・登録させる
-            manager->create_root_signature(name, builder);
+            manager->CreateRootSignature(name, builder);
         }
     }
 
@@ -157,23 +157,23 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
             // グラフィックスシェーダー用PSO
             if (psoJson.contains("vertexShader") || psoJson.contains("pixelShader"))
             {
-                std::wstring vs_path = L"";
-                std::wstring ps_path = L"";
-                std::wstring gs_path = L"";
+                std::wstring vsPath = L"";
+                std::wstring psPath = L"";
+                std::wstring gsPath = L"";
 	            
             	if (psoJson.contains("vertexShader"))
 	            {
-                    vs_path = engine_string::to_wstring(psoJson["vertexShader"]);
+                    vsPath = EngineString::to_wstring(psoJson["vertexShader"]);
 	            }
 
                 if (psoJson.contains("pixelShader"))
                 {
-                	ps_path = engine_string::to_wstring(psoJson["pixelShader"]);
+                	psPath = EngineString::to_wstring(psoJson["pixelShader"]);
                 }
 
                 if (psoJson.contains("geometryShader"))
                 {
-                    gs_path = engine_string::to_wstring(psoJson["geometryShader"]);
+                    gsPath = EngineString::to_wstring(psoJson["geometryShader"]);
                 }
 
 				UINT SampleCount = psoJson.value("sampleCount", 1);
@@ -202,19 +202,19 @@ std::shared_ptr<PipelineStateManager> PSOLoader::load_from_file(const std::strin
                 // マネージャーにPSOを生成・登録させる
 
                 // ジオメトリシェーダー有りの場合
-                if(!gs_path.empty())
+                if(!gsPath.empty())
                 {
-                    manager->create_pipeline_state(name, rootSignatureName,vs_path, ps_path, gs_path, useWireframe,inputLayout, depthEnable, blendEnable);
+                    manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, gsPath, useWireframe,inputLayout, depthEnable, blendEnable);
                 }
                 // ジオメトリシェーダー無しの場合
-                manager->create_pipeline_state(name, rootSignatureName,vs_path, ps_path, SampleCount, renderTargetFormat, useWireframe,inputLayout, depthEnable, blendEnable);
+                manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, SampleCount, renderTargetFormat, useWireframe,inputLayout, depthEnable, blendEnable);
             }
             // Computeシェーダー用PSO
             else if (psoJson.contains("computeShader"))
             {
-                std::wstring csPath = engine_string::to_wstring(psoJson["computeShader"]);
+                std::wstring csPath = EngineString::to_wstring(psoJson["computeShader"]);
 
-                manager->create_pipeline_state(name, rootSignatureName, csPath);
+                manager->CreatePipelineState(name, rootSignatureName, csPath);
             }
         }
     }

@@ -1,27 +1,27 @@
-﻿#include "EngineCollider.h"
+#include "EngineCollider.h"
 
 #include "imgui.h"
 #include "Component/Rigidbody.h"
 #include "Core/App.h"
 
-engine_collider::~engine_collider()
+EngineCollider::~EngineCollider()
 {
     // デストラクタで CollisionShape を PhysicsCommon から削除
     if (m_shape_ && g_Scene)
     {
-        reactphysics3d::PhysicsCommon& physics_common = g_Scene->get_physics_common();
-        switch (m_shape_type_)
+        reactphysics3d::PhysicsCommon& physicsCommon = g_Scene->GetPhysicsCommon();
+        switch (m_shapeType)
         {
         case ShapeType::BOX:
-            physics_common.destroyBoxShape(
+            physicsCommon.destroyBoxShape(
                 dynamic_cast<reactphysics3d::BoxShape*>(m_shape_));
             break;
         case ShapeType::SPHERE:
-            physics_common.destroySphereShape(
+            physicsCommon.destroySphereShape(
                 dynamic_cast<reactphysics3d::SphereShape*>(m_shape_));
             break;
         case ShapeType::CAPSULE:
-            physics_common.destroyCapsuleShape(
+            physicsCommon.destroyCapsuleShape(
                 dynamic_cast<reactphysics3d::CapsuleShape*>(m_shape_));
             break;
         default:
@@ -31,7 +31,7 @@ engine_collider::~engine_collider()
     }
 }
 
-bool engine_collider::add_collider_internal(
+bool EngineCollider::AddColliderInternal(
     reactphysics3d::RigidBody* rb, reactphysics3d::CollisionShape* shape,
     const reactphysics3d::Transform& transform)
 {
@@ -49,7 +49,7 @@ bool engine_collider::add_collider_internal(
         // 古い形状はデストラクタに任せる（ここで破棄すると新しい形状も破棄されうる）
         // PhysicsCommon::destroy...Shape を呼ぶのは ~engine_collider() で行う
         m_shape_ = nullptr;
-        m_shape_type_ = ShapeType::UNKNOWN;
+        m_shapeType = ShapeType::UNKNOWN;
     }
 
     m_shape_ = shape; // 新しい形状を保持
@@ -57,110 +57,110 @@ bool engine_collider::add_collider_internal(
     return (m_collider_ != nullptr);
 }
 
-bool engine_collider::create_box(reactphysics3d::RigidBody* rb,
-DirectX::XMFLOAT3 go_size,
+bool EngineCollider::CreateBox(reactphysics3d::RigidBody* rb,
+DirectX::XMFLOAT3 goSize,
                                  const reactphysics3d::Vector3& halfExtents,
                                  const reactphysics3d::Transform& transform)
 {
     if (!g_Scene)
         return false;
-    auto size_v = reactphysics3d::Vector3(go_size.x, go_size.y, go_size.z);
+    auto size_v = reactphysics3d::Vector3(goSize.x, goSize.y, goSize.z);
 
     reactphysics3d::BoxShape* shape =
-        g_Scene->get_physics_common().createBoxShape(halfExtents);
-    if (add_collider_internal(rb, shape, transform))
+        g_Scene->GetPhysicsCommon().createBoxShape(halfExtents);
+    if (AddColliderInternal(rb, shape, transform))
     {
-        m_shape_type_ = ShapeType::BOX;
-        m_box_half_extents_ = halfExtents * size_v; // パラメータを保存
+        m_shapeType = ShapeType::BOX;
+        m_boxHalfExtents = halfExtents * size_v; // パラメータを保存
         return true;
     }
     // 失敗した場合: add_collider_internal が古い形状をクリアしているので、
     // 新しく作った形状だけ破棄する
-    g_Scene->get_physics_common().destroyBoxShape(shape);
+    g_Scene->GetPhysicsCommon().destroyBoxShape(shape);
     return false;
 }
 
-bool engine_collider::create_sphere(reactphysics3d::RigidBody* rb,DirectX::XMFLOAT3 go_size, float radius,
+bool EngineCollider::CreateSphere(reactphysics3d::RigidBody* rb,DirectX::XMFLOAT3 goSize, float radius,
                                     const reactphysics3d::Transform& transform)
 {
     if (!g_Scene)
         return false;
     reactphysics3d::SphereShape* shape =
-        g_Scene->get_physics_common().createSphereShape(radius);
-    if (add_collider_internal(rb, shape, transform))
+        g_Scene->GetPhysicsCommon().createSphereShape(radius);
+    if (AddColliderInternal(rb, shape, transform))
     {
-        m_shape_type_ = ShapeType::SPHERE;
-        m_sphere_radius_ = radius; // パラメータを保存
+        m_shapeType = ShapeType::SPHERE;
+        m_sphereRadius = radius; // パラメータを保存
         return true;
     }
-    g_Scene->get_physics_common().destroySphereShape(shape);
+    g_Scene->GetPhysicsCommon().destroySphereShape(shape);
     return false;
 }
 
-bool engine_collider::create_capsule(reactphysics3d::RigidBody* rb, DirectX::XMFLOAT3 go_size,float radius,
+bool EngineCollider::CreateCapsule(reactphysics3d::RigidBody* rb, DirectX::XMFLOAT3 goSize,float radius,
                                      float height,
                                      const reactphysics3d::Transform& transform)
 {
     if (!g_Scene)
         return false;
     reactphysics3d::CapsuleShape* shape =
-        g_Scene->get_physics_common().createCapsuleShape(radius, height);
-    if (add_collider_internal(rb, shape, transform))
+        g_Scene->GetPhysicsCommon().createCapsuleShape(radius, height);
+    if (AddColliderInternal(rb, shape, transform))
     {
-        m_shape_type_ = ShapeType::CAPSULE;
-        m_capsule_radius_ = radius; // パラメータを保存
-        m_capsule_height_ = height;
+        m_shapeType = ShapeType::CAPSULE;
+        m_capsuleRadius = radius; // パラメータを保存
+        m_capsuleHeight = height;
         return true;
     }
-    g_Scene->get_physics_common().destroyCapsuleShape(shape);
+    g_Scene->GetPhysicsCommon().destroyCapsuleShape(shape);
     return false;
 }
 
 // --- Parameter Getters ---
-reactphysics3d::Vector3 engine_collider::get_box_half_extents() const
+reactphysics3d::Vector3 EngineCollider::GetBoxHalfExtents() const
 {
-    if (m_shape_type_ == ShapeType::BOX && m_shape_)
+    if (m_shapeType == ShapeType::BOX && m_shape_)
     {
         // 実行時の形状から取得 (ただし、RP3Dではconstメソッドがない場合がある)
         // return static_cast<reactphysics3d::BoxShape*>(m_Shape)->getHalfExtents();
         // 代わりに保存した値を返す
-        return m_box_half_extents_;
+        return m_boxHalfExtents;
     }
-    return m_box_half_extents_; // 保存値またはデフォルト値
+    return m_boxHalfExtents; // 保存値またはデフォルト値
 }
 
-float engine_collider::get_sphere_radius() const
+float EngineCollider::GetSphereRadius() const
 {
-    if (m_shape_type_ == ShapeType::SPHERE && m_shape_)
+    if (m_shapeType == ShapeType::SPHERE && m_shape_)
     {
         // return static_cast<reactphysics3d::SphereShape*>(m_Shape)->getRadius();
-        return m_sphere_radius_;
+        return m_sphereRadius;
     }
-    return m_sphere_radius_;
+    return m_sphereRadius;
 }
 
-float engine_collider::get_capsule_radius() const
+float EngineCollider::GetCapsuleRadius() const
 {
-    if (m_shape_type_ == ShapeType::CAPSULE && m_shape_)
+    if (m_shapeType == ShapeType::CAPSULE && m_shape_)
     {
         // return static_cast<reactphysics3d::CapsuleShape*>(m_Shape)->getRadius();
-        return m_capsule_radius_;
+        return m_capsuleRadius;
     }
-    return m_capsule_radius_;
+    return m_capsuleRadius;
 }
 
-float engine_collider::get_capsule_height() const
+float EngineCollider::GetCapsuleHeight() const
 {
-    if (m_shape_type_ == ShapeType::CAPSULE && m_shape_)
+    if (m_shapeType == ShapeType::CAPSULE && m_shape_)
     {
         // return static_cast<reactphysics3d::CapsuleShape*>(m_Shape)->getHeight();
-        return m_capsule_height_;
+        return m_capsuleHeight;
     }
-    return m_capsule_height_;
+    return m_capsuleHeight;
 }
 
 // --- Shape Parameter Editing UI ---
-void engine_collider::DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size)
+void EngineCollider::DrawShapeParamsGUI(DirectX::XMFLOAT3 goSize)
 {
     if (!m_collider_ || !m_shape_)
         return;
@@ -168,12 +168,12 @@ void engine_collider::DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size)
     bool paramsChanged = false;
     ImGui::Indent(); // パラメータを見やすくインデント
 
-    switch (m_shape_type_)
+                switch (m_shapeType)
     {
     case ShapeType::BOX:
         {
             // InputFloat3は現在の値を変更するため、一時変数を使わない
-            if (ImGui::InputFloat3("Half Extents", &m_box_half_extents_.x))
+            if (ImGui::InputFloat3("Half Extents", &m_boxHalfExtents.x))
             {
                 paramsChanged = true;
             }
@@ -181,7 +181,7 @@ void engine_collider::DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size)
         }
     case ShapeType::SPHERE:
         {
-            if (ImGui::InputFloat("Radius", &m_sphere_radius_))
+            if (ImGui::InputFloat("Radius", &m_sphereRadius))
             {
                 paramsChanged = true;
             }
@@ -189,9 +189,9 @@ void engine_collider::DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size)
         }
     case ShapeType::CAPSULE:
         {
-            if (ImGui::InputFloat("Radius", &m_capsule_radius_))
+            if (ImGui::InputFloat("Radius", &m_capsuleRadius))
                 paramsChanged = true;
-            if (ImGui::InputFloat("Height", &m_capsule_height_))
+            if (ImGui::InputFloat("Height", &m_capsuleHeight))
                 paramsChanged = true;
             break;
         }
@@ -218,16 +218,16 @@ void engine_collider::DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size)
                 reactphysics3d::Transform currentLocalTransform =
                     m_collider_->getLocalToBodyTransform();
                 // 形状タイプに基づいて再作成
-                switch (m_shape_type_)
+                switch (m_shapeType)
                 {
                 case ShapeType::BOX:
-                    create_box(rb,go_size, m_box_half_extents_, currentLocalTransform);
+                    CreateBox(rb,goSize, m_boxHalfExtents, currentLocalTransform);
                     break;
                 case ShapeType::SPHERE:
-                    create_sphere(rb,go_size, m_sphere_radius_, currentLocalTransform);
+                    CreateSphere(rb,goSize, m_sphereRadius, currentLocalTransform);
                     break;
                 case ShapeType::CAPSULE:
-                    create_capsule(rb,go_size, m_capsule_radius_, m_capsule_height_,
+                    CreateCapsule(rb,goSize, m_capsuleRadius, m_capsuleHeight,
                                    currentLocalTransform);
                     break;
                 default:
@@ -238,10 +238,10 @@ void engine_collider::DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size)
     }
 
     // Trigger設定
-    bool is_trigger = m_collider_->getIsTrigger();
-    if (ImGui::Checkbox("Is Trigger", &is_trigger))
+    bool isTrigger = m_collider_->getIsTrigger();
+    if (ImGui::Checkbox("Is Trigger", &isTrigger))
     {
-        m_collider_->setIsTrigger(is_trigger);
+        m_collider_->setIsTrigger(isTrigger);
     }
 
     ImGui::Unindent(); // インデント解除
@@ -251,7 +251,7 @@ void engine_collider::DrawShapeParamsGUI(DirectX::XMFLOAT3 go_size)
 
 // --- Helper Function ---
 // static なのでクラス名のスコープ解決が必要
-std::string engine_collider::shape_type_to_string(ShapeType type)
+std::string EngineCollider::ShapeTypeToString(ShapeType type)
 {
     switch (type)
     {

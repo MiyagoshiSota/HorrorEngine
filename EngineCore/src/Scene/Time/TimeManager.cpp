@@ -1,12 +1,12 @@
 #include "TimeManager.h"
 
-void TimeManager::init()
+void TimeManager::Init()
 {
     m_TimeConstantBuffer = std::make_unique<ConstantBuffer>(sizeof(SharedStruct::TimeData));
     m_LastFrameTime = std::chrono::steady_clock::now();
 }
 
-void TimeManager::update()
+void TimeManager::Update()
 {
     auto currentTime = std::chrono::steady_clock::now();
     std::chrono::duration<float> deltaDuration = currentTime - m_LastFrameTime;
@@ -21,7 +21,7 @@ void TimeManager::update()
     timeData->TotalTime = m_TotalTime;
 }
 
-void TimeManager::reset()
+void TimeManager::Reset()
 {
 	m_DeltaTime = 0.0f;
 	m_TotalTime = 0.0f;

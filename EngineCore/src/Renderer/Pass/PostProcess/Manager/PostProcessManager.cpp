@@ -2,7 +2,7 @@
 
 #include <set>
 
-#include "Modules/PublicConst/const_render_pref.h"
+#include "Modules/PublicConst/ConstRenderPref.h"
 #include "Renderer/Pass/PostProcess/Pass/BloomPass.h"
 #include "Renderer/Pass/PostProcess/Pass/ChromaticAberration.h"
 #include "Renderer/Pass/PostProcess/Pass/FilmGrainPass.h"
@@ -161,11 +161,11 @@ void PostProcessManager::ExecutePasses(RenderContext& context)
     if (activePassesOrder.empty()) return;
 
     // 最初の入力はGeometryPassの結果である"SceneColor"
-    std::shared_ptr<ITargetBase> sourceRT = context.GetRenderTarget(const_render_pref::SceneColor);
+    std::shared_ptr<ITargetBase> sourceRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
 
     // 中間バッファを2つ用意
-    std::shared_ptr<ITargetBase> bufferA = context.GetRenderTarget(const_render_pref::TmpColorA);
-    std::shared_ptr<ITargetBase> bufferB = context.GetRenderTarget(const_render_pref::TmpColorB);
+    std::shared_ptr<ITargetBase> bufferA = context.GetRenderTarget(ConstRenderPref::TmpColorA);
+    std::shared_ptr<ITargetBase> bufferB = context.GetRenderTarget(ConstRenderPref::TmpColorB);
 
     for (size_t i = 0; i < activePassesOrder.size(); ++i)
     {

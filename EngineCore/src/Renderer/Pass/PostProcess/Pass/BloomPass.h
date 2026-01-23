@@ -126,8 +126,8 @@ private:
 		SetViewport(cmdList, output);
 
 		// PSO & RootSignature
-		cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state("BloomExtraction")->Get());
-		cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature("PostProcess_TextureAndCBV")->get());
+		cmdList->SetPipelineState(context.PipelineStateManager->GetPipelineState("BloomExtraction")->Get());
+		cmdList->SetGraphicsRootSignature(context.PipelineStateManager->GetRootSignature("PostProcess_TextureAndCBV")->Get());
 
 		// パラメータ
 		ApplyExtractionParameters(GetCurrentParameters());
@@ -153,8 +153,8 @@ private:
 		cmdList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 		SetViewport(cmdList, output);
 
-		cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state("BloomBlur")->Get());
-		cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature("PostProcess_TextureAndCBV")->get());
+		cmdList->SetPipelineState(context.PipelineStateManager->GetPipelineState("BloomBlur")->Get());
+		cmdList->SetGraphicsRootSignature(context.PipelineStateManager->GetRootSignature("PostProcess_TextureAndCBV")->Get());
 
 		ApplyGaussianBlurParameters(input, isHorizontal, GetCurrentParameters());
 
@@ -187,9 +187,9 @@ private:
 		SetViewport(cmdList, output);
 
 		// 合成用PSO (加算ブレンドなどを設定したPSO)
-		cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state("BloomCombine")->Get());
+		cmdList->SetPipelineState(context.PipelineStateManager->GetPipelineState("BloomCombine")->Get());
 		// マルチテクスチャ用ルートシグネチャ (t0, t1を受け取る)
-		cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature("PostProcess_MultiTexture")->get());
+		cmdList->SetGraphicsRootSignature(context.PipelineStateManager->GetRootSignature("PostProcess_MultiTexture")->Get());
 
 		// t0: 元画像
 		cmdList->SetGraphicsRootDescriptorTable(0, sceneColor->GetSRVHandle()->gpuHandle);
@@ -210,9 +210,9 @@ private:
 		SetViewport(cmdList, output);
 
 		// 合成用PSO (加算ブレンドなどを設定したPSO)
-		cmdList->SetPipelineState(context.PipelineStateManager->get_pipeline_state("BloomCombine")->Get());
+		cmdList->SetPipelineState(context.PipelineStateManager->GetPipelineState("BloomCombine")->Get());
 		// マルチテクスチャ用ルートシグネチャ (t0, t1を受け取る)
-		cmdList->SetGraphicsRootSignature(context.PipelineStateManager->get_root_signature("PostProcess_MultiTexture")->get());
+		cmdList->SetGraphicsRootSignature(context.PipelineStateManager->GetRootSignature("PostProcess_MultiTexture")->Get());
 
 		// t0: 元画像
 		cmdList->SetGraphicsRootDescriptorTable(0, sceneColor->GetSRVHandle()->gpuHandle);
@@ -250,14 +250,14 @@ private:
 	void SetViewport(ID3D12GraphicsCommandList* cmdList, D3D12_CPU_DESCRIPTOR_HANDLE targetHandle)
 	{
 		D3D12_VIEWPORT viewport = {};
-		viewport.Width = static_cast<float>(WINDOW_WIDTH);
-		viewport.Height = static_cast<float>(WINDOW_HEIGHT);
+		viewport.Width = static_cast<float>(kWindowWidth);
+		viewport.Height = static_cast<float>(kWindowHeight);
 		viewport.MinDepth = 0.0f;
 		viewport.MaxDepth = 1.0f;
 
 		D3D12_RECT scissor = {};
-		scissor.right = static_cast<LONG>(WINDOW_WIDTH);
-		scissor.bottom = static_cast<LONG>(WINDOW_HEIGHT);
+		scissor.right = static_cast<LONG>(kWindowWidth);
+		scissor.bottom = static_cast<LONG>(kWindowHeight);
 		
 		cmdList->RSSetViewports(1, &viewport);
 		cmdList->RSSetScissorRects(1, &scissor);

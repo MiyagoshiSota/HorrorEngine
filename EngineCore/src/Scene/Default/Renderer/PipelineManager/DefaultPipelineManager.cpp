@@ -1,8 +1,8 @@
 #include "DefaultPipelineManager.h"
 
 #include "Core/App.h"
-#include "Modules/PublicConst/const_path_pref.h"
-#include "Modules/PublicConst/const_render_pref.h"
+#include "Modules/PublicConst/ConstPathPref.h"
+#include "Modules/PublicConst/ConstRenderPref.h"
 #include "Renderer/Engine.h"
 #include "Renderer/Pass/RenderProcess/Pass/DebugPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/GeometryPass.h"
@@ -31,18 +31,18 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_msaaDepth = std::make_shared<DepthStencilTarget>();
     m_sceneDepth = std::make_shared<DepthStencilTarget>();
 
-    m_sceneColor->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM,1,1,1,0, g_Engine->AllocateRtvHandle(),g_Engine->GetDescriptorHeap()->Allocate(1));
-	m_tmpColorA->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
-    m_tmpColorB->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
-	m_msaaTarget->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 8, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+    m_sceneColor->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM,1,1,1,0, g_Engine->AllocateRtvHandle(),g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_tmpColorA->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+    m_tmpColorB->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_msaaTarget->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 8, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
-    m_sceneDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+    m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
 	m_cascadedShadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 3, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(3));
-    m_msaaDepth->Create(g_Engine->Device(), WINDOW_WIDTH, WINDOW_HEIGHT, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 8, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+    m_msaaDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 8, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// PostProcessManagerの初期化
 	m_postProcessManager = std::make_shared<PostProcessManager>();
-    m_postProcessManager->LoadPresets(const_path_pref::PostProcessPresetsPath);
+    m_postProcessManager->LoadPresets(ConstPathPref::kPostProcessPresetsPath);
 	m_postProcessManager->Init();
 
 	// 一時レンダーターゲットプールの生成
@@ -52,17 +52,17 @@ DefaultPipelineManager::DefaultPipelineManager()
 void DefaultPipelineManager::Execute()
 {
     // コンテキストを生成
-    RenderContext context(g_Engine->CommandList(),g_Scene->get_scene_camera(),g_Scene->get_game_objects(), m_sceneColor, m_sceneDepth, WINDOW_WIDTH,WINDOW_HEIGHT,g_Scene->get_pipeline_state_manager(),m_tempRenderTargetPool);
+    RenderContext context(g_Engine->CommandList(),g_Scene->GetSceneCamera(),g_Scene->GetGameObjects(), m_sceneColor, m_sceneDepth, kWindowWidth,kWindowHeight,g_Scene->GetPipelineStateManager(),m_tempRenderTargetPool);
 
     // レンダーターゲットを設定
-    context.AddRenderTarget(const_render_pref::SceneColor,m_sceneColor);
-    context.AddRenderTarget(const_render_pref::SceneDepth,m_sceneDepth);
-	context.AddRenderTarget(const_render_pref::TmpColorA, m_tmpColorA);
-    context.AddRenderTarget(const_render_pref::TmpColorB, m_tmpColorB);
-	context.AddRenderTarget(const_render_pref::MSAART, m_msaaTarget);
-	context.AddRenderTarget(const_render_pref::MSAA_Depth, m_msaaDepth);
-	context.AddRenderTarget(const_render_pref::ShadowMap,m_shadowDepth);
-	context.AddRenderTarget(const_render_pref::CascadedShadowMap, m_cascadedShadowDepth);
+    context.AddRenderTarget(ConstRenderPref::SceneColor,m_sceneColor);
+    context.AddRenderTarget(ConstRenderPref::SceneDepth,m_sceneDepth);
+	context.AddRenderTarget(ConstRenderPref::TmpColorA, m_tmpColorA);
+    context.AddRenderTarget(ConstRenderPref::TmpColorB, m_tmpColorB);
+	context.AddRenderTarget(ConstRenderPref::MSAART, m_msaaTarget);
+	context.AddRenderTarget(ConstRenderPref::MSAA_Depth, m_msaaDepth);
+	context.AddRenderTarget(ConstRenderPref::ShadowMap,m_shadowDepth);
+	context.AddRenderTarget(ConstRenderPref::CascadedShadowMap, m_cascadedShadowDepth);
 
     // Shadow
 	m_simpleShadowMapPass->LastExecute(context);

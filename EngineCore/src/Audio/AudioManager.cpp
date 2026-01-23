@@ -2,7 +2,7 @@
 
 
 // AudioManagerの初期化
-void AudioManager::init()
+void AudioManager::Init()
 {
     // SoLoudコアを初期化
     SoLoud::result result = m_Soloud.init();
@@ -17,7 +17,7 @@ void AudioManager::init()
 }
 
 // AudioManagerの終了処理
-void AudioManager::shutdown()
+void AudioManager::Shutdown()
 {
     // すべてのサウンドキャッシュをクリア
     m_SoundCache.clear();
@@ -27,23 +27,23 @@ void AudioManager::shutdown()
 
     printf("AudioManager Close\n");
 }
-void AudioManager::update3d_audio()
+void AudioManager::Update3dAudio()
 {
 }
 
-void AudioManager::play_sfx(const std::string& soundName)
+void AudioManager::PlaySfx(const std::string& soundName)
 {
 	// サウンドをロードして再生
-	SoLoud::Wav* sound = load_sound(soundName);
+	SoLoud::Wav* sound = LoadSound(soundName);
 	if (sound) {
 		m_Soloud.play(*sound);
 	}
 }
 
-void AudioManager::play_sfx3d(const std::string& soundName)
+void AudioManager::PlaySfx3d(const std::string& soundName)
 {
 	// サウンドをロードして再生
-	SoLoud::Wav* sound = load_sound(soundName);
+	SoLoud::Wav* sound = LoadSound(soundName);
 	if (sound) {
 		// HACK: floatの配列で位置指定してる。Vector3とかでやりたい
 		float pos[3] = { 5.0f, 0.0f, 0.0f };
@@ -51,7 +51,7 @@ void AudioManager::play_sfx3d(const std::string& soundName)
 	}
 }
 
-SoLoud::Wav* AudioManager::load_sound(const std::string& soundName)
+SoLoud::Wav* AudioManager::LoadSound(const std::string& soundName)
 {
     // キャッシュに存在するかチェック
     if (m_SoundCache.count(soundName)) {
@@ -59,7 +59,7 @@ SoLoud::Wav* AudioManager::load_sound(const std::string& soundName)
     }
 
     // 存在しなければロード
-    std::string path = "assets/sounds/" + soundName;
+    std::string path = "Assets/sounds/" + soundName;
     SoLoud::Wav& newSound = m_SoundCache[soundName];
     if (newSound.load(path.c_str()) != SoLoud::SO_NO_ERROR) {
         m_SoundCache.erase(soundName); // ロード失敗したら消す

@@ -273,7 +273,7 @@ ctx->RSSetScissorRects(1, &r);
 <br>**USING AN EMPTY LABEL IS THE SAME AS USING THE SAME LABEL AS YOUR PARENT WIDGET!**
 <table>
 <tr>
-<td><img src="https://github.com/user-attachments/assets/776a8315-1164-4178-9a8c-df52e0ff28aa"></td>
+<td><img src="https://github.com/user-attachments/Assets/776a8315-1164-4178-9a8c-df52e0ff28aa"></td>
 <td>
 <pre lang="cpp">
 ImGui::Begin("Incorrect!");

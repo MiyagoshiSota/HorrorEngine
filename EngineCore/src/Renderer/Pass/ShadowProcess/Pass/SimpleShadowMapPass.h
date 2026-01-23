@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/App.h"
-#include "Modules/PublicConst/const_render_pref.h"
+#include "Modules/PublicConst/ConstRenderPref.h"
 #include "Modules/Renderer/RendereUtility.h"
 #include "Scene/GameObject/Component/MeshRenderer.h"
 #include "Scene/GameObject/Model/Model.h"
@@ -9,7 +9,7 @@
 class SimpleShadowMapPass : public SceneRenderPassBase
 {
 public:
-    const std::string TARGET_NAME = const_render_pref::ShadowMap;
+    const std::string TARGET_NAME = ConstRenderPref::ShadowMap;
 
     void Collect(RenderContext& context) override
     {
@@ -22,10 +22,10 @@ public:
         auto PSOname = "ShadowMap";
 
         // ルートシグネチャを設定
-        cmdList->SetGraphicsRootSignature(g_Scene->get_pipeline_state_manager()->get_root_signature(name)->get());
+        cmdList->SetGraphicsRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
 
         // PSOを設定
-        cmdList->SetPipelineState(g_Scene->get_pipeline_state_manager()->get_pipeline_state(PSOname)->Get());
+        cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
 
         // 描画対象のオブジェクトを収集
 		// TODO: シャドウキャスターのみ収集するようにフィルタリング
@@ -89,9 +89,9 @@ public:
 
         // --- ライト行列の計算 ---
 		// 一旦Directional Lightのみ対応
-        auto lightManager = g_Scene->get_lighting_manager();
+        auto lightManager = g_Scene->GetLightingManager();
 		// TODO: 複数ライト対応
-		auto directionLight = lightManager->get_directional_lights()[0];
+		auto directionLight = lightManager->GetDirectionalLights()[0];
 
         // ライトの方向 (仮: 斜め上から)
 		DirectX::XMFLOAT3 lightDirFloat3 = directionLight->Direction;
@@ -117,11 +117,11 @@ public:
         for (auto& obj : m_RenderQueue)
         {
             // 定数バッファの更新
-            auto constantBuffer = obj->get_shadow_constant_buffer(frameIndex);
+            auto constantBuffer = obj->GetShadowConstantBuffer(frameIndex);
             auto pTransform = constantBuffer->GetPtr<SharedStruct::Transform>();
 
             // Transformの設定
-            pTransform->World = obj->get_transform(); // Worldは内部でTranspose済みならそのままでOK
+            pTransform->World = obj->GetTransform(); // Worldは内部でTranspose済みならそのままでOK
 
             // ★ここを修正！ GPUに送る前に「転置(Transpose)」します
             pTransform->View = DirectX::XMMatrixTranspose(lightView);
