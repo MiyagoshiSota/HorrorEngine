@@ -93,19 +93,20 @@ void LayoutPresetManager::SetWindowVisibility(LayoutPresetType presetType)
         if (taskManagerWindow) taskManagerWindow->SetVisible(true);
         if (gameObjectWindow) gameObjectWindow->SetVisible(true);
         if (modelsWindow) modelsWindow->SetVisible(true);
-        if (modeWindowTyped) modeWindowTyped->SetVisible(true); // 固定UIなので常に表示
+        if (modeWindowTyped) modeWindowTyped->SetVisible(true);
         if (postProcessWindow) postProcessWindow->SetVisible(false);
         break;
 
     case LayoutPresetType::DebugMode:
         // DebugMode: Post Process Preset Window のみ表示
         // Mode Window は常に表示（固定UI）
-        if (dayWindow) dayWindow->SetVisible(false);
+        // Day Window はモーダルダイアログ表示のために常に表示
+        if (dayWindow) dayWindow->SetVisible(true);
         if (workManagerWindow) workManagerWindow->SetVisible(false);
         if (taskManagerWindow) taskManagerWindow->SetVisible(false);
         if (gameObjectWindow) gameObjectWindow->SetVisible(false);
         if (modelsWindow) modelsWindow->SetVisible(false);
-        if (modeWindowTyped) modeWindowTyped->SetVisible(true); // 固定UIなので常に表示
+        if (modeWindowTyped) modeWindowTyped->SetVisible(true);
         if (postProcessWindow) postProcessWindow->SetVisible(true);
         break;
     }

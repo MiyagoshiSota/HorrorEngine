@@ -446,7 +446,7 @@ bool Engine::InitImGui()
         return false;
     }
 
-    // 2. ImGuiコンテキスト作成
+    // ImGuiコンテキスト作成
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -458,7 +458,7 @@ bool Engine::InitImGui()
     
     ImGui::StyleColorsDark();
 
-    // 3. バックエンド初期化 (新API)
+    // バックエンド初期化
     ImGui_ImplWin32_Init(m_hWnd);
 
     ImGui_ImplDX12_InitInfo init_info = {};
@@ -482,16 +482,16 @@ bool Engine::InitImGui()
 
     ImGui_ImplDX12_Init(&init_info);
 
-    // 4. フォント読み込み（省略可能）
+    // フォント読み込み
     io.Fonts->AddFontDefault();
 
-    // メインメニューバーを初期化（ドッキング不可能な固定UI）
+    // メインメニューバーを初期化
     m_mainMenuBar = std::make_shared<DrawMainMenuBar>();
     
     // モードウィンドウを初期化
     m_modeWindow = std::make_shared<DrawModeWindow>();
 
-    // 描画するウィンドウのリストに追加（ModeWindowは除く、固定UIとして別途描画）
+    // 描画するウィンドウのリストに追加
     m_drawWindows.push_back(std::make_shared<DrawGameObjectWindow>());
     m_drawWindows.push_back(std::make_shared<DrawPostProcessPresetWindow>());
     m_drawWindows.push_back(std::make_shared<DrawDayWindow>());
