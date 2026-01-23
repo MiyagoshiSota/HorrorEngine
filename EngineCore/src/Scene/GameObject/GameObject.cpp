@@ -47,7 +47,7 @@ void GameObject::TransformUpdate()
 void GameObject::ComponentUpdate(float deltaTime) const
 {
 		// コンポーネントのUpdate処理
-	for (auto& comp : components)
+	for (const auto& comp : components)
 	{
 		comp->update(deltaTime);
 	}

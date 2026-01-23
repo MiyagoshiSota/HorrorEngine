@@ -1,5 +1,6 @@
 #include "ConstantBuffer.h"
 #include "Renderer/Engine.h"
+#include "Modules/DxHelper.h"
 
 ConstantBuffer::ConstantBuffer(size_t size)
 {
@@ -9,26 +10,16 @@ ConstantBuffer::ConstantBuffer(size_t size)
 	auto prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD); // ヒーププロパティ
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(sizeAligned); // リソースの設定
 
-	auto hr = g_Engine->Device()->CreateCommittedResource(
+	ThrowIfFailed(g_Engine->Device()->CreateCommittedResource(
 		&prop,
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(m_pBuffer.GetAddressOf())
-	);
-	if (FAILED(hr))
-	{
-		printf("定数バッファの生成に失敗\n");
-		return;
-	}
+	));
 
-	hr = m_pBuffer->Map(0, nullptr, &m_pMappedPtr);
-	if (FAILED(hr))
-	{
-		printf("定数バッファのマッピングに失敗\n");
-		return;
-	}
+	ThrowIfFailed(m_pBuffer->Map(0, nullptr, &m_pMappedPtr));
 
 	m_Desc = {};
 	m_Desc.BufferLocation = m_pBuffer->GetGPUVirtualAddress();

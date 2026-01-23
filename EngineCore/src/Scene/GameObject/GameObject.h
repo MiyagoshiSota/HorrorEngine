@@ -30,12 +30,12 @@ public:
     void ComponentUpdate(float deltaTime) const;
     
     // 各種Getter
-	std::string GetName() const { return name; }
+	std::string GetName() const { return m_name; }
     DirectX::XMMATRIX GetTransform() const { return m_Transform; }
     DirectX::XMFLOAT3 GetPosition() const { return m_Position; }
 	DirectX::XMFLOAT3 GetRotation() const { return m_Rotation; }
 	DirectX::XMFLOAT3 GetScale() const { return m_Scale; }
-    std::shared_ptr<ConstantBuffer> GetConstantBuffer() const { return  constantBuffer; }
+    std::shared_ptr<ConstantBuffer> GetConstantBuffer() const { return  m_constantBuffer; }
 
 	// 各種Setter
     void SetPosition(float x, float y, float z) { m_Position = { x, y, z }; }
@@ -44,17 +44,18 @@ public:
 	
     // 各種Find
     template<typename T>
-    T* find_component() {
+    T* FindComponent() const {
         for (const auto& comp : components) {
-            if (auto casted_comp = dynamic_cast<T*>(comp.get())) {
-                return casted_comp;
+            T* castedComp = dynamic_cast<T*>(comp.get());
+            if (castedComp != nullptr) {
+                return castedComp;
             }
         }
         return nullptr;
     }
 
     template<typename T>
-    std::vector<T*> find_components() {
+    std::vector<T*> FindComponents() const {
         std::vector<T*> foundComponents;
 		for (const auto& comp : components) {
 			T* castedComponent = dynamic_cast<T*>(comp.get());
@@ -95,9 +96,9 @@ public:
         std::unique_ptr<T> newComponent = std::make_unique<T>();
 
 		// Moveする前にptrをget
-		T* new_component_ptr = newComponent.get();
+		T* newComponentPtr = newComponent.get();
 	    components.emplace_back(std::move(newComponent));
-        return new_component_ptr;
+        return newComponentPtr;
 	}
 
 public:
@@ -105,7 +106,7 @@ public:
     /// size分のコンスタントバッファを新しく作成する
     /// </summary>
     /// <param name="size"></param>
-    void CreateConstantBuffer(size_t size) { constantBuffer = std::make_shared<ConstantBuffer>(size); }
+    void CreateConstantBuffer(size_t size) { m_constantBuffer = std::make_shared<ConstantBuffer>(size); }
 
     std::shared_ptr<ConstantBuffer> GetConstantBuffer(UINT frameIndex) const {
         return m_ConstantBuffers[frameIndex];
@@ -116,11 +117,11 @@ public:
 	}
 
 public:
-    std::string name;
+    std::string m_name;
 	std::vector<std::unique_ptr<Component>> components;
 
 private:
-    std::shared_ptr<ConstantBuffer> constantBuffer = nullptr;
+    std::shared_ptr<ConstantBuffer> m_constantBuffer = nullptr;
     std::vector<std::shared_ptr<ConstantBuffer>> m_ConstantBuffers;
     std::vector<std::shared_ptr<ConstantBuffer>> m_ShadowConstantBuffers;
 

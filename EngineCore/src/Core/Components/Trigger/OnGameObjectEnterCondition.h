@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Core/Components/Trigger/ITriggerCondition.h"
 #include "Core/Components/TriggerContext/TriggerContext.h"
 
@@ -10,7 +10,7 @@ public:
     bool Check(const TriggerContext& context) override
     {
         // Rigidbodyコンポーネントを取得
-        auto rbComponent = context.m_Owner->find_component<Rigidbody>();
+        auto rbComponent = context.m_Owner->FindComponent<Rigidbody>();
         if (rbComponent == nullptr) {
             // Rigidbodyがなければ衝突判定はできない
             return false;

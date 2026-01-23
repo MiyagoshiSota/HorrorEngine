@@ -2,6 +2,7 @@
 #include "Renderer/Engine.h"
 #include <d3dx12.h>
 #include <d3dcompiler.h>
+#include "Modules/DxHelper.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 
@@ -38,13 +39,7 @@ void PipelineState::SetRootSignature(ID3D12RootSignature* rootSignature)
 void PipelineState::SetVS(std::wstring filePath)
 {
 	// 頂点シェーダー読み込み
-	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pVsBlob.GetAddressOf());
-	if (FAILED(hr))
-	{
-		printf("頂点シェーダーの読み込みに失敗\n");
-		return;
-	}
-
+	ThrowIfFailed(D3DReadFileToBlob(filePath.c_str(), m_pVsBlob.GetAddressOf()));
 	descGS.VS = CD3DX12_SHADER_BYTECODE(m_pVsBlob.Get());
 }
 
@@ -56,25 +51,14 @@ void PipelineState::SetPS(std::wstring filePath)
 	}
 	
 	// ピクセルシェーダー読み込み
-	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
-	if (FAILED(hr))
-	{
-		printf("ピクセルシェーダーの読み込みに失敗\n");
-		return;
-	}
-
+	ThrowIfFailed(D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf()));
 	descGS.PS = CD3DX12_SHADER_BYTECODE(m_pPSBlob.Get());
 }
 
 void PipelineState::SetGS(std::wstring filePath)
 {
 	// ジオメトリシェーダー読み込み
-	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
-	if (FAILED(hr))
-	{
-		printf("ジオメトリシェーダーの読み込みに失敗\n");
-		return;
-	}
+	ThrowIfFailed(D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf()));
 
 	// TODO:一旦
 	descGS.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
@@ -86,13 +70,7 @@ void PipelineState::SetGS(std::wstring filePath)
 void PipelineState::SetCS(std::wstring filePath)
 {
 	// コンピュートシェーダー読み込み
-	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
-	if (FAILED(hr))
-	{
-		printf("コンピュートシェーダーの読み込みに失敗\n");
-		return;
-	}
-
+	ThrowIfFailed(D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf()));
 	descCS.CS = CD3DX12_SHADER_BYTECODE(m_pPSBlob.Get());
 }
 
@@ -109,26 +87,14 @@ void PipelineState::SetFormat(DXGI_FORMAT format)
 void PipelineState::CreateGraphicsPSO()
 {
 	// パイプラインステートを生成
-	auto hr = g_Engine->Device()->CreateGraphicsPipelineState(&descGS, IID_PPV_ARGS(m_pPipelineState.ReleaseAndGetAddressOf()));
-	if (FAILED(hr))
-	{
-		printf("パイプラインステートの生成に失敗\n");
-		return;
-	}
-
+	ThrowIfFailed(g_Engine->Device()->CreateGraphicsPipelineState(&descGS, IID_PPV_ARGS(m_pPipelineState.ReleaseAndGetAddressOf())));
 	m_IsValid = true;
 }
 
 void PipelineState::CreateComputePSO()
 {
 	// パイプラインステートを生成
-	auto hr = g_Engine->Device()->CreateComputePipelineState(&descCS, IID_PPV_ARGS(m_pPipelineState.ReleaseAndGetAddressOf()));
-	if (FAILED(hr))
-	{
-		printf("コンピュートパイプラインステートの生成に失敗\n");
-		return;
-	}
-
+	ThrowIfFailed(g_Engine->Device()->CreateComputePipelineState(&descCS, IID_PPV_ARGS(m_pPipelineState.ReleaseAndGetAddressOf())));
 	m_IsValid = true;
 }
 

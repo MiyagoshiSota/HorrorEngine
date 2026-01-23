@@ -21,7 +21,7 @@ public:
     void ExecutePasses(RenderContext& context);
 
 public:
-	std::list<std::string> get_preset_names() const {
+	std::list<std::string> GetPresetNames() const {
 		std::list<std::string> names;
 		for (const auto& pair : m_Presets) {
 			names.push_back(pair.first);

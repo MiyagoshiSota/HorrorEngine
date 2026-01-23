@@ -5,7 +5,7 @@
 class Model
 {
 public:
-    Model(std::string name) : name(name)
+    Model(std::string name) : m_name(name)
     {
 	    
     };
@@ -14,7 +14,7 @@ public:
 	    
     }
 
-	std::string name;
+	std::string m_name;
     std::vector<std::shared_ptr<Mesh>> m_Meshes;
     std::vector<std::shared_ptr<Material>> m_Materials;
 };

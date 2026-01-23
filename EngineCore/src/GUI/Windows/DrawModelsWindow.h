@@ -22,28 +22,28 @@ public:
 
         // 登録されているモデルの一覧を表示
         const auto& models = g_ModelLoader->GetAllModelsData();
-        for (const auto& [model_name, model_ptr] : models)
+        for (const auto& [modelName, modelPtr] : models)
         {
             // 各モデルを選択したら、そのモデルを使って新しいゲームオブジェクトを作成
-            if (ImGui::Button(model_name.c_str()))
+            if (ImGui::Button(modelName.c_str()))
             {
                 // 新しいゲームオブジェクトを作成
-                auto new_game_object = std::make_shared<GameObject>();
-                new_game_object->name = set_name_find(model_name);
-                const auto shared_ptr = g_ModelLoader->GetModel(model_name);
+                auto newGameObject = std::make_shared<GameObject>();
+                newGameObject->m_name = SetNameFind(modelName);
+                const auto sharedPtr = g_ModelLoader->GetModel(modelName);
 
                 //　デフォルトのコンポーネントを設定
                 // MeshRenderer
-                auto renderer_component = ComponentFactory::create("MeshRenderer");
-                renderer_component->Initialize(new_game_object);
-                renderer_component->Deserialize(nlohmann::json{{"model_name", model_name}});
-                new_game_object->components.push_back(std::move(renderer_component));
+                auto rendererComponent = ComponentFactory::create("MeshRenderer");
+                rendererComponent->Initialize(newGameObject);
+                rendererComponent->Deserialize(nlohmann::json{{"model_name", modelName}});
+                newGameObject->components.push_back(std::move(rendererComponent));
                 
                 // ゲームオブジェクトのInitを実行
-                new_game_object->Init();
+                newGameObject->Init();
 
                 // シーンに追加
-                g_Scene->AddGameObject(new_game_object);
+                g_Scene->AddGameObject(newGameObject);
             }
             
         }
@@ -53,28 +53,28 @@ public:
 
 private:
     // 同じ名前のモデルが存在する場合、名前の末尾に連番を付与して新しい名前を生成する
-    std::string set_name_find(std::string model_name )
+    std::string SetNameFind(std::string modelName)
     {
-        std::string base_name = model_name;
-        std::string final_name = base_name;
+        std::string baseName = modelName;
+        std::string finalName = baseName;
 
         // 同名チェック
         int counter = 1;
-        bool name_exists = true;
+        bool nameExists = true;
 
-        while (name_exists)
+        while (nameExists)
         {
-            name_exists = false;
+            nameExists = false;
             for (const auto& obj : g_Scene->GetGameObjects())
             {
-                if (obj->GetName() == final_name)
+                if (obj->GetName() == finalName)
                 {
-                    name_exists = true;
-                    final_name = base_name + std::to_string(counter++);
+                    nameExists = true;
+                    finalName = baseName + std::to_string(counter++);
                     break;
                 }
             }
         }
-        return final_name;
+        return finalName;
     }
 };

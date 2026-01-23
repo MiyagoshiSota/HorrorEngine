@@ -1,26 +1,21 @@
 #include "VertexBuffer.h"
 #include "Renderer/Engine.h"
 #include <d3dx12.h>
+#include "Modules/DxHelper.h"
 
 VertexBuffer::VertexBuffer(size_t size, size_t stride, const void* pInitData)
 {
 	auto prop = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD); // フーププロパティ
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(size); // リソースの設定
 
-	auto hr = g_Engine->Device()->CreateCommittedResource(
+	ThrowIfFailed(g_Engine->Device()->CreateCommittedResource(
 		&prop,
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(m_pBuffer.GetAddressOf())
-	);
-
-	if (FAILED(hr))
-	{
-		printf("頂点バッファリソースの生成に失敗\n");
-		return;
-	}
+	));
 
 	// 頂点バッファの設定
 	m_View.BufferLocation = m_pBuffer->GetGPUVirtualAddress();
@@ -30,12 +25,7 @@ VertexBuffer::VertexBuffer(size_t size, size_t stride, const void* pInitData)
 	if (pInitData != nullptr)
 	{
 		void* ptr = nullptr; 
-		hr = m_pBuffer->Map(0, nullptr, &ptr);
-		if (FAILED(hr))
-		{
-			printf("頂点バッファマッピングに失敗\n");
-			return;
-		}
+		ThrowIfFailed(m_pBuffer->Map(0, nullptr, &ptr));
 
 		// 頂点データをマッピング先に設定
 		memcpy(ptr, pInitData, size);
@@ -61,12 +51,7 @@ void VertexBuffer::CopyData(size_t size, const void* pInitData)
 	if (pInitData != nullptr)
 	{
 		void* ptr = nullptr; 
-		auto hr = m_pBuffer->Map(0, nullptr, &ptr);
-		if (FAILED(hr))
-		{
-			printf("頂点バッファマッピングに失敗\n");
-			return;
-		}
+		ThrowIfFailed(m_pBuffer->Map(0, nullptr, &ptr));
 
 		// 頂点データをマッピング先に設定
 		memcpy(ptr, pInitData, size);

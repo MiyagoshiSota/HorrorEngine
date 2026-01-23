@@ -57,7 +57,7 @@ std::vector<std::shared_ptr<TriggerComponent>> WorkManager::FindAllTriggersInSce
     {
         if (!obj) continue;
         // GameObjectからTriggerComponentのリストを取得
-        auto foundTriggers = obj->find_components<TriggerComponent>(); 
+        auto foundTriggers = obj->FindComponents<TriggerComponent>(); 
         triggers.insert(triggers.end(), foundTriggers.begin(), foundTriggers.end());
     }
     return triggers;

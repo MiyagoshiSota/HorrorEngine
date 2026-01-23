@@ -37,7 +37,7 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::LoadFromFile(const st
 	for (const auto& objJson : sceneJson[ConstGameObjectSaveParamPref::kGameObjects])
 	{
 		auto go = std::make_shared<GameObject>();
-		go->name = objJson[ConstGameObjectSaveParamPref::kGameObjectName];
+		go->m_name = objJson[ConstGameObjectSaveParamPref::kGameObjectName];
 
 		// positionの設定
 		const auto& positionJson = objJson[ConstGameObjectSaveParamPref::kTransformPosition];

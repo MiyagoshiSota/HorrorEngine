@@ -189,8 +189,8 @@ void GeometryPass::Draw(RenderContext& context)
         cmdList->SetGraphicsRootConstantBufferView(0, constantBuffer->GetAddress());
 
         // 描画
-        auto model = obj->find_component<MeshRenderer>()->model;
-        auto origin_data = g_ModelLoader->GetModelOriginData(model->name);
+        auto model = obj->FindComponent<MeshRenderer>()->model;
+        auto origin_data = g_ModelLoader->GetModelOriginData(model->m_name);
 
         for (size_t i = 0; i < model->m_Meshes.size(); i++)
         {

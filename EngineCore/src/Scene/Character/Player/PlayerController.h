@@ -36,7 +36,7 @@ public:
         // 移動
         if (direction.x != 0.0f || direction.z != 0.0f)
         {
-            auto rb = gameObject->find_component<Rigidbody>();
+            auto rb = gameObject->FindComponent<Rigidbody>();
             if (rb && rb->GetRigidbody())
             {
                 // Rigidbodyが存在する場合は、Rigidbodyを介して移動

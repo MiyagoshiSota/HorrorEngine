@@ -507,7 +507,7 @@ void DrawWorkManagerWindow::RefreshTriggerCache()
     for (const auto& obj : g_Scene->GetGameObjects())
     {
         // GameObject::GetComponentsOfType<T>() が `std::vector<T*>` を返すと仮定
-        const auto triggers = obj->find_components<TriggerComponent>(); 
+        const auto triggers = obj->FindComponents<TriggerComponent>(); 
         m_sceneTriggersCache.insert(m_sceneTriggersCache.end(), triggers.begin(), triggers.end());
     }
 }

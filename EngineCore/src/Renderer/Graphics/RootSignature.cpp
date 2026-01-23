@@ -2,6 +2,7 @@
 #include "Renderer/Engine.h"
 #include "RootSignatureBuilder.h"
 #include <d3dx12.h>
+#include "Modules/DxHelper.h"
 
 bool RootSignature::create(ID3D12Device* device, const std::shared_ptr<RootSignatureBuilder>& builder)
 {
@@ -15,13 +16,16 @@ bool RootSignature::create(ID3D12Device* device, const std::shared_ptr<RootSigna
 	ComPtr<ID3DBlob> pBlob;
 	ComPtr<ID3DBlob> pErrorBlob;
 
-	auto hr = D3D12SerializeRootSignature(
-		&desc,
-		D3D_ROOT_SIGNATURE_VERSION_1_0,
-		pBlob.GetAddressOf(),
-		pErrorBlob.GetAddressOf()
-	);
-	if (FAILED(hr))
+	try
+	{
+		ThrowIfFailed(D3D12SerializeRootSignature(
+			&desc,
+			D3D_ROOT_SIGNATURE_VERSION_1_0,
+			pBlob.GetAddressOf(),
+			pErrorBlob.GetAddressOf()
+		));
+	}
+	catch (const std::exception& e)
 	{
 		if (pErrorBlob)
 		{
@@ -30,19 +34,22 @@ bool RootSignature::create(ID3D12Device* device, const std::shared_ptr<RootSigna
 			printf("RootSignature Serialization Error: %s\n", errStr);
 			OutputDebugStringA(errStr); // Visual Studioの出力ウィンドウにも出す
 		}
-		// エラー処理
+		printf("Exception: %s\n", e.what());
 		return false;
 	}
 
-	hr = device->CreateRootSignature(
-		0,
-		pBlob->GetBufferPointer(),
-		pBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_pRootSignature.GetAddressOf())
-	);
-	if (FAILED(hr))
+	try
 	{
-		// エラー処理
+		ThrowIfFailed(device->CreateRootSignature(
+			0,
+			pBlob->GetBufferPointer(),
+			pBlob->GetBufferSize(),
+			IID_PPV_ARGS(m_pRootSignature.GetAddressOf())
+		));
+	}
+	catch (const std::exception& e)
+	{
+		printf("RootSignature Creation Error: %s\n", e.what());
 		return false;
 	}
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <reactphysics3d/reactphysics3d.h>
 
 #include "Component/Rigidbody.h"
@@ -25,8 +25,8 @@ public:
             if (go1 == nullptr || go2 == nullptr) continue;
 
             // 2. 各GameObjectからRigidbodyコンポーネントを取得
-            auto rb1 = go1->find_component<Rigidbody>();
-            auto rb2 = go2->find_component<Rigidbody>();
+            auto rb1 = go1->FindComponent<Rigidbody>();
+            auto rb2 = go2->FindComponent<Rigidbody>();
 
             // どちらかがRigidbodyを持っていなければスキップ
             if (rb1 == nullptr || rb2 == nullptr) continue;

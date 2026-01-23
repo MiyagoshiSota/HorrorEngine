@@ -5,6 +5,7 @@
 #include <d3dx12.h>
 
 #include "Renderer/Engine.h"
+#include "Modules/DxHelper.h"
 
 // ライブラリのリンク
 #pragma comment(lib, "DirectXTex.lib")
@@ -106,9 +107,13 @@ bool Texture2D::InternalLoad(const std::wstring& path)
         hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
     }
 
-    if (FAILED(hr))
+    try
     {
-        printf("画像ロード失敗: %ls\n", path.c_str());
+        ThrowIfFailed(hr);
+    }
+    catch (const std::exception& e)
+    {
+        printf("画像ロード失敗: %ls - %s\n", path.c_str(), e.what());
         return false;
     }
 
@@ -133,30 +138,34 @@ bool Texture2D::InternalLoad(const std::wstring& path)
 
     auto texHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
 
-    hr = g_Engine->Device()->CreateCommittedResource(
-        &texHeapProp,
-        D3D12_HEAP_FLAG_NONE,
-        &resDesc,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // 最初からシェーダーリソースとして使用
-        nullptr,
-        IID_PPV_ARGS(&m_resource)
-    );
-
-    if (FAILED(hr))
+    try
+    {
+        ThrowIfFailed(g_Engine->Device()->CreateCommittedResource(
+            &texHeapProp,
+            D3D12_HEAP_FLAG_NONE,
+            &resDesc,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // 最初からシェーダーリソースとして使用
+            nullptr,
+            IID_PPV_ARGS(&m_resource)
+        ));
+    }
+    catch (const std::exception&)
     {
         return false;
     }
 
     // データの転送 (WriteToSubresource)
-    hr = m_resource->WriteToSubresource(
-        0,
-        nullptr, // 全領域
-        img->pixels,
-        static_cast<UINT>(img->rowPitch),
-        static_cast<UINT>(img->slicePitch)
-    );
-
-    if (FAILED(hr))
+    try
+    {
+        ThrowIfFailed(m_resource->WriteToSubresource(
+            0,
+            nullptr, // 全領域
+            img->pixels,
+            static_cast<UINT>(img->rowPitch),
+            static_cast<UINT>(img->slicePitch)
+        ));
+    }
+    catch (const std::exception&)
     {
         return false;
     }
@@ -185,15 +194,18 @@ bool Texture2D::InternalCreateFromData(const uint8_t* data, size_t dataSize, uin
     }
 
     // データの書き込み
-    HRESULT hr = m_resource->WriteToSubresource(
-        0,
-        nullptr,
-        data,
-        static_cast<UINT>(width * 4), // RowPitch: 1ラインのバイト数 (R8G8B8A8想定)
-        static_cast<UINT>(dataSize)   // SlicePitch: 全体のバイト数
-    );
-
-    if (FAILED(hr)) {
+    try
+    {
+        ThrowIfFailed(m_resource->WriteToSubresource(
+            0,
+            nullptr,
+            data,
+            static_cast<UINT>(width * 4), // RowPitch: 1ラインのバイト数 (R8G8B8A8想定)
+            static_cast<UINT>(dataSize)   // SlicePitch: 全体のバイト数
+        ));
+    }
+    catch (const std::exception&)
+    {
         return false;
     }
 

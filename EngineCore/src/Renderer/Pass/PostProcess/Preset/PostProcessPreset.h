@@ -9,7 +9,7 @@ using PostProcessPassSettings = std::map<std::string, PostProcessParameter>;
 
 struct PostProcessPreset
 {
-	std::string name;
+	std::string m_name;
 	PostProcessPassSettings settings;
     
 	// ★ 型をstd::optionalでラップ

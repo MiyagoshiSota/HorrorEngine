@@ -26,7 +26,7 @@ void DebugPass::Collect(RenderContext& context)
     m_collidersToDraw.clear();
     for (auto& obj : context.GameObjects)
     {
-        const auto rb = obj->find_component<Rigidbody>();
+        const auto rb = obj->FindComponent<Rigidbody>();
 
         // Rigidbodyがあり、Colliderもある場合に追加
         if (rb && rb->GetColliderObject())
@@ -90,7 +90,7 @@ void DebugPass::Draw(RenderContext& context)
     // Debug
     for (const auto & obj : g_Scene->GetGameObjects())
     {
-        auto rb = obj->find_component<Rigidbody>();
+        auto rb = obj->FindComponent<Rigidbody>();
         if (rb && rb->GetRigidbody())
         {
          //   rb->GetRigidbody()->setIsDebugEnabled(true);

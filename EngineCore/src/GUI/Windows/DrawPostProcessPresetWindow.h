@@ -34,7 +34,7 @@ public:
             {
                 auto ppManager = scene->GetPostProcessManager();
                 // マネージャーが保持している全てのプリセット名を取得してループ
-                for (const auto& presetName : ppManager->get_preset_names())
+                for (const auto& presetName : ppManager->GetPresetNames())
                 {
                     const bool isSelected = (m_currentPresetName == presetName);
                     if (ImGui::Selectable(presetName.c_str(), isSelected))

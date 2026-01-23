@@ -1,6 +1,7 @@
 #include "IndexBuffer.h"
 #include <d3dx12.h>
 #include "Renderer/Engine.h"
+#include "Modules/DxHelper.h"
 
 IndexBuffer::IndexBuffer(size_t size, const uint32_t* pInitData)
 {
@@ -8,18 +9,13 @@ IndexBuffer::IndexBuffer(size_t size, const uint32_t* pInitData)
 	D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(size);	// リソースの設定
 
 	// リソースを生成
-	auto hr = g_Engine->Device()->CreateCommittedResource(
+	ThrowIfFailed(g_Engine->Device()->CreateCommittedResource(
 		&prop,
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(m_pBuffer.GetAddressOf()));
-	if (FAILED(hr))
-	{
-		printf("[OnInit] インデックスバッファリソースの生成に失敗\n");
-		return;
-	}
+		IID_PPV_ARGS(m_pBuffer.GetAddressOf())));
 
 	// インデックスバッファビューの設定
 	m_View = {};
@@ -31,12 +27,7 @@ IndexBuffer::IndexBuffer(size_t size, const uint32_t* pInitData)
 	if (pInitData != nullptr)
 	{
 		void* ptr = nullptr;
-		hr = m_pBuffer->Map(0, nullptr, &ptr);
-		if (FAILED(hr))
-		{
-			printf("[OnInit] インデックスバッファマッピングに失敗\n");
-			return;
-		}
+		ThrowIfFailed(m_pBuffer->Map(0, nullptr, &ptr));
 
 		// インデックスデータをマッピング先に設定
 		memcpy(ptr, pInitData, size);

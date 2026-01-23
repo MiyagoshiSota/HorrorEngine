@@ -1,5 +1,6 @@
 #include "RenderTarget.h"
 #include "Renderer/Engine.h" // g_Engine を使う場合
+#include "Modules/DxHelper.h"
 
 void RenderTarget::Create(
     ID3D12Device* pDevice,
@@ -44,18 +45,14 @@ void RenderTarget::Create(
     auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
     // リソースを生成
-    HRESULT hr = pDevice->CreateCommittedResource(
+    ThrowIfFailed(pDevice->CreateCommittedResource(
         &heapProps,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc,
         D3D12_RESOURCE_STATE_RENDER_TARGET, // 初期状態はレンダーターゲット
         &clearValue,
         IID_PPV_ARGS(&m_pResource)
-    );
-    if (FAILED(hr)) {
-        // エラー処理
-        return;
-    }
+    ));
     m_CurrentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
     // レンダーターゲットビュー (RTV) を生成

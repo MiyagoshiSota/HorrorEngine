@@ -8,6 +8,7 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
 #include "Scene/Default/Scene/DefaultScene.h"
+#include "Modules/DxHelper.h"
 
 #include "Graphics/DescriptorHeap/DescriptorHeap.h"
 #include "GUI/Windows/DrawGameObjectWindow.h"
@@ -274,128 +275,141 @@ UINT Engine::CurrentBackBufferIndex()
 
 bool Engine::CreateDevice()
 {
-    auto hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(m_pDevice.ReleaseAndGetAddressOf()));
-    return SUCCEEDED(hr);
+    try
+    {
+        ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(m_pDevice.ReleaseAndGetAddressOf())));
+        return true;
+    }
+    catch (const std::exception&)
+    {
+        return false;
+    }
 }
 
 bool Engine::CreateCommandQueue()
 {
-    D3D12_COMMAND_QUEUE_DESC desc = {};
-    desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-    desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-    desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    desc.NodeMask = 0;
+    try
+    {
+        D3D12_COMMAND_QUEUE_DESC desc = {};
+        desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+        desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+        desc.NodeMask = 0;
 
-    auto hr = m_pDevice->CreateCommandQueue(&desc, IID_PPV_ARGS(m_pQueue.ReleaseAndGetAddressOf()));
-
-    return SUCCEEDED(hr);
+        ThrowIfFailed(m_pDevice->CreateCommandQueue(&desc, IID_PPV_ARGS(m_pQueue.ReleaseAndGetAddressOf())));
+        return true;
+    }
+    catch (const std::exception&)
+    {
+        return false;
+    }
 }
 
 bool Engine::CreateSwapChain()
 {
-    // DXGIファクトリーの作成
-    IDXGIFactory4* pFactory = nullptr;
-    HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&pFactory));
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // スワップチェインの作成
-    DXGI_SWAP_CHAIN_DESC desc = {};
-    desc.BufferDesc.Width = m_FrameBufferWidth;
-    desc.BufferDesc.Height = m_FrameBufferHeight;
-    desc.BufferDesc.RefreshRate.Numerator = 60;
-    desc.BufferDesc.RefreshRate.Denominator = 1;
-    desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-    desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    desc.SampleDesc.Count = 1;
-    desc.SampleDesc.Quality = 0;
-    desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    desc.BufferCount = kFrameBufferCount;
-    desc.OutputWindow = m_hWnd;
-    desc.Windowed = TRUE;
-    desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-    // スワップチェインの作成
-    IDXGISwapChain* pSwapChain = nullptr;
-    hr = pFactory->CreateSwapChain(m_pQueue.Get(), &desc, &pSwapChain);
-    if (FAILED(hr)) {
-        pFactory->Release();
-        return false;
-    }
-
-    // IDXGISwapChain3を取得
-    hr = pSwapChain->QueryInterface(IID_PPV_ARGS(m_pSwapChain.ReleaseAndGetAddressOf()));
-    if (FAILED(hr))
+    try
     {
+        // DXGIファクトリーの作成
+        IDXGIFactory4* pFactory = nullptr;
+        ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&pFactory)));
+
+        // スワップチェインの作成
+        DXGI_SWAP_CHAIN_DESC desc = {};
+        desc.BufferDesc.Width = m_FrameBufferWidth;
+        desc.BufferDesc.Height = m_FrameBufferHeight;
+        desc.BufferDesc.RefreshRate.Numerator = 60;
+        desc.BufferDesc.RefreshRate.Denominator = 1;
+        desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+        desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+        desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.SampleDesc.Quality = 0;
+        desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        desc.BufferCount = kFrameBufferCount;
+        desc.OutputWindow = m_hWnd;
+        desc.Windowed = TRUE;
+        desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+        // スワップチェインの作成
+        IDXGISwapChain* pSwapChain = nullptr;
+        ThrowIfFailed(pFactory->CreateSwapChain(m_pQueue.Get(), &desc, &pSwapChain));
+
+        // IDXGISwapChain3を取得
+        ThrowIfFailed(pSwapChain->QueryInterface(IID_PPV_ARGS(m_pSwapChain.ReleaseAndGetAddressOf())));
+
+        // バックバッファ番号を取得
+        m_CurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
         pFactory->Release();
         pSwapChain->Release();
+        return true;
+    }
+    catch (const std::exception&)
+    {
         return false;
     }
-
-    // バックバッファ番号を取得
-    m_CurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-
-    pFactory->Release();
-    pSwapChain->Release();
-    return true;
 }
 
 bool Engine::CreateCommandList()
 {
-    // コマンドアロケータの作成
-    HRESULT hr;
-    for (size_t i = 0; i < kFrameBufferCount; i++)
+    try
     {
-        hr = m_pDevice->CreateCommandAllocator(
+        // コマンドアロケータの作成
+        for (size_t i = 0; i < kFrameBufferCount; i++)
+        {
+            ThrowIfFailed(m_pDevice->CreateCommandAllocator(
+                D3D12_COMMAND_LIST_TYPE_DIRECT,
+                IID_PPV_ARGS(m_pAllocator[i].ReleaseAndGetAddressOf())
+            ));
+        }
+
+        // コマンドリストの作成
+        ThrowIfFailed(m_pDevice->CreateCommandList(
+            0,
             D3D12_COMMAND_LIST_TYPE_DIRECT,
-            IID_PPV_ARGS(m_pAllocator[i].ReleaseAndGetAddressOf())
-            );
-    }
+            m_pAllocator[m_CurrentBackBufferIndex].Get(),
+            nullptr,
+            IID_PPV_ARGS(&m_pCommandList)
+        ));
 
-    if (FAILED(hr)) {
+        // コマンドリストは開かれている状態で作成されるのでいったん閉じる
+        m_pCommandList->Close();
+        m_isCommandListOpen = false; // 初期状態は閉じている
+
+        return true;
+    }
+    catch (const std::exception&)
+    {
         return false;
     }
-
-    // コマンドリストの作成
-    hr = m_pDevice->CreateCommandList(
-        0,
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_pAllocator[m_CurrentBackBufferIndex].Get(),
-        nullptr,
-        IID_PPV_ARGS(&m_pCommandList)
-    );
-
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // コマンドリストは開かれている状態で作成されるのでいったん閉じる
-    m_pCommandList->Close();
-    m_isCommandListOpen = false; // 初期状態は閉じている
-
-    return true;
 }
 
 bool Engine::CreateFence()
 {
-    for (auto i = 0u; i < kFrameBufferCount; i++)
+    try
     {
-        m_fenceValue[i] = 0;
-    }
+        for (auto i = 0u; i < kFrameBufferCount; i++)
+        {
+            m_fenceValue[i] = 0;
+        }
 
-    auto hr = m_pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_pFence.ReleaseAndGetAddressOf()));
-    if (FAILED(hr)) {
+        ThrowIfFailed(m_pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_pFence.ReleaseAndGetAddressOf())));
+
+        m_fenceValue[m_CurrentBackBufferIndex]++;
+
+        m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        if (m_fenceEvent == nullptr)
+        {
+            ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+        }
+
+        return true;
+    }
+    catch (const std::exception&)
+    {
         return false;
     }
-
-    m_fenceValue[m_CurrentBackBufferIndex]++;
-
-    // 同期を行う時のイベントハンドラを作成する
-    m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-    return m_fenceEvent != nullptr;
 }
 
 void Engine::CreateViewPort()
@@ -423,8 +437,14 @@ bool Engine::InitImGui()
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     heapDesc.NumDescriptors = 64; // ← フォント＋テクスチャ用に余裕を持たせる
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    HRESULT hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_ImGuiSrvHeap));
-    if (FAILED(hr)) return false;
+    try
+    {
+        ThrowIfFailed(m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_ImGuiSrvHeap)));
+    }
+    catch (const std::exception&)
+    {
+        return false;
+    }
 
     // 2. ImGuiコンテキスト作成
     IMGUI_CHECKVERSION();
@@ -491,8 +511,11 @@ bool Engine::CreateRenderTarget()
     desc.NumDescriptors = kFrameBufferCount + 256;
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    auto hr = m_pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pRtvHeap.ReleaseAndGetAddressOf()));
-    if (FAILED(hr))
+    try
+    {
+        ThrowIfFailed(m_pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pRtvHeap.ReleaseAndGetAddressOf())));
+    }
+    catch (const std::exception&)
     {
         return false;
     }
@@ -534,8 +557,12 @@ bool Engine::CreateDepthStencil()
     heapDesc.NumDescriptors = kFrameBufferCount + 256;
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    auto hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pDsvHeap));
-    if (FAILED(hr)) {
+    try
+    {
+        ThrowIfFailed(m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pDsvHeap)));
+    }
+    catch (const std::exception&)
+    {
         return false;
     }
 
@@ -560,16 +587,19 @@ bool Engine::CreateDepthStencil()
         0,
         D3D12_TEXTURE_LAYOUT_UNKNOWN,
         D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
-    hr = m_pDevice->CreateCommittedResource(
-        &heapProp,
-        D3D12_HEAP_FLAG_NONE,
-        &resourceDesc,
-        D3D12_RESOURCE_STATE_DEPTH_WRITE,
-        &dsvClearValue,
-        IID_PPV_ARGS(m_pDepthStencilBuffer.ReleaseAndGetAddressOf())
-    );
-
-    if (FAILED(hr))
+    
+    try
+    {
+        ThrowIfFailed(m_pDevice->CreateCommittedResource(
+            &heapProp,
+            D3D12_HEAP_FLAG_NONE,
+            &resourceDesc,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &dsvClearValue,
+            IID_PPV_ARGS(m_pDepthStencilBuffer.ReleaseAndGetAddressOf())
+        ));
+    }
+    catch (const std::exception&)
     {
         return false;
     }

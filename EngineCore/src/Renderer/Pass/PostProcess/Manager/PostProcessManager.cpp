@@ -54,7 +54,7 @@ void PostProcessManager::LoadPresets(const std::string& filePath)
     for (auto& [presetName, presetData] : presetJson["presets"].items())
     {
         PostProcessPreset preset;
-        preset.name = presetName;
+        preset.m_name = presetName;
 
 		// パスの順序を読み込む
         if (presetData.contains("order")) {

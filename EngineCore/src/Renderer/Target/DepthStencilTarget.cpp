@@ -1,6 +1,6 @@
-﻿#include "DepthStencilTarget.h"
-
+#include "DepthStencilTarget.h"
 #include <d3dx12.h>
+#include "Modules/DxHelper.h"
 
 DepthStencilTarget::DepthStencilTarget()
 {
@@ -47,18 +47,14 @@ void DepthStencilTarget::Create(
     auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
     // リソースを生成
-    HRESULT hr = pDevice->CreateCommittedResource(
+    ThrowIfFailed(pDevice->CreateCommittedResource(
         &heapProps,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc,
         D3D12_RESOURCE_STATE_DEPTH_WRITE,
         &clearValue,
         IID_PPV_ARGS(&m_pResource)
-        );
-    if (FAILED(hr)) {
-        // エラー処理
-        return;
-    }
+    ));
     m_CurrentState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
     // DSVの生成

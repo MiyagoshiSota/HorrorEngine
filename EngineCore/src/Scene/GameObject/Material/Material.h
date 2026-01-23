@@ -18,7 +18,7 @@ public:
     Material()
     {
         // 定数バッファの作成 (Colorなどのパラメータ用)
-        constantBuffer = std::make_shared<ConstantBuffer>(sizeof(DirectX::XMFLOAT4));
+        m_constantBuffer = std::make_shared<ConstantBuffer>(sizeof(DirectX::XMFLOAT4));
         m_BaseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
         // --- デフォルトのテクスチャスロット定義 ---
@@ -66,7 +66,7 @@ public:
 
     // カラー設定
     void SetColor(DirectX::XMFLOAT4 color) { m_BaseColor = color; }
-    DirectX::XMFLOAT4 GetColor() { return m_BaseColor; }
+    DirectX::XMFLOAT4 GetColor() const { return m_BaseColor; }
 
 
     // --- DirectX 12 内部処理 ---
@@ -131,7 +131,7 @@ public:
         return m_SrvHandle;
     }
 
-    std::shared_ptr<ConstantBuffer> GetConstantBuffer() { return constantBuffer; }
+    std::shared_ptr<ConstantBuffer> GetConstantBuffer() const { return m_constantBuffer; }
 
 private:
     // スロット定義ヘルパー
@@ -144,7 +144,7 @@ private:
 private:
     // --- プロパティデータ ---
     DirectX::XMFLOAT4 m_BaseColor;
-    std::shared_ptr<ConstantBuffer> constantBuffer;
+    std::shared_ptr<ConstantBuffer> m_constantBuffer;
 
     // テクスチャ保持用マップ (名前 -> テクスチャ実体)
     std::map<std::string, std::shared_ptr<Texture2D>> m_textureProperties;

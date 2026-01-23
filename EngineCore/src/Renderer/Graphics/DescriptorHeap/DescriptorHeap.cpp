@@ -3,6 +3,7 @@
 #include <d3dx12.h>
 #include "Renderer/Engine.h"
 #include "../../../Modules/ComPtr.h"
+#include "Modules/DxHelper.h"
 
 const UINT kHandleMax = 512;
 
@@ -17,10 +18,7 @@ DescriptorHeap::DescriptorHeap(UINT numDescriptors) : m_NumDescriptors(numDescri
 	desc.NodeMask = 0;
 
 	// SRV用のヒープを生成
-	HRESULT hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pHeap));
-	if (FAILED(hr)) {
-		printf("Failed to create SRV descriptor heap.\n");
-	}
+	ThrowIfFailed(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pHeap)));
 
 	m_IncrementSize = device->GetDescriptorHandleIncrementSize(desc.Type);
 }

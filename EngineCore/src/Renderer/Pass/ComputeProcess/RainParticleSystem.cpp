@@ -2,6 +2,7 @@
 
 #include "Core/App.h"
 #include "Modules/Renderer/RendereUtility.h"
+#include "Modules/DxHelper.h"
 
 RainParticleSystem::RainParticleSystem()
 {
@@ -29,16 +30,19 @@ RainParticleSystem::RainParticleSystem()
 
     // m_pParticleBuffer の実体を作成
     // 初期状態は、アップロードバッファからのコピー先 (COPY_DEST)
-    HRESULT hr = pDevice->CreateCommittedResource(
-        &heapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &bufferDesc,
-        D3D12_RESOURCE_STATE_COPY_DEST, // 初期状態
-        nullptr,
-        IID_PPV_ARGS(&m_pParticleBuffer));
-    if (FAILED(hr))
+    try
     {
-        printf("パーティクルバッファの作成に失敗\n");
+        ThrowIfFailed(pDevice->CreateCommittedResource(
+            &heapProps,
+            D3D12_HEAP_FLAG_NONE,
+            &bufferDesc,
+            D3D12_RESOURCE_STATE_COPY_DEST, // 初期状態
+            nullptr,
+            IID_PPV_ARGS(&m_pParticleBuffer)));
+    }
+    catch (const std::exception& e)
+    {
+        printf("パーティクルバッファの作成に失敗: %s\n", e.what());
         return;
     }
     m_pParticleBuffer->SetName(L"Particle Buffer");
@@ -51,16 +55,19 @@ RainParticleSystem::RainParticleSystem()
     uploadBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE; // UPLOAD ヒープは UAV にできない
     uploadBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-    hr = pDevice->CreateCommittedResource(
-        &uploadHeapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &uploadBufferDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ, // CPUから書き込み、GPUから読み取り(コピー元)
-        nullptr,
-        IID_PPV_ARGS(&m_pUploadBuffer));
-    if (FAILED(hr))
+    try
     {
-        printf("Uploadバッファの作成に失敗\n");
+        ThrowIfFailed(pDevice->CreateCommittedResource(
+            &uploadHeapProps,
+            D3D12_HEAP_FLAG_NONE,
+            &uploadBufferDesc,
+            D3D12_RESOURCE_STATE_GENERIC_READ, // CPUから書き込み、GPUから読み取り(コピー元)
+            nullptr,
+            IID_PPV_ARGS(&m_pUploadBuffer)));
+    }
+    catch (const std::exception& e)
+    {
+        printf("Uploadバッファの作成に失敗: %s\n", e.what());
         return;
     }
     m_pUploadBuffer->SetName(L"Particle Upload Buffer");
@@ -76,10 +83,13 @@ RainParticleSystem::RainParticleSystem()
     // --- CPU から UPLOAD バッファへデータをコピー ---
     UINT8* pData;
     D3D12_RANGE readRange = { 0, 0 }; // CPUからは読み取らない
-    hr = m_pUploadBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pData));
-    if (FAILED(hr))
+    try
     {
-        printf("Map failed\n");
+        ThrowIfFailed(m_pUploadBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pData)));
+    }
+    catch (const std::exception& e)
+    {
+        printf("Map failed: %s\n", e.what());
         return;
     }
     
