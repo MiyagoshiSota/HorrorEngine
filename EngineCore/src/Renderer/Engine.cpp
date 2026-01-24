@@ -268,6 +268,11 @@ ID3D12GraphicsCommandList* Engine::CommandList()
     return m_pCommandList.Get();
 }
 
+ID3D12CommandQueue* Engine::CommandQueue()
+{
+    return m_pQueue.Get();
+}
+
 UINT Engine::CurrentBackBufferIndex()
 {
     return m_CurrentBackBufferIndex;

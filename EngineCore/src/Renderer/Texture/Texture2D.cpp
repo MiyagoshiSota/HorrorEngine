@@ -3,6 +3,9 @@
 #include <vector>
 #include <cassert>
 #include <d3dx12.h>
+#include <chrono>
+#include <iostream>
+#include <Windows.h>
 
 #include "Renderer/Engine.h"
 #include "Modules/DxHelper.h"
@@ -88,7 +91,13 @@ std::shared_ptr<Texture2D> Texture2D::CreateWhiteTexture()
 
 bool Texture2D::InternalLoad(const std::wstring& path)
 {
+    // 全体の読み込み開始時刻を記録
+    const auto totalStartTime = std::chrono::high_resolution_clock::now();
+
     m_path = path;
+
+    // === 1. ファイルI/O + デコード時間の計測 ===
+    const auto fileIoStartTime = std::chrono::high_resolution_clock::now();
 
     // DirectXTexを使って画像をロード
     TexMetadata meta = {};
@@ -107,6 +116,10 @@ bool Texture2D::InternalLoad(const std::wstring& path)
         hr = LoadFromWICFile(path.c_str(), WIC_FLAGS_NONE, &meta, scratch);
     }
 
+    const auto fileIoEndTime = std::chrono::high_resolution_clock::now();
+    const auto fileIoDuration = std::chrono::duration_cast<std::chrono::microseconds>(fileIoEndTime - fileIoStartTime);
+    const double fileIoMs = fileIoDuration.count() / 1000.0;
+
     try
     {
         ThrowIfFailed(hr);
@@ -121,11 +134,10 @@ bool Texture2D::InternalLoad(const std::wstring& path)
     m_width = static_cast<uint32_t>(meta.width);
     m_height = static_cast<uint32_t>(meta.height);
 
-    // リソースの作成 (DirectXTexの情報を元に確保)
-    // メモ: GetDefaultResourceはR8G8B8A8_UNORM固定なので、元のフォーマットを使いたい場合は修正が必要
-    // ここではシンプルにするため、元コードのWriteToSubresourceパターンに合わせてリソースを作ります
-
     const Image* img = scratch.GetImage(0, 0, 0);
+
+    // === 2. GPUリソース作成時間の計測 ===
+    const auto resourceCreateStartTime = std::chrono::high_resolution_clock::now();
 
     // リソースを確保 (フォーマットは画像に合わせる)
     auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
@@ -136,15 +148,16 @@ bool Texture2D::InternalLoad(const std::wstring& path)
         static_cast<UINT16>(meta.mipLevels)
     );
 
-    auto texHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
+    // Phase 1: D3D12_HEAP_TYPE_DEFAULTでGPU専用メモリに作成（COPY_DEST状態）
+    auto defaultHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
     try
     {
         ThrowIfFailed(g_Engine->Device()->CreateCommittedResource(
-            &texHeapProp,
+            &defaultHeapProp,
             D3D12_HEAP_FLAG_NONE,
             &resDesc,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // 最初からシェーダーリソースとして使用
+            D3D12_RESOURCE_STATE_COPY_DEST, // コピー先として使用
             nullptr,
             IID_PPV_ARGS(&m_resource)
         ));
@@ -154,21 +167,237 @@ bool Texture2D::InternalLoad(const std::wstring& path)
         return false;
     }
 
-    // データの転送 (WriteToSubresource)
+    const auto resourceCreateEndTime = std::chrono::high_resolution_clock::now();
+    const auto resourceCreateDuration = std::chrono::duration_cast<std::chrono::microseconds>(resourceCreateEndTime - resourceCreateStartTime);
+    const double resourceCreateMs = resourceCreateDuration.count() / 1000.0;
+
+    // === 3. レイアウト計算時間の計測 ===
+    const auto layoutCalcStartTime = std::chrono::high_resolution_clock::now();
+
+    // GetCopyableFootprintsでレイアウト計算
+    UINT64 uploadBufferSize = 0;
+    UINT numRows = 0;
+    UINT64 rowSizeInBytes = 0;
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
+
+    g_Engine->Device()->GetCopyableFootprints(
+        &resDesc,
+        0,
+        1,
+        0,
+        &layout,
+        &numRows,
+        &rowSizeInBytes,
+        &uploadBufferSize
+    );
+
+    const auto layoutCalcEndTime = std::chrono::high_resolution_clock::now();
+    const auto layoutCalcDuration = std::chrono::duration_cast<std::chrono::microseconds>(layoutCalcEndTime - layoutCalcStartTime);
+    const double layoutCalcMs = layoutCalcDuration.count() / 1000.0;
+
+    // === 4. ステージングバッファ作成時間の計測 ===
+    const auto stagingCreateStartTime = std::chrono::high_resolution_clock::now();
+
+    // UPLOADヒープでステージングバッファを作成
+    auto uploadHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto uploadBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer;
     try
     {
-        ThrowIfFailed(m_resource->WriteToSubresource(
-            0,
-            nullptr, // 全領域
-            img->pixels,
-            static_cast<UINT>(img->rowPitch),
-            static_cast<UINT>(img->slicePitch)
+        ThrowIfFailed(g_Engine->Device()->CreateCommittedResource(
+            &uploadHeapProp,
+            D3D12_HEAP_FLAG_NONE,
+            &uploadBufferDesc,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&uploadBuffer)
         ));
     }
     catch (const std::exception&)
     {
         return false;
     }
+
+    const auto stagingCreateEndTime = std::chrono::high_resolution_clock::now();
+    const auto stagingCreateDuration = std::chrono::duration_cast<std::chrono::microseconds>(stagingCreateEndTime - stagingCreateStartTime);
+    const double stagingCreateMs = stagingCreateDuration.count() / 1000.0;
+
+    // === 5. CPU書き込み時間の計測 ===
+    const auto cpuCopyStartTime = std::chrono::high_resolution_clock::now();
+
+    // Map/memcpy/UnmapでCPUからステージングバッファにデータコピー
+    uint8_t* pData = nullptr;
+    try
+    {
+        D3D12_RANGE readRange = { 0, 0 }; // CPUからは読み取らない
+        ThrowIfFailed(uploadBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pData)));
+
+        // アライメントを考慮しながらデータをコピー
+        const uint8_t* pSrcData = img->pixels;
+        const UINT srcRowPitch = static_cast<UINT>(img->rowPitch);
+        const UINT dstRowPitch = static_cast<UINT>(layout.Footprint.RowPitch);
+        const UINT rowSize = static_cast<UINT>(rowSizeInBytes);
+
+        for (UINT row = 0; row < numRows; ++row)
+        {
+            memcpy(pData + layout.Offset + row * layout.Footprint.RowPitch,
+                   pSrcData + row * srcRowPitch,
+                   rowSize);
+        }
+
+        D3D12_RANGE writeRange = { 0, static_cast<SIZE_T>(uploadBufferSize) };
+        uploadBuffer->Unmap(0, &writeRange);
+    }
+    catch (const std::exception&)
+    {
+        return false;
+    }
+
+    const auto cpuCopyEndTime = std::chrono::high_resolution_clock::now();
+    const auto cpuCopyDuration = std::chrono::duration_cast<std::chrono::microseconds>(cpuCopyEndTime - cpuCopyStartTime);
+    const double cpuCopyMs = cpuCopyDuration.count() / 1000.0;
+
+    // === 6. コマンドリスト作成時間の計測 ===
+    const auto cmdListCreateStartTime = std::chrono::high_resolution_clock::now();
+
+    // コマンドリストでCopyTextureRegionを発行
+    // 専用のコマンドリストを作成（テクスチャロード用）
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList;
+    Microsoft::WRL::ComPtr<ID3D12Fence> fence;
+    HANDLE fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    UINT64 fenceValue = 1;
+
+    try
+    {
+        // コマンドアロケータ作成
+        ThrowIfFailed(g_Engine->Device()->CreateCommandAllocator(
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            IID_PPV_ARGS(&commandAllocator)
+        ));
+
+        // コマンドリスト作成
+        ThrowIfFailed(g_Engine->Device()->CreateCommandList(
+            0,
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            commandAllocator.Get(),
+            nullptr,
+            IID_PPV_ARGS(&commandList)
+        ));
+
+        // フェンス作成
+        ThrowIfFailed(g_Engine->Device()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+    }
+    catch (const std::exception&)
+    {
+        if (fenceEvent) CloseHandle(fenceEvent);
+        return false;
+    }
+
+    const auto cmdListCreateEndTime = std::chrono::high_resolution_clock::now();
+    const auto cmdListCreateDuration = std::chrono::duration_cast<std::chrono::microseconds>(cmdListCreateEndTime - cmdListCreateStartTime);
+    const double cmdListCreateMs = cmdListCreateDuration.count() / 1000.0;
+
+    // === 7. コマンド発行時間の計測 ===
+    const auto cmdIssueStartTime = std::chrono::high_resolution_clock::now();
+    
+    // GPU転送開始時刻を記録するための変数
+    std::chrono::high_resolution_clock::time_point gpuTransferStartTime;
+
+    try
+    {
+        // コピーコマンドを発行
+        CD3DX12_TEXTURE_COPY_LOCATION dst(m_resource.Get(), 0);
+        CD3DX12_TEXTURE_COPY_LOCATION src(uploadBuffer.Get(), layout);
+        commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+
+        // リソースバリア: COPY_DEST → PIXEL_SHADER_RESOURCE
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            m_resource.Get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        );
+        commandList->ResourceBarrier(1, &barrier);
+
+        // コマンドリストを閉じて実行
+        ThrowIfFailed(commandList->Close());
+
+        ID3D12CommandList* cmdLists[] = { commandList.Get() };
+        
+        // ExecuteCommandListsの直前に時刻を記録（GPU転送開始時刻）
+        gpuTransferStartTime = std::chrono::high_resolution_clock::now();
+        g_Engine->CommandQueue()->ExecuteCommandLists(1, cmdLists);
+    }
+    catch (const std::exception&)
+    {
+        if (fenceEvent) CloseHandle(fenceEvent);
+        return false;
+    }
+
+    const auto cmdIssueEndTime = std::chrono::high_resolution_clock::now();
+    const auto cmdIssueDuration = std::chrono::duration_cast<std::chrono::microseconds>(cmdIssueEndTime - cmdIssueStartTime);
+    const double cmdIssueMs = cmdIssueDuration.count() / 1000.0;
+
+    // === 8. GPUコピー（PCIe転送）とSync Overheadの計測 ===
+    double syncOverheadMs = 0.0;
+    double gpuCopyMs = 0.0;
+
+    try
+    {
+        // フェンスで転送完了を待機（Signalを呼び出す）
+        const auto signalBeforeTime = std::chrono::high_resolution_clock::now();
+        ThrowIfFailed(g_Engine->CommandQueue()->Signal(fence.Get(), fenceValue));
+        const auto signalAfterTime = std::chrono::high_resolution_clock::now();
+        
+        // Signal直後にフェンス完了をチェック
+        const bool alreadyCompleted = (fence->GetCompletedValue() >= fenceValue);
+        
+        if (alreadyCompleted)
+        {
+            // Signal直後に完了している場合、転送は既に完了している
+            // GPU Copy時間はExecuteCommandListsからSignalまでの時間
+            const auto gpuCopyDuration = std::chrono::duration_cast<std::chrono::microseconds>(signalAfterTime - gpuTransferStartTime);
+            gpuCopyMs = gpuCopyDuration.count() / 1000.0;
+            syncOverheadMs = 0.0;
+        }
+        else
+        {
+            // フェンス完了を待機（Sync Overhead）
+            // SetEventOnCompletionのセットアップ（この時間はSync Overheadに含める）
+            ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
+            
+            // フェンス完了を待機
+            WaitForSingleObject(fenceEvent, INFINITE);
+            const auto waitEndTime = std::chrono::high_resolution_clock::now();
+            
+            // Sync Overhead = Signal呼び出し後からフェンス完了までの時間
+            // これには、SetEventOnCompletionのセットアップ時間とWaitForSingleObjectの待機時間が含まれる
+            const auto syncDuration = std::chrono::duration_cast<std::chrono::microseconds>(waitEndTime - signalAfterTime);
+            syncOverheadMs = syncDuration.count() / 1000.0;
+            
+            // GPU Copy = ExecuteCommandListsから実際のGPU転送完了までの時間
+            // 実際のGPU転送完了時刻はフェンス完了時刻（waitEndTime）に最も近い
+            // しかし、Signal呼び出しからフェンス完了までの時間は同期オーバーヘッドなので、
+            // GPU Copy = ExecuteCommandListsからフェンス完了までの時間 - Sync Overhead
+            // つまり、ExecuteCommandListsからSignal呼び出しまでの時間が実際のGPU転送時間に最も近い
+            const auto gpuCopyDuration = std::chrono::duration_cast<std::chrono::microseconds>(signalAfterTime - gpuTransferStartTime);
+            gpuCopyMs = gpuCopyDuration.count() / 1000.0;
+        }
+    }
+    catch (const std::exception&)
+    {
+        if (fenceEvent) CloseHandle(fenceEvent);
+        return false;
+    }
+
+    CloseHandle(fenceEvent);
+
+    // データ転送時間（CPUコピー + GPUコピー + Sync Overhead）として記録
+    const double transferMs = cpuCopyMs + gpuCopyMs + syncOverheadMs;
+
+    // === 4. その他処理時間の計測 ===
+    const auto otherStartTime = std::chrono::high_resolution_clock::now();
 
     // SRV設定の作成
     m_srvDesc.Format = resDesc.Format;
@@ -178,6 +407,28 @@ bool Texture2D::InternalLoad(const std::wstring& path)
     // m_srvDesc.Texture2D.MostDetailedMip = 0;
     // m_srvDesc.Texture2D.PlaneSlice = 0;
     // m_srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+    const auto otherEndTime = std::chrono::high_resolution_clock::now();
+    const auto otherDuration = std::chrono::duration_cast<std::chrono::microseconds>(otherEndTime - otherStartTime);
+    const double otherMs = otherDuration.count() / 1000.0;
+
+    // === 全体時間の計測 ===
+    const auto totalEndTime = std::chrono::high_resolution_clock::now();
+    const auto totalDuration = std::chrono::duration_cast<std::chrono::microseconds>(totalEndTime - totalStartTime);
+    const double totalMs = totalDuration.count() / 1000.0;
+
+    // === 詳細ログの出力 ===
+    std::wcout << L"[Texture Load] " << path << L" - " << m_width << L"x" << m_height << std::endl;
+    std::wcout << L"  File I/O + Decode: " << fileIoMs << L" ms" << std::endl;
+    std::wcout << L"  GPU Resource Creation: " << resourceCreateMs << L" ms" << std::endl;
+    std::wcout << L"  Layout Calculation: " << layoutCalcMs << L" ms" << std::endl;
+    std::wcout << L"  Staging Buffer Creation: " << stagingCreateMs << L" ms" << std::endl;
+    std::wcout << L"  CPU Copy: " << cpuCopyMs << L" ms" << std::endl;
+    std::wcout << L"  GPU Copy: " << gpuCopyMs << L" ms" << std::endl;
+    std::wcout << L"  Sync Overhead: " << syncOverheadMs << L" ms" << std::endl;
+    std::wcout << L"  Data Transfer (Total): " << transferMs << L" ms" << std::endl;
+    std::wcout << L"  Other: " << otherMs << L" ms" << std::endl;
+    std::wcout << L"  Total: " << totalMs << L" ms" << std::endl;
 
     return true;
 }

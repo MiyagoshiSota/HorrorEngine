@@ -61,6 +61,7 @@ public:
 public:
 	ID3D12Device6* Device();
 	ID3D12GraphicsCommandList* CommandList();
+	ID3D12CommandQueue* CommandQueue();
 	UINT CurrentBackBufferIndex();
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentRtvHandle() const;

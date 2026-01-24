@@ -1,4 +1,8 @@
 {
   "models": {
+    "WorldEnvironment": {
+      "model_path": "assets/japanese_street_at_night/scene.gltf",
+      "model_name": "WorldEnvironment"
+    }
   }
 }
