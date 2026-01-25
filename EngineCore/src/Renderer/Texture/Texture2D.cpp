@@ -137,6 +137,18 @@ bool Texture2D::InternalLoad(const std::wstring& path)
 
     g_Engine->Device()->GetCopyableFootprints(
         &resDesc,
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // 最初からシェーダーリソースとして使用
+        nullptr,
+        IID_PPV_ARGS(m_resource.ReleaseAndGetAddressOf())
+    );
+
+    if (FAILED(hr))
+    {
+        return false;
+    }
+
+    // データの転送 (WriteToSubresource)
+    hr = m_resource->WriteToSubresource(
         0,
         1,
         0,

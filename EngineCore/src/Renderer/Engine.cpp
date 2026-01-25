@@ -31,11 +31,10 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 
 #if defined(_DEBUG)
     // デバッグレイヤーを有効化
-    ID3D12Debug* debugController;
-    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+    ComPtr<ID3D12Debug> debugController;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf()))))
     {
         debugController->EnableDebugLayer();
-        debugController->Release();
     }
 #endif
 
@@ -46,8 +45,8 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 
     // CreateDevice()内、デバイス作成が成功した後に追加
 #if defined(_DEBUG)
-    ID3D12InfoQueue* pInfoQueue = nullptr;
-    if (SUCCEEDED(m_pDevice->QueryInterface(IID_PPV_ARGS(&pInfoQueue))))
+    ComPtr<ID3D12InfoQueue> pInfoQueue;
+    if (SUCCEEDED(m_pDevice->QueryInterface(IID_PPV_ARGS(pInfoQueue.GetAddressOf()))))
     {
         // 重大なエラーが発生した場合、プログラムを停止させる
         pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
@@ -59,8 +58,6 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
         // filter.DenyList.NumIDs = _countof(messageIds);
         // filter.DenyList.pIDList = messageIds;
         // pInfoQueue->AddStorageFilterEntries(&filter);
-
-        pInfoQueue->Release();
     }
 #endif
 
@@ -133,7 +130,7 @@ void Engine::Shutdown()
 	// ImGuiの終了処理
 	// ドッキング状態を明示的に保存
 	ImGui::SaveIniSettingsToDisk(ImGui::GetIO().IniFilename);
-	
+
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyPlatformWindows();  // ビューポートウィンドウのクリーンアップ（dockingブランチで必要）
@@ -223,7 +220,7 @@ void Engine::EndRender()
         // コマンドを完了して送信
         m_pCommandList->Close();
         m_isCommandListOpen = false; // コマンドリストが閉じられたことを記録
-        
+
         ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
         m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
     }
@@ -312,48 +309,49 @@ bool Engine::CreateCommandQueue()
 
 bool Engine::CreateSwapChain()
 {
-    try
-    {
-        // DXGIファクトリーの作成
-        IDXGIFactory4* pFactory = nullptr;
-        ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&pFactory)));
-
-        // スワップチェインの作成
-        DXGI_SWAP_CHAIN_DESC desc = {};
-        desc.BufferDesc.Width = m_FrameBufferWidth;
-        desc.BufferDesc.Height = m_FrameBufferHeight;
-        desc.BufferDesc.RefreshRate.Numerator = 60;
-        desc.BufferDesc.RefreshRate.Denominator = 1;
-        desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-        desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-        desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        desc.SampleDesc.Count = 1;
-        desc.SampleDesc.Quality = 0;
-        desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        desc.BufferCount = kFrameBufferCount;
-        desc.OutputWindow = m_hWnd;
-        desc.Windowed = TRUE;
-        desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-        desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-        // スワップチェインの作成
-        IDXGISwapChain* pSwapChain = nullptr;
-        ThrowIfFailed(pFactory->CreateSwapChain(m_pQueue.Get(), &desc, &pSwapChain));
-
-        // IDXGISwapChain3を取得
-        ThrowIfFailed(pSwapChain->QueryInterface(IID_PPV_ARGS(m_pSwapChain.ReleaseAndGetAddressOf())));
-
-        // バックバッファ番号を取得
-        m_CurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-
-        pFactory->Release();
-        pSwapChain->Release();
-        return true;
+    // DXGIファクトリーの作成
+    ComPtr<IDXGIFactory4> pFactory;
+    HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(pFactory.GetAddressOf()));
+    if (FAILED(hr)) {
+        return false;
     }
-    catch (const std::exception&)
+
+    // スワップチェインの作成
+    DXGI_SWAP_CHAIN_DESC desc = {};
+    desc.BufferDesc.Width = m_FrameBufferWidth;
+    desc.BufferDesc.Height = m_FrameBufferHeight;
+    desc.BufferDesc.RefreshRate.Numerator = 60;
+    desc.BufferDesc.RefreshRate.Denominator = 1;
+    desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+    desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+    desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    desc.BufferCount = kFrameBufferCount;
+    desc.OutputWindow = m_hWnd;
+    desc.Windowed = TRUE;
+    desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+    // スワップチェインの作成
+    ComPtr<IDXGISwapChain> pSwapChain;
+    hr = pFactory->CreateSwapChain(m_pQueue.Get(), &desc, pSwapChain.GetAddressOf());
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    // IDXGISwapChain3を取得
+    hr = pSwapChain->QueryInterface(IID_PPV_ARGS(m_pSwapChain.ReleaseAndGetAddressOf()));
+    if (FAILED(hr))
     {
         return false;
     }
+
+    // バックバッファ番号を取得
+    m_CurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
+    return true;
 }
 
 bool Engine::CreateCommandList()
@@ -388,6 +386,25 @@ bool Engine::CreateCommandList()
     {
         return false;
     }
+
+    // コマンドリストの作成
+    hr = m_pDevice->CreateCommandList(
+        0,
+        D3D12_COMMAND_LIST_TYPE_DIRECT,
+        m_pAllocator[m_CurrentBackBufferIndex].Get(),
+        nullptr,
+        IID_PPV_ARGS(m_pCommandList.ReleaseAndGetAddressOf())
+    );
+
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    // コマンドリストは開かれている状態で作成されるのでいったん閉じる
+    m_pCommandList->Close();
+    m_isCommandListOpen = false; // 初期状態は閉じている
+
+    return true;
 }
 
 bool Engine::CreateFence()
@@ -442,14 +459,8 @@ bool Engine::InitImGui()
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     heapDesc.NumDescriptors = 64; // ← フォント＋テクスチャ用に余裕を持たせる
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    try
-    {
-        ThrowIfFailed(m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_ImGuiSrvHeap)));
-    }
-    catch (const std::exception&)
-    {
-        return false;
-    }
+    HRESULT hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(m_ImGuiSrvHeap.ReleaseAndGetAddressOf()));
+    if (FAILED(hr)) return false;
 
     // ImGuiコンテキスト作成
     IMGUI_CHECKVERSION();
@@ -457,10 +468,10 @@ bool Engine::InitImGui()
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    
+
     // ドッキング状態の保存/復元を有効化
     io.IniFilename = "imgui.ini";  // Gameディレクトリに保存される
-    
+
     ImGui::StyleColorsDark();
 
     // バックエンド初期化
@@ -492,7 +503,7 @@ bool Engine::InitImGui()
 
     // メインメニューバーを初期化
     m_mainMenuBar = std::make_shared<DrawMainMenuBar>();
-    
+
     // モードウィンドウを初期化
     m_modeWindow = std::make_shared<DrawModeWindow>();
 
@@ -562,12 +573,8 @@ bool Engine::CreateDepthStencil()
     heapDesc.NumDescriptors = kFrameBufferCount + 256;
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    try
-    {
-        ThrowIfFailed(m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pDsvHeap)));
-    }
-    catch (const std::exception&)
-    {
+    auto hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(m_pDsvHeap.ReleaseAndGetAddressOf()));
+    if (FAILED(hr)) {
         return false;
     }
 
@@ -592,7 +599,7 @@ bool Engine::CreateDepthStencil()
         0,
         D3D12_TEXTURE_LAYOUT_UNKNOWN,
         D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
-    
+
     try
     {
         ThrowIfFailed(m_pDevice->CreateCommittedResource(
@@ -629,7 +636,7 @@ void Engine::DrawImGui()
         m_presetApplied = true;
         auto& presetManager = LayoutPresetManager::GetInstance();
         LayoutPresetType lastPreset = presetManager.LoadLastPreset();
-        
+
         // Game/imgui.iniが存在しない場合のみ、前回選択したプリセットを適用
         std::string imguiIniPath = "imgui.ini";
         if (!std::filesystem::exists(imguiIniPath))
@@ -637,11 +644,11 @@ void Engine::DrawImGui()
             // NewFrame()の前にレイアウトを読み込む
             presetManager.LoadPresetLayout(lastPreset);
         }
-        
+
         // ウィンドウの表示/非表示を設定（レイアウトに関係なく設定）
         presetManager.ApplyPreset(lastPreset);
     }
-    
+
     // メニューからプリセットが選択された場合、次フレームでレイアウトを読み込む
     if (m_hasPendingPresetLoad)
     {
@@ -733,8 +740,8 @@ void Engine::CloseAndExecuteCommandList()
         if (m_currentRenderTarget)
         {
             auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                m_currentRenderTarget.Get(), 
-                D3D12_RESOURCE_STATE_RENDER_TARGET, 
+                m_currentRenderTarget.Get(),
+                D3D12_RESOURCE_STATE_RENDER_TARGET,
                 D3D12_RESOURCE_STATE_PRESENT);
             m_pCommandList->ResourceBarrier(1, &barrier);
         }
@@ -742,7 +749,7 @@ void Engine::CloseAndExecuteCommandList()
         // コマンドリストを閉じて実行
         m_pCommandList->Close();
         m_isCommandListOpen = false;
-        
+
         ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
         m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
     }

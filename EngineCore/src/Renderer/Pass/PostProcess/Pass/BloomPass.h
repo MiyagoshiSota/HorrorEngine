@@ -269,7 +269,7 @@ private:
 		if (target->GetCurrentState() != newState)
 		{
 			D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-				target->GetResource().Get(),
+				target->GetResource(),
 				target->GetCurrentState(),
 				newState
 			);

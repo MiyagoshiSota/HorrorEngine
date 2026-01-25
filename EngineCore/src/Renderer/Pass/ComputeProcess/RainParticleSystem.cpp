@@ -30,7 +30,14 @@ RainParticleSystem::RainParticleSystem()
 
     // m_pParticleBuffer の実体を作成
     // 初期状態は、アップロードバッファからのコピー先 (COPY_DEST)
-    try
+    HRESULT hr = pDevice->CreateCommittedResource(
+        &heapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &bufferDesc,
+        D3D12_RESOURCE_STATE_COPY_DEST, // 初期状態
+        nullptr,
+        IID_PPV_ARGS(m_pParticleBuffer.ReleaseAndGetAddressOf()));
+    if (FAILED(hr))
     {
         ThrowIfFailed(pDevice->CreateCommittedResource(
             &heapProps,
@@ -55,7 +62,14 @@ RainParticleSystem::RainParticleSystem()
     uploadBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE; // UPLOAD ヒープは UAV にできない
     uploadBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-    try
+    hr = pDevice->CreateCommittedResource(
+        &uploadHeapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &uploadBufferDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ, // CPUから書き込み、GPUから読み取り(コピー元)
+        nullptr,
+        IID_PPV_ARGS(m_pUploadBuffer.ReleaseAndGetAddressOf()));
+    if (FAILED(hr))
     {
         ThrowIfFailed(pDevice->CreateCommittedResource(
             &uploadHeapProps,

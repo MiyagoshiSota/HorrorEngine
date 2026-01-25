@@ -118,7 +118,7 @@ public:
             // SRV作成
             // Texture2Dクラスが持っている設定(ViewDesc)を使う
             auto desc = tex->GetViewDesc();
-            device->CreateShaderResourceView(tex->GetResource().Get(), &desc, destHandle);
+            device->CreateShaderResourceView(tex->GetResource(), &desc, destHandle);
         }
 
         m_isDirty = false;
