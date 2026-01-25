@@ -139,7 +139,7 @@ bool Texture2D::InternalLoad(const std::wstring& path)
         &resDesc,
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // 最初からシェーダーリソースとして使用
         nullptr,
-        IID_PPV_ARGS(&m_resource)
+        IID_PPV_ARGS(m_resource.ReleaseAndGetAddressOf())
     );
 
     if (FAILED(hr))

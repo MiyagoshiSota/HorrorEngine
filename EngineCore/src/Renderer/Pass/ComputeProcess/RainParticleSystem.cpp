@@ -35,7 +35,7 @@ RainParticleSystem::RainParticleSystem()
         &bufferDesc,
         D3D12_RESOURCE_STATE_COPY_DEST, // 初期状態
         nullptr,
-        IID_PPV_ARGS(&m_pParticleBuffer));
+        IID_PPV_ARGS(m_pParticleBuffer.ReleaseAndGetAddressOf()));
     if (FAILED(hr))
     {
         printf("パーティクルバッファの作成に失敗\n");
@@ -57,7 +57,7 @@ RainParticleSystem::RainParticleSystem()
         &uploadBufferDesc,
         D3D12_RESOURCE_STATE_GENERIC_READ, // CPUから書き込み、GPUから読み取り(コピー元)
         nullptr,
-        IID_PPV_ARGS(&m_pUploadBuffer));
+        IID_PPV_ARGS(m_pUploadBuffer.ReleaseAndGetAddressOf()));
     if (FAILED(hr))
     {
         printf("Uploadバッファの作成に失敗\n");

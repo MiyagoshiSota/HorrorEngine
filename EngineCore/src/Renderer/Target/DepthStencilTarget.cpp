@@ -1,4 +1,4 @@
-﻿#include "DepthStencilTarget.h"
+#include "DepthStencilTarget.h"
 
 #include <d3dx12.h>
 
@@ -53,7 +53,7 @@ void DepthStencilTarget::Create(
         &resourceDesc,
         D3D12_RESOURCE_STATE_DEPTH_WRITE,
         &clearValue,
-        IID_PPV_ARGS(&m_pResource)
+        IID_PPV_ARGS(m_pResource.ReleaseAndGetAddressOf())
         );
     if (FAILED(hr)) {
         // エラー処理

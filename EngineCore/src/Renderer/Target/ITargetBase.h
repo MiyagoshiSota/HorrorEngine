@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <d3d12.h>
 #include <memory>
 
@@ -46,7 +46,7 @@ public:
     
 public:
     void SetCurrentState(D3D12_RESOURCE_STATES state) { m_CurrentState = state; }
-    ComPtr<ID3D12Resource> GetResource() const { return m_pResource.Get(); }
+    ID3D12Resource* GetResource() const { return m_pResource.Get(); }
     D3D12_RESOURCE_STATES GetCurrentState() const { return m_CurrentState; }
 
 	UINT GetWidth() const { return m_Width; }

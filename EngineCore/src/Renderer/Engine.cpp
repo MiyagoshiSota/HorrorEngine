@@ -30,11 +30,10 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 
 #if defined(_DEBUG)
     // デバッグレイヤーを有効化
-    ID3D12Debug* debugController;
-    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+    ComPtr<ID3D12Debug> debugController;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf()))))
     {
         debugController->EnableDebugLayer();
-        debugController->Release();
     }
 #endif
 
@@ -45,8 +44,8 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
 
     // CreateDevice()内、デバイス作成が成功した後に追加
 #if defined(_DEBUG)
-    ID3D12InfoQueue* pInfoQueue = nullptr;
-    if (SUCCEEDED(m_pDevice->QueryInterface(IID_PPV_ARGS(&pInfoQueue))))
+    ComPtr<ID3D12InfoQueue> pInfoQueue;
+    if (SUCCEEDED(m_pDevice->QueryInterface(IID_PPV_ARGS(pInfoQueue.GetAddressOf()))))
     {
         // 重大なエラーが発生した場合、プログラムを停止させる
         pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
@@ -58,8 +57,6 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
         // filter.DenyList.NumIDs = _countof(messageIds);
         // filter.DenyList.pIDList = messageIds;
         // pInfoQueue->AddStorageFilterEntries(&filter);
-
-        pInfoQueue->Release();
     }
 #endif
 
@@ -294,8 +291,8 @@ bool Engine::CreateCommandQueue()
 bool Engine::CreateSwapChain()
 {
     // DXGIファクトリーの作成
-    IDXGIFactory4* pFactory = nullptr;
-    HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&pFactory));
+    ComPtr<IDXGIFactory4> pFactory;
+    HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(pFactory.GetAddressOf()));
     if (FAILED(hr)) {
         return false;
     }
@@ -319,10 +316,9 @@ bool Engine::CreateSwapChain()
     desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
     // スワップチェインの作成
-    IDXGISwapChain* pSwapChain = nullptr;
-    hr = pFactory->CreateSwapChain(m_pQueue.Get(), &desc, &pSwapChain);
+    ComPtr<IDXGISwapChain> pSwapChain;
+    hr = pFactory->CreateSwapChain(m_pQueue.Get(), &desc, pSwapChain.GetAddressOf());
     if (FAILED(hr)) {
-        pFactory->Release();
         return false;
     }
 
@@ -330,16 +326,12 @@ bool Engine::CreateSwapChain()
     hr = pSwapChain->QueryInterface(IID_PPV_ARGS(m_pSwapChain.ReleaseAndGetAddressOf()));
     if (FAILED(hr))
     {
-        pFactory->Release();
-        pSwapChain->Release();
         return false;
     }
 
     // バックバッファ番号を取得
     m_CurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
-    pFactory->Release();
-    pSwapChain->Release();
     return true;
 }
 
@@ -365,7 +357,7 @@ bool Engine::CreateCommandList()
         D3D12_COMMAND_LIST_TYPE_DIRECT,
         m_pAllocator[m_CurrentBackBufferIndex].Get(),
         nullptr,
-        IID_PPV_ARGS(&m_pCommandList)
+        IID_PPV_ARGS(m_pCommandList.ReleaseAndGetAddressOf())
     );
 
     if (FAILED(hr)) {
@@ -423,7 +415,7 @@ bool Engine::InitImGui()
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     heapDesc.NumDescriptors = 64; // ← フォント＋テクスチャ用に余裕を持たせる
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    HRESULT hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_ImGuiSrvHeap));
+    HRESULT hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(m_ImGuiSrvHeap.ReleaseAndGetAddressOf()));
     if (FAILED(hr)) return false;
 
     // 2. ImGuiコンテキスト作成
@@ -534,7 +526,7 @@ bool Engine::CreateDepthStencil()
     heapDesc.NumDescriptors = kFrameBufferCount + 256;
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    auto hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_pDsvHeap));
+    auto hr = m_pDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(m_pDsvHeap.ReleaseAndGetAddressOf()));
     if (FAILED(hr)) {
         return false;
     }

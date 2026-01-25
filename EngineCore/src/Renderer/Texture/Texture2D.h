@@ -24,7 +24,7 @@ public:
     uint32_t GetHeight() const { return m_height; }
 
     // GPUリソースへのアクセサ
-    Microsoft::WRL::ComPtr<ID3D12Resource> GetResource() const { return m_resource; }
+    ID3D12Resource* GetResource() const { return m_resource.Get(); }
     const D3D12_SHADER_RESOURCE_VIEW_DESC& GetViewDesc() const { return m_srvDesc; }
 
 private:

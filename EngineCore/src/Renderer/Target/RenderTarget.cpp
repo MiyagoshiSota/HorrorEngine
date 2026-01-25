@@ -50,7 +50,7 @@ void RenderTarget::Create(
         &resourceDesc,
         D3D12_RESOURCE_STATE_RENDER_TARGET, // 初期状態はレンダーターゲット
         &clearValue,
-        IID_PPV_ARGS(&m_pResource)
+        IID_PPV_ARGS(m_pResource.ReleaseAndGetAddressOf())
     );
     if (FAILED(hr)) {
         // エラー処理

@@ -220,7 +220,7 @@ void GeometryPass::Draw(RenderContext& context)
     if (sceneColorRT->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
     {
         D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            sceneColorRT->GetResource().Get(),
+            sceneColorRT->GetResource(),
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             D3D12_RESOURCE_STATE_RENDER_TARGET
         );
@@ -229,32 +229,32 @@ void GeometryPass::Draw(RenderContext& context)
 
     D3D12_RESOURCE_BARRIER resolveBarriers[2];
     resolveBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(
-        msaaColorRT->GetResource().Get(),
+        msaaColorRT->GetResource(),
         D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_RESOLVE_SOURCE
     );
     resolveBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(
-        sceneColorRT->GetResource().Get(),
+        sceneColorRT->GetResource(),
         D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_RESOLVE_DEST
     );
     cmdList->ResourceBarrier(2, resolveBarriers);
 
     cmdList->ResolveSubresource(
-        sceneColorRT->GetResource().Get(), 0,
-        msaaColorRT->GetResource().Get(), 0,
+        sceneColorRT->GetResource(), 0,
+        msaaColorRT->GetResource(), 0,
         sceneColorRT->GetResource()->GetDesc().Format
     );
 
     // Barrier Restore
     std::vector<D3D12_RESOURCE_BARRIER> barriersPost;
     barriersPost.push_back(CD3DX12_RESOURCE_BARRIER::Transition(
-        msaaColorRT->GetResource().Get(),
+        msaaColorRT->GetResource(),
         D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
         D3D12_RESOURCE_STATE_RENDER_TARGET
     ));
     barriersPost.push_back(CD3DX12_RESOURCE_BARRIER::Transition(
-        sceneColorRT->GetResource().Get(),
+        sceneColorRT->GetResource(),
         D3D12_RESOURCE_STATE_RESOLVE_DEST,
         D3D12_RESOURCE_STATE_RENDER_TARGET
     ));

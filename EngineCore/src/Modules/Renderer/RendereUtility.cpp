@@ -10,7 +10,7 @@ void RendererUtility::simple_change_target_state(
 	if (target->GetCurrentState() != change_state)
 	{
 		barriers->push_back(CD3DX12_RESOURCE_BARRIER::Transition(
-			target->GetResource().Get(),
+			target->GetResource(),
 			target->GetCurrentState(),
 			change_state
 		));

@@ -17,7 +17,7 @@ DescriptorHeap::DescriptorHeap(UINT numDescriptors) : m_NumDescriptors(numDescri
 	desc.NodeMask = 0;
 
 	// SRV用のヒープを生成
-	HRESULT hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_pHeap));
+	HRESULT hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(hr)) {
 		printf("Failed to create SRV descriptor heap.\n");
 	}
