@@ -2,10 +2,9 @@
 #include <string>
 #include <memory>
 #include <d3d12.h>
-#include <wrl/client.h> // ComPtr用
+#include <wrl/client.h>
 #include <DirectXMath.h>
 
-// ※本来はDirectXTexなどのライブラリが必要ですが、ここでは構造を示します
 
 class Texture2D
 {

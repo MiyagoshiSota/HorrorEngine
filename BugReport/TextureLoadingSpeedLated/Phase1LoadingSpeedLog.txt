@@ -1,0 +1,1070 @@
+[Texture Load] assets/japanese_street_at_night/textures/Props_10_baseColor.png - 2048x2048
+  File I/O + Decode: 43.977 ms
+  GPU Resource Creation: 3.989 ms
+  Layout Calculation: 7.05 ms
+  Staging Buffer Creation: 10.604 ms
+  CPU Copy: 1.772 ms
+  GPU Copy: 1.8772 ms
+  Data Transfer (Total): 3.6492 ms
+  Other: 0 ms
+  Total: 86.258 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_10_normal.png - 2048x2048
+  File I/O + Decode: 42.269 ms
+  GPU Resource Creation: 3.831 ms
+  Layout Calculation: 0.023 ms
+  Staging Buffer Creation: 4.326 ms
+  CPU Copy: 2.347 ms
+  GPU Copy: 2.01264 ms
+  Data Transfer (Total): 4.35964 ms
+  Other: 0 ms
+  Total: 58.871 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_10_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 28.738 ms
+  GPU Resource Creation: 3.798 ms
+  Layout Calculation: 0.025 ms
+  Staging Buffer Creation: 2.778 ms
+  CPU Copy: 1.747 ms
+  GPU Copy: 1.67864 ms
+  Data Transfer (Total): 3.42564 ms
+  Other: 0 ms
+  Total: 41.164 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_10_emissive.png - 2048x2048
+  File I/O + Decode: 15.401 ms
+  GPU Resource Creation: 3.738 ms
+  Layout Calculation: 0.012 ms
+  Staging Buffer Creation: 2.39 ms
+  CPU Copy: 2.485 ms
+  GPU Copy: 1.69828 ms
+  Data Transfer (Total): 4.18328 ms
+  Other: 0 ms
+  Total: 28.301 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_01_baseColor.png - 2048x2048
+  File I/O + Decode: 25.913 ms
+  GPU Resource Creation: 3.951 ms
+  Layout Calculation: 0.014 ms
+  Staging Buffer Creation: 2.556 ms
+  CPU Copy: 1.483 ms
+  GPU Copy: 1.5956 ms
+  Data Transfer (Total): 3.0786 ms
+  Other: 0 ms
+  Total: 37.765 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_01_normal.png - 2048x2048
+  File I/O + Decode: 28.164 ms
+  GPU Resource Creation: 3.354 ms
+  Layout Calculation: 0.019 ms
+  Staging Buffer Creation: 2.368 ms
+  CPU Copy: 1.533 ms
+  GPU Copy: 1.5478 ms
+  Data Transfer (Total): 3.0808 ms
+  Other: 0 ms
+  Total: 39.37 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_01_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 27.724 ms
+  GPU Resource Creation: 3.601 ms
+  Layout Calculation: 0.011 ms
+  Staging Buffer Creation: 2.352 ms
+  CPU Copy: 1.502 ms
+  GPU Copy: 1.44544 ms
+  Data Transfer (Total): 2.94744 ms
+  Other: 0 ms
+  Total: 38.866 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_02_baseColor.png - 2048x2048
+  File I/O + Decode: 30.256 ms
+  GPU Resource Creation: 3.638 ms
+  Layout Calculation: 0.019 ms
+  Staging Buffer Creation: 2.796 ms
+  CPU Copy: 2.587 ms
+  GPU Copy: 1.85692 ms
+  Data Transfer (Total): 4.44392 ms
+  Other: 0 ms
+  Total: 43.824 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_02_normal.png - 2048x2048
+  File I/O + Decode: 26.16 ms
+  GPU Resource Creation: 3.944 ms
+  Layout Calculation: 0.018 ms
+  Staging Buffer Creation: 2.868 ms
+  CPU Copy: 1.574 ms
+  GPU Copy: 1.60244 ms
+  Data Transfer (Total): 3.17644 ms
+  Other: 0 ms
+  Total: 38.655 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_02_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 22.207 ms
+  GPU Resource Creation: 4.155 ms
+  Layout Calculation: 0.012 ms
+  Staging Buffer Creation: 2.133 ms
+  CPU Copy: 1.575 ms
+  GPU Copy: 1.92996 ms
+  Data Transfer (Total): 3.50496 ms
+  Other: 0 ms
+  Total: 34.711 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_06_baseColor.png - 2048x2048
+  File I/O + Decode: 27.292 ms
+  GPU Resource Creation: 3.828 ms
+  Layout Calculation: 0.021 ms
+  Staging Buffer Creation: 2.546 ms
+  CPU Copy: 1.498 ms
+  GPU Copy: 2.89704 ms
+  Data Transfer (Total): 4.39504 ms
+  Other: 0 ms
+  Total: 40.891 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_06_normal.png - 2048x2048
+  File I/O + Decode: 21.708 ms
+  GPU Resource Creation: 3.796 ms
+  Layout Calculation: 0.012 ms
+  Staging Buffer Creation: 2.211 ms
+  CPU Copy: 2.361 ms
+  GPU Copy: 2.15444 ms
+  Data Transfer (Total): 4.51544 ms
+  Other: 0 ms
+  Total: 35.252 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_06_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 26.531 ms
+  GPU Resource Creation: 4.123 ms
+  Layout Calculation: 0.026 ms
+  Staging Buffer Creation: 2.759 ms
+  CPU Copy: 2.064 ms
+  GPU Copy: 2.14012 ms
+  Data Transfer (Total): 4.20412 ms
+  Other: 0 ms
+  Total: 40.581 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_03_baseColor.png - 2048x2048
+  File I/O + Decode: 25.848 ms
+  GPU Resource Creation: 3.931 ms
+  Layout Calculation: 0.014 ms
+  Staging Buffer Creation: 2.53 ms
+  CPU Copy: 1.913 ms
+  GPU Copy: 2.11392 ms
+  Data Transfer (Total): 4.02692 ms
+  Other: 0 ms
+  Total: 39.511 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_03_normal.png - 2048x2048
+  File I/O + Decode: 27.333 ms
+  GPU Resource Creation: 4.196 ms
+  Layout Calculation: 0.024 ms
+  Staging Buffer Creation: 3.002 ms
+  CPU Copy: 2.48 ms
+  GPU Copy: 1.99728 ms
+  Data Transfer (Total): 4.47728 ms
+  Other: 0 ms
+  Total: 41.591 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_03_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 29.074 ms
+  GPU Resource Creation: 3.594 ms
+  Layout Calculation: 0.022 ms
+  Staging Buffer Creation: 2.609 ms
+  CPU Copy: 2.564 ms
+  GPU Copy: 2.80192 ms
+  Data Transfer (Total): 5.36592 ms
+  Other: 0.001 ms
+  Total: 43.381 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_03_emissive.png - 2048x2048
+  File I/O + Decode: 13.162 ms
+  GPU Resource Creation: 3.932 ms
+  Layout Calculation: 0.016 ms
+  Staging Buffer Creation: 3.103 ms
+  CPU Copy: 2.43 ms
+  GPU Copy: 2.26412 ms
+  Data Transfer (Total): 4.69412 ms
+  Other: 0 ms
+  Total: 27.925 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_05_baseColor.png - 2048x2048
+  File I/O + Decode: 27.713 ms
+  GPU Resource Creation: 4.192 ms
+  Layout Calculation: 0.022 ms
+  Staging Buffer Creation: 2.571 ms
+  CPU Copy: 2.32 ms
+  GPU Copy: 2.80148 ms
+  Data Transfer (Total): 5.12148 ms
+  Other: 0 ms
+  Total: 42.496 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_05_normal.png - 2048x2048
+  File I/O + Decode: 18.422 ms
+  GPU Resource Creation: 4.336 ms
+  Layout Calculation: 0.016 ms
+  Staging Buffer Creation: 3.681 ms
+  CPU Copy: 2.284 ms
+  GPU Copy: 1.804 ms
+  Data Transfer (Total): 4.088 ms
+  Other: 0 ms
+  Total: 33.909 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_05_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 34.112 ms
+  GPU Resource Creation: 3.647 ms
+  Layout Calculation: 0.02 ms
+  Staging Buffer Creation: 2.395 ms
+  CPU Copy: 1.497 ms
+  GPU Copy: 1.71736 ms
+  Data Transfer (Total): 3.21436 ms
+  Other: 0 ms
+  Total: 45.655 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_05_emissive.png - 2048x2048
+  File I/O + Decode: 12.534 ms
+  GPU Resource Creation: 3.493 ms
+  Layout Calculation: 0.015 ms
+  Staging Buffer Creation: 2.43 ms
+  CPU Copy: 1.704 ms
+  GPU Copy: 1.7166 ms
+  Data Transfer (Total): 3.4206 ms
+  Other: 0 ms
+  Total: 24.285 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_A_1_baseColor.png - 2048x2048
+  File I/O + Decode: 23.716 ms
+  GPU Resource Creation: 3.602 ms
+  Layout Calculation: 0.016 ms
+  Staging Buffer Creation: 2.357 ms
+  CPU Copy: 1.772 ms
+  GPU Copy: 1.69424 ms
+  Data Transfer (Total): 3.46624 ms
+  Other: 0 ms
+  Total: 35.681 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_A_1_normal.png - 2048x2048
+  File I/O + Decode: 29.006 ms
+  GPU Resource Creation: 3.934 ms
+  Layout Calculation: 0.013 ms
+  Staging Buffer Creation: 2.434 ms
+  CPU Copy: 1.595 ms
+  GPU Copy: 1.49828 ms
+  Data Transfer (Total): 3.09328 ms
+  Other: 0 ms
+  Total: 40.742 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_A_1_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 25.655 ms
+  GPU Resource Creation: 4.047 ms
+  Layout Calculation: 0.028 ms
+  Staging Buffer Creation: 2.821 ms
+  CPU Copy: 2.36 ms
+  GPU Copy: 2.59252 ms
+  Data Transfer (Total): 4.95252 ms
+  Other: 0 ms
+  Total: 40.089 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_2_baseColor.png - 2048x2048
+  File I/O + Decode: 22.782 ms
+  GPU Resource Creation: 3.508 ms
+  Layout Calculation: 0.021 ms
+  Staging Buffer Creation: 2.741 ms
+  CPU Copy: 2.213 ms
+  GPU Copy: 2.23072 ms
+  Data Transfer (Total): 4.44372 ms
+  Other: 0 ms
+  Total: 35.943 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_2_normal.png - 2048x2048
+  File I/O + Decode: 18.624 ms
+  GPU Resource Creation: 4.189 ms
+  Layout Calculation: 0.013 ms
+  Staging Buffer Creation: 2.496 ms
+  CPU Copy: 2.039 ms
+  GPU Copy: 1.93252 ms
+  Data Transfer (Total): 3.97152 ms
+  Other: 0 ms
+  Total: 31.612 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_2_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 30.897 ms
+  GPU Resource Creation: 3.551 ms
+  Layout Calculation: 0.015 ms
+  Staging Buffer Creation: 2.632 ms
+  CPU Copy: 1.784 ms
+  GPU Copy: 2.0026 ms
+  Data Transfer (Total): 3.7866 ms
+  Other: 0 ms
+  Total: 43.642 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_09_baseColor.png - 2048x2048
+  File I/O + Decode: 21.44 ms
+  GPU Resource Creation: 3.51 ms
+  Layout Calculation: 0.013 ms
+  Staging Buffer Creation: 2.386 ms
+  CPU Copy: 1.502 ms
+  GPU Copy: 1.60552 ms
+  Data Transfer (Total): 3.10752 ms
+  Other: 0 ms
+  Total: 32.662 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_09_normal.png - 2048x2048
+  File I/O + Decode: 23.502 ms
+  GPU Resource Creation: 3.916 ms
+  Layout Calculation: 0.021 ms
+  Staging Buffer Creation: 2.654 ms
+  CPU Copy: 2.234 ms
+  GPU Copy: 2.06712 ms
+  Data Transfer (Total): 4.30112 ms
+  Other: 0 ms
+  Total: 36.795 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_09_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 35.838 ms
+  GPU Resource Creation: 3.222 ms
+  Layout Calculation: 0.01 ms
+  Staging Buffer Creation: 2.281 ms
+  CPU Copy: 1.964 ms
+  GPU Copy: 1.94272 ms
+  Data Transfer (Total): 3.90672 ms
+  Other: 0 ms
+  Total: 47.638 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_A_2_baseColor.png - 2048x2048
+  File I/O + Decode: 17.85 ms
+  GPU Resource Creation: 3.954 ms
+  Layout Calculation: 0.014 ms
+  Staging Buffer Creation: 2.384 ms
+  CPU Copy: 1.65 ms
+  GPU Copy: 1.57388 ms
+  Data Transfer (Total): 3.22388 ms
+  Other: 0 ms
+  Total: 29.658 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_A_2_normal.png - 2048x2048
+  File I/O + Decode: 16.903 ms
+  GPU Resource Creation: 3.955 ms
+  Layout Calculation: 0.027 ms
+  Staging Buffer Creation: 2.732 ms
+  CPU Copy: 2.275 ms
+  GPU Copy: 1.92388 ms
+  Data Transfer (Total): 4.19888 ms
+  Other: 0 ms
+  Total: 30.468 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_A_2_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 14.696 ms
+  GPU Resource Creation: 3.766 ms
+  Layout Calculation: 0.022 ms
+  Staging Buffer Creation: 2.549 ms
+  CPU Copy: 1.903 ms
+  GPU Copy: 2.10864 ms
+  Data Transfer (Total): 4.01164 ms
+  Other: 0 ms
+  Total: 27.507 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_1_baseColor.png - 2048x2048
+  File I/O + Decode: 25.045 ms
+  GPU Resource Creation: 3.572 ms
+  Layout Calculation: 0.015 ms
+  Staging Buffer Creation: 2.339 ms
+  CPU Copy: 1.488 ms
+  GPU Copy: 1.47348 ms
+  Data Transfer (Total): 2.96148 ms
+  Other: 0 ms
+  Total: 36.11 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_1_normal.png - 2048x2048
+  File I/O + Decode: 16.075 ms
+  GPU Resource Creation: 17.228 ms
+  Layout Calculation: 0.02 ms
+  Staging Buffer Creation: 2.277 ms
+  CPU Copy: 1.454 ms
+  GPU Copy: 1.33572 ms
+  Data Transfer (Total): 2.78972 ms
+  Other: 0 ms
+  Total: 40.503 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_1_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 27.953 ms
+  GPU Resource Creation: 3.436 ms
+  Layout Calculation: 0.016 ms
+  Staging Buffer Creation: 2.265 ms
+  CPU Copy: 1.582 ms
+  GPU Copy: 1.3812 ms
+  Data Transfer (Total): 2.9632 ms
+  Other: 0 ms
+  Total: 38.893 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_1_emissive.png - 2048x2048
+  File I/O + Decode: 11.831 ms
+  GPU Resource Creation: 4.041 ms
+  Layout Calculation: 0.015 ms
+  Staging Buffer Creation: 2.761 ms
+  CPU Copy: 2.115 ms
+  GPU Copy: 2.40236 ms
+  Data Transfer (Total): 4.51736 ms
+  Other: 0 ms
+  Total: 26.111 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_08_baseColor.png - 2048x2048
+  File I/O + Decode: 21.064 ms
+  GPU Resource Creation: 3.982 ms
+  Layout Calculation: 0.03 ms
+  Staging Buffer Creation: 3.057 ms
+  CPU Copy: 2.199 ms
+  GPU Copy: 1.94752 ms
+  Data Transfer (Total): 4.14652 ms
+  Other: 0 ms
+  Total: 34.848 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_08_normal.png - 2048x2048
+  File I/O + Decode: 20.704 ms
+  GPU Resource Creation: 3.608 ms
+  Layout Calculation: 0.022 ms
+  Staging Buffer Creation: 2.587 ms
+  CPU Copy: 2.167 ms
+  GPU Copy: 1.76644 ms
+  Data Transfer (Total): 3.93344 ms
+  Other: 0 ms
+  Total: 34.042 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_08_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 90.478 ms
+  GPU Resource Creation: 4.84 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 2.019 ms
+  CPU Copy: 1.47 ms
+  GPU Copy: 1.24836 ms
+  Data Transfer (Total): 2.71836 ms
+  Other: 0 ms
+  Total: 102.077 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_08_emissive.png - 2048x2048
+  File I/O + Decode: 106.133 ms
+  GPU Resource Creation: 4.492 ms
+  Layout Calculation: 0.012 ms
+  Staging Buffer Creation: 2.394 ms
+  CPU Copy: 1.293 ms
+  GPU Copy: 1.30688 ms
+  Data Transfer (Total): 2.59988 ms
+  Other: 0 ms
+  Total: 117.673 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_3_baseColor.png - 2048x2048
+  File I/O + Decode: 21.886 ms
+  GPU Resource Creation: 3.17 ms
+  Layout Calculation: 0.012 ms
+  Staging Buffer Creation: 2.346 ms
+  CPU Copy: 1.443 ms
+  GPU Copy: 1.48016 ms
+  Data Transfer (Total): 2.92316 ms
+  Other: 0 ms
+  Total: 32.405 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_3_normal.png - 2048x2048
+  File I/O + Decode: 21.945 ms
+  GPU Resource Creation: 3.746 ms
+  Layout Calculation: 0.014 ms
+  Staging Buffer Creation: 2.224 ms
+  CPU Copy: 1.418 ms
+  GPU Copy: 1.73156 ms
+  Data Transfer (Total): 3.14956 ms
+  Other: 0 ms
+  Total: 33.281 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_3_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 25.27 ms
+  GPU Resource Creation: 4.079 ms
+  Layout Calculation: 0.014 ms
+  Staging Buffer Creation: 2.608 ms
+  CPU Copy: 2.189 ms
+  GPU Copy: 2.2256 ms
+  Data Transfer (Total): 4.4146 ms
+  Other: 0 ms
+  Total: 39.134 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_B_1_baseColor.png - 2048x2048
+  File I/O + Decode: 24.25 ms
+  GPU Resource Creation: 3.205 ms
+  Layout Calculation: 0.015 ms
+  Staging Buffer Creation: 2.54 ms
+  CPU Copy: 1.721 ms
+  GPU Copy: 1.42244 ms
+  Data Transfer (Total): 3.14344 ms
+  Other: 0 ms
+  Total: 35.486 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_B_1_normal.png - 2048x2048
+  File I/O + Decode: 27.695 ms
+  GPU Resource Creation: 3.26 ms
+  Layout Calculation: 0.01 ms
+  Staging Buffer Creation: 2.126 ms
+  CPU Copy: 1.568 ms
+  GPU Copy: 1.4664 ms
+  Data Transfer (Total): 3.0344 ms
+  Other: 0 ms
+  Total: 38.355 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_B_1_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 19.632 ms
+  GPU Resource Creation: 3.569 ms
+  Layout Calculation: 0.011 ms
+  Staging Buffer Creation: 2.099 ms
+  CPU Copy: 1.289 ms
+  GPU Copy: 1.3918 ms
+  Data Transfer (Total): 2.6808 ms
+  Other: 0 ms
+  Total: 30.076 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_B_1_emissive.png - 2048x2048
+  File I/O + Decode: 9.317 ms
+  GPU Resource Creation: 3.509 ms
+  Layout Calculation: 0.016 ms
+  Staging Buffer Creation: 2.444 ms
+  CPU Copy: 1.314 ms
+  GPU Copy: 1.425 ms
+  Data Transfer (Total): 2.739 ms
+  Other: 0 ms
+  Total: 20.007 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_B_2_baseColor.png - 2048x2048
+  File I/O + Decode: 19.302 ms
+  GPU Resource Creation: 3.495 ms
+  Layout Calculation: 0.014 ms
+  Staging Buffer Creation: 2.14 ms
+  CPU Copy: 1.338 ms
+  GPU Copy: 1.76272 ms
+  Data Transfer (Total): 3.10072 ms
+  Other: 0 ms
+  Total: 30.086 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_B_2_normal.png - 2048x2048
+  File I/O + Decode: 15.402 ms
+  GPU Resource Creation: 3.451 ms
+  Layout Calculation: 0.011 ms
+  Staging Buffer Creation: 2.248 ms
+  CPU Copy: 1.328 ms
+  GPU Copy: 1.33764 ms
+  Data Transfer (Total): 2.66564 ms
+  Other: 0 ms
+  Total: 25.773 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_B_2_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 16.407 ms
+  GPU Resource Creation: 3.524 ms
+  Layout Calculation: 0.007 ms
+  Staging Buffer Creation: 2.858 ms
+  CPU Copy: 1.17 ms
+  GPU Copy: 1.6604 ms
+  Data Transfer (Total): 2.8304 ms
+  Other: 0 ms
+  Total: 27.642 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_C_2_baseColor.png - 2048x2048
+  File I/O + Decode: 19.12 ms
+  GPU Resource Creation: 3.686 ms
+  Layout Calculation: 0.019 ms
+  Staging Buffer Creation: 2.216 ms
+  CPU Copy: 1.353 ms
+  GPU Copy: 1.43788 ms
+  Data Transfer (Total): 2.79088 ms
+  Other: 0 ms
+  Total: 29.84 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_C_2_normal.png - 2048x2048
+  File I/O + Decode: 13.548 ms
+  GPU Resource Creation: 3.414 ms
+  Layout Calculation: 0.01 ms
+  Staging Buffer Creation: 2.848 ms
+  CPU Copy: 1.204 ms
+  GPU Copy: 1.31572 ms
+  Data Transfer (Total): 2.51972 ms
+  Other: 0 ms
+  Total: 24.239 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_C_2_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 14.467 ms
+  GPU Resource Creation: 3.584 ms
+  Layout Calculation: 0.019 ms
+  Staging Buffer Creation: 1.974 ms
+  CPU Copy: 3.349 ms
+  GPU Copy: 1.63788 ms
+  Data Transfer (Total): 4.98688 ms
+  Other: 0 ms
+  Total: 27.203 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_C_1_baseColor.png - 2048x2048
+  File I/O + Decode: 21.533 ms
+  GPU Resource Creation: 3.164 ms
+  Layout Calculation: 0.009 ms
+  Staging Buffer Creation: 2.054 ms
+  CPU Copy: 1.291 ms
+  GPU Copy: 1.61564 ms
+  Data Transfer (Total): 2.90664 ms
+  Other: 0 ms
+  Total: 31.87 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_C_1_normal.png - 2048x2048
+  File I/O + Decode: 31.33 ms
+  GPU Resource Creation: 3.147 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 2.107 ms
+  CPU Copy: 1.181 ms
+  GPU Copy: 1.35056 ms
+  Data Transfer (Total): 2.53156 ms
+  Other: 0 ms
+  Total: 41.052 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_C_1_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 21.747 ms
+  GPU Resource Creation: 3.638 ms
+  Layout Calculation: 0.012 ms
+  Staging Buffer Creation: 2.179 ms
+  CPU Copy: 1.238 ms
+  GPU Copy: 1.26792 ms
+  Data Transfer (Total): 2.50592 ms
+  Other: 0 ms
+  Total: 32.105 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_07_baseColor.png - 2048x2048
+  File I/O + Decode: 19.909 ms
+  GPU Resource Creation: 3.415 ms
+  Layout Calculation: 0.003 ms
+  Staging Buffer Creation: 1.935 ms
+  CPU Copy: 1.064 ms
+  GPU Copy: 1.19228 ms
+  Data Transfer (Total): 2.25628 ms
+  Other: 0 ms
+  Total: 29.655 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_07_normal.png - 2048x2048
+  File I/O + Decode: 14.707 ms
+  GPU Resource Creation: 3.236 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 2.608 ms
+  CPU Copy: 1.039 ms
+  GPU Copy: 1.1816 ms
+  Data Transfer (Total): 2.2206 ms
+  Other: 0 ms
+  Total: 24.618 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_07_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 17.636 ms
+  GPU Resource Creation: 3.844 ms
+  Layout Calculation: 0.011 ms
+  Staging Buffer Creation: 2.026 ms
+  CPU Copy: 1.412 ms
+  GPU Copy: 1.387 ms
+  Data Transfer (Total): 2.799 ms
+  Other: 0 ms
+  Total: 28.47 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_D_2_baseColor.png - 2048x2048
+  File I/O + Decode: 22.163 ms
+  GPU Resource Creation: 3.302 ms
+  Layout Calculation: 0.01 ms
+  Staging Buffer Creation: 2.616 ms
+  CPU Copy: 1.086 ms
+  GPU Copy: 1.18372 ms
+  Data Transfer (Total): 2.26972 ms
+  Other: 0 ms
+  Total: 32.256 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_D_2_normal.png - 2048x2048
+  File I/O + Decode: 19.703 ms
+  GPU Resource Creation: 3.194 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 2.007 ms
+  CPU Copy: 1.177 ms
+  GPU Copy: 1.34332 ms
+  Data Transfer (Total): 2.52032 ms
+  Other: 0 ms
+  Total: 29.396 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_D_2_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 21.93 ms
+  GPU Resource Creation: 3.037 ms
+  Layout Calculation: 0.01 ms
+  Staging Buffer Creation: 2.057 ms
+  CPU Copy: 1.1 ms
+  GPU Copy: 1.19988 ms
+  Data Transfer (Total): 2.29988 ms
+  Other: 0 ms
+  Total: 31.2 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_D_1_baseColor.png - 2048x2048
+  File I/O + Decode: 21.543 ms
+  GPU Resource Creation: 3.419 ms
+  Layout Calculation: 0.007 ms
+  Staging Buffer Creation: 1.975 ms
+  CPU Copy: 1.076 ms
+  GPU Copy: 1.2826 ms
+  Data Transfer (Total): 2.3586 ms
+  Other: 0 ms
+  Total: 31.127 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_D_1_normal.png - 2048x2048
+  File I/O + Decode: 14.261 ms
+  GPU Resource Creation: 3.114 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 1.97 ms
+  CPU Copy: 1.082 ms
+  GPU Copy: 1.38224 ms
+  Data Transfer (Total): 2.46424 ms
+  Other: 0 ms
+  Total: 23.831 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_D_1_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 21.247 ms
+  GPU Resource Creation: 3.713 ms
+  Layout Calculation: 0.009 ms
+  Staging Buffer Creation: 2.556 ms
+  CPU Copy: 1.065 ms
+  GPU Copy: 1.21864 ms
+  Data Transfer (Total): 2.28364 ms
+  Other: 0 ms
+  Total: 31.814 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_E_baseColor.png - 2048x2048
+  File I/O + Decode: 22.38 ms
+  GPU Resource Creation: 3.409 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 2.145 ms
+  CPU Copy: 1.214 ms
+  GPU Copy: 1.53596 ms
+  Data Transfer (Total): 2.74996 ms
+  Other: 0 ms
+  Total: 32.686 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_E_normal.png - 2048x2048
+  File I/O + Decode: 27.142 ms
+  GPU Resource Creation: 3.387 ms
+  Layout Calculation: 0.005 ms
+  Staging Buffer Creation: 1.895 ms
+  CPU Copy: 1.073 ms
+  GPU Copy: 1.50864 ms
+  Data Transfer (Total): 2.58164 ms
+  Other: 0 ms
+  Total: 36.922 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_E_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 25.484 ms
+  GPU Resource Creation: 3.312 ms
+  Layout Calculation: 0.004 ms
+  Staging Buffer Creation: 1.882 ms
+  CPU Copy: 1.084 ms
+  GPU Copy: 1.5902 ms
+  Data Transfer (Total): 2.6742 ms
+  Other: 0 ms
+  Total: 35.242 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_4_baseColor.png - 2048x2048
+  File I/O + Decode: 23.017 ms
+  GPU Resource Creation: 3.368 ms
+  Layout Calculation: 0.003 ms
+  Staging Buffer Creation: 1.899 ms
+  CPU Copy: 1.28 ms
+  GPU Copy: 1.19568 ms
+  Data Transfer (Total): 2.47568 ms
+  Other: 0 ms
+  Total: 32.768 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_4_normal.png - 2048x2048
+  File I/O + Decode: 17.965 ms
+  GPU Resource Creation: 3.185 ms
+  Layout Calculation: 0.005 ms
+  Staging Buffer Creation: 2.444 ms
+  CPU Copy: 1.226 ms
+  GPU Copy: 1.29772 ms
+  Data Transfer (Total): 2.52372 ms
+  Other: 0 ms
+  Total: 28.129 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_4_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 34.279 ms
+  GPU Resource Creation: 2.917 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 2.047 ms
+  CPU Copy: 1.054 ms
+  GPU Copy: 1.1876 ms
+  Data Transfer (Total): 2.2416 ms
+  Other: 0 ms
+  Total: 43.362 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_F_2_baseColor.png - 2048x2048
+  File I/O + Decode: 22.944 ms
+  GPU Resource Creation: 3.085 ms
+  Layout Calculation: 0.005 ms
+  Staging Buffer Creation: 1.959 ms
+  CPU Copy: 1.078 ms
+  GPU Copy: 1.18524 ms
+  Data Transfer (Total): 2.26324 ms
+  Other: 0 ms
+  Total: 32.176 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_F_2_normal.png - 2048x2048
+  File I/O + Decode: 18.939 ms
+  GPU Resource Creation: 3.086 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 2.144 ms
+  CPU Copy: 1.542 ms
+  GPU Copy: 1.193 ms
+  Data Transfer (Total): 2.735 ms
+  Other: 0 ms
+  Total: 29.103 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_F_2_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 31.944 ms
+  GPU Resource Creation: 3.541 ms
+  Layout Calculation: 0.007 ms
+  Staging Buffer Creation: 1.886 ms
+  CPU Copy: 1.071 ms
+  GPU Copy: 1.19184 ms
+  Data Transfer (Total): 2.26284 ms
+  Other: 0 ms
+  Total: 41.528 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_F_1_baseColor.png - 2048x2048
+  File I/O + Decode: 21.142 ms
+  GPU Resource Creation: 3.132 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 2.158 ms
+  CPU Copy: 1.05 ms
+  GPU Copy: 1.41304 ms
+  Data Transfer (Total): 2.46304 ms
+  Other: 0 ms
+  Total: 30.96 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_F_1_normal.png - 2048x2048
+  File I/O + Decode: 17.058 ms
+  GPU Resource Creation: 3.443 ms
+  Layout Calculation: 0.005 ms
+  Staging Buffer Creation: 2.478 ms
+  CPU Copy: 1.167 ms
+  GPU Copy: 1.19668 ms
+  Data Transfer (Total): 2.36368 ms
+  Other: 0 ms
+  Total: 27.421 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_F_1_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 12.585 ms
+  GPU Resource Creation: 3.685 ms
+  Layout Calculation: 0.015 ms
+  Staging Buffer Creation: 2.048 ms
+  CPU Copy: 1.196 ms
+  GPU Copy: 1.28788 ms
+  Data Transfer (Total): 2.48388 ms
+  Other: 0 ms
+  Total: 22.768 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_G_1_baseColor.png - 2048x2048
+  File I/O + Decode: 20.639 ms
+  GPU Resource Creation: 3.053 ms
+  Layout Calculation: 0.005 ms
+  Staging Buffer Creation: 2.353 ms
+  CPU Copy: 1.17 ms
+  GPU Copy: 1.19456 ms
+  Data Transfer (Total): 2.36456 ms
+  Other: 0 ms
+  Total: 30.322 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_G_1_normal.png - 2048x2048
+  File I/O + Decode: 22.244 ms
+  GPU Resource Creation: 3.403 ms
+  Layout Calculation: 0.009 ms
+  Staging Buffer Creation: 2.039 ms
+  CPU Copy: 1.23 ms
+  GPU Copy: 1.54508 ms
+  Data Transfer (Total): 2.77508 ms
+  Other: 0 ms
+  Total: 32.521 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_G_1_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 30.333 ms
+  GPU Resource Creation: 3.418 ms
+  Layout Calculation: 0.01 ms
+  Staging Buffer Creation: 1.937 ms
+  CPU Copy: 1.084 ms
+  GPU Copy: 1.18572 ms
+  Data Transfer (Total): 2.26972 ms
+  Other: 0 ms
+  Total: 39.835 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_04_baseColor.png - 2048x2048
+  File I/O + Decode: 19.284 ms
+  GPU Resource Creation: 3.289 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 1.893 ms
+  CPU Copy: 1.075 ms
+  GPU Copy: 1.19284 ms
+  Data Transfer (Total): 2.26784 ms
+  Other: 0 ms
+  Total: 28.626 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_04_normal.png - 2048x2048
+  File I/O + Decode: 25.066 ms
+  GPU Resource Creation: 3.459 ms
+  Layout Calculation: 0.007 ms
+  Staging Buffer Creation: 2.045 ms
+  CPU Copy: 1.061 ms
+  GPU Copy: 1.19332 ms
+  Data Transfer (Total): 2.25432 ms
+  Other: 0 ms
+  Total: 34.684 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_04_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 17.273 ms
+  GPU Resource Creation: 3.346 ms
+  Layout Calculation: 0.007 ms
+  Staging Buffer Creation: 2.018 ms
+  CPU Copy: 1.222 ms
+  GPU Copy: 1.556 ms
+  Data Transfer (Total): 2.778 ms
+  Other: 0 ms
+  Total: 27.388 ms
+[Texture Load] assets/japanese_street_at_night/textures/Props_04_emissive.png - 2048x2048
+  File I/O + Decode: 9.378 ms
+  GPU Resource Creation: 3.37 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 1.931 ms
+  CPU Copy: 1.034 ms
+  GPU Copy: 1.18924 ms
+  Data Transfer (Total): 2.22324 ms
+  Other: 0 ms
+  Total: 18.794 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_G_2_baseColor.png - 2048x2048
+  File I/O + Decode: 13.222 ms
+  GPU Resource Creation: 3.638 ms
+  Layout Calculation: 0.01 ms
+  Staging Buffer Creation: 1.989 ms
+  CPU Copy: 1.296 ms
+  GPU Copy: 1.30212 ms
+  Data Transfer (Total): 2.59812 ms
+  Other: 0 ms
+  Total: 23.491 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_G_2_normal.png - 2048x2048
+  File I/O + Decode: 11.023 ms
+  GPU Resource Creation: 3.528 ms
+  Layout Calculation: 0.005 ms
+  Staging Buffer Creation: 2.06 ms
+  CPU Copy: 1.016 ms
+  GPU Copy: 1.41556 ms
+  Data Transfer (Total): 2.43156 ms
+  Other: 0 ms
+  Total: 21.393 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_G_2_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 12.311 ms
+  GPU Resource Creation: 3.07 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 2.275 ms
+  CPU Copy: 1.454 ms
+  GPU Copy: 1.24388 ms
+  Data Transfer (Total): 2.69788 ms
+  Other: 0 ms
+  Total: 23.059 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_H_1_baseColor.png - 2048x2048
+  File I/O + Decode: 19.713 ms
+  GPU Resource Creation: 3.344 ms
+  Layout Calculation: 0.005 ms
+  Staging Buffer Creation: 1.981 ms
+  CPU Copy: 0.979 ms
+  GPU Copy: 1.37408 ms
+  Data Transfer (Total): 2.35308 ms
+  Other: 0 ms
+  Total: 29.244 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_H_1_normal.png - 2048x2048
+  File I/O + Decode: 25.73 ms
+  GPU Resource Creation: 3.387 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 1.923 ms
+  CPU Copy: 1.069 ms
+  GPU Copy: 1.19144 ms
+  Data Transfer (Total): 2.26044 ms
+  Other: 0 ms
+  Total: 35.148 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_H_1_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 19.245 ms
+  GPU Resource Creation: 3.326 ms
+  Layout Calculation: 0.007 ms
+  Staging Buffer Creation: 2.468 ms
+  CPU Copy: 1.046 ms
+  GPU Copy: 1.19336 ms
+  Data Transfer (Total): 2.23936 ms
+  Other: 0 ms
+  Total: 30.08 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_H_2_baseColor.png - 2048x2048
+  File I/O + Decode: 13.56 ms
+  GPU Resource Creation: 3.116 ms
+  Layout Calculation: 0.005 ms
+  Staging Buffer Creation: 2.135 ms
+  CPU Copy: 1.028 ms
+  GPU Copy: 1.19388 ms
+  Data Transfer (Total): 2.22188 ms
+  Other: 0 ms
+  Total: 22.887 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_H_2_normal.png - 2048x2048
+  File I/O + Decode: 7.5 ms
+  GPU Resource Creation: 3.884 ms
+  Layout Calculation: 0.009 ms
+  Staging Buffer Creation: 1.962 ms
+  CPU Copy: 1.031 ms
+  GPU Copy: 1.19212 ms
+  Data Transfer (Total): 2.22312 ms
+  Other: 0 ms
+  Total: 17.442 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_H_2_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 12.682 ms
+  GPU Resource Creation: 3.382 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 2.011 ms
+  CPU Copy: 1.076 ms
+  GPU Copy: 1.19524 ms
+  Data Transfer (Total): 2.27124 ms
+  Other: 0 ms
+  Total: 22.246 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_I_baseColor.png - 2048x2048
+  File I/O + Decode: 19.077 ms
+  GPU Resource Creation: 3.36 ms
+  Layout Calculation: 0.003 ms
+  Staging Buffer Creation: 2.203 ms
+  CPU Copy: 1.082 ms
+  GPU Copy: 1.35288 ms
+  Data Transfer (Total): 2.43488 ms
+  Other: 0 ms
+  Total: 29.023 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_I_normal.png - 2048x2048
+  File I/O + Decode: 21.353 ms
+  GPU Resource Creation: 3.103 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 2.287 ms
+  CPU Copy: 1.218 ms
+  GPU Copy: 1.2544 ms
+  Data Transfer (Total): 2.4724 ms
+  Other: 0 ms
+  Total: 31.787 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_I_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 19.9 ms
+  GPU Resource Creation: 3.214 ms
+  Layout Calculation: 0.007 ms
+  Staging Buffer Creation: 2.203 ms
+  CPU Copy: 1.138 ms
+  GPU Copy: 1.30616 ms
+  Data Transfer (Total): 2.44416 ms
+  Other: 0 ms
+  Total: 29.705 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_J_baseColor.png - 2048x2048
+  File I/O + Decode: 21.001 ms
+  GPU Resource Creation: 3.424 ms
+  Layout Calculation: 0.021 ms
+  Staging Buffer Creation: 2.478 ms
+  CPU Copy: 1.303 ms
+  GPU Copy: 1.2616 ms
+  Data Transfer (Total): 2.5646 ms
+  Other: 0 ms
+  Total: 31.35 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_J_normal.png - 2048x2048
+  File I/O + Decode: 22.775 ms
+  GPU Resource Creation: 3.303 ms
+  Layout Calculation: 0.004 ms
+  Staging Buffer Creation: 2.576 ms
+  CPU Copy: 1.08 ms
+  GPU Copy: 1.2066 ms
+  Data Transfer (Total): 2.2866 ms
+  Other: 0 ms
+  Total: 32.805 ms
+[Texture Load] assets/japanese_street_at_night/textures/Build_J_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 21.414 ms
+  GPU Resource Creation: 3.404 ms
+  Layout Calculation: 0.011 ms
+  Staging Buffer Creation: 2.374 ms
+  CPU Copy: 1.387 ms
+  GPU Copy: 1.63296 ms
+  Data Transfer (Total): 3.01996 ms
+  Other: 0 ms
+  Total: 32.328 ms
+[Texture Load] assets/japanese_street_at_night/textures/pole_baseColor.png - 2048x2048
+  File I/O + Decode: 23.998 ms
+  GPU Resource Creation: 3.186 ms
+  Layout Calculation: 0.009 ms
+  Staging Buffer Creation: 1.947 ms
+  CPU Copy: 1.301 ms
+  GPU Copy: 1.1984 ms
+  Data Transfer (Total): 2.4994 ms
+  Other: 0 ms
+  Total: 33.618 ms
+[Texture Load] assets/japanese_street_at_night/textures/pole_normal.png - 2048x2048
+  File I/O + Decode: 21.025 ms
+  GPU Resource Creation: 3.218 ms
+  Layout Calculation: 0.011 ms
+  Staging Buffer Creation: 2.38 ms
+  CPU Copy: 1.139 ms
+  GPU Copy: 1.253 ms
+  Data Transfer (Total): 2.392 ms
+  Other: 0 ms
+  Total: 30.949 ms
+[Texture Load] assets/japanese_street_at_night/textures/pole_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 37.605 ms
+  GPU Resource Creation: 3.396 ms
+  Layout Calculation: 0.007 ms
+  Staging Buffer Creation: 2.012 ms
+  CPU Copy: 1.557 ms
+  GPU Copy: 1.28476 ms
+  Data Transfer (Total): 2.84176 ms
+  Other: 0 ms
+  Total: 48.309 ms
+[Texture Load] assets/japanese_street_at_night/textures/pole_emissive.png - 2048x2048
+  File I/O + Decode: 8.739 ms
+  GPU Resource Creation: 3.45 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 2.086 ms
+  CPU Copy: 1.589 ms
+  GPU Copy: 1.58324 ms
+  Data Transfer (Total): 3.17224 ms
+  Other: 0 ms
+  Total: 19.639 ms
+[Texture Load] assets/japanese_street_at_night/textures/ground_baseColor.png - 2048x2048
+  File I/O + Decode: 23.848 ms
+  GPU Resource Creation: 3.489 ms
+  Layout Calculation: 0.006 ms
+  Staging Buffer Creation: 3.171 ms
+  CPU Copy: 1.206 ms
+  GPU Copy: 1.2926 ms
+  Data Transfer (Total): 2.4986 ms
+  Other: 0 ms
+  Total: 35.013 ms
+[Texture Load] assets/japanese_street_at_night/textures/ground_normal.png - 2048x2048
+  File I/O + Decode: 29.074 ms
+  GPU Resource Creation: 3.582 ms
+  Layout Calculation: 0.009 ms
+  Staging Buffer Creation: 1.973 ms
+  CPU Copy: 1.236 ms
+  GPU Copy: 1.26772 ms
+  Data Transfer (Total): 2.50372 ms
+  Other: 0 ms
+  Total: 39.092 ms
+[Texture Load] assets/japanese_street_at_night/textures/ground_metallicRoughness.png - 2048x2048
+  File I/O + Decode: 19.651 ms
+  GPU Resource Creation: 3.547 ms
+  Layout Calculation: 0.008 ms
+  Staging Buffer Creation: 2.147 ms
+  CPU Copy: 1.38 ms
+  GPU Copy: 1.25336 ms
+  Data Transfer (Total): 2.63336 ms
+  Other: 0 ms
+  Total: 30.225 ms
