@@ -55,11 +55,7 @@ void DepthStencilTarget::Create(
         D3D12_RESOURCE_STATE_DEPTH_WRITE,
         &clearValue,
         IID_PPV_ARGS(m_pResource.ReleaseAndGetAddressOf())
-        );
-    if (FAILED(hr)) {
-        // エラー処理
-        return;
-    }
+    ));
     m_CurrentState = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
     // DSVの生成

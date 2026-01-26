@@ -39,7 +39,8 @@ public:
         bool useWireframe,                        // ワイヤーフレームモードを使用するか
         bool useInputLayout,                      // InputLayoutを使用するか
         bool useDepthFormat,                      // 深度フォーマットを使用するか
-        bool blendEnable                          // ブレンドを使用するか
+        bool blendEnable,                         // ブレンドを使用するか
+        D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS // 深度比較関数
     );
     
     void CreatePipelineState(
@@ -50,8 +51,9 @@ public:
         const std::wstring& gsFilePath,           // ジオメトリシェーダーのパス
         bool useWireframe,                        // ワイヤーフレームモードを使用するか
         bool useInputLayout,                      // InputLayoutを使用するか
-        bool useDepthFormat,                       // 深度フォーマットを使用するか
-        bool blendEnable                          // ブレンドを使用するか
+        bool useDepthFormat,                      // 深度フォーマットを使用するか
+        bool blendEnable,                         // ブレンドを使用するか
+        D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS // 深度比較関数
     );
     
     // Computeシェーダー用のパイプラインステートを作成して登録する

@@ -39,7 +39,8 @@ void PipelineStateManager::CreatePipelineState(
     bool useWireframe,
     bool useInputLayout,
     bool useDepthFormat,
-    bool blendEnable)
+    bool blendEnable,
+    D3D12_COMPARISON_FUNC depthFunc)
 {
     // 作成済みなら何もしない
     if (pipelineStateMap.count(name))
@@ -72,6 +73,7 @@ void PipelineStateManager::CreatePipelineState(
 	pipelineState->SetSampleDescCount(SampleCount);
 	pipelineState->SetRenderTargetFormat(renderTargetFormat);
     pipelineState->SetBlendEnable(blendEnable);
+    pipelineState->SetDepthFunc(depthFunc);
 
     // 深度ステンシルのフォーマットを設定
     if (useDepthFormat)
@@ -98,7 +100,8 @@ void PipelineStateManager::CreatePipelineState(
 void PipelineStateManager::CreatePipelineState(const std::string& name, const std::string& rootSignatureName,
                                                  const std::wstring& vsFilePath, const std::wstring& psFilePath,
                                                  const std::wstring& gsFilePath, bool useWireframe,
-                                                 bool useInputLayout, bool useDepthFormat, bool blendEnable)
+                                                 bool useInputLayout, bool useDepthFormat, bool blendEnable,
+                                                 D3D12_COMPARISON_FUNC depthFunc)
 {
     // 作成済みなら何もしない
     if (pipelineStateMap.count(name))
@@ -131,6 +134,7 @@ void PipelineStateManager::CreatePipelineState(const std::string& name, const st
     pipelineState->SetGS(gsFilePath);
     pipelineState->SetBlendEnable(blendEnable);
     pipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+    pipelineState->SetDepthFunc(depthFunc);
 
     // 深度ステンシルのフォーマットを設定
     if (useDepthFormat)

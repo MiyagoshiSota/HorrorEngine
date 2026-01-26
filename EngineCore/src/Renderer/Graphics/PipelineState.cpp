@@ -144,6 +144,11 @@ void PipelineState::SetDepthStencilFormat(DXGI_FORMAT format)
 	descGS.DSVFormat = format;
 }
 
+void PipelineState::SetDepthFunc(D3D12_COMPARISON_FUNC func)
+{
+	descGS.DepthStencilState.DepthFunc = func;
+}
+
 void PipelineState::SetWireFrame(bool wireFrame)
 {
 	descGS.RasterizerState.FillMode = wireFrame ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;

@@ -13,6 +13,7 @@ public:
 	void SetRootSignature(ID3D12RootSignature* rootSignature); // ルートシグネチャを設定
 	void SetRenderTargetFormat(DXGI_FORMAT format);
 	void SetDepthStencilFormat(DXGI_FORMAT format);
+	void SetDepthFunc(D3D12_COMPARISON_FUNC func); // 深度比較関数を設定
 	void SetWireFrame(bool wireFrame);
 	void SetVS(std::wstring filePath); // 頂点シェーダーを設定
 	void SetPS(std::wstring filePath); // ピクセルシェーダーを設定

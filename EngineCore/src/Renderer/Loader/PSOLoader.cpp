@@ -199,15 +199,22 @@ std::shared_ptr<PipelineStateManager> PSOLoader::LoadFromFile(const std::string&
                 bool useWireframe = psoJson.value("wireframeEnable", false);
                 bool blendEnable = psoJson.value("blendEnable", false);
 
+                // 深度比較関数のパース
+                D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS;
+                if (psoJson.contains("depthFunc"))
+                {
+                    depthFunc = JsonParserHelpers::ParseComparisonFunc(psoJson["depthFunc"]);
+                }
+
                 // マネージャーにPSOを生成・登録させる
 
                 // ジオメトリシェーダー有りの場合
                 if(!gsPath.empty())
                 {
-                    manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, gsPath, useWireframe,inputLayout, depthEnable, blendEnable);
+                    manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, gsPath, useWireframe,inputLayout, depthEnable, blendEnable, depthFunc);
                 }
                 // ジオメトリシェーダー無しの場合
-                manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, SampleCount, renderTargetFormat, useWireframe,inputLayout, depthEnable, blendEnable);
+                manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, SampleCount, renderTargetFormat, useWireframe,inputLayout, depthEnable, blendEnable, depthFunc);
             }
             // Computeシェーダー用PSO
             else if (psoJson.contains("computeShader"))

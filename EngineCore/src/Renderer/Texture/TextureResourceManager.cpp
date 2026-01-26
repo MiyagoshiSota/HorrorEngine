@@ -39,7 +39,32 @@ std::shared_ptr<Texture2D> TextureResourceManager::WhiteTexture()
     return m_whiteTexture;
 }
 
+std::shared_ptr<TextureCube> TextureResourceManager::GetCubeMap(const std::wstring& path)
+{
+    // キャッシュにあるか確認
+    auto it = m_cubeMapCache.find(path);
+    if (it != m_cubeMapCache.end())
+    {
+        return it->second;
+    }
+
+    // キャッシュになければ新規作成
+    std::shared_ptr<TextureCube> newCubeMap = TextureCube::Load(path);
+
+    if (newCubeMap)
+    {
+        // 成功したらキャッシュ登録
+        m_cubeMapCache[path] = newCubeMap;
+        return newCubeMap;
+    }
+
+    // ロード失敗時
+    printf("キューブマップのロードに失敗: %ls\n", path.c_str());
+    return nullptr;
+}
+
 void TextureResourceManager::Clear()
 {
     m_textureCache.clear();
+    m_cubeMapCache.clear();
 }

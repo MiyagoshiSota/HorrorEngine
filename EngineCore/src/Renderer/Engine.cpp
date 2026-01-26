@@ -386,22 +386,6 @@ bool Engine::CreateCommandList()
     {
         return false;
     }
-
-    // コマンドリストの作成
-    hr = m_pDevice->CreateCommandList(
-        0,
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_pAllocator[m_CurrentBackBufferIndex].Get(),
-        nullptr,
-        IID_PPV_ARGS(m_pCommandList.ReleaseAndGetAddressOf())
-    );
-
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // コマンドリストは開かれている状態で作成されるのでいったん閉じる
-    m_pCommandList->Close();
     m_isCommandListOpen = false; // 初期状態は閉じている
 
     return true;
