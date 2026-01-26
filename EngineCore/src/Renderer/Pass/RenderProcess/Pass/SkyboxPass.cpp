@@ -97,12 +97,12 @@ void SkyboxPass::Execute(RenderContext& context)
     XMMATRIX proj = XMMatrixPerspectiveFovRH(
         context.Camera->GetFOV(),
         context.Camera->GetAspect(),
-        0.1f,
-        10.0f // Skyboxには近距離で十分
+        0.3f,
+        1.0f // Skyboxには近距離で十分
     );
 
-    // 定数バッファ更新（RenderContext経由）
-    context.UpdateSkyboxConstantBuffer(view * proj);
+    // 定数バッファ更新（RenderContext経由） 
+    context.UpdateSkyboxConstantBuffer(proj * view);
 
     // ディスクリプタヒープ設定
     auto heap = g_Engine->GetDescriptorHeap()->GetHeap();
