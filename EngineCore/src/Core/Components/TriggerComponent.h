@@ -2,7 +2,9 @@
 #include <vector>
 #include <memory>
 
+#ifndef BUILD_STANDALONE
 #include "imgui.h"
+#endif // BUILD_STANDALONE
 #include "TriggerFactory.h"
 #include "Core/Components/Trigger/ITriggerCondition.h"
 #include "Core/Components/Reward/IReward.h"
@@ -86,6 +88,7 @@ public:
         return "No Trigger";
     }
 
+#ifndef BUILD_STANDALONE
     void OnGui() override
     {
         ImGui::Text("Trigger Component");
@@ -109,7 +112,9 @@ public:
         // GUIから動的に設定するためのUIを描画
         DrawInspectorUI();
     }
+#endif // BUILD_STANDALONE
 
+#ifndef BUILD_STANDALONE
     void DrawInspectorUI()
     {
         auto& factory = TriggerFactory::GetInstance();
@@ -224,6 +229,12 @@ public:
             }
         }
     }
+#else
+    void DrawInspectorUI()
+    {
+        // BUILD_STANDALONE時は何もしない
+    }
+#endif // BUILD_STANDALONE
 
 public:
     void Activate() { m_isActivated = true; }

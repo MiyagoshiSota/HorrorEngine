@@ -3,11 +3,11 @@
         {
             "components": [
                 {
-                    "model_name": "primitive/cube",
+                    "model_name": "WorldEnvironment",
                     "type": "MeshRenderer"
                 }
             ],
-            "name": "primitive/cube",
+            "name": "WorldEnvironment",
             "position": [
                 0.0,
                 0.0,
@@ -29,6 +29,58 @@
                 {
                     "model_name": "primitive/cube",
                     "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "DYNAMIC",
+                    "collider": {
+                        "halfExtents": [
+                            0.0008192001259885728,
+                            0.0008192001259885728,
+                            0.0008192001259885728
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": true,
+                    "type": "Rigidbody"
+                }
+            ],
+            "name": "primitive/cube",
+            "position": [
+                0.0,
+                2.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                88.5,
+                0.0
+            ],
+            "scale": [
+                0.4000000059604645,
+                0.4000000059604645,
+                0.4000000059604645
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "STATIC",
+                    "collider": {
+                        "halfExtents": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": false,
+                    "type": "Rigidbody"
                 }
             ],
             "name": "primitive/cube1",
@@ -39,7 +91,7 @@
             ],
             "rotation": [
                 0.0,
-                40.0,
+                0.0,
                 0.0
             ],
             "scale": [

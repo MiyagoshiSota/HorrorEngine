@@ -11,8 +11,13 @@ public:
     // アクションを実行する
     virtual void Execute(const TriggerContext& context) = 0;
     
+#ifndef BUILD_STANDALONE
     // GUIのインスペクターに、このアクション固有の設定項目を描画する
     virtual void DrawInspectorUI() = 0;
+#else
+    // BUILD_STANDALONE時は空実装
+    virtual void DrawInspectorUI() {}
+#endif // BUILD_STANDALONE
 
     // アクションの名前を取得する
     virtual std::string GetName() const = 0;

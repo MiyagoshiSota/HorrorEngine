@@ -1,6 +1,8 @@
 #include "EngineCollider.h"
 
+#ifndef BUILD_STANDALONE
 #include "imgui.h"
+#endif // BUILD_STANDALONE
 #include "Component/Rigidbody.h"
 #include "Core/App.h"
 
@@ -160,6 +162,7 @@ float EngineCollider::GetCapsuleHeight() const
 }
 
 // --- Shape Parameter Editing UI ---
+#ifndef BUILD_STANDALONE
 void EngineCollider::DrawShapeParamsGUI(DirectX::XMFLOAT3 goSize)
 {
     if (!m_collider_ || !m_shape_)
@@ -248,6 +251,12 @@ void EngineCollider::DrawShapeParamsGUI(DirectX::XMFLOAT3 goSize)
 
     // TODO: Material (friction, bounciness) の設定UIも追加可能
 }
+#else
+void EngineCollider::DrawShapeParamsGUI(DirectX::XMFLOAT3 goSize)
+{
+    // BUILD_STANDALONE時は何もしない
+}
+#endif // BUILD_STANDALONE
 
 // --- Helper Function ---
 // static なのでクラス名のスコープ解決が必要

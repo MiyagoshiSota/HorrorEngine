@@ -41,11 +41,13 @@ public:
 		return "MeshRenderer";
 	}
 
+#ifndef BUILD_STANDALONE
 	void OnGui() override {
 		ImGui::Text("MeshRenderer Component");
 		ImGui::Separator();
 		ImGui::Text("Model Name: %s", model_name.c_str());
 	}
+#endif // BUILD_STANDALONE
 
 public:
 	std::string model_name;

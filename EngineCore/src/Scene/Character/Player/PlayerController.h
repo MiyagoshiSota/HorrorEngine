@@ -76,11 +76,13 @@ public:
         return ConstGameObjectSaveParamPref::kComponentPlayerController;
     }
     
+#ifndef BUILD_STANDALONE
     void OnGui() override
     {
         // GUIで移動速度を調整可能にする
         ImGui::SliderFloat("Move Speed", &m_moveSpeed, 0.1f, 100.0f);
     };
+#endif // BUILD_STANDALONE
 
     float GetMoveSpeed() const { return m_moveSpeed; }
 

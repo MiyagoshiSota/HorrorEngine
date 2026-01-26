@@ -19,11 +19,13 @@ public:
         return rbComponent->IsColliding();
     }
 
+#ifndef BUILD_STANDALONE
     void DrawInspectorUI() override
     {
         // インスペクターに表示する設定項目があればここに実装
         // 例えば、トリガー領域のサイズやその他のパラメータを設定できるようにする
     }
+#endif // BUILD_STANDALONE
 
     std::string GetName() const override
     {

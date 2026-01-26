@@ -74,7 +74,10 @@ private:
 	bool CreateFence();
 	void CreateViewPort();
 	void CreateScissorRect();
+#ifndef BUILD_STANDALONE
 	bool InitImGui();
+	void DrawImGui(); // ImGuiの描画
+#endif // BUILD_STANDALONE
 
 private:
 	HWND m_hWnd;
@@ -98,7 +101,6 @@ private: // 描画に使うオブジェクトとその生成関数たち
 	bool CreateRenderTarget(); // レンダーターゲットを作成
 	bool CreateDescriptorHeap(); // ディスクリプタヒープを作成
 	bool CreateDepthStencil(); // 深度ステンシルバッファを生成
-	void DrawImGui(); // ImGuiの描画
 
 	UINT m_RtvDescriptorSize = 0; // レンダーターゲットビューのディスクリプタサイズ
 	ComPtr<ID3D12DescriptorHeap> m_pRtvHeap = nullptr; // レンダーターゲットのディスクリプタヒープ

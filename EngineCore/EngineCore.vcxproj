@@ -30,6 +30,7 @@
     <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
     <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
     <ClCompile Include="src\GUI\Windows\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\GUI\Build\BuildManager.cpp" />
     <ClCompile Include="src\GUI\Managers\LayoutPresetManager.cpp" />
     <ClCompile Include="src\Input\InputDevice.cpp" />
     <ClCompile Include="src\Physics\EngineCollider.cpp" />
@@ -47,84 +48,7 @@
     <ClCompile Include="src\Renderer\Graphics\RootSignatureBuilder.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\PipelineStateManager.cpp" />
     <ClCompile Include="src\Modules\Renderer\RendereUtility.cpp" />
-    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHeap.cpp">
-      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <Optimization>Disabled</Optimization>
-      <SupportJustMyCode>true</SupportJustMyCode>
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <AssemblerListingLocation>x64\Debug\</AssemblerListingLocation>
-      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-      <BrowseInformation>false</BrowseInformation>
-      <BrowseInformationFile>x64\Debug\</BrowseInformationFile>
-      <CompileAs>Default</CompileAs>
-      <ConformanceMode>true</ConformanceMode>
-      <DiagnosticsFormat>Column</DiagnosticsFormat>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <ErrorReporting>Prompt</ErrorReporting>
-      <ExpandAttributedSource>false</ExpandAttributedSource>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <EnableASAN>false</EnableASAN>
-      <EnableFuzzer>false</EnableFuzzer>
-      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <EnableVectorLength>NotSet</EnableVectorLength>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-      <GenerateModuleDependencies>false</GenerateModuleDependencies>
-      <GenerateSourceDependencies>false</GenerateSourceDependencies>
-      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>Default</LanguageStandard_C>
-      <MinimalRebuild>false</MinimalRebuild>
-      <ModuleDependenciesFile>x64\Debug\</ModuleDependenciesFile>
-      <ModuleOutputFile>x64\Debug\</ModuleOutputFile>
-      <OmitDefaultLibName>false</OmitDefaultLibName>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <ObjectFileName>x64\Debug\</ObjectFileName>
-      <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>C:\Users\souta\source\repos\HorrorGengine\x64\Debug\EngineCore.pdb</ProgramDataBaseFileName>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>x64\Debug\EngineCore.pch</PrecompiledHeaderOutputFile>
-      <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessKeepComments>false</PreprocessKeepComments>
-      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ShowIncludes>false</ShowIncludes>
-      <SourceDependenciesFile>x64\Debug\</SourceDependenciesFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
-      <SpectreMitigation>false</SpectreMitigation>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <TrackerLogDirectory>x64\Debug\EngineCore.tlog\</TrackerLogDirectory>
-      <TranslateIncludes>false</TranslateIncludes>
-      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-      <TreatWarningAsError>false</TreatWarningAsError>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <UseFullPaths>true</UseFullPaths>
-      <WarningLevel>Level3</WarningLevel>
-      <XMLDocumentationFileName>x64\Debug\</XMLDocumentationFileName>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <IntelJCCErratum>false</IntelJCCErratum>
-      <BuildStlModules>false</BuildStlModules>
-      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
-      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
-      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
-      <PreprocessorDefinitions>HAS_ASSIMP;_DEBUG;_CONSOLE;_UNICODE;UNICODE;</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)packages\AssimpCpp.5.0.1.6\build\native\include;$(SolutionDir)packages\assimp_native.4.0.1\build\native\..\..\build\native\include;$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src</AdditionalIncludeDirectories>
-      <LibCompiled>true</LibCompiled>
-      <ProgramDataBaseFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)EngineCore.pdb</ProgramDataBaseFileName>
-      <ProgramDataBaseFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)EngineCore.pdb</ProgramDataBaseFileName>
-    </ClCompile>
+    <ClCompile Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHeap.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
@@ -182,6 +106,8 @@
     <ClInclude Include="src\GUI\Windows\DrawPostProcessPresetWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawTaskManagerWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawWorkManagerWindow.h" />
+    <ClInclude Include="src\GUI\Build\BuildManager.h" />
+    <ClInclude Include="src\GUI\Windows\DrawBuildWindow.h" />
     <ClInclude Include="src\GUI\Managers\LayoutPresetManager.h" />
     <ClInclude Include="src\GUI\Managers\LayoutPresetType.h" />
     <ClInclude Include="src\Input\InputDevice.h" />
@@ -302,10 +228,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\BloomCombinePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -318,7 +244,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\CascadedShadowMapVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -339,7 +268,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\ChromaticAberrationPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -404,7 +336,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -638,7 +573,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GamePreprocessorDefinitions)' != ''">_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM;$(GamePreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GamePreprocessorDefinitions)' == ''">_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
@@ -668,5 +604,19 @@
     <Error Condition="!Exists('..\packages\assimp_native.redist.4.0.1\build\native\assimp_native.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\assimp_native.redist.4.0.1\build\native\assimp_native.redist.targets'))" />
     <Error Condition="!Exists('..\packages\assimp_native.4.0.1\build\native\assimp_native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\assimp_native.4.0.1\build\native\assimp_native.targets'))" />
     <Error Condition="!Exists('..\packages\AssimpCpp.5.0.1.6\build\native\AssimpCpp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\AssimpCpp.5.0.1.6\build\native\AssimpCpp.targets'))" />
+  </Target>
+  <!-- ビルド後に.csoファイルをAssets/Shaders/にコピー -->
+  <Target Name="CopyShaderFiles" AfterTargets="Build">
+    <PropertyGroup>
+      <ShaderOutputDir>$(SolutionDir)Game\Assets\Shaders</ShaderOutputDir>
+    </PropertyGroup>
+    <!-- Assets/Shaders/ディレクトリを作成 -->
+    <MakeDir Directories="$(ShaderOutputDir)" Condition="!Exists('$(ShaderOutputDir)')" />
+    <!-- .csoファイルをコピー -->
+    <ItemGroup>
+      <ShaderFiles Include="$(OutDir)*.cso" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(ShaderOutputDir)" SkipUnchangedFiles="true" />
+    <Message Text="Copied @(ShaderFiles->Count()) shader file(s) to $(ShaderOutputDir)" Importance="normal" />
   </Target>
 </Project>

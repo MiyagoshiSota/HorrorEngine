@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "IReward.h"
 #include "Core/Components/TriggerContext/TriggerContext.h"
 
@@ -16,11 +16,13 @@ public:
         // }
     }
 
+#ifndef BUILD_STANDALONE
     void DrawInspectorUI() override
     {
         // インスペクターに表示する設定項目があればここに実装
         // 例えば、再生するサウンドのIDやボリュームなどを設定できるようにする
     }
+#endif // BUILD_STANDALONE
 
     std::string GetName() const override
     {

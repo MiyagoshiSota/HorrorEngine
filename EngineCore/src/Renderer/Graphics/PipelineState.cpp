@@ -39,7 +39,14 @@ void PipelineState::SetRootSignature(ID3D12RootSignature* rootSignature)
 void PipelineState::SetVS(std::wstring filePath)
 {
 	// 頂点シェーダー読み込み
-	ThrowIfFailed(D3DReadFileToBlob(filePath.c_str(), m_pVsBlob.GetAddressOf()));
+	HRESULT hr = D3DReadFileToBlob(filePath.c_str(), m_pVsBlob.GetAddressOf());
+	if (FAILED(hr))
+	{
+		char pathBuffer[512];
+		WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), -1, pathBuffer, sizeof(pathBuffer), nullptr, nullptr);
+		printf("Failed to load vertex shader: %s (HRESULT: 0x%08lX)\n", pathBuffer, static_cast<unsigned long>(hr));
+		ThrowIfFailed(hr);
+	}
 	descGS.VS = CD3DX12_SHADER_BYTECODE(m_pVsBlob.Get());
 }
 
@@ -51,14 +58,28 @@ void PipelineState::SetPS(std::wstring filePath)
 	}
 	
 	// ピクセルシェーダー読み込み
-	ThrowIfFailed(D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf()));
+	HRESULT hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
+	if (FAILED(hr))
+	{
+		char pathBuffer[512];
+		WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), -1, pathBuffer, sizeof(pathBuffer), nullptr, nullptr);
+		printf("Failed to load pixel shader: %s (HRESULT: 0x%08lX)\n", pathBuffer, static_cast<unsigned long>(hr));
+		ThrowIfFailed(hr);
+	}
 	descGS.PS = CD3DX12_SHADER_BYTECODE(m_pPSBlob.Get());
 }
 
 void PipelineState::SetGS(std::wstring filePath)
 {
 	// ジオメトリシェーダー読み込み
-	ThrowIfFailed(D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf()));
+	HRESULT hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
+	if (FAILED(hr))
+	{
+		char pathBuffer[512];
+		WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), -1, pathBuffer, sizeof(pathBuffer), nullptr, nullptr);
+		printf("Failed to load geometry shader: %s (HRESULT: 0x%08lX)\n", pathBuffer, static_cast<unsigned long>(hr));
+		ThrowIfFailed(hr);
+	}
 
 	// TODO:一旦
 	descGS.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
@@ -70,7 +91,14 @@ void PipelineState::SetGS(std::wstring filePath)
 void PipelineState::SetCS(std::wstring filePath)
 {
 	// コンピュートシェーダー読み込み
-	ThrowIfFailed(D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf()));
+	HRESULT hr = D3DReadFileToBlob(filePath.c_str(), m_pPSBlob.GetAddressOf());
+	if (FAILED(hr))
+	{
+		char pathBuffer[512];
+		WideCharToMultiByte(CP_UTF8, 0, filePath.c_str(), -1, pathBuffer, sizeof(pathBuffer), nullptr, nullptr);
+		printf("Failed to load compute shader: %s (HRESULT: 0x%08lX)\n", pathBuffer, static_cast<unsigned long>(hr));
+		ThrowIfFailed(hr);
+	}
 	descCS.CS = CD3DX12_SHADER_BYTECODE(m_pPSBlob.Get());
 }
 

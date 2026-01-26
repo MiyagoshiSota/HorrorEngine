@@ -16,6 +16,7 @@ public:
         printf("スタートするWorkが設定されていません。\n");
     }
 
+#ifndef BUILD_STANDALONE
     void DrawInspectorUI() override
     {
         // Workを一覧で表示して選択できるようにする
@@ -33,6 +34,7 @@ public:
             ImGui::TreePop();
         }
     }
+#endif // BUILD_STANDALONE
 
     Work* GetWork()
     {

@@ -24,6 +24,11 @@ public:
     // コンポーネントの型名を取得する関数
     virtual std::string GetType() = 0;
 
+#ifndef BUILD_STANDALONE
     // GUI描画用の仮想関数
     virtual void OnGui() = 0;
+#else
+    // BUILD_STANDALONE時は空実装
+    virtual void OnGui() {}
+#endif // BUILD_STANDALONE
 };

@@ -237,6 +237,7 @@ public:
         return "Rigidbody";
     }
 
+#ifndef BUILD_STANDALONE
     void OnGui() override
     {
         // RigidBodyが作成されていない場合は操作できない
@@ -379,6 +380,7 @@ public:
             }
         }
     }
+#endif // BUILD_STANDALONE
 
 public:
     // 衝突イベント用のコールバック関数

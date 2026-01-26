@@ -1,16 +1,9 @@
 #include "Engine.h"
+#ifndef BUILD_STANDALONE
 #include "GUI/Managers/LayoutPresetManager.h"
-#include <d3d12.h>
-#include <d3dx12.h>
-#include <stdio.h>
-#include <Windows.h>
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
-#include "Scene/Default/Scene/DefaultScene.h"
-#include "Modules/DxHelper.h"
-
-#include "Graphics/DescriptorHeap/DescriptorHeap.h"
 #include "GUI/Windows/DrawGameObjectWindow.h"
 #include "GUI/Windows/DrawModeWindow.h"
 #include "GUI/Windows/DrawPostProcessPresetWindow.h"
@@ -19,6 +12,16 @@
 #include "GUI/Windows/DrawModelsWindow.h"
 #include "GUI/Windows/DrawTaskManagerWindow.h"
 #include "GUI/Windows/DrawWorkManagerWindow.h"
+#include "GUI/Windows/DrawBuildWindow.h"
+#endif // BUILD_STANDALONE
+#include <d3d12.h>
+#include <d3dx12.h>
+#include <stdio.h>
+#include <Windows.h>
+#include "Scene/Default/Scene/DefaultScene.h"
+#include "Modules/DxHelper.h"
+
+#include "Graphics/DescriptorHeap/DescriptorHeap.h"
 #include "Texture/Texture2D.h"
 
 Engine* g_Engine;
@@ -107,11 +110,13 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
         return false;
     }
 
+#ifndef BUILD_STANDALONE
     if (!InitImGui())
     {
         printf("ImGuiの初期化に失敗\n");
 		return false;
     }
+#endif // BUILD_STANDALONE
 
 	// TextureResourceの初期化
 	m_TextureResource = std::make_shared<Texture2D>();
@@ -127,6 +132,7 @@ void Engine::Shutdown()
 		MoveToNextFrame();
 	}
 
+#ifndef BUILD_STANDALONE
 	// ImGuiの終了処理
 	// ドッキング状態を明示的に保存
 	ImGui::SaveIniSettingsToDisk(ImGui::GetIO().IniFilename);
@@ -135,6 +141,7 @@ void Engine::Shutdown()
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyPlatformWindows();  // ビューポートウィンドウのクリーンアップ（dockingブランチで必要）
 	ImGui::DestroyContext();
+#endif // BUILD_STANDALONE
 
 	if (m_fenceEvent) {
 		CloseHandle(m_fenceEvent);
@@ -145,90 +152,211 @@ void Engine::Shutdown()
 
 void Engine::BeginRender()
 {
-    // 現在のレンダーターゲットを更新
-    m_currentRenderTarget = m_pRenderTargets[m_CurrentBackBufferIndex].Get();
+    static int callCount = 0;
+    callCount++;
+    
+    if (callCount == 1)
+    {
+        printf("[Engine::BeginRender] 最初の呼び出し開始\n");
+    }
 
-    // コマンドを初期化してためる準備をする
-    m_pAllocator[m_CurrentBackBufferIndex]->Reset();
-    m_pCommandList->Reset(m_pAllocator[m_CurrentBackBufferIndex].Get(), nullptr);
-    m_isCommandListOpen = true; // コマンドリストが開いたことを記録
+    try {
+        // 現在のレンダーターゲットを更新
+        m_currentRenderTarget = m_pRenderTargets[m_CurrentBackBufferIndex].Get();
 
-    // ビューポートとシザー矩形を設定
-    m_pCommandList->RSSetViewports(1, &m_Viewport);
-    m_pCommandList->RSSetScissorRects(1, &m_Scissor);
+        if (callCount == 1)
+        {
+            printf("[Engine::BeginRender] コマンドアロケータとコマンドリストをリセット\n");
+        }
 
-    // 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
-    auto currentRtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
-    currentRtvHandle.ptr += m_CurrentBackBufferIndex * m_RtvDescriptorSize;
+        // コマンドを初期化してためる準備をする
+        m_pAllocator[m_CurrentBackBufferIndex]->Reset();
+        m_pCommandList->Reset(m_pAllocator[m_CurrentBackBufferIndex].Get(), nullptr);
+        m_isCommandListOpen = true; // コマンドリストが開いたことを記録
 
-    // 深度ステンシルのディスクリプタヒープの開始アドレス取得
-    auto currentDsvHandle = m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
+        if (callCount == 1)
+        {
+            printf("[Engine::BeginRender] ビューポートとシザー矩形を設定\n");
+        }
 
-    // レンダーターゲットが使用可能になるまで待つ
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    m_pCommandList->ResourceBarrier(1, &barrier);
+        // ビューポートとシザー矩形を設定
+        m_pCommandList->RSSetViewports(1, &m_Viewport);
+        m_pCommandList->RSSetScissorRects(1, &m_Scissor);
 
-    // レンダーターゲットを設定
-    m_pCommandList->OMSetRenderTargets(1, &currentRtvHandle, FALSE, &currentDsvHandle);
+        // 現在のフレームのレンダーターゲットビューのディスクリプタヒープの開始アドレスを取得
+        auto currentRtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
+        currentRtvHandle.ptr += m_CurrentBackBufferIndex * m_RtvDescriptorSize;
 
-    //// レンダーターゲットをクリア
-    const float clearColor[] = { .5f,0.25f,0.25f,1.0f };
-    m_pCommandList->ClearRenderTargetView(currentRtvHandle, clearColor, 0, nullptr);
+        // 深度ステンシルのディスクリプタヒープの開始アドレス取得
+        auto currentDsvHandle = m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
 
-    // 深度ステンシルビューをクリア
-    m_pCommandList->ClearDepthStencilView(currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        if (callCount == 1)
+        {
+            printf("[Engine::BeginRender] リソースバリアを設定\n");
+        }
+
+        // レンダーターゲットが使用可能になるまで待つ
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        m_pCommandList->ResourceBarrier(1, &barrier);
+
+        // レンダーターゲットを設定
+        m_pCommandList->OMSetRenderTargets(1, &currentRtvHandle, FALSE, &currentDsvHandle);
+
+        if (callCount == 1)
+        {
+            printf("[Engine::BeginRender] レンダーターゲットと深度ステンシルをクリア\n");
+        }
+
+        //// レンダーターゲットをクリア
+        const float clearColor[] = { .5f,0.25f,0.25f,1.0f };
+        m_pCommandList->ClearRenderTargetView(currentRtvHandle, clearColor, 0, nullptr);
+
+        // 深度ステンシルビューをクリア
+        m_pCommandList->ClearDepthStencilView(currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+        if (callCount == 1)
+        {
+            printf("[Engine::BeginRender] 最初の呼び出し完了\n");
+        }
+    }
+    catch (const std::exception& e)
+    {
+        printf("[Engine::BeginRender] 例外発生 (callCount=%d): %s\n", callCount, e.what());
+        throw;
+    }
+    catch (...)
+    {
+        printf("[Engine::BeginRender] 不明な例外が発生しました (callCount=%d)\n", callCount);
+        throw;
+    }
 }
 
 void Engine::EndRender()
 {
-    // レンダーターゲットに書き込み終わるまで待つ
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    m_pCommandList->ResourceBarrier(1, &barrier);
+    static int callCount = 0;
+    callCount++;
+    
+    if (callCount == 1)
+    {
+        printf("[Engine::EndRender] 最初の呼び出し開始\n");
+        printf("[Engine::EndRender] コマンドリストの状態: m_isCommandListOpen=%d\n", m_isCommandListOpen ? 1 : 0);
+    }
 
-	// BackBufferを取得
-    UINT frameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-    ID3D12Resource* backBuffer = m_pRenderTargets[frameIndex].Get();
+    try {
+        if (callCount == 1)
+        {
+            printf("[Engine::EndRender] レンダーターゲットのバリアを設定\n");
+        }
 
-    // BackBufferをPRESENT → RENDER_TARGET へ遷移
-    D3D12_RESOURCE_BARRIER imGuibarrier = {};
-    imGuibarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    imGuibarrier.Transition.pResource = backBuffer;
-    imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-    imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    imGuibarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-    m_pCommandList->ResourceBarrier(1, &imGuibarrier);
+        // レンダーターゲットに書き込み終わるまで待つ
+        auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_currentRenderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+        m_pCommandList->ResourceBarrier(1, &barrier);
 
-    // Render target view 設定
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
-    rtvHandle.ptr += frameIndex * m_RtvDescriptorSize;
-    m_pCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+        if (callCount == 1)
+        {
+            printf("[Engine::EndRender] BackBufferを取得\n");
+        }
 
-    // ImGui 描画前の準備
-    ID3D12DescriptorHeap* heaps[] = { m_ImGuiSrvHeap.Get() };
-    m_pCommandList->SetDescriptorHeaps(_countof(heaps), heaps);
+        // BackBufferを取得
+        UINT frameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+        ID3D12Resource* backBuffer = m_pRenderTargets[frameIndex].Get();
 
-    // ImGuiの描画
-    DrawImGui();
+        if (callCount == 1)
+        {
+            printf("[Engine::EndRender] BackBufferのバリアを設定\n");
+        }
 
-    // コマンドリストがまだ開いている場合のみ、残りの処理を実行
-    if (m_isCommandListOpen) {
-        // BackBufferをRENDER_TARGET → PRESENT に戻す
-        imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+        // BackBufferをPRESENT → RENDER_TARGET へ遷移
+        D3D12_RESOURCE_BARRIER imGuibarrier = {};
+        imGuibarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        imGuibarrier.Transition.pResource = backBuffer;
+        imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+        imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        imGuibarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
         m_pCommandList->ResourceBarrier(1, &imGuibarrier);
 
-        // コマンドを完了して送信
-        m_pCommandList->Close();
-        m_isCommandListOpen = false; // コマンドリストが閉じられたことを記録
+        // Render target view 設定
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
+        rtvHandle.ptr += frameIndex * m_RtvDescriptorSize;
+        m_pCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
-        ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
-        m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+#ifndef BUILD_STANDALONE
+        if (callCount == 1)
+        {
+            printf("[Engine::EndRender] ImGui描画を開始\n");
+        }
+        // ImGui 描画前の準備
+        ID3D12DescriptorHeap* heaps[] = { m_ImGuiSrvHeap.Get() };
+        m_pCommandList->SetDescriptorHeaps(_countof(heaps), heaps);
+
+        // ImGuiの描画
+        DrawImGui();
+        if (callCount == 1)
+        {
+            printf("[Engine::EndRender] ImGui描画完了\n");
+        }
+#else
+        if (callCount == 1)
+        {
+            printf("[Engine::EndRender] BUILD_STANDALONE: ImGui描画をスキップ\n");
+        }
+#endif // BUILD_STANDALONE
+
+        // コマンドリストがまだ開いている場合のみ、残りの処理を実行
+        if (m_isCommandListOpen) {
+            if (callCount == 1)
+            {
+                printf("[Engine::EndRender] コマンドリストを閉じて実行\n");
+            }
+
+            // BackBufferをRENDER_TARGET → PRESENT に戻す
+            imGuibarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+            imGuibarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+            m_pCommandList->ResourceBarrier(1, &imGuibarrier);
+
+            // コマンドを完了して送信
+            m_pCommandList->Close();
+            m_isCommandListOpen = false; // コマンドリストが閉じられたことを記録
+
+            ID3D12CommandList* cmdLists[] = { m_pCommandList.Get() };
+            m_pQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+
+            if (callCount == 1)
+            {
+                printf("[Engine::EndRender] コマンドリスト実行完了\n");
+            }
+        }
+        else
+        {
+            if (callCount == 1)
+            {
+                printf("[Engine::EndRender] コマンドリストは既に閉じられています\n");
+            }
+        }
+
+        if (callCount == 1)
+        {
+            printf("[Engine::EndRender] スワップチェインを更新\n");
+        }
+
+        // スワップチェインを切り替える
+        m_pSwapChain->Present(1, 0);
+
+        if (callCount == 1)
+        {
+            printf("[Engine::EndRender] 最初の呼び出し完了\n");
+        }
     }
-    // もしコマンドリストが既に閉じられている場合（ProcessSceneRequestが呼ばれた場合）、
-    // ここでは何もしない（既に実行済み）
-
-    // スワップチェインを切り替える
-    m_pSwapChain->Present(1, 0);
+    catch (const std::exception& e)
+    {
+        printf("[Engine::EndRender] 例外発生 (callCount=%d): %s\n", callCount, e.what());
+        throw;
+    }
+    catch (...)
+    {
+        printf("[Engine::EndRender] 不明な例外が発生しました (callCount=%d)\n", callCount);
+        throw;
+    }
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Engine::AllocateRtvHandle()
@@ -386,25 +514,6 @@ bool Engine::CreateCommandList()
     {
         return false;
     }
-
-    // コマンドリストの作成
-    hr = m_pDevice->CreateCommandList(
-        0,
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_pAllocator[m_CurrentBackBufferIndex].Get(),
-        nullptr,
-        IID_PPV_ARGS(m_pCommandList.ReleaseAndGetAddressOf())
-    );
-
-    if (FAILED(hr)) {
-        return false;
-    }
-
-    // コマンドリストは開かれている状態で作成されるのでいったん閉じる
-    m_pCommandList->Close();
-    m_isCommandListOpen = false; // 初期状態は閉じている
-
-    return true;
 }
 
 bool Engine::CreateFence()
@@ -452,6 +561,7 @@ void Engine::CreateScissorRect()
     m_Scissor.bottom = m_FrameBufferHeight;
 }
 
+#ifndef BUILD_STANDALONE
 bool Engine::InitImGui()
 {
     // 1. SRVヒープ作成
@@ -514,9 +624,11 @@ bool Engine::InitImGui()
     m_drawWindows.push_back(std::make_shared<DrawModelsWindow>());
     m_drawWindows.push_back(std::make_shared<DrawTaskManagerWindow>());
     m_drawWindows.push_back(std::make_shared<DrawWorkManagerWindow>());
+    m_drawWindows.push_back(std::make_shared<DrawBuildWindow>());
 
     return true;
 }
+#endif // BUILD_STANDALONE
 
 bool Engine::CreateRenderTarget()
 {
@@ -626,6 +738,7 @@ bool Engine::CreateDepthStencil()
     return true;
 }
 
+#ifndef BUILD_STANDALONE
 void Engine::DrawImGui()
 {
     // 最初の呼び出し時に前回選択したプリセットを適用（初回起動時のみ）
@@ -692,6 +805,7 @@ void Engine::DrawImGui()
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pCommandList.Get());
     }
 }
+#endif // BUILD_STANDALONE
 
 void Engine::MoveToNextFrame()
 {
@@ -726,6 +840,7 @@ void Engine::CloseAndExecuteCommandList()
     // コマンドリストが開いている場合、閉じて実行する
     if (m_isCommandListOpen)
     {
+#ifndef BUILD_STANDALONE
         // ImGuiの描画がまだ完了していない場合、先に完了させる
         // （DrawImGui()内でProcessSceneRequestが呼ばれた場合、ImGui::Render()は完了しているが
         //  ImGui_ImplDX12_RenderDrawDataはまだ呼ばれていない可能性がある）
@@ -735,6 +850,7 @@ void Engine::CloseAndExecuteCommandList()
             // ImGuiの描画コマンドを追加
             ImGui_ImplDX12_RenderDrawData(drawData, m_pCommandList.Get());
         }
+#endif // BUILD_STANDALONE
 
         // レンダーターゲットをPRESENT状態に戻す（まだ戻っていない場合）
         if (m_currentRenderTarget)

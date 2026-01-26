@@ -1,7 +1,9 @@
 #include "App.h"
 
+#ifndef BUILD_STANDALONE
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
+#endif // BUILD_STANDALONE
 #include "Components/Work/WorkManager.h"
 #include "Input/InputDevice.h"
 #include "Modules/PublicConst/ConstNamePref.h"
@@ -28,7 +30,9 @@ struct KeyUpDelayStats
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) 
 {
+#ifndef BUILD_STANDALONE
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wp, lp)) return true;
+#endif // BUILD_STANDALONE
 
 	// 入力処理
 	InputDevice::GetInstance().ProcessMessage(msg, wp, lp);
@@ -101,88 +105,199 @@ void InitWindow(const TCHAR* appName)
 }
 
 void MainLoop() {
+	printf("[MainLoop] 開始\n");
 	MSG msg = {};
+	int frameCount = 0;
 
-	while (WM_QUIT != msg.message)
-	{
-		// 現在の時刻を取得
-		const auto currentTime = std::chrono::steady_clock::now();
-
-		// 前のフレームからの経過時間を計算
-		std::chrono::duration<float> deltaTime = currentTime - g_lastFrameTime;
-
-		// 次のフレームのために、現在の時刻を「最後の時刻」として保存
-		g_lastFrameTime = currentTime;
-
-		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+	try {
+		while (WM_QUIT != msg.message)
 		{
-			if (msg.message == WM_QUIT)
+			frameCount++;
+			if (frameCount == 1)
 			{
-				break;
+				printf("[MainLoop] 最初のフレーム開始\n");
 			}
+
+			// 現在の時刻を取得
+			const auto currentTime = std::chrono::steady_clock::now();
+
+			// 前のフレームからの経過時間を計算
+			std::chrono::duration<float> deltaTime = currentTime - g_lastFrameTime;
+
+			// 次のフレームのために、現在の時刻を「最後の時刻」として保存
+			g_lastFrameTime = currentTime;
+
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] メッセージ処理を開始\n");
+			}
+
+			while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+				{
+					printf("[MainLoop] WM_QUIT受信\n");
+					break;
+				}
+				
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] メッセージ処理完了\n");
+			}
+
+			// 経過時間を秒単位で取得
+			const float deltaTimeFloat = deltaTime.count();
+
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] 入力デバイスの更新を開始\n");
+			}
+
+			// 入力デバイスの更新
+			InputDevice::GetInstance().Update(deltaTimeFloat);
 			
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] 入力デバイスの更新完了\n");
+				printf("[MainLoop] SceneType: %s\n", g_sceneType == SceneType::PlayMode ? "PlayMode" : "EditorMode");
+			}
+
+			// SceneTypeに応じて更新処理を分岐
+			if (g_sceneType == SceneType::PlayMode)
+			{
+				if (frameCount == 1)
+				{
+					printf("[MainLoop] Scene->Update()を呼び出し\n");
+				}
+				g_Scene->Update(deltaTimeFloat);
+				if (frameCount == 1)
+				{
+					printf("[MainLoop] WorkManager->Update()を呼び出し\n");
+				}
+				WorkManager::GetInstance().Update(deltaTimeFloat);
+			}
+			else if (g_sceneType == SceneType::EditorMode)
+			{
+				if (frameCount == 1)
+				{
+					printf("[MainLoop] Scene->EditorUpdate()を呼び出し\n");
+				}
+				g_Scene->EditorUpdate(deltaTime.count());
+			}
+
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] BeginRender()を呼び出し\n");
+			}
+			g_Engine->BeginRender();
 			
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] Scene->Draw()を呼び出し\n");
+			}
+			g_Scene->Draw();
+			
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] EndRender()を呼び出し\n");
+			}
+			g_Engine->EndRender();
+			
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] MoveToNextFrame()を呼び出し\n");
+			}
+			g_Engine->MoveToNextFrame();
+			
+			if (frameCount == 1)
+			{
+				printf("[MainLoop] 最初のフレーム完了\n");
+			}
 		}
-
-		// 経過時間を秒単位で取得
-		const float deltaTimeFloat = deltaTime.count();
-
-		// 入力デバイスの更新
-		InputDevice::GetInstance().Update(deltaTimeFloat);
-		
-		// SceneTypeに応じて更新処理を分岐
-		if (g_sceneType == SceneType::PlayMode)
-		{
-			g_Scene->Update(deltaTimeFloat);
-			WorkManager::GetInstance().Update(deltaTimeFloat);
-		}
-		else if (g_sceneType == SceneType::EditorMode)
-		{
-			g_Scene->EditorUpdate(deltaTime.count());
-		}
-
-		g_Engine->BeginRender();
-		g_Scene->Draw();
-		g_Engine->EndRender();
-		g_Engine->MoveToNextFrame();
+		printf("[MainLoop] ループ終了 (frameCount=%d)\n", frameCount);
+	}
+	catch (const std::exception& e)
+	{
+		printf("[MainLoop] 例外発生 (frameCount=%d): %s\n", frameCount, e.what());
+		throw;
+	}
+	catch (...)
+	{
+		printf("[MainLoop] 不明な例外が発生しました (frameCount=%d)\n", frameCount);
+		throw;
 	}
 }
 
 void  StartApp(const TCHAR* appName, std::shared_ptr<ISceneBase> scene) {
-	// Windowの初期化
-	InitWindow(appName);
+	StartApp(appName, scene, ConstPathPref::kDefaultGameObjectPath);
+}
 
-	// 描画エンジンの初期化
-	g_Engine = new Engine();
-	if (!g_Engine->Init(g_hWnd,kWindowWidth,kWindowHeight))
-	{
-		printf("描画エンジンの初期化に失敗しました。\n");
-		return;
-	}
-
-	// ModelLoaderの初期化
-	g_ModelLoader = std::make_unique<ModelLoader>();
-	if (!g_ModelLoader->Init())
-	{
-		printf("モデルの読み込みに失敗しました。\n");
-		return;
-	}
-
-	// SceneManagerの初期化
-	g_SceneManager = std::make_unique<SceneManager>();
+void  StartApp(const TCHAR* appName, std::shared_ptr<ISceneBase> scene, const std::string& scenePath) {
+	printf("[StartApp] 開始: scenePath=%s\n", scenePath.c_str());
 	
-	// シーンの初期化
-	g_Scene = scene;
-if (!g_Scene->Init(ConstPathPref::kDefaultGameObjectPath))
-	{
-		printf("シーンの初期化に失敗しました。\n");
-		return;
-	}
+	try {
+		// Windowの初期化
+		printf("[StartApp] Windowの初期化を開始\n");
+		InitWindow(appName);
+		printf("[StartApp] Windowの初期化完了\n");
 
-	// メイン処理のループ
-	MainLoop();
+		// 描画エンジンの初期化
+		printf("[StartApp] 描画エンジンの初期化を開始\n");
+		g_Engine = new Engine();
+		if (!g_Engine->Init(g_hWnd,kWindowWidth,kWindowHeight))
+		{
+			printf("[StartApp] 描画エンジンの初期化に失敗しました。\n");
+			return;
+		}
+		printf("[StartApp] 描画エンジンの初期化完了\n");
+
+		// ModelLoaderの初期化
+		printf("[StartApp] ModelLoaderの初期化を開始\n");
+		g_ModelLoader = std::make_unique<ModelLoader>();
+		if (!g_ModelLoader->Init())
+		{
+			printf("[StartApp] モデルの読み込みに失敗しました。\n");
+			return;
+		}
+		printf("[StartApp] ModelLoaderの初期化完了\n");
+
+		// SceneManagerの初期化
+		printf("[StartApp] SceneManagerの初期化を開始\n");
+		g_SceneManager = std::make_unique<SceneManager>();
+		printf("[StartApp] SceneManagerの初期化完了\n");
+		
+		// シーンの初期化
+		printf("[StartApp] シーンの初期化を開始\n");
+		g_Scene = scene;
+		if (!g_Scene->Init(scenePath))
+		{
+			printf("[StartApp] シーンの初期化に失敗しました。\n");
+			return;
+		}
+		printf("[StartApp] シーンの初期化完了\n");
+
+		// SceneTypeの確認
+		printf("[StartApp] SceneType: %s\n", g_sceneType == SceneType::PlayMode ? "PlayMode" : "EditorMode");
+
+		// メイン処理のループ
+		printf("[StartApp] MainLoopを開始\n");
+		MainLoop();
+		printf("[StartApp] MainLoop終了\n");
+	}
+	catch (const std::exception& e)
+	{
+		printf("[StartApp] 例外発生: %s\n", e.what());
+		throw;
+	}
+	catch (...)
+	{
+		printf("[StartApp] 不明な例外が発生しました\n");
+		throw;
+	}
 }
 
 

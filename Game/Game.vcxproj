@@ -72,20 +72,26 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <OutDir>$(ProjectDir)</OutDir>
+    <OutDir Condition="'$(GameOutDir)' != ''">$(GameOutDir)</OutDir>
+    <OutDir Condition="'$(GameOutDir)' == ''">$(ProjectDir)</OutDir>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <OutDir>$(ProjectDir)</OutDir>
+    <OutDir Condition="'$(GameOutDir)' != ''">$(GameOutDir)</OutDir>
+    <OutDir Condition="'$(GameOutDir)' == ''">$(ProjectDir)</OutDir>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(ProjectDir)</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(GameOutDir)' != ''">$(GameOutDir)</OutDir>
+    <OutDir Condition="'$(GameOutDir)' == ''">$(ProjectDir)</OutDir>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(ProjectDir)</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(GameOutDir)' != ''">$(GameOutDir)</OutDir>
+    <OutDir Condition="'$(GameOutDir)' == ''">$(ProjectDir)</OutDir>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -114,7 +120,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,11 +153,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GamePreprocessorDefinitions)' != ''">_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM;$(GamePreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GamePreprocessorDefinitions)' == ''">_CRT_SECURE_NO_WARNINGS;NOMINMAX;WITH_WINMM</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)external\directxtex;$(SolutionDir)EngineCore\src;$(SolutionDir)Game\Scripts;$(SolutionDir)external\reactphysics3d\include;$(SolutionDir)external\nlohmann_json;$(SolutionDir)external\soloud\include;$(SolutionDir)external\imgui</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

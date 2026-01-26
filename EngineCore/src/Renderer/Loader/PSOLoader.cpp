@@ -5,11 +5,126 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <d3dcompiler.h> // シェーダーをファイルから読み込むため
+#include <filesystem>
+#include <Windows.h>
 
 #include "Modules/Other/EngineString.h"
 #pragma comment(lib, "d3dcompiler.lib")
 
 using json = nlohmann::json;
+namespace fs = std::filesystem;
+
+// 実行ファイルのディレクトリを取得
+static std::filesystem::path GetExecutableDirectory()
+{
+    wchar_t exePath[MAX_PATH];
+    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+    return std::filesystem::path(exePath).parent_path();
+}
+
+// シェーダーパスを解決（相対パスを実行ファイルからのパスに変換）
+static std::wstring ResolveShaderPath(const std::wstring& shaderPath)
+{
+    // 既に絶対パスの場合はそのまま返す
+    if (std::filesystem::path(shaderPath).is_absolute())
+    {
+        if (std::filesystem::exists(shaderPath))
+        {
+            return shaderPath;
+        }
+    }
+    
+    std::filesystem::path exeDir = GetExecutableDirectory();
+    
+    // ファイル名を抽出（パスから最後のファイル名部分を取得）
+    std::wstring filename;
+    size_t filenameStart = shaderPath.find_last_of(L"/\\");
+    if (filenameStart != std::wstring::npos)
+    {
+        filename = shaderPath.substr(filenameStart + 1);
+    }
+    else
+    {
+        filename = shaderPath;
+    }
+    
+    // 試すパスのリスト（優先順位順）
+    std::vector<std::filesystem::path> candidatePaths;
+    
+    // 1. Assets/Shaders/ (ビルド済みexe用) - 最優先
+    candidatePaths.push_back(exeDir / L"Assets" / L"Shaders" / filename);
+    
+    // 2. 実行ファイルのディレクトリ直下 (開発環境の場合、シェーダーが同じディレクトリにある)
+    candidatePaths.push_back(exeDir / filename);
+    
+    // 3. 実行ファイルのディレクトリの親/Assets/Shaders/ (開発環境の場合)
+    if (exeDir.has_parent_path())
+    {
+        candidatePaths.push_back(exeDir.parent_path() / L"Assets" / L"Shaders" / filename);
+    }
+    
+    // 4. 作業ディレクトリ/Assets/Shaders/ (開発環境の場合)
+    // Visual Studioの作業ディレクトリがGameに設定されている場合
+    wchar_t currentDir[MAX_PATH];
+    if (GetCurrentDirectoryW(MAX_PATH, currentDir) > 0)
+    {
+        std::filesystem::path workDir = currentDir;
+        candidatePaths.push_back(workDir / L"Assets" / L"Shaders" / filename);
+    }
+    
+    // 5. 元のパスをそのまま試す（../x64/Debug/など）- 開発環境用のフォールバック
+    // 実行ファイルのディレクトリからの相対パスとして解決
+    std::filesystem::path originalPath = exeDir / shaderPath;
+    candidatePaths.push_back(originalPath);
+    
+    // 6. 実行ファイルのディレクトリの親からの元のパス（開発環境の場合）
+    // 例: Game/x64/Debug/Game.exe の場合、Game/../x64/Debug/SimpleVS.cso = x64/Debug/SimpleVS.cso
+    if (exeDir.has_parent_path())
+    {
+        std::filesystem::path parentPath = exeDir.parent_path() / shaderPath;
+        candidatePaths.push_back(parentPath);
+        
+        // 正規化して試す
+        try
+        {
+            std::filesystem::path normalizedPath = std::filesystem::canonical(parentPath);
+            candidatePaths.push_back(normalizedPath);
+        }
+        catch (...)
+        {
+            // 正規化に失敗した場合は無視
+        }
+    }
+    
+    // 7. 作業ディレクトリからの相対パス（開発環境の場合）
+    if (GetCurrentDirectoryW(MAX_PATH, currentDir) > 0)
+    {
+        std::filesystem::path workDir = currentDir;
+        candidatePaths.push_back(workDir / shaderPath);
+    }
+    
+    // 各候補パスを試す
+    for (const auto& candidate : candidatePaths)
+    {
+        if (std::filesystem::exists(candidate))
+        {
+            return candidate.wstring();
+        }
+    }
+    
+    // デバッグ用: 試したパスを出力
+    printf("Shader path resolution failed for: %ls\n", shaderPath.c_str());
+    printf("Tried the following paths:\n");
+    for (size_t i = 0; i < candidatePaths.size(); ++i)
+    {
+        char pathBuffer[512];
+        WideCharToMultiByte(CP_UTF8, 0, candidatePaths[i].wstring().c_str(), -1, pathBuffer, sizeof(pathBuffer), nullptr, nullptr);
+        printf("  [%zu] %s\n", i + 1, pathBuffer);
+    }
+    
+    // 見つからない場合は最初の候補を返す（エラーはPipelineStateで処理）
+    return candidatePaths[0].wstring();
+}
 
 // --- JSONの文字列をDirectXのenumに変換するヘルパー関数群 ---
 // (別のユーティリティファイルにまとめても良い)
@@ -163,17 +278,17 @@ std::shared_ptr<PipelineStateManager> PSOLoader::LoadFromFile(const std::string&
 	            
             	if (psoJson.contains("vertexShader"))
 	            {
-                    vsPath = EngineString::to_wstring(psoJson["vertexShader"]);
+                    vsPath = ResolveShaderPath(EngineString::to_wstring(psoJson["vertexShader"]));
 	            }
 
                 if (psoJson.contains("pixelShader"))
                 {
-                	psPath = EngineString::to_wstring(psoJson["pixelShader"]);
+                	psPath = ResolveShaderPath(EngineString::to_wstring(psoJson["pixelShader"]));
                 }
 
                 if (psoJson.contains("geometryShader"))
                 {
-                    gsPath = EngineString::to_wstring(psoJson["geometryShader"]);
+                    gsPath = ResolveShaderPath(EngineString::to_wstring(psoJson["geometryShader"]));
                 }
 
 				UINT SampleCount = psoJson.value("sampleCount", 1);
@@ -212,7 +327,7 @@ std::shared_ptr<PipelineStateManager> PSOLoader::LoadFromFile(const std::string&
             // Computeシェーダー用PSO
             else if (psoJson.contains("computeShader"))
             {
-                std::wstring csPath = EngineString::to_wstring(psoJson["computeShader"]);
+                std::wstring csPath = ResolveShaderPath(EngineString::to_wstring(psoJson["computeShader"]));
 
                 manager->CreatePipelineState(name, rootSignatureName, csPath);
             }

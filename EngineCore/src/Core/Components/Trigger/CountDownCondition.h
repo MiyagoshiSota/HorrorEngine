@@ -1,5 +1,7 @@
 #pragma once
+#ifndef BUILD_STANDALONE
 #include "imgui.h"
+#endif // BUILD_STANDALONE
 #include "ITriggerCondition.h"
 
 class CountDownCondition : public ITriggerCondition
@@ -17,11 +19,13 @@ public:
         return false;
     }
 
+#ifndef BUILD_STANDALONE
     void DrawInspectorUI() override
     {
         // m_targetTimerの設定UI
         ImGui::InputFloat("Target Timer (seconds)", &m_targetTimer);
     }
+#endif // BUILD_STANDALONE
 
     std::string GetName() const override
     {

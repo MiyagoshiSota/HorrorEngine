@@ -11,6 +11,7 @@
 #include "GUI/Windows/DrawWorkManagerWindow.h"
 #include "GUI/Windows/DrawDayWindow.h"
 #include "GUI/Windows/DrawModeWindow.h"
+#include "GUI/Windows/DrawBuildWindow.h"
 #include "GUI/Managers/LayoutPresetManager.h"
 #include <string>
 #include <filesystem>
@@ -34,6 +35,7 @@ public:
         {
             draw_file_menu();
             draw_edit_menu();
+            draw_build_menu();
             draw_window_menu();
             draw_mode_window_in_center();
             
@@ -114,6 +116,31 @@ private:
         if (ImGui::BeginMenu("Edit"))
         {
             // ... (Undo, Redoなど) ...
+            ImGui::EndMenu();
+        }
+    }
+    
+    // Buildメニューの描画
+    void draw_build_menu()
+    {
+        if (ImGui::BeginMenu("Build"))
+        {
+            if (ImGui::MenuItem("Open Build Window"))
+            {
+                if (g_Engine)
+                {
+                    auto& windows = g_Engine->GetDrawWindows();
+                    for (auto& window : windows)
+                    {
+                        if (auto buildWindow = std::dynamic_pointer_cast<DrawBuildWindow>(window))
+                        {
+                            buildWindow->SetVisible(true);
+                            break;
+                        }
+                    }
+                }
+            }
+
             ImGui::EndMenu();
         }
     }

@@ -1,0 +1,6 @@
+{
+    "build_config": "Release",
+    "scene_list": [
+        "Game/Assets/Days/Day1.json"
+    ]
+}
