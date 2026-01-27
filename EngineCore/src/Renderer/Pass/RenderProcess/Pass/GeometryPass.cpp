@@ -32,7 +32,7 @@ void CalculateLightViewProj_Geometry(
     // ライトの上方向 
     XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     
-    XMMATRIX lightView = XMMatrixLookAtRH(lightPos, targetPos, up);
+    XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, up);
 
     // ライトの射影行列
     float sceneWidth = 40.0f;
@@ -50,7 +50,7 @@ void CalculateLightViewProj_Geometry(
     float minZ = 1.0f;     // Near
     float maxZ = 500.0f;   // Far (奥)
     
-    XMMATRIX lightProj = XMMatrixOrthographicOffCenterRH(minX, maxX, minY, maxY, minZ, maxZ);
+    XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 
     // 行列合成
     outViewProj = XMMatrixMultiply(lightView, lightProj);
@@ -140,9 +140,9 @@ void GeometryPass::Draw(RenderContext& context)
     const auto& lightingCB = g_Scene->GetLightingManager()->GetConstantBuffer();
     cmdList->SetGraphicsRootConstantBufferView(1, lightingCB->GetAddress());
 
-    // View, Proj行列 (Main Camera)
-    const auto view = DirectX::XMMatrixLookAtRH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(), context.Camera->GetUpward());
-    const auto proj = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 5000.0f);
+    // View, Proj行列 (Main Camera) - 左手座標系に統一
+    const auto view = DirectX::XMMatrixLookAtLH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(), context.Camera->GetUpward());
+    const auto proj = DirectX::XMMatrixPerspectiveFovLH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 5000.0f);
 
     // Descriptor Heap
     auto materialHeap = g_Engine->GetDescriptorHeap()->GetHeap();
@@ -211,55 +211,4 @@ void GeometryPass::Draw(RenderContext& context)
             cmdList->DrawIndexedInstanced(origin_data[i].Indeices.size(), 1, 0, 0, 0);
         }
     }
-
-    // MSAA Resolve処理
-    auto msaaColorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
-    auto sceneColorRT = context.GetRenderTarget("SceneColor");
-
-    // Barrier: SceneColor -> ResolveDest
-    if (sceneColorRT->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-    {
-        D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            sceneColorRT->GetResource(),
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_RENDER_TARGET
-        );
-        cmdList->ResourceBarrier(1, &barrier);
-    }
-
-    D3D12_RESOURCE_BARRIER resolveBarriers[2];
-    resolveBarriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(
-        msaaColorRT->GetResource(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_RESOLVE_SOURCE
-    );
-    resolveBarriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(
-        sceneColorRT->GetResource(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_RESOLVE_DEST
-    );
-    cmdList->ResourceBarrier(2, resolveBarriers);
-
-    cmdList->ResolveSubresource(
-        sceneColorRT->GetResource(), 0,
-        msaaColorRT->GetResource(), 0,
-        sceneColorRT->GetResource()->GetDesc().Format
-    );
-
-    // Barrier Restore
-    std::vector<D3D12_RESOURCE_BARRIER> barriersPost;
-    barriersPost.push_back(CD3DX12_RESOURCE_BARRIER::Transition(
-        msaaColorRT->GetResource(),
-        D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
-        D3D12_RESOURCE_STATE_RENDER_TARGET
-    ));
-    barriersPost.push_back(CD3DX12_RESOURCE_BARRIER::Transition(
-        sceneColorRT->GetResource(),
-        D3D12_RESOURCE_STATE_RESOLVE_DEST,
-        D3D12_RESOURCE_STATE_RENDER_TARGET
-    ));
-    cmdList->ResourceBarrier(barriersPost.size(), barriersPost.data());
-
-    sceneColorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-    msaaColorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
 }

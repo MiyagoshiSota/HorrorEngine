@@ -69,7 +69,10 @@
     <ClCompile Include="src\Renderer\Graphics\RootSignature.cpp" />
     <ClCompile Include="src\Renderer\StandardShader\Struct\SharedStruct.cpp" />
     <ClCompile Include="src\Renderer\Texture\Texture2D.cpp" />
+    <ClCompile Include="src\Renderer\Texture\TextureCube.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SkyboxPass.cpp" />
     <ClCompile Include="src\Scene\ResourceManager\SceneResourceManager.cpp" />
+    <ClCompile Include="src\Scene\Skybox\SkyboxManager.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
     <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
@@ -180,8 +183,11 @@
     <ClInclude Include="src\Renderer\Graphics\RootSignature.h" />
     <ClInclude Include="src\Renderer\StandardShader\Struct\SharedStruct.h" />
     <ClInclude Include="src\Renderer\Texture\Texture2D.h" />
+    <ClInclude Include="src\Renderer\Texture\TextureCube.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SkyboxPass.h" />
     <ClInclude Include="src\Scene\Camera\SceneCamera.h" />
     <ClInclude Include="src\Scene\ResourceManager\SceneResourceManager.h" />
+    <ClInclude Include="src\Scene\Skybox\SkyboxManager.h" />
     <ClInclude Include="src\Scene\ISceneBase.h" />
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Time\TimeManager.h" />
@@ -389,6 +395,26 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnableDebuggingInformation>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableDebuggingInformation>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SkyboxVS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SkyboxPS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\VHSPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

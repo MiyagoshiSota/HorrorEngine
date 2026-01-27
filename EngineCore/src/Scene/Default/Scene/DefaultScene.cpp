@@ -74,6 +74,16 @@ bool DefaultScene::Init(std::string goFilePath)
 
     PSOLoader::LoadFromFile(ConstPathPref::kPSOJsonPath, m_PipelineStateManager);
 
+    // SkyboxManagerの初期化
+    m_skyboxManager = std::make_unique<SkyboxManager>();
+    
+    // Skyboxキューブマップの設定
+    // TODO: パスを設定ファイルから読み込むように変更する
+    if (m_defaultPipelineManager && m_skyboxManager)
+    {
+       m_skyboxManager->LoadAndSetup(L"Assets/skybox.dds", m_defaultPipelineManager->GetSkyboxPass());
+    }
+
     printf("シーンの初期化に成功\n");
 
     InitializeGameObject(goFilePath);

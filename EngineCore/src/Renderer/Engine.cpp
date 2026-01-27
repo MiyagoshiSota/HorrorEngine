@@ -514,6 +514,10 @@ bool Engine::CreateCommandList()
     {
         return false;
     }
+    
+    m_isCommandListOpen = false; // 初期状態は閉じている
+
+    return true;
 }
 
 bool Engine::CreateFence()

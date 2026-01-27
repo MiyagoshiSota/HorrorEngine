@@ -3,6 +3,7 @@
 #include "Renderer/Pass/PostProcess/Manager/PostProcessManager.h"
 #include "Renderer/Pass/ShadowProcess/Pass/CascadedShadowMapPass.h"
 #include "Renderer/Pass/ShadowProcess/Pass/SimpleShadowMapPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/SkyboxPass.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 #include "Renderer/Target/RenderTarget.h"
 #include "Renderer/Target/DepthStencilTarget.h"
@@ -16,6 +17,7 @@ public:
 
 public:
     std::shared_ptr<PostProcessManager> GetPostProcessManager() { return m_postProcessManager; };
+    std::shared_ptr<SkyboxPass> GetSkyboxPass() { return m_skyboxPass; };
 
 private:
     std::shared_ptr<RenderTarget> m_sceneColor;
@@ -33,5 +35,6 @@ private:
     std::shared_ptr<PostProcessManager> m_postProcessManager;
     std::shared_ptr<RainParticleSystem> m_rainParticleSystem;
 	std::shared_ptr<TempRenderTargetPool> m_tempRenderTargetPool;
+    std::shared_ptr<SkyboxPass> m_skyboxPass;
 };
 

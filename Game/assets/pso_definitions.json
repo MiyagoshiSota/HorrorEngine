@@ -150,6 +150,33 @@
           "addressMode": "WRAP"
         }
       ]
+    },
+    "Skybox_Default": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0
+        }
+      ],
+      "descriptorTables": [
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 0
+        }
+      ],
+      "staticSamplers": [
+        {
+          "shaderRegister": 0,
+          "filter": "MIN_MAG_MIP_LINEAR",
+          "addressMode": "CLAMP"
+        }
+      ],
+      "flags": [
+        "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT",
+        "DENY_HULL_SHADER_ROOT_ACCESS",
+        "DENY_DOMAIN_SHADER_ROOT_ACCESS",
+        "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+      ]
     }
   },
   "PipelineStates": {
@@ -248,6 +275,16 @@
       "depthEnable": true,
       "inputLayoutEnable": true,
       "cullMode": "BACK"
+    },
+    "SkyboxPass": {
+      "rootSignature": "Skybox_Default",
+      "vertexShader": "../x64/Debug/SkyboxVS.cso",
+      "pixelShader": "../x64/Debug/SkyboxPS.cso",
+      "depthEnable": true,
+      "depthFunc": "LESS_EQUAL",
+      "inputLayoutEnable": true,
+      "sampleCount": 8,
+      "cullMode": "NONE"
     }
   }
 }

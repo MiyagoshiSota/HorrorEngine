@@ -5,13 +5,19 @@
 #include <vector>
 #include <algorithm> // for std::find_if
 #include <memory>
+#include <functional>
 #include <d3d12.h>   // for ID3D12Device, DXGI_FORMAT
+#include <DirectXMath.h>
 
 #include "TempRenderTargetPool.h"
 #include "Renderer/Target/RenderTarget.h" 
 #include "Scene/Camera/SceneCamera.h"
 #include "Renderer/PipelineManager/PipelineStateManager.h"
 #include "Scene/GameObject/GameObject.h"
+#include "Renderer/Graphics/Buffer/VertexBuffer.h"
+#include "Renderer/Graphics/Buffer/IndexBuffer.h"
+#include "Renderer/Graphics/Buffer/ConstantBuffer.h"
+#include "Renderer/Graphics/DescriptorHeap/DescriptorHandle.h"
 
 class IPipelineManager;
 struct ID3D12GraphicsCommandList;
@@ -121,7 +127,58 @@ public:
         return ScopedTempTarget(this, width, height, format);
     }
 
+    // --- Skyboxデータ管理 ---
+    /// <summary>
+    /// Skybox描画に必要なデータ構造体
+    /// </summary>
+    struct SkyboxData
+    {
+        VertexBuffer* vertexBuffer = nullptr;
+        IndexBuffer* indexBuffer = nullptr;
+        uint32_t indexCount = 0;
+        ConstantBuffer* constantBuffer = nullptr;
+        DescriptorHandle* srvHandle = nullptr;
+        bool isValid = false;
+    };
+
+    /// <summary>
+    /// Skyboxデータを設定
+    /// </summary>
+    void SetSkyboxData(const SkyboxData& data)
+    {
+        m_skyboxData = data;
+    }
+
+    /// <summary>
+    /// Skyboxデータを取得
+    /// </summary>
+    const SkyboxData& GetSkyboxData() const
+    {
+        return m_skyboxData;
+    }
+
+    /// <summary>
+    /// Skybox定数バッファ更新用のコールバックを設定
+    /// </summary>
+    void SetSkyboxUpdateCallback(std::function<void(DirectX::XMMATRIX)> callback)
+    {
+        m_skyboxUpdateCallback = callback;
+    }
+
+    /// <summary>
+    /// Skybox定数バッファを更新
+    /// </summary>
+    void UpdateSkyboxConstantBuffer(DirectX::XMMATRIX viewProj)
+    {
+        if (m_skyboxUpdateCallback)
+        {
+            m_skyboxUpdateCallback(viewProj);
+        }
+    }
+
 private:
     std::map<std::string, std::shared_ptr<ITargetBase>> m_TargetPool;
     std::shared_ptr<TempRenderTargetPool> m_ExternalTempPool;
+    SkyboxData m_skyboxData;
+    std::function<void(DirectX::XMMATRIX)> m_skyboxUpdateCallback;
 };

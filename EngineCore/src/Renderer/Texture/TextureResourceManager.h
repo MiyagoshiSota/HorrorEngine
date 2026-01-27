@@ -4,6 +4,7 @@
 #include <memory>
 #include <mutex>
 #include "Texture2D.h"
+#include "TextureCube.h"
 
 class TextureResourceManager
 {
@@ -31,6 +32,20 @@ public:
 
     std::shared_ptr<Texture2D> WhiteTexture();
 
+    /// <summary>
+    /// キューブマップテクスチャを取得
+    /// まだロードされていなければロードし、ロード済みならキャッシュを返す
+    /// </summary>
+    /// <param name="path">DDSキューブマップファイルのパス</param>
+    /// <returns>成功時: TextureCubeのshared_ptr, 失敗時: nullptr</returns>
+    std::shared_ptr<TextureCube> GetCubeMap(const std::wstring& path);
+    std::shared_ptr<TextureCube> GetCubeMap(const std::string& path)
+    {
+        // 文字列をワイド文字列に変換
+        std::wstring wpath(path.begin(), path.end());
+        return GetCubeMap(wpath);
+    }
+
     // リソースの解放
     void Clear();
 
@@ -41,5 +56,6 @@ private:
 private:
     // パスをキーにしたキャッシュ
     std::unordered_map<std::wstring, std::shared_ptr<Texture2D>> m_textureCache;
+    std::unordered_map<std::wstring, std::shared_ptr<TextureCube>> m_cubeMapCache;
     std::shared_ptr<Texture2D> m_whiteTexture;
 };

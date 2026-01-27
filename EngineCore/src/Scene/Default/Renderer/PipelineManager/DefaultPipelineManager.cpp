@@ -3,10 +3,14 @@
 #include "Core/App.h"
 #include "Modules/PublicConst/ConstPathPref.h"
 #include "Modules/PublicConst/ConstRenderPref.h"
+#include "Modules/Renderer/RendereUtility.h"
 #include "Renderer/Engine.h"
 #include "Renderer/Pass/RenderProcess/Pass/DebugPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/GeometryPass.h"
+#include "Scene/Skybox/SkyboxManager.h"
+#include "Scene/Default/Scene/DefaultScene.h"
 #include "Renderer/Target/DepthStencilTarget.h"
+#include <d3dx12.h>
 
 DefaultPipelineManager::DefaultPipelineManager()
 {
@@ -17,6 +21,9 @@ DefaultPipelineManager::DefaultPipelineManager()
 	// ParticleSystemの初期化
 	m_rainParticleSystem = std::make_shared<RainParticleSystem>();
 	
+	// SkyboxPassの初期化
+	m_skyboxPass = std::make_shared<SkyboxPass>();
+
     // Passを追加
     AddRenderProcessPass(std::make_shared<GeometryPass>());
 	// AddRenderProcessPass(std::make_shared<DebugPass>());
@@ -47,7 +54,7 @@ DefaultPipelineManager::DefaultPipelineManager()
 
 	// 一時レンダーターゲットプールの生成
 	m_tempRenderTargetPool = std::make_shared<TempRenderTargetPool>();
-};
+}
 
 void DefaultPipelineManager::Execute()
 {
@@ -64,6 +71,30 @@ void DefaultPipelineManager::Execute()
 	context.AddRenderTarget(ConstRenderPref::ShadowMap,m_shadowDepth);
 	context.AddRenderTarget(ConstRenderPref::CascadedShadowMap, m_cascadedShadowDepth);
 
+    // Skyboxデータを設定
+    auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
+    if (defaultScene)
+    {
+        auto skyboxManager = defaultScene->GetSkyboxManager();
+        if (skyboxManager && skyboxManager->IsValid())
+        {
+            auto renderData = skyboxManager->GetRenderData();
+            RenderContext::SkyboxData skyboxData;
+            skyboxData.vertexBuffer = renderData.vertexBuffer;
+            skyboxData.indexBuffer = renderData.indexBuffer;
+            skyboxData.indexCount = renderData.indexCount;
+            skyboxData.constantBuffer = renderData.constantBuffer;
+            skyboxData.srvHandle = renderData.srvHandle;
+            skyboxData.isValid = true;
+            context.SetSkyboxData(skyboxData);
+
+            // 定数バッファ更新用のコールバックを設定
+            context.SetSkyboxUpdateCallback([skyboxManager](DirectX::XMMATRIX viewProj) {
+                skyboxManager->UpdateConstantBuffer(viewProj);
+            });
+        }
+    }
+
     // Shadow
 	m_simpleShadowMapPass->LastExecute(context);
 
@@ -72,6 +103,15 @@ void DefaultPipelineManager::Execute()
     {
         pass->Execute(context);
     }
+
+    // Skybox (MSAAターゲットに描画、GeometryPassの後)
+    if (m_skyboxPass && m_skyboxPass->IsEnabled(context))
+    {
+        m_skyboxPass->Execute(context);
+    }
+
+    // MSAA Resolve処理
+    RendererUtility::ResolveMSAA(context, ConstRenderPref::MSAART, ConstRenderPref::SceneColor);
 
 	// Particle
 	m_rainParticleSystem->Execute(context);

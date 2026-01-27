@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene/Default/Renderer/PipelineManager/DefaultPipelineManager.h"
+#include "Scene/Skybox/SkyboxManager.h"
 #include "Physics/MyCollisionListener.h"
 #include "Scene/ISceneBase.h"
 
@@ -30,9 +31,12 @@ public:
 		return m_defaultPipelineManager->GetPostProcessManager();
 	};
 
+	SkyboxManager* GetSkyboxManager() { return m_skyboxManager.get(); }
+
 	
 private:
 	std::shared_ptr<DefaultPipelineManager> m_defaultPipelineManager;
 	std::shared_ptr<MyCollisionListener> m_CollisionListener;
+	std::unique_ptr<SkyboxManager> m_skyboxManager;
 };
 
