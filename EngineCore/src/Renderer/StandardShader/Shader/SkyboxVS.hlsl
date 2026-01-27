@@ -26,14 +26,12 @@ VSOutput main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
 
-    // 頂点位置をそのまま方向ベクトルとして使用
     output.texCoord = input.pos;
 
-    // ビュー・射影変換
-    float4 pos = mul(ViewProj, float4(input.pos, 1.0f));
+    // ベクトルを行列の左から掛ける
+    float4 pos = mul(float4(input.pos, 1.0f), ViewProj);
 
-    // 深度を最大値（1.0）に固定して常に最奥に描画
-    // z = w とすることで、除算後に z/w = 1.0 となる
+    // 深度固定ハック
     output.svpos = pos.xyww;
 
     return output;

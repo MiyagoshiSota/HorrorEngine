@@ -75,10 +75,10 @@ void SceneCamera::Update(float deltaTime)
     {
         Pan(-mouse_delta.x * m_MoveSpeed * 0.01f, -mouse_delta.y * m_MoveSpeed * 0.01f);
     }
-    // オービット (左マウスボタン + ドラッグ)
-    else if (input.IsMouseDown(1)) // 0 = Left Mouse Button
+    // FPS風回転 (右マウスボタン + ドラッグ)
+    else if (input.IsMouseDown(1)) // 1 = Right Mouse Button
     {
-        Orbit(-mouse_delta.x * m_RotationSpeed * 0.5, m_RotationSpeed * mouse_delta.y * 0.5);
+        Rotate(-mouse_delta.x * m_RotationSpeed * 0.5f, m_RotationSpeed * mouse_delta.y * 0.5f);
     }
     
     // FPS風移動 (WASD)
@@ -93,13 +93,13 @@ void SceneCamera::Update(float deltaTime)
     {
         moveDir = DirectX::XMVectorSubtract(moveDir, m_Forward);
     }
-    if (input.IsKeyDown('A')) // Right
-    {
-        moveDir = DirectX::XMVectorAdd(moveDir, m_Right);
-    }
-    if (input.IsKeyDown('D')) // Left
+    if (input.IsKeyDown('A')) // Left
     {
         moveDir = DirectX::XMVectorSubtract(moveDir, m_Right);
+    }
+    if (input.IsKeyDown('D')) // Right
+    {
+        moveDir = DirectX::XMVectorAdd(moveDir, m_Right);
     }
     if (input.IsKeyDown(VK_SPACE)) // World Up
     {
@@ -138,23 +138,54 @@ void SceneCamera::Pan(float dx, float dy)
 
 void SceneCamera::Orbit(float dYaw, float dPitch)
 {
+    // オービット: m_TargetPos を中心にカメラ（m_EyePos）が周回する
+
     // TargetからEyeへのベクトル
     DirectX::XMVECTOR vToEye = DirectX::XMVectorSubtract(m_EyePos, m_TargetPos);
 
     // 1. Yaw回転 (ワールドの上方向、Y軸周り)
     DirectX::XMMATRIX mRotYaw = DirectX::XMMatrixRotationAxis(m_WorldUp, dYaw);
     vToEye = DirectX::XMVector3Transform(vToEye, mRotYaw);
-    m_CameraUp = DirectX::XMVector3Transform(m_CameraUp, mRotYaw); // カメラの上方向も一緒に回転
 
     // 2. Pitch回転 (カメラの右方向、m_Right軸周り)
     DirectX::XMMATRIX mRotPitch = DirectX::XMMatrixRotationAxis(m_Right, dPitch);
     vToEye = DirectX::XMVector3Transform(vToEye, mRotPitch);
-    m_CameraUp = DirectX::XMVector3Transform(m_CameraUp, mRotPitch);
 
     // 新しいEyePosを計算
     m_EyePos = DirectX::XMVectorAdd(m_TargetPos, vToEye);
 
-    // ジンバルロックを防ぐためにUpベクトルを再正規化
+    // ベクトルを再計算
+    UpdateCameraVectors();
+}
+
+void SceneCamera::Rotate(float dYaw, float dPitch)
+{
+    // EyeからTargetへの距離を保存
+    DirectX::XMVECTOR vToTarget = DirectX::XMVectorSubtract(m_TargetPos, m_EyePos);
+    float distance = DirectX::XMVectorGetX(DirectX::XMVector3Length(vToTarget));
+
+    // 1. Yaw回転 (ワールドの上方向、Y軸周り)
+    DirectX::XMMATRIX mRotYaw = DirectX::XMMatrixRotationAxis(m_WorldUp, -dYaw);
+    m_Forward = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(m_Forward, mRotYaw));
+
+    // 2. Pitch回転 (カメラの右方向、m_Right軸周り)
+    m_Right = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_WorldUp, m_Forward));
+    
+    DirectX::XMMATRIX mRotPitch = DirectX::XMMatrixRotationAxis(m_Right, dPitch);
+    DirectX::XMVECTOR newForward = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(m_Forward, mRotPitch));
+
+    // Pitch角度の制限（真上・真下を向かないように）
+    float dotUp = DirectX::XMVectorGetY(newForward);
+    const float pitchLimit = 0.95f; // 約72度
+    if (dotUp > -pitchLimit && dotUp < pitchLimit)
+    {
+        m_Forward = newForward;
+    }
+
+    // 新しいTargetPosを計算（EyePosからForward方向にdistance分進んだ位置）
+    m_TargetPos = DirectX::XMVectorAdd(m_EyePos, DirectX::XMVectorScale(m_Forward, distance));
+
+    // Upベクトルを再計算
     m_Right = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_WorldUp, m_Forward));
     m_CameraUp = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_Forward, m_Right));
 }

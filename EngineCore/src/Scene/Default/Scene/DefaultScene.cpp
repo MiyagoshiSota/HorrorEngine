@@ -81,7 +81,7 @@ bool DefaultScene::Init(std::string goFilePath)
     // TODO: パスを設定ファイルから読み込むように変更する
     if (m_defaultPipelineManager && m_skyboxManager)
     {
-        m_skyboxManager->LoadAndSetup(L"Assets/skybox.dds", m_defaultPipelineManager->GetSkyboxPass());
+       m_skyboxManager->LoadAndSetup(L"Assets/skybox.dds", m_defaultPipelineManager->GetSkyboxPass());
     }
 
     printf("シーンの初期化に成功\n");

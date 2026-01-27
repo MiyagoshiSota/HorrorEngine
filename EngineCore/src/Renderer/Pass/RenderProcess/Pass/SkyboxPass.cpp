@@ -83,8 +83,8 @@ void SkyboxPass::Execute(RenderContext& context)
     auto dsvHandle = msaaDepthRT->GetDSVHandle();
     cmdList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-    // ビュー行列から平行移動成分を除去（回転のみ）
-    XMMATRIX view = XMMatrixLookAtRH(
+    // ビュー行列から平行移動成分を除去（回転のみ）- 左手座標系に統一
+    XMMATRIX view = XMMatrixLookAtLH(
         context.Camera->GetEyePos(),
         context.Camera->GetTargetPos(),
         context.Camera->GetUpward()
@@ -93,16 +93,16 @@ void SkyboxPass::Execute(RenderContext& context)
     // 平行移動成分を0にする
     view.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-    // 射影行列
-    XMMATRIX proj = XMMatrixPerspectiveFovRH(
+    // 射影行列 - 左手座標系に統一
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(
         context.Camera->GetFOV(),
         context.Camera->GetAspect(),
         0.3f,
-        1.0f // Skyboxには近距離で十分
+        1000.0f // Skyboxには近距離で十分
     );
 
-    // 定数バッファ更新（RenderContext経由） 
-    context.UpdateSkyboxConstantBuffer(proj * view);
+    // 定数バッファ更新（RenderContext経由）
+    context.UpdateSkyboxConstantBuffer(view * proj);
 
     // ディスクリプタヒープ設定
     auto heap = g_Engine->GetDescriptorHeap()->GetHeap();

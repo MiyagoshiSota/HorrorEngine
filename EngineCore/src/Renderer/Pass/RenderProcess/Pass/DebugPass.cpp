@@ -80,10 +80,10 @@ void DebugPass::Draw(RenderContext& context)
     m_currentFrameIndex = g_Engine->CurrentBackBufferIndex() % 2;
     m_currentObjectIndex = 0;
 
-    // view, proj行列の計算
-    const auto view = DirectX::XMMatrixLookAtRH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(),
+    // view, proj行列の計算 - 左手座標系に統一
+    const auto view = DirectX::XMMatrixLookAtLH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(),
                                                 context.Camera->GetUpward());
-    const auto proj = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f,
+    const auto proj = DirectX::XMMatrixPerspectiveFovLH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f,
                                                         1000.0f);
     const auto world = view * proj;
 

@@ -68,6 +68,13 @@ private:
     void Orbit(float dYaw, float dPitch);
 
     /**
+     * @brief FPS風の回転。カメラ位置を固定し、向きを変えます。
+     * @param dYaw 水平方向の回転量（ラジアン）
+     * @param dPitch 垂直方向の回転量（ラジアン）
+     */
+    void Rotate(float dYaw, float dPitch);
+
+    /**
      * @brief m_TargetPos に向かってカメラをズームイン/アウトさせます。
      * @param dScroll マウスホイールの移動量
      */

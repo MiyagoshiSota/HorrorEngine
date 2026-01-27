@@ -192,8 +192,8 @@ void RainParticleSystem::Draw(RenderContext& context)
     
     // 仮のカメラ情報
     sceneConstant->cameraPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-    sceneConstant->projection = DirectX::XMMatrixPerspectiveFovRH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f,1000.0f);
-    sceneConstant->view = DirectX::XMMatrixLookAtRH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(),context.Camera->GetUpward());
+    sceneConstant->projection = DirectX::XMMatrixPerspectiveFovLH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f,1000.0f);
+    sceneConstant->view = DirectX::XMMatrixLookAtLH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(),context.Camera->GetUpward());
     sceneConstant->rainLength = 1.0f;
 
     // UAVからSRVへ状態遷移
