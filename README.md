@@ -8,14 +8,14 @@ HorrorEngine は、 チラズアート作品に代表される 「日常作業 �
 
 GUIにより、開発者はシーン上にオブジェクトを置き、 エディタから Task → WorkFlow → Work を組み合わせるだけでゲームを作れます。
 
-詳しくは[Wiki](https://github.com/MiyagoshiSota/HorrorEngine/wiki)を見てね。
+詳しくは[Wiki](https://github.com/MiyagoshiSota/HorrorEngine/wiki)を見てください。
 技術メモとかも書いてます。
 
 ---
 
 ## セットアップ（初回ビルド）
 
-**前提**: Windows、Visual Studio 2022（C++ ワークロード）、CMake（ReactPhysics3D 用）。  
+**前提**: Windows、Visual Studio 2022、CMake。  
 推奨: **Developer PowerShell for VS 2022** で実行（`msbuild` が PATH に入る）。
 
 ### 一括実行（推奨）
