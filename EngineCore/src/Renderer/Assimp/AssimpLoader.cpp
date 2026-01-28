@@ -149,11 +149,14 @@ void AssimpLoader::LoadMesh(SharedStruct::Mesh& dst, const aiMesh* src, bool inv
         }
 
         SharedStruct::Vertex vertex = {};
-        vertex.Position = DirectX::XMFLOAT3(position->x, position->y, position->z);
+        // DirectX 12は左手座標系、Assimpは右手座標系のためX座標を反転
+        vertex.Position = DirectX::XMFLOAT3(-position->x, position->y, position->z);
         // TODO:法線ベクトルないモデルも存在するから注意 (aiProcess_GenSmoothNormals フラグで大抵は生成される)
-        vertex.Normal = DirectX::XMFLOAT3(normal->x, normal->y, normal->z);
+        // 座標系変換に伴い法線のX成分も反転
+        vertex.Normal = DirectX::XMFLOAT3(-normal->x, normal->y, normal->z);
         vertex.UV = DirectX::XMFLOAT2(uv_x, uv_y);
-        vertex.Tangent = DirectX::XMFLOAT3(tangent->x, tangent->y, tangent->z);
+        // 座標系変換に伴いタンジェントのX成分も反転
+        vertex.Tangent = DirectX::XMFLOAT3(-tangent->x, tangent->y, tangent->z);
         vertex.Color = DirectX::XMFLOAT4(color->r, color->g, color->b, color->a);
 
         dst.Vertices[i] = vertex;
@@ -168,9 +171,10 @@ void AssimpLoader::LoadMesh(SharedStruct::Mesh& dst, const aiMesh* src, bool inv
         // aiProcess_Triangulate フラグを立てているので、mNumIndices は必ず 3
         assert(face.mNumIndices == 3);
 
+        // DirectX 12は時計回り（CW）が前面、Assimpは反時計回り（CCW）のため順序を反転
         dst.Indeices[i * 3 + 0] = face.mIndices[0];
-        dst.Indeices[i * 3 + 1] = face.mIndices[1];
-        dst.Indeices[i * 3 + 2] = face.mIndices[2];
+        dst.Indeices[i * 3 + 1] = face.mIndices[2];
+        dst.Indeices[i * 3 + 2] = face.mIndices[1];
     }
 }
 
