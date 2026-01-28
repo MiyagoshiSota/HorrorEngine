@@ -36,7 +36,7 @@
           "addressU": "BORDER",
           "addressV": "BORDER",
           "addressW": "BORDER",
-          "comparisonFunc": "LESS_EQUAL",
+          "comparisonFunc": "GREATER_EQUAL",
           "borderColor": "OPAQUE_WHITE"
         }
       ],

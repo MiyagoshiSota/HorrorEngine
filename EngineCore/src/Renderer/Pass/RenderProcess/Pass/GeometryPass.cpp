@@ -18,41 +18,24 @@ using namespace DirectX;
 static const float kShadowMapSize = 2048.0f;
 static const float kShadowDistance = 10000.0f;
 
-// --- ヘルパー関数: シンプルなシャドウマップ用行列計算 ---
+// SimpleShadowMapPass と同一のライト View*Proj を使用すること（posLight とシャドウマップの座標系一致のため）
+static const float kShadowSceneWidth = 20.0f;
+static const float kShadowSceneHeight = 20.0f;
+static const float kShadowNearZ = 1.0f;
+static const float kShadowFarZ = 200.0f;
+static const float kShadowLightDistance = 50.0f;
+
 void CalculateLightViewProj_Geometry(
     XMVECTOR lightDir,
     XMMATRIX& outViewProj)
 {
-    // ライトのビュー行列 (View)
-    XMVECTOR targetPos = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-
-    // ライトの位置を逆算 (原点からライト方向へバックした位置)
-    XMVECTOR lightPos = XMVectorAdd(targetPos, XMVectorScale(lightDir, -100.0f));
-
-    // ライトの上方向 
+    XMVECTOR targetPos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+    XMVECTOR lightPos = XMVectorSubtract(targetPos, XMVectorScale(lightDir, kShadowLightDistance));
     XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    
-    XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, up);
 
-    // ライトの射影行列
-    float sceneWidth = 40.0f;
-    float sceneHeight = 40.0f;
+    XMMATRIX lightView = XMMatrixLookAtRH(lightPos, targetPos, up);
+    XMMATRIX lightProj = XMMatrixOrthographicRH(kShadowSceneWidth, kShadowSceneHeight, kShadowNearZ, kShadowFarZ);
 
-    // 原点を中心に左右上下に広げる
-    float minX = -sceneWidth / 2.0f;
-    float maxX = sceneWidth / 2.0f;
-    float minY = -sceneHeight / 2.0f;
-    float maxY = sceneHeight / 2.0f;
-
-    // Z深度の範囲 (Near/Far)
-    // ライト位置からターゲットまでの距離が100.0fなので、
-    // それを挟み込むように十分な範囲を取る
-    float minZ = 1.0f;     // Near
-    float maxZ = 500.0f;   // Far (奥)
-    
-    XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
-
-    // 行列合成
     outViewProj = XMMatrixMultiply(lightView, lightProj);
 }
 

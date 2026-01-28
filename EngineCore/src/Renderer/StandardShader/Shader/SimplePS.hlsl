@@ -33,15 +33,16 @@ float CalculateShadow(float4 posLight)
     // 3. 深度比較
     float currentDepth = projCoords.z;
     float bias = 0.005;
-		
-    // Texture2D に対する SampleCmpLevelZero
+
     float shadow = g_ShadowMap.SampleCmpLevelZero(
         g_ShadowSampler,
         projCoords.xy,
         currentDepth - bias
     );
 
-    return shadow;
+    // GREATER_EQUAL 等の比較方向と深度フォーマットの組み合わせで解釈が反転する場合の補正
+    // 0.0=影, 1.0=日向 になるよう反転
+    return 1.0 - shadow;
 }
 
 // =========================================================
@@ -303,6 +304,8 @@ float4 main(PSInput input) : SV_TARGET
     
     // 影の計算
     float shadowFactor = CalculateShadow(input.posLight);
+
+    // retu
 
 	// 合成
     float3 ambient = AmbientColor.rgb * albedo;

@@ -1,26 +1,32 @@
 #pragma once
+#include <string>
+#include <cstring>
 #include "IReward.h"
 #include "Core/Components/TriggerContext/TriggerContext.h"
+
+#ifndef BUILD_STANDALONE
+#include "imgui.h"
+#endif // BUILD_STANDALONE
 
 class PrintHelloReward : public IReward
 {
 public:
     void Execute(const TriggerContext& context) override
     {
-        printf("hello\n");
-        // サウンドを再生するロジックを実装
-        // 例: AudioManagerを使ってサウンドを再生
-        // if (context.audioManager)
-        // {
-        //     context.audioManager->playSound(owner->getSoundID());
-        // }
+        (void)context;
+        printf("%s\n", m_message.c_str());
     }
 
 #ifndef BUILD_STANDALONE
     void DrawInspectorUI() override
     {
-        // インスペクターに表示する設定項目があればここに実装
-        // 例えば、再生するサウンドのIDやボリュームなどを設定できるようにする
+        char buffer[256] = {};
+        strncpy(buffer, m_message.c_str(), 255);
+        buffer[255] = '\0';
+        if (ImGui::InputText("Message", buffer, sizeof(buffer)))
+        {
+            m_message = buffer;
+        }
     }
 #endif // BUILD_STANDALONE
 
@@ -28,4 +34,7 @@ public:
     {
         return "PrintHelloAction";
     }
+
+private:
+    std::string m_message = "hello";
 };

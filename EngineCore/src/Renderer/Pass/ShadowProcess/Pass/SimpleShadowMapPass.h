@@ -93,13 +93,11 @@ public:
 		// TODO: 複数ライト対応
 		auto directionLight = lightManager->GetDirectionalLights()[0];
 
-        // ライトの方向 (仮: 斜め上から)
-		DirectX::XMFLOAT3 lightDirFloat3 = directionLight->Direction;
-        DirectX::XMVECTOR lightDir = DirectX::XMVectorSet( lightDirFloat3.x, lightDirFloat3.y, lightDirFloat3.z,0.0f);
+        DirectX::XMFLOAT3 lightDirFloat3 = directionLight->Direction;
+        DirectX::XMVECTOR lightDir = DirectX::XMVector3Normalize(
+            DirectX::XMVectorSet(lightDirFloat3.x, lightDirFloat3.y, lightDirFloat3.z, 0.0f));
         DirectX::XMVECTOR lightUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-        // ライトの位置 (シーン全体をカバーできる位置へ逆算)
-        // 実際にはカスケードシャドウなどで動的に計算しますが、まずは固定で実装
         DirectX::XMVECTOR targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
         DirectX::XMVECTOR lightPos = DirectX::XMVectorSubtract(targetPos, DirectX::XMVectorScale(lightDir, 50.0f));
 
