@@ -12,4 +12,5 @@ public:
 	static inline const char* MSAA_Depth = "MSAADepth";
 	static inline const char* ShadowMap = "ShadowMap";
 	static inline const char* CascadedShadowMap = "CascadedShadowMap";
+	static inline const char* HistoryBuffer = "HistoryBuffer";
 };

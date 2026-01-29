@@ -9,6 +9,7 @@
 #include "Renderer/Graphics/Buffer/ConstantBuffer.h"
 #include "Renderer/Graphics/DescriptorHeap/DescriptorHandle.h"
 #include "Renderer/Graphics/DescriptorHeap/DescriptorHeap.h"
+#include "Scene/Default/Scene/DefaultScene.h"
 #include <d3dx12.h>
 
 using namespace DirectX;
@@ -37,7 +38,19 @@ void SkyboxPass::Execute(RenderContext& context)
 
     // パイプラインステートとルートシグネチャの設定
     const auto rootSigName = "Skybox_Default";
-    const auto psoName = "SkyboxPass";
+    
+    // MSAA設定を取得
+    bool msaaEnabled = true;
+    auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
+    if (defaultScene)
+    {
+        auto pipeline = defaultScene->GetDefaultPipelineManager();
+        if (pipeline)
+            msaaEnabled = pipeline->GetAASettings().msaaEnabled;
+    }
+    
+    // MSAA設定に応じてPSOを選択
+    const char* psoName = msaaEnabled ? "SkyboxPass" : "SkyboxPassNoMSAA";
 
     auto rootSig = g_Scene->GetPipelineStateManager()->GetRootSignature(rootSigName);
     auto pso = g_Scene->GetPipelineStateManager()->GetPipelineState(psoName);
@@ -50,17 +63,27 @@ void SkyboxPass::Execute(RenderContext& context)
     cmdList->SetGraphicsRootSignature(rootSig->Get());
     cmdList->SetPipelineState(pso->Get());
 
-    // MSAAレンダーターゲットに描画（GeometryPassと同じターゲット）
-    auto msaaColorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
-    auto msaaDepthRT = context.GetRenderTarget(ConstRenderPref::MSAA_Depth);
+    std::shared_ptr<ITargetBase> colorRT;
+    std::shared_ptr<ITargetBase> depthRT;
 
-    if (!msaaColorRT || !msaaDepthRT)
+    if (msaaEnabled)
+    {
+        colorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
+        depthRT = context.GetRenderTarget(ConstRenderPref::MSAA_Depth);
+    }
+    else
+    {
+        colorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
+        depthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
+    }
+
+    if (!colorRT || !depthRT)
     {
         return;
     }
 
     // Viewport & Scissor
-    auto resourceDesc = msaaColorRT->GetResource()->GetDesc();
+    auto resourceDesc = colorRT->GetResource()->GetDesc();
     D3D12_VIEWPORT viewport = {};
     viewport.Width = static_cast<float>(resourceDesc.Width);
     viewport.Height = static_cast<float>(resourceDesc.Height);
@@ -79,8 +102,8 @@ void SkyboxPass::Execute(RenderContext& context)
     cmdList->RSSetScissorRects(1, &scissorRect);
 
     // レンダーターゲット設定
-    auto rtvHandle = msaaColorRT->GetRTVHandle();
-    auto dsvHandle = msaaDepthRT->GetDSVHandle();
+    auto rtvHandle = colorRT->GetRTVHandle();
+    auto dsvHandle = depthRT->GetDSVHandle();
     cmdList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
     // ビュー行列から平行移動成分を除去（回転のみ）- 左手座標系に統一

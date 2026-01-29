@@ -107,6 +107,7 @@
     <ClInclude Include="src\GUI\Windows\DrawModelsWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawModeWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawPostProcessPresetWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawAAWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawTaskManagerWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawWorkManagerWindow.h" />
     <ClInclude Include="src\GUI\Build\BuildManager.h" />
@@ -133,6 +134,8 @@
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\MonochromePass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VHSPass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VignettePass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\FXAAPass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\TAAPass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\PostProcessPassBase.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Preset\PostProcessPreset.h" />
     <ClInclude Include="src\Renderer\Loader\PSOLoader.h" />
@@ -438,6 +441,38 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\FXAAPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\TAAPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\TAAVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\FXAAVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\VignetteVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -455,6 +490,7 @@
   <ItemGroup>
     <Content Include="src\GUI\Windows\DrawModeWindow.h" />
     <Content Include="src\GUI\Windows\DrawPostProcessPresetWindow.h" />
+    <Content Include="src\GUI\Windows\DrawAAWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\Renderer\StandardShader\ComputeShader\" />

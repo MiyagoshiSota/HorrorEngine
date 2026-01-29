@@ -1,0 +1,29 @@
+{
+    "gameObjects": [
+        {
+            "components": [
+                {
+                    "model_name": "WorldEnvironment",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "WorldEnvironment",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+            ]
+        }
+    ],
+    "scene_name": "../Game/Assets/Days\\Sponza.json"
+}

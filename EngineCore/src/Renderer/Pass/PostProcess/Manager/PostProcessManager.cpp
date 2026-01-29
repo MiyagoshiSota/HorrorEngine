@@ -1,6 +1,7 @@
 #include "PostProcessManager.h"
 
 #include <set>
+#include <d3dx12.h>
 
 #include "Modules/PublicConst/ConstRenderPref.h"
 #include "Renderer/Pass/PostProcess/Pass/BloomPass.h"
@@ -154,13 +155,37 @@ void PostProcessManager::Update(float deltaTime)
     }
 }
 
-void PostProcessManager::ExecutePasses(RenderContext& context)
+void PostProcessManager::ExecutePasses(RenderContext& context, std::shared_ptr<ITargetBase> optionalFinalOutputRT)
 {
-    // 現在のプリセット（ブレンド中ならターゲットプリセット）で有効なパスのリストを取得
     const auto& activePassesOrder = m_IsBlending ? m_TargetPreset.order : m_Presets[m_CurrentPresetName].order;
+
+    // 後段出力先が指定されているがプリセットが空 → SceneColor をその RT にコピー
+    if (optionalFinalOutputRT != nullptr && activePassesOrder.empty())
+    {
+        auto sceneColor = context.GetRenderTarget(ConstRenderPref::SceneColor);
+        if (sceneColor && sceneColor->GetResource() && optionalFinalOutputRT->GetResource())
+        {
+            auto cmdList = context.CommandList;
+            D3D12_RESOURCE_BARRIER barriers[2] = {
+                CD3DX12_RESOURCE_BARRIER::Transition(sceneColor->GetResource(), sceneColor->GetCurrentState(), D3D12_RESOURCE_STATE_COPY_SOURCE),
+                CD3DX12_RESOURCE_BARRIER::Transition(optionalFinalOutputRT->GetResource(), optionalFinalOutputRT->GetCurrentState(), D3D12_RESOURCE_STATE_COPY_DEST)
+            };
+            cmdList->ResourceBarrier(2, barriers);
+            sceneColor->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
+            optionalFinalOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
+            cmdList->CopyResource(optionalFinalOutputRT->GetResource(), sceneColor->GetResource());
+            D3D12_RESOURCE_BARRIER barriersBack[2] = {
+                CD3DX12_RESOURCE_BARRIER::Transition(sceneColor->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+                CD3DX12_RESOURCE_BARRIER::Transition(optionalFinalOutputRT->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+            };
+            sceneColor->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            optionalFinalOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            cmdList->ResourceBarrier(2, barriersBack);
+        }
+        return;
+    }
     if (activePassesOrder.empty()) return;
 
-    // 最初の入力はGeometryPassの結果である"SceneColor"
     std::shared_ptr<ITargetBase> sourceRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
 
     // 中間バッファを2つ用意
@@ -179,33 +204,42 @@ void PostProcessManager::ExecutePasses(RenderContext& context)
         const auto& params = m_CurrentSettings[passName];
         pass->SetParameters(params);
 
-        // 最後のパスなら出力先はバックバッファ、そうでなければ中間バッファ
+        // 最後のパスなら出力先はバックバッファ（または optionalFinalOutputRT）
         bool isLastPass = (i == activePassesOrder.size() - 1);
-        if (isLastPass)
+        if (isLastPass && optionalFinalOutputRT == nullptr)
         {
 			// バックバッファのRTVハンドルを取得
             D3D12_CPU_DESCRIPTOR_HANDLE backBufferRTV = g_Engine->GetCurrentRtvHandle();
 
-            // Contextに入力元と出力先を教える
             context.SetSourceRT(sourceRT);
-
-            // パスを実行
             pass->LastExecute(context, backBufferRTV);
+        }
+        else if (isLastPass && optionalFinalOutputRT != nullptr)
+        {
+            // 後段パス用に指定RTへ出力
+            // optionalFinalOutputRT を RENDER_TARGET 状態に遷移
+            if (optionalFinalOutputRT->GetCurrentState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
+            {
+                D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+                    optionalFinalOutputRT->GetResource(),
+                    optionalFinalOutputRT->GetCurrentState(),
+                    D3D12_RESOURCE_STATE_RENDER_TARGET);
+                context.CommandList->ResourceBarrier(1, &barrier);
+                optionalFinalOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+            }
+            context.SetSourceRT(sourceRT);
+            context.SetDestRT(optionalFinalOutputRT);
+            pass->Execute(context);
         }
         else
         {
-            // 出力先のtmpを決定
             std::shared_ptr<ITargetBase> destRT = (i % 2 == 0) ? bufferA : bufferB;
             context.SetSourceRT(sourceRT);
             context.SetDestRT(destRT);
-
-			// パスを実行
 			pass->Execute(context);
         }
 
-        // 次のパスのために、今書き込んだ出力先を次の入力元にする
-        if (!isLastPass) {
+        if (!isLastPass)
             sourceRT = context.GetDestRT();
-        }
     }
 }

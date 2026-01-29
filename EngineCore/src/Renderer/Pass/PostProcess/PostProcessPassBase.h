@@ -5,6 +5,7 @@
 #include "Renderer/Target/ITargetBase.h"
 #include "Scene/ISceneBase.h"
 #include "Renderer/Engine.h"
+#include <d3dx12.h>
 
 class PostProcessPassBase : public IRenderPass
 {
@@ -18,9 +19,21 @@ public:
     void Execute(RenderContext& context) override
     {
 		auto cmdList = context.CommandList;
+		auto destRT = context.GetDestRT();
+
+		// 出力先を RENDER_TARGET 状態に遷移（前フレームで PIXEL_SHADER_RESOURCE のままの可能性）
+		if (destRT->GetCurrentState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
+		{
+			D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+				destRT->GetResource(),
+				destRT->GetCurrentState(),
+				D3D12_RESOURCE_STATE_RENDER_TARGET);
+			cmdList->ResourceBarrier(1, &barrier);
+			destRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+		}
 
         // 出力先を設定
-        D3D12_CPU_DESCRIPTOR_HANDLE outputRT[] = { context.GetDestRT()->GetRTVHandle() };
+        D3D12_CPU_DESCRIPTOR_HANDLE outputRT[] = { destRT->GetRTVHandle() };
         cmdList->OMSetRenderTargets(1, outputRT, FALSE, nullptr);
 
 		// Targetをクリア

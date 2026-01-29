@@ -7,6 +7,7 @@
 #include "GUI/Windows/DrawGameObjectWindow.h"
 #include "GUI/Windows/DrawModeWindow.h"
 #include "GUI/Windows/DrawPostProcessPresetWindow.h"
+#include "GUI/Windows/DrawAAWindow.h"
 #include "GUI/Windows/DrawDayWindow.h"
 #include "GUI/Windows/DrawMainMenuBar.h"
 #include "GUI/Windows/DrawModelsWindow.h"
@@ -624,6 +625,7 @@ bool Engine::InitImGui()
     // 描画するウィンドウのリストに追加
     m_drawWindows.push_back(std::make_shared<DrawGameObjectWindow>());
     m_drawWindows.push_back(std::make_shared<DrawPostProcessPresetWindow>());
+    m_drawWindows.push_back(std::make_shared<DrawAAWindow>());
     m_drawWindows.push_back(std::make_shared<DrawDayWindow>());
     m_drawWindows.push_back(std::make_shared<DrawModelsWindow>());
     m_drawWindows.push_back(std::make_shared<DrawTaskManagerWindow>());

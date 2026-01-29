@@ -11,6 +11,7 @@
 #include "Modules/Renderer/RendereUtility.h"
 #include "Scene/GameObject/Component/MeshRenderer.h"
 #include "Scene/GameObject/Model/Model.h"
+#include "Scene/Default/Scene/DefaultScene.h"
 
 using namespace DirectX;
 
@@ -48,10 +49,19 @@ void GeometryPass::Collect(RenderContext& context)
 
     // パイプラインステートとルートシグネチャの設定
     auto name = "Geometry_Default";
-    auto PSOname = "DefaultPipelinePass";
+    
+    // MSAA設定に応じてPSOを選択
+    bool msaaEnabled = true;
+    auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
+    if (defaultScene)
+    {
+        auto pipeline = defaultScene->GetDefaultPipelineManager();
+        if (pipeline)
+            msaaEnabled = pipeline->GetAASettings().msaaEnabled;
+    }
+    const char* PSOname = msaaEnabled ? "DefaultPipelinePass" : "DefaultPipelinePassNoMSAA";
 
     cmdList->SetGraphicsRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
-    // ※注意: ここのPSOは MSAA Count=8 に設定されている必要があります
     cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
 
     m_RenderQueue.clear();
@@ -60,32 +70,43 @@ void GeometryPass::Collect(RenderContext& context)
         m_RenderQueue.push_back(obj);
     }
 
-    auto msaaColorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
-    auto msaaDepthRT = context.GetRenderTarget(ConstRenderPref::MSAA_Depth);
+    std::shared_ptr<ITargetBase> colorRT;
+    std::shared_ptr<ITargetBase> depthRT;
+
+    if (msaaEnabled)
+    {
+        colorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
+        depthRT = context.GetRenderTarget(ConstRenderPref::MSAA_Depth);
+    }
+    else
+    {
+        colorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
+        depthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
+    }
 
     // バリア設定
     std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
-    RendererUtility::simple_change_target_state(barriers, msaaColorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    RendererUtility::simple_change_target_state(barriers, msaaDepthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    RendererUtility::simple_change_target_state(barriers, colorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    RendererUtility::simple_change_target_state(barriers, depthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     if (!barriers->empty())
     {
         cmdList->ResourceBarrier(barriers->size(), barriers->data());
     }
 
-    msaaColorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-    msaaDepthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    colorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+    depthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     // Clear
     const float clearColor[] = { 0.0, 0.0, 0.0, 1 };
-    cmdList->ClearRenderTargetView(msaaColorRT->GetRTVHandle(), clearColor, 0, nullptr);
-    cmdList->ClearDepthStencilView(msaaDepthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    cmdList->ClearRenderTargetView(colorRT->GetRTVHandle(), clearColor, 0, nullptr);
+    cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-    auto sceneDepthRHandle = msaaDepthRT->GetDSVHandle();
-    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[] = { msaaColorRT->GetRTVHandle() };
+    auto sceneDepthRHandle = depthRT->GetDSVHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[] = { colorRT->GetRTVHandle() };
 
     // Viewport & Scissor (画面サイズ)
-    auto resourceDesc = msaaColorRT->GetResource()->GetDesc();
+    auto resourceDesc = colorRT->GetResource()->GetDesc();
     D3D12_VIEWPORT viewport = {};
     viewport.Width = static_cast<float>(resourceDesc.Width);
     viewport.Height = static_cast<float>(resourceDesc.Height);

@@ -31,6 +31,8 @@ public:
 		return m_defaultPipelineManager->GetPostProcessManager();
 	};
 
+	std::shared_ptr<DefaultPipelineManager> GetDefaultPipelineManager() { return m_defaultPipelineManager; }
+
 	SkyboxManager* GetSkyboxManager() { return m_skyboxManager.get(); }
 
 	

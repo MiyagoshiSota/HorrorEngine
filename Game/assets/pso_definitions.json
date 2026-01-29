@@ -151,6 +151,35 @@
         }
       ]
     },
+    "PostProcess_MultiTextureAndCBV": {
+      "constantBufferViews": [
+        {
+          "shaderRegister": 0,
+          "space": 0
+        }
+      ],
+      "descriptorTables": [
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 0,
+          "space": 0
+        },
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 1,
+          "space": 0
+        }
+      ],
+      "staticSamplers": [
+        {
+          "shaderRegister": 0,
+          "filter": "LINEAR",
+          "addressMode": "WRAP"
+        }
+      ]
+    },
     "Skybox_Default": {
       "constantBufferViews": [
         {
@@ -187,6 +216,15 @@
       "depthEnable": true,
       "inputLayoutEnable": true,
       "sampleCount": 8,
+      "cullMode": "BACK"
+    },
+    "DefaultPipelinePassNoMSAA": {
+      "rootSignature": "Geometry_Default",
+      "vertexShader": "../x64/Debug/SimpleVS.cso",
+      "pixelShader": "../x64/Debug/SimplePS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": true,
+      "sampleCount": 1,
       "cullMode": "BACK"
     },
     "DebugPipelinePass": {
@@ -242,6 +280,18 @@
       "pixelShader": "../x64/Debug/FilmGrainPS.cso",
       "depthEnable": false
     },
+    "FXAA": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/FXAAVS.cso",
+      "pixelShader": "../x64/Debug/FXAAPS.cso",
+      "depthEnable": false
+    },
+    "TAA": {
+      "rootSignature": "PostProcess_MultiTextureAndCBV",
+      "vertexShader": "../x64/Debug/TAAVS.cso",
+      "pixelShader": "../x64/Debug/TAAPS.cso",
+      "depthEnable": false
+    },
     "BloomExtraction": {
       "rootSignature": "PostProcess_TextureAndCBV",
       "vertexShader": "../x64/Debug/ExtractionVS.cso",
@@ -284,6 +334,16 @@
       "depthFunc": "LESS_EQUAL",
       "inputLayoutEnable": true,
       "sampleCount": 8,
+      "cullMode": "NONE"
+    },
+    "SkyboxPassNoMSAA": {
+      "rootSignature": "Skybox_Default",
+      "vertexShader": "../x64/Debug/SkyboxVS.cso",
+      "pixelShader": "../x64/Debug/SkyboxPS.cso",
+      "depthEnable": true,
+      "depthFunc": "LESS_EQUAL",
+      "inputLayoutEnable": true,
+      "sampleCount": 1,
       "cullMode": "NONE"
     }
   }

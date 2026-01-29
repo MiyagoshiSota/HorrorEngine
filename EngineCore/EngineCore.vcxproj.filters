@@ -111,6 +111,8 @@
     <ClInclude Include="src\Modules\PublicConst\const_gui_pref.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\MonochromePass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\VignettePass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\FXAAPass.h" />
+    <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\TAAPass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\FilmGrainPass.h" />
     <ClInclude Include="src\Renderer\Pass\PostProcess\Pass\ChromaticAberration.h" />
     <ClInclude Include="src\Renderer\Light\Light.h" />
@@ -156,6 +158,7 @@
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\SimpleShadowMapPass.h" />
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\CascadedShadowMapPass.h" />
     <ClInclude Include="src\GUI\Windows\DrawPostProcessPresetWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawAAWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawModeWindow.h" />
     <ClInclude Include="src\GUI\Managers\LayoutPresetManager.h" />
     <ClInclude Include="..\external\imgui\imconfig.h" />
@@ -174,6 +177,10 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\VHSVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\VignetteVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\VignettePS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\FXAAVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\FXAAPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\TAAVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\TAAPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\FilmGrainVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\FilmGrainPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\ChromaticAberrationVS.hlsl" />

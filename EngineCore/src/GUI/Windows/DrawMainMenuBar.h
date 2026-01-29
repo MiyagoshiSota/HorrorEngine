@@ -6,6 +6,7 @@
 #include "Renderer/Engine.h"
 #include "GUI/Windows/DrawGameObjectWindow.h"
 #include "GUI/Windows/DrawPostProcessPresetWindow.h"
+#include "GUI/Windows/DrawAAWindow.h"
 #include "GUI/Windows/DrawModelsWindow.h"
 #include "GUI/Windows/DrawTaskManagerWindow.h"
 #include "GUI/Windows/DrawWorkManagerWindow.h"
@@ -205,6 +206,7 @@ private:
         // 各ウィンドウを型で検索して表示/非表示を切り替え
         std::shared_ptr<DrawGameObjectWindow> gameObjectWindow;
         std::shared_ptr<DrawPostProcessPresetWindow> postProcessWindow;
+        std::shared_ptr<DrawAAWindow> aaWindow;
         std::shared_ptr<DrawModelsWindow> modelsWindow;
         std::shared_ptr<DrawTaskManagerWindow> taskManagerWindow;
         std::shared_ptr<DrawWorkManagerWindow> workManagerWindow;
@@ -214,6 +216,7 @@ private:
         {
             if (!gameObjectWindow) gameObjectWindow = std::dynamic_pointer_cast<DrawGameObjectWindow>(window);
             if (!postProcessWindow) postProcessWindow = std::dynamic_pointer_cast<DrawPostProcessPresetWindow>(window);
+            if (!aaWindow) aaWindow = std::dynamic_pointer_cast<DrawAAWindow>(window);
             if (!modelsWindow) modelsWindow = std::dynamic_pointer_cast<DrawModelsWindow>(window);
             if (!taskManagerWindow) taskManagerWindow = std::dynamic_pointer_cast<DrawTaskManagerWindow>(window);
             if (!workManagerWindow) workManagerWindow = std::dynamic_pointer_cast<DrawWorkManagerWindow>(window);
@@ -238,6 +241,16 @@ private:
             if (ImGui::MenuItem("Post Process Preset Window", nullptr, &visible))
             {
                 postProcessWindow->SetVisible(visible);
+            }
+        }
+
+        // Anti-Aliasing Window
+        if (aaWindow)
+        {
+            bool visible = aaWindow->IsVisible();
+            if (ImGui::MenuItem("Anti-Aliasing Window", nullptr, &visible))
+            {
+                aaWindow->SetVisible(visible);
             }
         }
         

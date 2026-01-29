@@ -63,6 +63,7 @@ public:
 	ID3D12GraphicsCommandList* CommandList();
 	ID3D12CommandQueue* CommandQueue();
 	UINT CurrentBackBufferIndex();
+	ID3D12Resource* GetCurrentBackBuffer() { return m_pRenderTargets[m_CurrentBackBufferIndex].Get(); }
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentRtvHandle() const;
 

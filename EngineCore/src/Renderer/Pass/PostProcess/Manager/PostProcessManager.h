@@ -18,7 +18,8 @@ public:
     void Update(float deltaTime);
 
     // 描画時に呼び出す
-    void ExecutePasses(RenderContext& context);
+    // optionalFinalOutputRT: 指定時は最後のパスの出力先に使用（FXAA 等の後段パス用）
+    void ExecutePasses(RenderContext& context, std::shared_ptr<ITargetBase> optionalFinalOutputRT = nullptr);
 
 public:
 	std::list<std::string> GetPresetNames() const {
