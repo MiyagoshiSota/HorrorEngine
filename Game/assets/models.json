@@ -1,7 +1,7 @@
 {
   "models": {
     "WorldEnvironment": {
-      "model_path": "assets/sponza-gltf-pbr/sponza-gltf-pbr/sponza.glb",
+      "model_path": "assets/glTF/Sponza.gltf",
       "model_name": "WorldEnvironment"
     }
   }

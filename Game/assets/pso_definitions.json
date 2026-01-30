@@ -27,7 +27,7 @@
       "staticSamplers": [
         {
           "shaderRegister": 0,
-          "filter": "MIN_MAG_MIP_LINEAR",
+          "filter": "ANISOTROPIC",
           "addressMode": "WRAP"
         },
         {

@@ -39,25 +39,18 @@ Texture2D::~Texture2D()
 
 std::shared_ptr<Texture2D> Texture2D::Load(const std::wstring& path)
 {
-    printf("[Texture2D] Loading texture: %ls\n", path.c_str());
-    
     auto tex = std::make_shared<Texture2D>();
 
     if (!tex->InternalLoad(path))
     {
-        printf("[Texture2D] FAILED to load texture: %ls\n", path.c_str());
         return nullptr;
     }
     
-    printf("[Texture2D] Successfully loaded texture: %ls (Width: %u, Height: %u)\n", 
-           path.c_str(), tex->m_width, tex->m_height);
     return tex;
 }
 
 std::shared_ptr<Texture2D> Texture2D::CreateWhiteTexture()
 {
-    printf("[Texture2D] Creating white texture (fallback)\n");
-    
     auto tex = std::make_shared<Texture2D>();
 
     uint32_t whitePixel = 0x00000000;
@@ -71,11 +64,9 @@ std::shared_ptr<Texture2D> Texture2D::CreateWhiteTexture()
 
     if (!success)
     {
-        printf("[Texture2D] FAILED to create white texture\n");
         return nullptr;
     }
 
-    printf("[Texture2D] Successfully created white texture\n");
     return tex;
 }
 
@@ -102,24 +93,54 @@ bool Texture2D::InternalLoad(const std::wstring& path)
     {
         ThrowIfFailed(hr);
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
-        printf("[Texture2D] Error loading image file: %ls (Exception: %s)\n", path.c_str(), e.what());
         return false;
     }
 
     m_width = static_cast<uint32_t>(meta.width);
     m_height = static_cast<uint32_t>(meta.height);
 
-    const Image* img = scratch.GetImage(0, 0, 0);
+    // ミップマップ自動生成
+    ScratchImage mipChain;
+    if (meta.mipLevels == 1)
+    {
+        // ミップマップが含まれていない場合は自動生成
+        hr = GenerateMipMaps(
+            scratch.GetImages(),
+            scratch.GetImageCount(),
+            scratch.GetMetadata(),
+            TEX_FILTER_DEFAULT,
+            0, // 自動でミップレベル数を計算
+            mipChain
+        );
+
+        try
+        {
+            ThrowIfFailed(hr);
+        }
+        catch (const std::exception&)
+        {
+            // ミップマップ生成に失敗した場合は元の画像を使用
+            mipChain = std::move(scratch);
+        }
+    }
+    else
+    {
+        // 既にミップマップが含まれている場合はそのまま使用
+        mipChain = std::move(scratch);
+    }
+
+    // ミップチェーンのメタデータを取得
+    const TexMetadata& mipMeta = mipChain.GetMetadata();
 
     // GPUリソース作成（DEFAULT ヒープ、COPY_DEST状態）
     auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-        meta.format,
-        meta.width,
-        meta.height,
-        static_cast<UINT16>(meta.arraySize),
-        static_cast<UINT16>(meta.mipLevels)
+        mipMeta.format,
+        mipMeta.width,
+        mipMeta.height,
+        static_cast<UINT16>(mipMeta.arraySize),
+        static_cast<UINT16>(mipMeta.mipLevels)
     );
 
     auto defaultHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -135,26 +156,26 @@ bool Texture2D::InternalLoad(const std::wstring& path)
             IID_PPV_ARGS(&m_resource)
         ));
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
-        printf("[Texture2D] Failed to create GPU resource for: %ls (Exception: %s)\n", path.c_str(), e.what());
         return false;
     }
 
-    // レイアウト計算
+    // 全ミップレベル分のレイアウト計算
+    const UINT numSubresources = static_cast<UINT>(mipMeta.mipLevels);
+    std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts(numSubresources);
+    std::vector<UINT> numRows(numSubresources);
+    std::vector<UINT64> rowSizesInBytes(numSubresources);
     UINT64 uploadBufferSize = 0;
-    UINT numRows = 0;
-    UINT64 rowSizeInBytes = 0;
-    D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
 
     g_Engine->Device()->GetCopyableFootprints(
         &resDesc,
         0,  // FirstSubresource
-        1,  // NumSubresources
+        numSubresources,
         0,  // BaseOffset
-        &layout,
-        &numRows,
-        &rowSizeInBytes,
+        layouts.data(),
+        numRows.data(),
+        rowSizesInBytes.data(),
         &uploadBufferSize
     );
 
@@ -179,22 +200,33 @@ bool Texture2D::InternalLoad(const std::wstring& path)
         return false;
     }
 
-    // CPUからステージングバッファにデータコピー
+    // 全ミップレベルをステージングバッファにコピー
     uint8_t* pData = nullptr;
     try
     {
         D3D12_RANGE readRange = { 0, 0 };
         ThrowIfFailed(uploadBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pData)));
 
-        const uint8_t* pSrcData = img->pixels;
-        const UINT srcRowPitch = static_cast<UINT>(img->rowPitch);
-        const UINT rowSize = static_cast<UINT>(rowSizeInBytes > 0 ? rowSizeInBytes : layout.Footprint.RowPitch);
-
-        for (UINT row = 0; row < numRows; ++row)
+        for (UINT mipLevel = 0; mipLevel < numSubresources; ++mipLevel)
         {
-            memcpy(pData + layout.Offset + row * layout.Footprint.RowPitch,
-                   pSrcData + row * srcRowPitch,
-                   rowSize);
+            const Image* mipImage = mipChain.GetImage(mipLevel, 0, 0);
+            if (!mipImage)
+            {
+                continue;
+            }
+
+            const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& layout = layouts[mipLevel];
+            const uint8_t* pSrcData = mipImage->pixels;
+            const UINT srcRowPitch = static_cast<UINT>(mipImage->rowPitch);
+            const UINT dstRowPitch = layout.Footprint.RowPitch;
+            const UINT rowSize = static_cast<UINT>(rowSizesInBytes[mipLevel]);
+
+            for (UINT row = 0; row < numRows[mipLevel]; ++row)
+            {
+                memcpy(pData + layout.Offset + row * dstRowPitch,
+                       pSrcData + row * srcRowPitch,
+                       rowSize);
+            }
         }
 
         D3D12_RANGE writeRange = { 0, static_cast<SIZE_T>(uploadBufferSize) };
@@ -235,12 +267,15 @@ bool Texture2D::InternalLoad(const std::wstring& path)
         return false;
     }
 
-    // GPUコピーコマンド発行
+    // 全ミップレベルのGPUコピーコマンド発行
     try
     {
-        CD3DX12_TEXTURE_COPY_LOCATION dst(m_resource.Get(), 0);
-        CD3DX12_TEXTURE_COPY_LOCATION src(uploadBuffer.Get(), layout);
-        commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+        for (UINT mipLevel = 0; mipLevel < numSubresources; ++mipLevel)
+        {
+            CD3DX12_TEXTURE_COPY_LOCATION dst(m_resource.Get(), mipLevel);
+            CD3DX12_TEXTURE_COPY_LOCATION src(uploadBuffer.Get(), layouts[mipLevel]);
+            commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+        }
 
         auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
             m_resource.Get(),
@@ -274,7 +309,8 @@ bool Texture2D::InternalLoad(const std::wstring& path)
     m_srvDesc.Format = resDesc.Format;
     m_srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     m_srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    m_srvDesc.Texture2D.MipLevels = resDesc.MipLevels;
+    m_srvDesc.Texture2D.MipLevels = static_cast<UINT>(mipMeta.mipLevels);
+    m_srvDesc.Texture2D.MostDetailedMip = 0;
 
     return true;
 }

@@ -221,8 +221,8 @@ PSOutput main(PSInput input)
         float intensity = g_DirectionalLights[i].ColorAndIntensity.a;
         // ライト放射輝度
         float3 radiance = lightColor * intensity;
-        
-        // 法線分布関数
+
+    	// 法線分布関数
         float NDF = DistributionGGX(N, H, roughness);
         // 幾何減衰関数
         float G = GeometrySmith(N, V, L, roughness);
