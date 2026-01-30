@@ -97,6 +97,75 @@ void PipelineStateManager::CreatePipelineState(
     pipelineStateMap[name] = pipelineState;
 }
 
+// MRT対応版のCreatePipelineState
+void PipelineStateManager::CreatePipelineState(
+    const std::string& name,
+    const std::string& rootSignatureName,
+    const std::wstring& vsFilePath,
+    const std::wstring& psFilePath,
+    UINT SampleCount,
+    const std::vector<DXGI_FORMAT>& renderTargetFormats,
+    bool useWireframe,
+    bool useInputLayout,
+    bool useDepthFormat,
+    bool blendEnable,
+    D3D12_COMPARISON_FUNC depthFunc)
+{
+    // 作成済みなら何もしない
+    if (pipelineStateMap.count(name))
+    {
+        return;
+    }
+
+    // 指定されたルートシグネチャを取得
+    auto rootSignature = GetRootSignature(rootSignatureName);
+    if (rootSignature == nullptr)
+    {
+        printf("指定されたルートシグネチャが見つかりません: %s\n", rootSignatureName.c_str());
+        return;
+    }
+
+    // パイプラインステートを作成
+    auto pipelineState = std::make_shared<PipelineState>();
+
+    // Inputレイアウトを設定
+    if (useInputLayout)
+    {
+        pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
+    }
+
+    // 色々設定
+    pipelineState->SetWireFrame(useWireframe);
+    pipelineState->SetRootSignature(rootSignature->Get());
+    pipelineState->SetVS(vsFilePath);
+    pipelineState->SetPS(psFilePath);
+    pipelineState->SetSampleDescCount(SampleCount);
+    pipelineState->SetRenderTargetFormats(renderTargetFormats); // MRT対応
+    pipelineState->SetBlendEnable(blendEnable);
+    pipelineState->SetDepthFunc(depthFunc);
+
+    // 深度ステンシルのフォーマットを設定
+    if (useDepthFormat)
+    {
+        pipelineState->SetDepthStencilFormat(DXGI_FORMAT_D32_FLOAT);
+    }
+    else
+    {
+        pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
+    }
+
+    // グラフィックスパイプラインステートを生成
+    pipelineState->CreateGraphicsPSO();
+    if (!pipelineState->IsValid())
+    {
+        printf("パイプラインステートの生成に失敗: %s\n", name.c_str());
+        return;
+    }
+
+    // マップに保存
+    pipelineStateMap[name] = pipelineState;
+}
+
 void PipelineStateManager::CreatePipelineState(const std::string& name, const std::string& rootSignatureName,
                                                  const std::wstring& vsFilePath, const std::wstring& psFilePath,
                                                  const std::wstring& gsFilePath, bool useWireframe,

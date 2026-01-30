@@ -3,6 +3,7 @@
 #include "Renderer/Pass/PostProcess/Manager/PostProcessManager.h"
 #include "Renderer/Pass/PostProcess/Pass/FXAAPass.h"
 #include "Renderer/Pass/PostProcess/Pass/TAAPass.h"
+#include "Renderer/Pass/PostProcess/Pass/UnjitterPass.h"
 #include "Renderer/Pass/ShadowProcess/Pass/CascadedShadowMapPass.h"
 #include "Renderer/Pass/ShadowProcess/Pass/SimpleShadowMapPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SkyboxPass.h"
@@ -31,12 +32,23 @@ public:
     std::shared_ptr<SkyboxPass> GetSkyboxPass() { return m_skyboxPass; };
 	std::shared_ptr<FXAAPass> GetFXAAPass() { return m_fxaaPass; }
 	std::shared_ptr<TAAPass> GetTAAPass() { return m_taaPass; }
+	std::shared_ptr<UnjitterPass> GetUnjitterPass() { return m_unjitterPass; }
 
 	AASettings& GetAASettings() { return m_aaSettings; }
 	const AASettings& GetAASettings() const { return m_aaSettings; }
 	void SetMSAAEnabled(bool enabled) { m_aaSettings.msaaEnabled = enabled; }
 	void SetFXAAEnabled(bool enabled) { m_aaSettings.fxaaEnabled = enabled; }
 	void SetTAAEnabled(bool enabled) { m_aaSettings.taaEnabled = enabled; }
+
+private:
+    // ポストプロセス全体（FXAA/TAAの有無もここで分岐）
+    void ExecutePostProcess(RenderContext& context);
+
+    // TAAの実行と履歴バッファ更新
+    void ApplyTAA(RenderContext& context);
+
+    // FXAAのみを適用する場合の処理（中間バッファ → バックバッファ）
+    void ApplyFXAAAfterPostProcess(RenderContext& context, std::shared_ptr<ITargetBase> sourceRT);
 
 private:
     std::shared_ptr<RenderTarget> m_sceneColor;
@@ -47,16 +59,19 @@ private:
 	std::shared_ptr<DepthStencilTarget> m_sceneDepth;
 	std::shared_ptr<RenderTarget> m_tmpColorA;
     std::shared_ptr<RenderTarget> m_tmpColorB;
-	std::shared_ptr<RenderTarget> m_historyBuffer; // TAA用履歴バッファ
+	std::shared_ptr<RenderTarget> m_historyBuffer; // 履歴バッファ
+	std::shared_ptr<RenderTarget> m_motionVectorBuffer; // モーションベクターバッファ（RG16F、MSAA対応）
+	std::shared_ptr<RenderTarget> m_motionVectorResolved; // モーションベクターバッファ（Resolve後）
 
 private:
 	AASettings m_aaSettings;
 
 	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
 	//std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
-    std::shared_ptr<PostProcessManager> m_postProcessManager;
+	std::shared_ptr<PostProcessManager> m_postProcessManager;
 	std::shared_ptr<FXAAPass> m_fxaaPass;
 	std::shared_ptr<TAAPass> m_taaPass;
+	std::shared_ptr<UnjitterPass> m_unjitterPass;
     std::shared_ptr<RainParticleSystem> m_rainParticleSystem;
 	std::shared_ptr<TempRenderTargetPool> m_tempRenderTargetPool;
     std::shared_ptr<SkyboxPass> m_skyboxPass;

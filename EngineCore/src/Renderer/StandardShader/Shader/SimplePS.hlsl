@@ -103,6 +103,17 @@ struct PSInput
     float3 worldPos : TEXCOORD1;
     float3 normal : TEXCOORD2;
     float4 posLight : TEXCOORD3; // ライト空間座標
+    float4 currPos : TEXCOORD4;  // 現フレームのクリップ空間座標
+    float4 prevPos : TEXCOORD5;  // 前フレームのクリップ空間座標
+};
+
+// =========================================================
+// 出力構造体（MRT: カラー + Motion Vector）
+// =========================================================
+struct PSOutput
+{
+    float4 color : SV_TARGET0;         // カラー出力
+    float2 motionVector : SV_TARGET1;  // モーションベクター出力
 };
 
 // =========================================================
@@ -170,8 +181,10 @@ float3 GetNormalFromMap(float2 uv, float3 worldPos, float3 faceNormal)
 // =========================================================
 // メインシェーダー
 // =========================================================
-float4 main(PSInput input) : SV_TARGET
+PSOutput main(PSInput input)
 {
+    PSOutput output = (PSOutput)0;
+    
 	// テクスチャサンプリング
     float4 albedoSample = g_AlbedoMap.Sample(g_Sampler, input.uv);
     float3 albedo = albedoSample.rgb * g_BaseColorFactor.rgb;
@@ -313,5 +326,15 @@ float4 main(PSInput input) : SV_TARGET
     // 影は直接光(Lo)にのみ影響させる
     float3 color = ambient + Lo * shadowFactor + emissive;
     
-    return float4(color, albedoSample.a);
+    output.color = float4(color, albedoSample.a);
+    
+    // Motion Vector計算（クリップ空間 → NDC座標）
+    float2 currNDC = input.currPos.xy / input.currPos.w;
+    float2 prevNDC = input.prevPos.xy / input.prevPos.w;
+    
+    // NDC座標の差分がモーションベクター（スクリーン空間での移動量）
+    // Y軸は反転（DirectXの座標系）
+    output.motionVector = float2(currNDC.x - prevNDC.x, prevNDC.y - currNDC.y) * 0.5;
+    
+    return output;
 }

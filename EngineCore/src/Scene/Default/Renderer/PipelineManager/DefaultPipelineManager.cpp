@@ -43,6 +43,13 @@ DefaultPipelineManager::DefaultPipelineManager()
     m_tmpColorB->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_historyBuffer = std::make_shared<RenderTarget>();
 	m_historyBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	
+	// モーションベクターバッファ（MSAA対応版と非MSAA版）
+	m_motionVectorBuffer = std::make_shared<RenderTarget>();
+	m_motionVectorBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R16G16_FLOAT, 1, 1, AASettings::kMSAASampleCount, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_motionVectorResolved = std::make_shared<RenderTarget>();
+	m_motionVectorResolved->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R16G16_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	
 	m_msaaTarget->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, AASettings::kMSAASampleCount, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
@@ -56,6 +63,7 @@ DefaultPipelineManager::DefaultPipelineManager()
 
 	m_fxaaPass = std::make_shared<FXAAPass>();
 	m_taaPass = std::make_shared<TAAPass>();
+	m_unjitterPass = std::make_shared<UnjitterPass>();
 
 	// 一時レンダーターゲットプールの生成
 	m_tempRenderTargetPool = std::make_shared<TempRenderTargetPool>();
@@ -63,8 +71,20 @@ DefaultPipelineManager::DefaultPipelineManager()
 
 void DefaultPipelineManager::Execute()
 {
+    // TAA有効時：フレームごとにジッターを更新
+    if (m_aaSettings.taaEnabled && m_taaPass)
+    {
+        m_taaPass->UpdateJitter();
+    }
+
     // コンテキストを生成
     RenderContext context(g_Engine->CommandList(),g_Scene->GetSceneCamera(),g_Scene->GetGameObjects(), m_sceneColor, m_sceneDepth, kWindowWidth,kWindowHeight,g_Scene->GetPipelineStateManager(),m_tempRenderTargetPool);
+
+    // TAA有効時：ジッターをコンテキストに設定（ジオメトリパスで投影行列に適用される）
+    if (m_aaSettings.taaEnabled && m_taaPass)
+    {
+        context.SetTAAJitter(m_taaPass->GetCurrentJitter(), true);
+    }
 
     // レンダーターゲットを設定
     context.AddRenderTarget(ConstRenderPref::SceneColor,m_sceneColor);
@@ -72,6 +92,17 @@ void DefaultPipelineManager::Execute()
 	context.AddRenderTarget(ConstRenderPref::TmpColorA, m_tmpColorA);
     context.AddRenderTarget(ConstRenderPref::TmpColorB, m_tmpColorB);
 	context.AddRenderTarget(ConstRenderPref::HistoryBuffer, m_historyBuffer);
+	
+	// モーションベクターバッファ：MSAA有効時はMSAAバッファ、無効時はResolvedバッファを使用
+	if (m_aaSettings.msaaEnabled)
+	{
+		context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorBuffer);
+	}
+	else
+	{
+		context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorResolved);
+	}
+	
 	context.AddRenderTarget(ConstRenderPref::MSAART, m_msaaTarget);
 	context.AddRenderTarget(ConstRenderPref::MSAA_Depth, m_msaaDepth);
 	context.AddRenderTarget(ConstRenderPref::ShadowMap,m_shadowDepth);
@@ -120,28 +151,176 @@ void DefaultPipelineManager::Execute()
     if (m_aaSettings.msaaEnabled)
     {
         RendererUtility::ResolveMSAA(context, ConstRenderPref::MSAART, ConstRenderPref::SceneColor);
+        
+        // モーションベクターバッファもResolve（TAA有効時）
+        if (m_aaSettings.taaEnabled && m_motionVectorBuffer && m_motionVectorResolved)
+        {
+            // MSAAモーションベクターバッファを非MSAAバッファにResolve
+            auto cmdList = context.CommandList;
+            
+            // Resolve用の状態遷移
+            D3D12_RESOURCE_BARRIER barriers[2] = {
+                CD3DX12_RESOURCE_BARRIER::Transition(m_motionVectorBuffer->GetResource(), 
+                    m_motionVectorBuffer->GetCurrentState(), D3D12_RESOURCE_STATE_RESOLVE_SOURCE),
+                CD3DX12_RESOURCE_BARRIER::Transition(m_motionVectorResolved->GetResource(), 
+                    m_motionVectorResolved->GetCurrentState(), D3D12_RESOURCE_STATE_RESOLVE_DEST)
+            };
+            cmdList->ResourceBarrier(2, barriers);
+            
+            // Resolve
+            cmdList->ResolveSubresource(
+                m_motionVectorResolved->GetResource(), 0,
+                m_motionVectorBuffer->GetResource(), 0,
+                DXGI_FORMAT_R16G16_FLOAT);
+            
+            // Resolve後の状態遷移（SRVとして使用するため）
+            D3D12_RESOURCE_BARRIER barriersAfter[2] = {
+                CD3DX12_RESOURCE_BARRIER::Transition(m_motionVectorBuffer->GetResource(), 
+                    D3D12_RESOURCE_STATE_RESOLVE_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET),
+                CD3DX12_RESOURCE_BARRIER::Transition(m_motionVectorResolved->GetResource(), 
+                    D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+            };
+            cmdList->ResourceBarrier(2, barriersAfter);
+            
+            m_motionVectorBuffer->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+            m_motionVectorResolved->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            
+            // TAAで使用するのはResolvedバッファ
+            context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorResolved);
+        }
     }
 
 	// Particle
 	m_rainParticleSystem->Execute(context);
 
-	// PostProcess（FXAA/TAA有効時は中間バッファに出力）
-	bool needsIntermediateBuffer = m_aaSettings.fxaaEnabled || m_aaSettings.taaEnabled;
-	if (needsIntermediateBuffer)
+    // PostProcess & AA
+    ExecutePostProcess(context);
+}
+
+void DefaultPipelineManager::ExecutePostProcess(RenderContext& context)
+{
+	// FXAA/TAA 有効時は中間バッファに一度出力する
+	const bool needsIntermediateBuffer = m_aaSettings.fxaaEnabled || m_aaSettings.taaEnabled;
+	if (!needsIntermediateBuffer)
 	{
-		// 前フレームで PIXEL_SHADER_RESOURCE にしたままなので、RTV として使う前に RENDER_TARGET へ戻す
-		if (m_tmpColorA->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+		m_postProcessManager->ExecutePasses(context);
+		return;
+	}
+
+	// 前フレームで PIXEL_SHADER_RESOURCE にしたままなので、RTV として使う前に RENDER_TARGET へ戻す
+	if (m_tmpColorA->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+	{
+		D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+			m_tmpColorA->GetResource(),
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			D3D12_RESOURCE_STATE_RENDER_TARGET);
+		context.CommandList->ResourceBarrier(1, &barrier);
+		m_tmpColorA->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+	}
+
+	// ポストプロセスチェインを TmpColorA に出力
+	m_postProcessManager->ExecutePasses(context, m_tmpColorA);
+
+	// AA 入力として TmpColorA を SRV 状態に
+	if (m_tmpColorA->GetCurrentState() == D3D12_RESOURCE_STATE_RENDER_TARGET)
+	{
+		D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+			m_tmpColorA->GetResource(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		context.CommandList->ResourceBarrier(1, &barrier);
+		m_tmpColorA->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	}
+
+	// TAA 優先（その後に FXAA を重ねる場合あり）
+	if (m_aaSettings.taaEnabled)
+	{
+		ApplyTAA(context);
+	}
+	else if (m_aaSettings.fxaaEnabled)
+	{
+		ApplyFXAAAfterPostProcess(context, m_tmpColorA);
+	}
+}
+
+void DefaultPipelineManager::ApplyTAA(RenderContext& context)
+{
+	// HistoryBuffer を PIXEL_SHADER_RESOURCE に（読み取り用）
+	if (m_historyBuffer->GetCurrentState() != D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+	{
+		D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+			m_historyBuffer->GetResource(),
+			m_historyBuffer->GetCurrentState(),
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		context.CommandList->ResourceBarrier(1, &barrier);
+		m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	}
+
+	// TAA 実行: TmpColorA + HistoryBuffer → TmpColorB
+	context.SetSourceRT(m_tmpColorA);
+	context.SetDestRT(m_tmpColorB);
+	m_taaPass->Execute(context);
+
+	// TAA 結果を SRV 状態に
+	if (m_tmpColorB->GetCurrentState() == D3D12_RESOURCE_STATE_RENDER_TARGET)
+	{
+		D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+			m_tmpColorB->GetResource(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		context.CommandList->ResourceBarrier(1, &barrier);
+		m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	}
+
+	// FXAA も有効なら TAA 結果に対して FXAA を適用
+	if (m_aaSettings.fxaaEnabled)
+	{
+		ApplyFXAAAfterPostProcess(context, m_tmpColorB);
+	}
+	else
+	{
+		// TAA のみ: TAA 結果をバックバッファへコピー
+		ID3D12Resource* backBuffer = g_Engine->GetCurrentBackBuffer();
+		if (m_tmpColorB->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE && backBuffer)
+		{
+			D3D12_RESOURCE_BARRIER barriers[2] = {
+				CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorB->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE),
+				CD3DX12_RESOURCE_BARRIER::Transition(backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST)
+			};
+			context.CommandList->ResourceBarrier(2, barriers);
+			m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
+			context.CommandList->CopyResource(backBuffer, m_tmpColorB->GetResource());
+			D3D12_RESOURCE_BARRIER barriersBack[2] = {
+				CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorB->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+				CD3DX12_RESOURCE_BARRIER::Transition(backBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET)
+			};
+			context.CommandList->ResourceBarrier(2, barriersBack);
+			m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		}
+	}
+
+	// 履歴バッファ更新: TAA結果をUnjitterしてから保存
+	// Step1: TmpColorB（TAA結果、ジッター適用済み）→ Unjitterパス → TmpColorA（Unjitter結果）
+	if (m_tmpColorB->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+	{
+		// TmpColorAをRTVとして準備
+		if (m_tmpColorA->GetCurrentState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
 		{
 			D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
 				m_tmpColorA->GetResource(),
-				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+				m_tmpColorA->GetCurrentState(),
 				D3D12_RESOURCE_STATE_RENDER_TARGET);
 			context.CommandList->ResourceBarrier(1, &barrier);
 			m_tmpColorA->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}
-		m_postProcessManager->ExecutePasses(context, m_tmpColorA);
-		
-		// TmpColorA を PIXEL_SHADER_RESOURCE へ（FXAA/TAAの入力用）
+
+		// Unjitterパス実行: TmpColorB → TmpColorA
+		m_unjitterPass->SetJitter(m_taaPass->GetCurrentJitter());
+		context.SetSourceRT(m_tmpColorB);
+		context.SetDestRT(m_tmpColorA);
+		m_unjitterPass->Execute(context);
+
+		// TmpColorA（Unjitter結果）をSRV状態に
 		if (m_tmpColorA->GetCurrentState() == D3D12_RESOURCE_STATE_RENDER_TARGET)
 		{
 			D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -152,118 +331,27 @@ void DefaultPipelineManager::Execute()
 			m_tmpColorA->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		}
 
-		// TAA有効時: TmpColorA + HistoryBuffer → TmpColorB → バックバッファ
-		if (m_aaSettings.taaEnabled)
-		{
-			// HistoryBufferをPIXEL_SHADER_RESOURCEに（読み取り用）
-			if (m_historyBuffer->GetCurrentState() != D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-			{
-				D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-					m_historyBuffer->GetResource(),
-					m_historyBuffer->GetCurrentState(),
-					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-				context.CommandList->ResourceBarrier(1, &barrier);
-				m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			}
-
-			// TAA実行: TmpColorA + HistoryBuffer → TmpColorB
-			context.SetSourceRT(m_tmpColorA);
-			context.SetDestRT(m_tmpColorB);
-			m_taaPass->Execute(context);
-
-			// TmpColorBをPIXEL_SHADER_RESOURCEに（FXAA入力用、またはバックバッファ出力用）
-			if (m_tmpColorB->GetCurrentState() == D3D12_RESOURCE_STATE_RENDER_TARGET)
-			{
-				D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-					m_tmpColorB->GetResource(),
-					D3D12_RESOURCE_STATE_RENDER_TARGET,
-					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-				context.CommandList->ResourceBarrier(1, &barrier);
-				m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-			}
-
-			// FXAA有効時: TmpColorB → バックバッファ
-			if (m_aaSettings.fxaaEnabled)
-			{
-				context.SetSourceRT(m_tmpColorB);
-				m_fxaaPass->LastExecute(context, g_Engine->GetCurrentRtvHandle());
-				
-				// 履歴バッファ更新: FXAA結果をHistoryBufferにコピー（次フレーム用）
-				// バックバッファからコピーするのは複雑なので、TmpColorB（TAA結果）を履歴として保存
-				// ただし、FXAA適用後の結果を履歴にしたい場合は、バックバッファからコピーが必要
-				// 簡易実装: TmpColorB（TAA結果）を履歴として保存
-				if (m_tmpColorB->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-				{
-					D3D12_RESOURCE_BARRIER barriers[2] = {
-						CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorB->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE),
-						CD3DX12_RESOURCE_BARRIER::Transition(m_historyBuffer->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST)
-					};
-					context.CommandList->ResourceBarrier(2, barriers);
-					m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
-					m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
-					context.CommandList->CopyResource(m_historyBuffer->GetResource(), m_tmpColorB->GetResource());
-					D3D12_RESOURCE_BARRIER barriersBack[2] = {
-						CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorB->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
-						CD3DX12_RESOURCE_BARRIER::Transition(m_historyBuffer->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-					};
-					context.CommandList->ResourceBarrier(2, barriersBack);
-					m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-					m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-				}
-			}
-			else
-			{
-				// TAAのみ: TmpColorB → バックバッファ（CopyResourceでコピー）
-				ID3D12Resource* backBuffer = g_Engine->GetCurrentBackBuffer();
-				
-				if (m_tmpColorB->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE && backBuffer)
-				{
-					D3D12_RESOURCE_BARRIER barriers[2] = {
-						CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorB->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE),
-						CD3DX12_RESOURCE_BARRIER::Transition(backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST)
-					};
-					context.CommandList->ResourceBarrier(2, barriers);
-					m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
-					context.CommandList->CopyResource(backBuffer, m_tmpColorB->GetResource());
-					D3D12_RESOURCE_BARRIER barriersBack[2] = {
-						CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorB->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
-						CD3DX12_RESOURCE_BARRIER::Transition(backBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET)
-					};
-					context.CommandList->ResourceBarrier(2, barriersBack);
-					m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-				}
-
-				// 履歴バッファ更新: TmpColorB（TAA結果）をHistoryBufferにコピー
-				if (m_tmpColorB->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-				{
-					D3D12_RESOURCE_BARRIER barriers[2] = {
-						CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorB->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE),
-						CD3DX12_RESOURCE_BARRIER::Transition(m_historyBuffer->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST)
-					};
-					context.CommandList->ResourceBarrier(2, barriers);
-					m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
-					m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
-					context.CommandList->CopyResource(m_historyBuffer->GetResource(), m_tmpColorB->GetResource());
-					D3D12_RESOURCE_BARRIER barriersBack[2] = {
-						CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorB->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
-						CD3DX12_RESOURCE_BARRIER::Transition(m_historyBuffer->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-					};
-					context.CommandList->ResourceBarrier(2, barriersBack);
-					m_tmpColorB->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-					m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-				}
-			}
-		}
-		else if (m_aaSettings.fxaaEnabled)
-		{
-			// FXAAのみ: TmpColorA → バックバッファ
-			context.SetSourceRT(m_tmpColorA);
-			m_fxaaPass->LastExecute(context, g_Engine->GetCurrentRtvHandle());
-		}
-	}
-	else
-	{
-		m_postProcessManager->ExecutePasses(context);
+		// Step2: Unjitter結果（TmpColorA）を履歴バッファにコピー
+		D3D12_RESOURCE_BARRIER barriers[2] = {
+			CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorA->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE),
+			CD3DX12_RESOURCE_BARRIER::Transition(m_historyBuffer->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST)
+		};
+		context.CommandList->ResourceBarrier(2, barriers);
+		m_tmpColorA->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
+		m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
+		context.CommandList->CopyResource(m_historyBuffer->GetResource(), m_tmpColorA->GetResource());
+		D3D12_RESOURCE_BARRIER barriersBack[2] = {
+			CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorA->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+			CD3DX12_RESOURCE_BARRIER::Transition(m_historyBuffer->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+		};
+		context.CommandList->ResourceBarrier(2, barriersBack);
+		m_tmpColorA->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
 }
 
+void DefaultPipelineManager::ApplyFXAAAfterPostProcess(RenderContext& context, std::shared_ptr<ITargetBase> sourceRT)
+{
+	context.SetSourceRT(sourceRT);
+	m_fxaaPass->LastExecute(context, g_Engine->GetCurrentRtvHandle());
+}

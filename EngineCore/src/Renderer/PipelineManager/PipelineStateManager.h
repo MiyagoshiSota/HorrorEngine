@@ -43,6 +43,21 @@ public:
         D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS // 深度比較関数
     );
     
+    // MRT対応版
+    void CreatePipelineState(
+        const std::string& name,                  // 作成するPSOの名前
+        const std::string& rootSignatureName,     // 使用するルートシグネチャの名前
+        const std::wstring& vsFilePath,           // 頂点シェーダーのパス
+        const std::wstring& psFilePath,           // ピクセルシェーダーのパス
+		UINT SampleCount,                         // サンプル数
+		const std::vector<DXGI_FORMAT>& renderTargetFormats, // レンダーターゲットのフォーマット（MRT対応）
+        bool useWireframe,                        // ワイヤーフレームモードを使用するか
+        bool useInputLayout,                      // InputLayoutを使用するか
+        bool useDepthFormat,                      // 深度フォーマットを使用するか
+        bool blendEnable,                         // ブレンドを使用するか
+        D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS // 深度比較関数
+    );
+    
     void CreatePipelineState(
         const std::string& name,                  // 作成するPSOの名前
         const std::string& rootSignatureName,     // 使用するルートシグネチャの名前

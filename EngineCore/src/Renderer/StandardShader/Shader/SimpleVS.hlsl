@@ -7,6 +7,8 @@ cbuffer Transform : register(b0)
     float Padding0;
 
     float4x4 LightViewProj;
+    float4x4 PrevViewProj;   // 前フレームのViewProj（ジッターなし、Motion Vector用）
+    float4x4 CurrViewProj;   // 現フレームのViewProj（ジッターなし、Motion Vector用）
 }
 
 struct VSInput
@@ -25,6 +27,8 @@ struct VSOutput
     float3 worldPos : TEXCOORD1; // ピクセルシェーダーで使うワールド座標
     float3 normal : TEXCOORD2;
     float4 posLight : TEXCOORD3; // ライト視点での座標
+    float4 currPos : TEXCOORD4;  // 現フレームのクリップ空間座標
+    float4 prevPos : TEXCOORD5;  // 前フレームのクリップ空間座標
 };
 
 VSOutput main(VSInput input)
@@ -51,6 +55,10 @@ VSOutput main(VSInput input)
     // 単一の LightViewProj 行列を使って、ライト空間へ変換
     // これにより、ピクセルシェーダーでテクスチャのどこを参照すればいいかが分かる
     output.posLight = mul(worldPos, LightViewProj);
+    
+    // Motion Vector用：現フレームと前フレームのクリップ空間座標
+    output.currPos = mul(worldPos, CurrViewProj);
+    output.prevPos = mul(worldPos, PrevViewProj);
     
     return output;
 }

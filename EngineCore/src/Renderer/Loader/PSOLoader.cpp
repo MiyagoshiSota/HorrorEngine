@@ -308,6 +308,25 @@ std::shared_ptr<PipelineStateManager> PSOLoader::LoadFromFile(const std::string&
                         renderTargetFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 					}
                 }
+                
+                // rtvFormats配列のパース（MRT対応）
+                std::vector<DXGI_FORMAT> rtvFormats;
+                if (psoJson.contains("rtvFormats"))
+                {
+                    for (const auto& formatStr : psoJson["rtvFormats"])
+                    {
+                        std::string fmtStr = formatStr;
+                        DXGI_FORMAT fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
+                        
+                        if (fmtStr == "R8G8B8A8_UNORM") fmt = DXGI_FORMAT_R8G8B8A8_UNORM;
+                        else if (fmtStr == "B8G8R8A8_UNORM") fmt = DXGI_FORMAT_B8G8R8A8_UNORM;
+                        else if (fmtStr == "R16G16B16A16_FLOAT") fmt = DXGI_FORMAT_R16G16B16A16_FLOAT;
+                        else if (fmtStr == "R16G16_FLOAT") fmt = DXGI_FORMAT_R16G16_FLOAT;
+                        else if (fmtStr == "R32G32B32A32_FLOAT") fmt = DXGI_FORMAT_R32G32B32A32_FLOAT;
+                        
+                        rtvFormats.push_back(fmt);
+                    }
+                }
 
                 bool depthEnable = psoJson.value("depthEnable", true);
                 bool inputLayout = psoJson.value("inputLayoutEnable", false);
@@ -328,8 +347,16 @@ std::shared_ptr<PipelineStateManager> PSOLoader::LoadFromFile(const std::string&
                 {
                     manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, gsPath, useWireframe,inputLayout, depthEnable, blendEnable, depthFunc);
                 }
-                // ジオメトリシェーダー無しの場合
-                manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, SampleCount, renderTargetFormat, useWireframe,inputLayout, depthEnable, blendEnable, depthFunc);
+                // rtvFormatsが指定されている場合はMRT対応版を使用
+                else if (!rtvFormats.empty())
+                {
+                    manager->CreatePipelineState(name, rootSignatureName, vsPath, psPath, SampleCount, rtvFormats, useWireframe, inputLayout, depthEnable, blendEnable, depthFunc);
+                }
+                // ジオメトリシェーダー無し、rtvFormatsなしの場合
+                else
+                {
+                    manager->CreatePipelineState(name, rootSignatureName,vsPath, psPath, SampleCount, renderTargetFormat, useWireframe,inputLayout, depthEnable, blendEnable, depthFunc);
+                }
             }
             // Computeシェーダー用PSO
             else if (psoJson.contains("computeShader"))

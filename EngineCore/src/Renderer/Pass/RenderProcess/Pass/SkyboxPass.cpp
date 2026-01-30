@@ -116,13 +116,8 @@ void SkyboxPass::Execute(RenderContext& context)
     // 平行移動成分を0にする
     view.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
-    // 射影行列 - 左手座標系に統一
-    XMMATRIX proj = XMMatrixPerspectiveFovLH(
-        context.Camera->GetFOV(),
-        context.Camera->GetAspect(),
-        0.3f,
-        1000.0f // Skyboxには近距離で十分
-    );
+    // 射影行列 - TAA有効時はジッター適用済みの投影行列を使用
+    XMMATRIX proj = context.GetProjectionMatrix();
 
     // 定数バッファ更新（RenderContext経由）
     context.UpdateSkyboxConstantBuffer(view * proj);

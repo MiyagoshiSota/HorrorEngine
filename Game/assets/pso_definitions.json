@@ -170,6 +170,12 @@
           "num": 1,
           "shaderRegister": 1,
           "space": 0
+        },
+        {
+          "type": "SRV",
+          "num": 1,
+          "shaderRegister": 2,
+          "space": 0
         }
       ],
       "staticSamplers": [
@@ -216,7 +222,8 @@
       "depthEnable": true,
       "inputLayoutEnable": true,
       "sampleCount": 8,
-      "cullMode": "BACK"
+      "cullMode": "BACK",
+      "rtvFormats": ["R8G8B8A8_UNORM", "R16G16_FLOAT"]
     },
     "DefaultPipelinePassNoMSAA": {
       "rootSignature": "Geometry_Default",
@@ -225,7 +232,8 @@
       "depthEnable": true,
       "inputLayoutEnable": true,
       "sampleCount": 1,
-      "cullMode": "BACK"
+      "cullMode": "BACK",
+      "rtvFormats": ["R8G8B8A8_UNORM", "R16G16_FLOAT"]
     },
     "DebugPipelinePass": {
       "rootSignature": "Debug_Default",
@@ -290,6 +298,12 @@
       "rootSignature": "PostProcess_MultiTextureAndCBV",
       "vertexShader": "../x64/Debug/TAAVS.cso",
       "pixelShader": "../x64/Debug/TAAPS.cso",
+      "depthEnable": false
+    },
+    "Unjitter": {
+      "rootSignature": "PostProcess_TextureAndCBV",
+      "vertexShader": "../x64/Debug/UnjitterVS.cso",
+      "pixelShader": "../x64/Debug/UnjitterPS.cso",
       "depthEnable": false
     },
     "BloomExtraction": {

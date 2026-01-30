@@ -84,10 +84,18 @@ void GeometryPass::Collect(RenderContext& context)
         depthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
     }
 
+    // モーションベクターバッファの取得
+    auto motionVectorRT = context.GetRenderTarget(ConstRenderPref::MotionVectorBuffer);
+
     // バリア設定
     std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
     RendererUtility::simple_change_target_state(barriers, colorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
     RendererUtility::simple_change_target_state(barriers, depthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    
+    if (motionVectorRT)
+    {
+        RendererUtility::simple_change_target_state(barriers, motionVectorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    }
 
     if (!barriers->empty())
     {
@@ -96,14 +104,29 @@ void GeometryPass::Collect(RenderContext& context)
 
     colorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
     depthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    if (motionVectorRT)
+    {
+        motionVectorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+    }
 
     // Clear
     const float clearColor[] = { 0.0, 0.0, 0.0, 1 };
+    const float clearMotionVector[] = { 0.0, 0.0, 0.0, 0.0 };
     cmdList->ClearRenderTargetView(colorRT->GetRTVHandle(), clearColor, 0, nullptr);
+    if (motionVectorRT)
+    {
+        cmdList->ClearRenderTargetView(motionVectorRT->GetRTVHandle(), clearMotionVector, 0, nullptr);
+    }
     cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     auto sceneDepthRHandle = depthRT->GetDSVHandle();
-    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[] = { colorRT->GetRTVHandle() };
+    
+    // MRT設定：カラー + モーションベクター
+    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[2] = { 
+        colorRT->GetRTVHandle(),
+        motionVectorRT ? motionVectorRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{}
+    };
+    UINT numRenderTargets = motionVectorRT ? 2 : 1;
 
     // Viewport & Scissor (画面サイズ)
     auto resourceDesc = colorRT->GetResource()->GetDesc();
@@ -124,7 +147,7 @@ void GeometryPass::Collect(RenderContext& context)
     cmdList->RSSetViewports(1, &viewport);
     cmdList->RSSetScissorRects(1, &scissorRect);
 
-    cmdList->OMSetRenderTargets(1, sceneColorRTVHandle, FALSE, &sceneDepthRHandle);
+    cmdList->OMSetRenderTargets(numRenderTargets, sceneColorRTVHandle, FALSE, &sceneDepthRHandle);
 }
 
 // =========================================================
@@ -145,8 +168,13 @@ void GeometryPass::Draw(RenderContext& context)
     cmdList->SetGraphicsRootConstantBufferView(1, lightingCB->GetAddress());
 
     // View, Proj行列 (Main Camera) - 左手座標系に統一
+    // TAA有効時は、RenderContext経由でジッター適用済みの投影行列を取得
     const auto view = DirectX::XMMatrixLookAtLH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(), context.Camera->GetUpward());
-    const auto proj = DirectX::XMMatrixPerspectiveFovLH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f, 5000.0f);
+    const auto proj = context.GetProjectionMatrix();
+    
+    // モーションベクター用：ジッターなしの投影行列を取得
+    // （モーションベクターにはカメラのジッター差分を含めたくないため）
+    const auto projNoJitter = context.GetNonJitteredProjectionMatrix();
 
     // Descriptor Heap
     auto materialHeap = g_Engine->GetDescriptorHeap()->GetHeap();
@@ -171,6 +199,16 @@ void GeometryPass::Draw(RenderContext& context)
     lightViewProj = XMMatrixTranspose(lightViewProj);
     // ------------------------------------
 
+    // 現フレームのViewProj行列を計算（モーションベクター用、ジッターなし）
+    XMMATRIX currViewProjNoJitter = XMMatrixMultiply(view, projNoJitter);
+    
+    // 最初のフレームは前フレーム行列を現フレームと同じにする
+    if (m_isFirstFrame)
+    {
+        m_prevViewProj = currViewProjNoJitter;
+        m_isFirstFrame = false;
+    }
+
     for (auto& obj : m_RenderQueue)
     {
         auto constantBuffer = obj->GetConstantBuffer(frameIndex);
@@ -188,6 +226,10 @@ void GeometryPass::Draw(RenderContext& context)
 
         // シングルシャドウマップ用の行列をセット
         pTransform->LightViewProj = lightViewProj;
+        
+        // Motion Vector用：ViewProj行列をセット
+        pTransform->PrevViewProj = XMMatrixTranspose(m_prevViewProj);
+        pTransform->CurrViewProj = XMMatrixTranspose(currViewProjNoJitter);
 
         // GPUセット
         cmdList->SetGraphicsRootConstantBufferView(0, constantBuffer->GetAddress());
@@ -215,4 +257,7 @@ void GeometryPass::Draw(RenderContext& context)
             cmdList->DrawIndexedInstanced(origin_data[i].Indeices.size(), 1, 0, 0, 0);
         }
     }
+    
+    // 現フレームのViewProj行列（ジッターなし）を次フレーム用に保存
+    m_prevViewProj = currViewProjNoJitter;
 }

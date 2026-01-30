@@ -2,6 +2,7 @@
 #include "Modules/ComPtr.h"
 #include <d3dx12.h>
 #include <string>
+#include <vector>
 
 class PipelineState
 {
@@ -12,6 +13,7 @@ public:
 	void SetInputLayout(D3D12_INPUT_LAYOUT_DESC layout); // 入力レイアウトを設定
 	void SetRootSignature(ID3D12RootSignature* rootSignature); // ルートシグネチャを設定
 	void SetRenderTargetFormat(DXGI_FORMAT format);
+	void SetRenderTargetFormats(const std::vector<DXGI_FORMAT>& formats); // MRT用：複数のRTVフォーマットを設定
 	void SetDepthStencilFormat(DXGI_FORMAT format);
 	void SetDepthFunc(D3D12_COMPARISON_FUNC func); // 深度比較関数を設定
 	void SetWireFrame(bool wireFrame);

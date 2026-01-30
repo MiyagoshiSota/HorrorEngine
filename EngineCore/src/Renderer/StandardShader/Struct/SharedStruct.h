@@ -55,7 +55,9 @@ public:
         DirectX::XMFLOAT3 CameraPosition; // カメラの位置
         float Padding0;
 
-        DirectX::XMMATRIX LightViewProj;  // ★単一のライトビュープロジェクション行列
+        DirectX::XMMATRIX LightViewProj;  // 単一のライトビュープロジェクション行列
+        DirectX::XMMATRIX PrevViewProj;   // 前フレームのViewProj（ジッターなし、Motion Vector用）
+        DirectX::XMMATRIX CurrViewProj;   // 現フレームのViewProj（ジッターなし、Motion Vector用）
     };
 
     // CascadedShadowMapTransform は削除しました

@@ -83,8 +83,8 @@ void DebugPass::Draw(RenderContext& context)
     // view, proj行列の計算 - 左手座標系に統一
     const auto view = DirectX::XMMatrixLookAtLH(context.Camera->GetEyePos(), context.Camera->GetTargetPos(),
                                                 context.Camera->GetUpward());
-    const auto proj = DirectX::XMMatrixPerspectiveFovLH(context.Camera->GetFOV(), context.Camera->GetAspect(), 0.3f,
-                                                        1000.0f);
+    // TAA有効時はジッター適用済みの投影行列を使用
+    const auto proj = context.GetProjectionMatrix();
     const auto world = view * proj;
 
     // Debug

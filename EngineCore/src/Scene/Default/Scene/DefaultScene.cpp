@@ -50,7 +50,7 @@ bool DefaultScene::Init(std::string goFilePath)
     m_LightingManager->AddDirectionalLight(
         LightType::Directional,
         DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f),
-        3.0f,
+        5.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, 0.5f)
     );
     //m_LightingManager->AddPointLight(

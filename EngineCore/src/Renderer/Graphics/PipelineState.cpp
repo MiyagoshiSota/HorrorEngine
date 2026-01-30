@@ -167,6 +167,15 @@ void PipelineState::SetRenderTargetFormat(DXGI_FORMAT format)
 	descGS.RTVFormats[0] = format;
 }
 
+void PipelineState::SetRenderTargetFormats(const std::vector<DXGI_FORMAT>& formats)
+{
+	descGS.NumRenderTargets = static_cast<UINT>(formats.size());
+	for (size_t i = 0; i < formats.size() && i < 8; ++i) // D3D12は最大8つのRTV
+	{
+		descGS.RTVFormats[i] = formats[i];
+	}
+}
+
 void PipelineState::SetDepthStencilFormat(DXGI_FORMAT format)
 {
 	descGS.DSVFormat = format;

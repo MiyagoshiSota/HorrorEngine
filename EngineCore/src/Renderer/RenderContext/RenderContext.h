@@ -46,6 +46,8 @@ public:
         , ScreenHeight(height)
         , PipelineStateManager(pipelineStateManager)
         , m_ExternalTempPool(persistentPool) // <--- 参照を保持
+        , m_taaJitter(0.0f, 0.0f)
+        , m_taaEnabled(false)
     {
         Device = g_Engine->Device();
     }
@@ -176,9 +178,58 @@ public:
         }
     }
 
+    /// <summary>
+    /// TAAジッターを設定
+    /// </summary>
+    void SetTAAJitter(DirectX::XMFLOAT2 jitter, bool enabled)
+    {
+        m_taaJitter = jitter;
+        m_taaEnabled = enabled;
+    }
+
+    /// <summary>
+    /// TAAジッターを適用した投影行列を取得（TAAが有効な場合のみ適用）
+    /// </summary>
+    DirectX::XMMATRIX GetProjectionMatrix() const
+    {
+        DirectX::XMMATRIX proj = Camera->GetProjectionMatrix();
+        
+        // TAA無効時は通常の投影行列を返す
+        if (!m_taaEnabled)
+        {
+            return proj;
+        }
+        
+        // ジッターをNDC空間（[-1, 1]）に変換
+        // jitterはピクセル単位の[-0.5, 0.5]なので、スクリーン解像度で正規化して2倍
+        float jitterX = (m_taaJitter.x / ScreenWidth) * 2.0f;
+        float jitterY = (m_taaJitter.y / ScreenHeight) * 2.0f;
+        
+        // 投影行列の平行移動成分にジッターを適用
+        // proj[2][0] = jitterX (X軸オフセット)
+        // proj[2][1] = jitterY (Y軸オフセット)
+        DirectX::XMFLOAT4X4 projMatrix;
+        DirectX::XMStoreFloat4x4(&projMatrix, proj);
+        projMatrix._31 += jitterX;
+        projMatrix._32 += jitterY;
+        
+        return DirectX::XMLoadFloat4x4(&projMatrix);
+    }
+
+    /// <summary>
+    /// ジッターなしの純粋な投影行列（モーションベクター/カリング用）
+    /// </summary>
+    DirectX::XMMATRIX GetNonJitteredProjectionMatrix() const
+    {
+        // カメラの元の投影行列をそのまま返す
+        return Camera->GetProjectionMatrix();
+    }
+
 private:
     std::map<std::string, std::shared_ptr<ITargetBase>> m_TargetPool;
     std::shared_ptr<TempRenderTargetPool> m_ExternalTempPool;
     SkyboxData m_skyboxData;
     std::function<void(DirectX::XMMATRIX)> m_skyboxUpdateCallback;
+    DirectX::XMFLOAT2 m_taaJitter;
+    bool m_taaEnabled;
 };

@@ -8,8 +8,8 @@
 #endif // BUILD_STANDALONE
 #include "Source/3DModel/Loader/ModelLoader.h"
 
-const UINT kWindowWidth = 1700;
-const UINT kWindowHeight = 1000;
+const UINT kWindowWidth = 1980;
+const UINT kWindowHeight = 1080;
 
 enum class SceneType { EditorMode, PlayMode };
 
