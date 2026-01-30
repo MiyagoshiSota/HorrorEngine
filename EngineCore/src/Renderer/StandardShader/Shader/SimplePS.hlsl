@@ -190,14 +190,14 @@ PSOutput main(PSInput input)
     float3 albedo = albedoSample.rgb * g_BaseColorFactor.rgb;
 
     float4 mrSample = g_MetallicRoughnessMap.Sample(g_Sampler, input.uv);
-    float ao = mrSample.r;
+    float ao = max(mrSample.r, 1.0);
     float roughness = mrSample.g;
     float metallic = mrSample.b;
 
     float3 emissive = g_EmissiveMap.Sample(g_Sampler, input.uv).rgb;
 
     // 法線計算
-    float3 N = normalize(input.normal);
+    float3 N = GetNormalFromMap(input.uv, input.worldPos, input.normal);
     
     // 視線ベクトル V
     float3 V = normalize(CameraPosition - input.worldPos);
@@ -211,26 +211,46 @@ PSOutput main(PSInput input)
     // --- Directional Lights ---
     for (int i = 0; i < NumDirectionalLights; i++)
     {
+        // ライト方向ベクトル
         float3 L = normalize(-g_DirectionalLights[i].Direction.xyz);
+        // 半角ベクトル
         float3 H = normalize(V + L);
-        
+        // ライト色
         float3 lightColor = g_DirectionalLights[i].ColorAndIntensity.rgb;
+        // ライト強度
         float intensity = g_DirectionalLights[i].ColorAndIntensity.a;
+        // ライト放射輝度
         float3 radiance = lightColor * intensity;
-
+        
+        // 法線分布関数
         float NDF = DistributionGGX(N, H, roughness);
+        // 幾何減衰関数
         float G = GeometrySmith(N, V, L, roughness);
+        // フレネル反射率
         float3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
             
+        // 分子(ハーフベクトル方向を向いているマイクロファセットの量（D）× 遮蔽されずに可視な割合（G）× その角度での反射率（F）)
         float3 numerator = NDF * G * F;
+        // 分母
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+        // 鏡面反射成分(入射光がどれだけ特定の方向に反射されるか)
         float3 specular = numerator / denominator;
         
+        // 鏡面反射係数
         float3 kS = F;
+        // 拡散反射係数
         float3 kD = float3(1.0, 1.0, 1.0) - kS;
+        // 拡散反射係数(金属部分のみ)
         kD *= 1.0 - metallic;
     
+        // 法線とライト方向の内積
         float NdotL = max(dot(N, L), 0.0);
+        
+        // 放射輝度による反射光の計算
+        // 拡散反射項: kD * albedo / PI
+        // 鏡面反射項: specular
+        // 放射輝度: radiance
+        // 法線とライト方向の内積: NdotL
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
@@ -318,14 +338,12 @@ PSOutput main(PSInput input)
     // 影の計算
     float shadowFactor = CalculateShadow(input.posLight);
 
-    // retu
+    // 環境光
+    float3 ambient = AmbientColor.rgb * albedo * ao;
 
-	// 合成
-    float3 ambient = AmbientColor.rgb * albedo;
-    
     // 影は直接光(Lo)にのみ影響させる
-    float3 color = ambient + Lo * shadowFactor + emissive;
-    
+    float3 color = ambient + Lo * shadowFactor * ao + emissive;
+
     output.color = float4(color, albedoSample.a);
     
     // Motion Vector計算（クリップ空間 → NDC座標）

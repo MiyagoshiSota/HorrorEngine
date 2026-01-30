@@ -99,17 +99,16 @@ public:
         DirectX::XMVECTOR lightUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
         DirectX::XMVECTOR targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-        DirectX::XMVECTOR lightPos = DirectX::XMVectorSubtract(targetPos, DirectX::XMVectorScale(lightDir, 50.0f));
+        DirectX::XMVECTOR lightPos = DirectX::XMVectorSubtract(targetPos, DirectX::XMVectorScale(lightDir, 25.0f));
 
         // View行列 (LookAt)
         DirectX::XMMATRIX lightView = DirectX::XMMatrixLookAtRH(lightPos, targetPos, lightUp);
 
-        // Projection行列 (Orthographic = 平行投影)
-        // 太陽光の影はパースがつかないため、PerspectiveではなくOrthoを使います
-        float sceneWidth = 20.0f; // 影を落とす範囲の広さ
-        float sceneHeight = 20.0f;
+        // Projection行列
+        float sceneWidth = 50.0f; // 影を落とす範囲の広さ
+        float sceneHeight = 50.0f;
         float nearZ = 1.0f;
-        float farZ = 200.0f;
+        float farZ = 150.0f;
         DirectX::XMMATRIX lightProj = DirectX::XMMatrixOrthographicRH(sceneWidth, sceneHeight, nearZ, farZ);
 
         for (auto& obj : m_RenderQueue)

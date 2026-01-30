@@ -46,29 +46,29 @@ bool DefaultScene::Init(std::string goFilePath)
     // LightingManagerの初期化
     m_LightingManager = std::make_unique<LightingManager>();
     m_LightingManager->Init();
-    // TEST:Lightを環境光とポイントライトを一個だけ追加
+
     m_LightingManager->AddDirectionalLight(
         LightType::Directional,
         DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f),
         5.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, 0.5f)
     );
-    //m_LightingManager->AddPointLight(
+    // m_LightingManager->AddPointLight(
     //    LightType::Point,
     //    DirectX::XMFLOAT3(1.0f, .0f, .0f),
     //    3.0f,
     //    DirectX::XMFLOAT3(0.0f, 5.0f, 0.0f),
     //    500.0f,
     //    0.005f
-    //);
-    //m_LightingManager->AddSpotLight(
+    // );
+    // m_LightingManager->AddSpotLight(
     //    LightType::Spot,
     //    DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f),
     //    5.0f,
     //    DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f),
     //    DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f),
     //    0.7f, 1.0f,100, 0.01f
-    //);
+    // );
 
     printf("PSOの生成\n");
 

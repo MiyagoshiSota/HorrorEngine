@@ -20,11 +20,11 @@ static const float kShadowMapSize = 2048.0f;
 static const float kShadowDistance = 10000.0f;
 
 // SimpleShadowMapPass と同一のライト View*Proj を使用すること（posLight とシャドウマップの座標系一致のため）
-static const float kShadowSceneWidth = 20.0f;
-static const float kShadowSceneHeight = 20.0f;
+static const float kShadowSceneWidth = 50.0f;
+static const float kShadowSceneHeight = 50.0f;
 static const float kShadowNearZ = 1.0f;
-static const float kShadowFarZ = 200.0f;
-static const float kShadowLightDistance = 50.0f;
+static const float kShadowFarZ = 150.0f;
+static const float kShadowLightDistance = 25.0f;
 
 void CalculateLightViewProj_Geometry(
     XMVECTOR lightDir,

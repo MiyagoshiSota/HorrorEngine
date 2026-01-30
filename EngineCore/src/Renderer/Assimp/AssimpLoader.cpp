@@ -87,7 +87,7 @@ bool AssimpLoader::Load(ImportSettings settings)
     flag |= aiProcess_GenUVCoords;
     flag |= aiProcess_RemoveRedundantMaterials;
     flag |= aiProcess_OptimizeMeshes;
-    // flag |= aiProcess_JoinIdenticalVertices; // 頂点数を最適化
+    flag |= aiProcess_JoinIdenticalVertices; // 頂点数を最適化
 
     auto scene = importer.ReadFile(path, flag);
 

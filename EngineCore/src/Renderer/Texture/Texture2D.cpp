@@ -39,17 +39,25 @@ Texture2D::~Texture2D()
 
 std::shared_ptr<Texture2D> Texture2D::Load(const std::wstring& path)
 {
+    printf("[Texture2D] Loading texture: %ls\n", path.c_str());
+    
     auto tex = std::make_shared<Texture2D>();
 
     if (!tex->InternalLoad(path))
     {
+        printf("[Texture2D] FAILED to load texture: %ls\n", path.c_str());
         return nullptr;
     }
+    
+    printf("[Texture2D] Successfully loaded texture: %ls (Width: %u, Height: %u)\n", 
+           path.c_str(), tex->m_width, tex->m_height);
     return tex;
 }
 
 std::shared_ptr<Texture2D> Texture2D::CreateWhiteTexture()
 {
+    printf("[Texture2D] Creating white texture (fallback)\n");
+    
     auto tex = std::make_shared<Texture2D>();
 
     uint32_t whitePixel = 0x00000000;
@@ -63,9 +71,11 @@ std::shared_ptr<Texture2D> Texture2D::CreateWhiteTexture()
 
     if (!success)
     {
+        printf("[Texture2D] FAILED to create white texture\n");
         return nullptr;
     }
 
+    printf("[Texture2D] Successfully created white texture\n");
     return tex;
 }
 
@@ -92,8 +102,9 @@ bool Texture2D::InternalLoad(const std::wstring& path)
     {
         ThrowIfFailed(hr);
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
+        printf("[Texture2D] Error loading image file: %ls (Exception: %s)\n", path.c_str(), e.what());
         return false;
     }
 
@@ -124,8 +135,9 @@ bool Texture2D::InternalLoad(const std::wstring& path)
             IID_PPV_ARGS(&m_resource)
         ));
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
+        printf("[Texture2D] Failed to create GPU resource for: %ls (Exception: %s)\n", path.c_str(), e.what());
         return false;
     }
 
