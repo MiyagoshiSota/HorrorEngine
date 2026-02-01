@@ -8,6 +8,7 @@
 #include "Renderer/Pass/RenderProcess/Pass/DebugPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/GeometryPass.h"
 #include "Scene/Skybox/SkyboxManager.h"
+#include "Scene/RayTracing/RayTracedShadowManager.h"
 #include "Scene/Default/Scene/DefaultScene.h"
 #include "Renderer/Target/DepthStencilTarget.h"
 #include <d3dx12.h>
@@ -17,6 +18,13 @@ DefaultPipelineManager::DefaultPipelineManager()
 	// SimpleShadowMapPassの初期化
 	m_simpleShadowMapPass = std::make_shared<SimpleShadowMapPass>();
 	//m_simpleShadowMapPass = std::make_shared<CascadesShadowMapPass>();
+
+	// Ray Traced Shadow Pass（リソースはSceneのRayTracedShadowManagerが所有）
+	if (g_Engine->IsDxrSupported())
+	{
+		m_rayTracedShadowPass = std::make_shared<RayTracedShadowPass>();
+		m_rayTracedShadowPass->SetEnabled(false); // デフォルトは無効
+	}
 
 	// ParticleSystemの初期化
 	m_rainParticleSystem = std::make_shared<RainParticleSystem>();
@@ -51,6 +59,15 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_motionVectorResolved->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R16G16_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	
 	m_msaaTarget->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, AASettings::kMSAASampleCount, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	// レイトレ用MRT：法線・ワールド位置（MSAA版と非MSAA版）
+	m_normalBuffer = std::make_shared<RenderTarget>();
+	m_worldPositionBuffer = std::make_shared<RenderTarget>();
+	m_normalBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, AASettings::kMSAASampleCount, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_worldPositionBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, 1, 1, AASettings::kMSAASampleCount, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_normalBufferNonMSAA = std::make_shared<RenderTarget>();
+	m_worldPositionBufferNonMSAA = std::make_shared<RenderTarget>();
+	m_normalBufferNonMSAA->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_worldPositionBufferNonMSAA->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
@@ -105,11 +122,48 @@ void DefaultPipelineManager::Execute()
 	
 	context.AddRenderTarget(ConstRenderPref::MSAART, m_msaaTarget);
 	context.AddRenderTarget(ConstRenderPref::MSAA_Depth, m_msaaDepth);
-	context.AddRenderTarget(ConstRenderPref::ShadowMap,m_shadowDepth);
+	if (m_aaSettings.msaaEnabled)
+	{
+		context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBuffer);
+		context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBuffer);
+	}
+	else
+	{
+		context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBufferNonMSAA);
+		context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBufferNonMSAA);
+	}
+	// ShadowMapターゲットの設定（Ray Traced Shadowが有効な場合はそちらを優先）
+	auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
+	if (defaultScene && m_rayTracedShadowPass && m_rayTracedShadowPass->IsEnabled())
+	{
+		auto rayTracedShadowManager = defaultScene->GetRayTracedShadowManager();
+		if (rayTracedShadowManager && rayTracedShadowManager->IsValid())
+		{
+			auto renderData = rayTracedShadowManager->GetRenderData();
+			if (renderData.shadowMapTarget)
+			{
+				context.AddRenderTarget(ConstRenderPref::ShadowMap, renderData.shadowMapTarget);
+				context.SetUseRayTracedShadow(true);
+			}
+			else
+			{
+				context.AddRenderTarget(ConstRenderPref::ShadowMap, m_shadowDepth);
+				context.SetUseRayTracedShadow(false);
+			}
+		}
+		else
+		{
+			context.AddRenderTarget(ConstRenderPref::ShadowMap, m_shadowDepth);
+			context.SetUseRayTracedShadow(false);
+		}
+	}
+	else
+	{
+		context.AddRenderTarget(ConstRenderPref::ShadowMap, m_shadowDepth);
+		context.SetUseRayTracedShadow(false);
+	}
 	context.AddRenderTarget(ConstRenderPref::CascadedShadowMap, m_cascadedShadowDepth);
 
-    // Skyboxデータを設定
-    auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
     if (defaultScene)
     {
         auto skyboxManager = defaultScene->GetSkyboxManager();
@@ -132,8 +186,29 @@ void DefaultPipelineManager::Execute()
         }
     }
 
+    // Ray Traced Shadow用データをContextに設定
+    if (defaultScene)
+    {
+        auto rayTracedShadowManager = defaultScene->GetRayTracedShadowManager();
+        if (rayTracedShadowManager && rayTracedShadowManager->IsValid())
+        {
+            auto renderData = rayTracedShadowManager->GetRenderData();
+            context.SetRayTracedShadowData(renderData);
+            context.SetRayTracedShadowUpdateCallback([rayTracedShadowManager](const RayTracedShadowSceneConstants& constants) {
+                rayTracedShadowManager->UpdateSceneConstants(constants);
+            });
+        }
+    }
+
     // Shadow
-	m_simpleShadowMapPass->LastExecute(context);
+    if (m_rayTracedShadowPass && m_rayTracedShadowPass->IsEnabled())
+    {
+        m_rayTracedShadowPass->Execute(context);
+    }
+    else
+    {
+        m_simpleShadowMapPass->LastExecute(context);
+    }
 
     // Mesh
     for (auto& pass : m_sceneRenderPasses)
@@ -355,3 +430,21 @@ void DefaultPipelineManager::ApplyFXAAAfterPostProcess(RenderContext& context, s
 	context.SetSourceRT(sourceRT);
 	m_fxaaPass->LastExecute(context, g_Engine->GetCurrentRtvHandle());
 }
+
+void DefaultPipelineManager::SetRayTracedShadowEnabled(bool enabled)
+{
+	if (m_rayTracedShadowPass)
+	{
+		m_rayTracedShadowPass->SetEnabled(enabled);
+	}
+}
+
+bool DefaultPipelineManager::IsRayTracedShadowEnabled() const
+{
+	if (m_rayTracedShadowPass)
+	{
+		return m_rayTracedShadowPass->IsEnabled();
+	}
+	return false;
+}
+

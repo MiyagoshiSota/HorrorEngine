@@ -67,6 +67,10 @@ public:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentRtvHandle() const;
 
+	// DXR関連
+	ID3D12GraphicsCommandList4* GetDxrCommandList();
+	bool IsDxrSupported() const { return m_dxrSupported; }
+
 private:
 	bool CreateDevice();
 	bool CreateCommandQueue();
@@ -75,6 +79,7 @@ private:
 	bool CreateFence();
 	void CreateViewPort();
 	void CreateScissorRect();
+	bool CheckDxrSupport(); // DXRサポート確認
 #ifndef BUILD_STANDALONE
 	bool InitImGui();
 	void DrawImGui(); // ImGuiの描画
@@ -92,11 +97,13 @@ private:
 	ComPtr<IDXGISwapChain3> m_pSwapChain = nullptr; // スワップチェイン
 	ComPtr<ID3D12CommandAllocator> m_pAllocator[kFrameBufferCount] = { nullptr }; // コマンドアロケータ
 	ComPtr<ID3D12GraphicsCommandList> m_pCommandList = nullptr; // コマンドリスト
+	ComPtr<ID3D12GraphicsCommandList4> m_pDxrCommandList = nullptr; // DXR用コマンドリスト
 	HANDLE m_fenceEvent = nullptr; // フェンスで使うイベント
 	ComPtr<ID3D12Fence> m_pFence = nullptr; // フェンス
 	UINT64 m_fenceValue[kFrameBufferCount]; // フェンスの値(ダブルバッファリング用に２)
 	D3D12_VIEWPORT m_Viewport; // ビューポート
 	D3D12_RECT m_Scissor; // シザー矩形
+	bool m_dxrSupported = false; // DXRサポートフラグ
 
 private: // 描画に使うオブジェクトとその生成関数たち
 	bool CreateRenderTarget(); // レンダーターゲットを作成

@@ -55,6 +55,13 @@
     <ClCompile Include="..\external\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="..\external\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\GUI\Build\BuildManager.cpp" />
+    <ClCompile Include="src\Renderer\Texture\TextureCube.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SkyboxPass.cpp" />
+    <ClCompile Include="src\Scene\Skybox\SkyboxManager.cpp" />
+    <ClCompile Include="src\Renderer\RayTracing\AccelerationStructure.cpp" />
+    <ClCompile Include="src\Renderer\RayTracing\RayTracingPipelineState.cpp" />
+    <ClCompile Include="src\Renderer\Pass\ShadowProcess\Pass\RayTracedShadowPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -143,7 +150,6 @@
     <ClInclude Include="src\GUI\Windows\DrawWorkManagerWindow.h" />
     <ClInclude Include="src\Input\InputDevice.h" />
     <ClInclude Include="src\Modules\PublicConst\const_gameobject_save_param_pref.h" />
-    <ClInclude Include="src\Modules\PublicConst\const_day_pref.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\DebugPass.h" />
     <ClInclude Include="src\Scene\Character\Player\PlayerController.h" />
     <ClInclude Include="src\Source\3DModel\Loader\ModelLoader.h" />
@@ -169,6 +175,13 @@
     <ClInclude Include="..\external\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\external\imgui\imstb_textedit.h" />
     <ClInclude Include="..\external\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\GUI\Build\BuildManager.h" />
+    <ClInclude Include="src\GUI\Windows\DrawBuildWindow.h" />
+    <ClInclude Include="src\GUI\Managers\LayoutPresetType.h" />
+    <ClInclude Include="src\Renderer\Texture\TextureCube.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SkyboxPass.h" />
+    <ClInclude Include="src\Scene\Skybox\SkyboxManager.h" />
+    <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\RayTracedShadowPass.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />
@@ -201,6 +214,10 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\BloomCombinePS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\ShadowMapVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\CascadedShadowMapVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SkyboxVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SkyboxPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\UnjitterPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\UnjitterVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

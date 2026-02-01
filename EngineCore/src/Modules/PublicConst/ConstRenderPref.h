@@ -14,4 +14,6 @@ public:
 	static inline const char* CascadedShadowMap = "CascadedShadowMap";
 	static inline const char* HistoryBuffer = "HistoryBuffer";
 	static inline const char* MotionVectorBuffer = "MotionVectorBuffer";
+	static inline const char* NormalBuffer = "NormalBuffer";
+	static inline const char* WorldPositionBuffer = "WorldPositionBuffer";
 };

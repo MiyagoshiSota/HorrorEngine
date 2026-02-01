@@ -59,6 +59,15 @@ public:
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Temporal AA. Combines with MSAA/FXAA.");
 
+		ImGui::Separator();
+
+		// --- Ray Traced Shadow ---
+		bool rayTracedShadow = pipeline->IsRayTracedShadowEnabled();
+		if (ImGui::Checkbox("Ray Traced Shadow (DXR)", &rayTracedShadow))
+			pipeline->SetRayTracedShadowEnabled(rayTracedShadow);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Enable hardware ray tracing for hard shadows. Requires DXR support.");
+
 		ImGui::End();
 	}
 

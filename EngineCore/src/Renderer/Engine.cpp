@@ -33,14 +33,14 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
     m_FrameBufferHeight = windowHeight;
     m_hWnd = hwnd;
 
-#if defined(_DEBUG)
-    // デバッグレイヤーを有効化
-    ComPtr<ID3D12Debug> debugController;
-    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf()))))
-    {
-        debugController->EnableDebugLayer();
-    }
-#endif
+ //#if defined(_DEBUG)
+ //    // デバッグレイヤーを有効化
+ //    ComPtr<ID3D12Debug> debugController;
+ //    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf()))))
+ //    {
+ //        debugController->EnableDebugLayer();
+ //    }
+ //#endif
 
     if (!CreateDevice()) {
         printf("デバイスの初期化に失敗\n");
@@ -84,6 +84,14 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
     if (!CreateFence()) {
         printf("フェンスの作成に失敗\n");
         return false;
+    }
+
+    // DXRサポート確認
+    if (!CheckDxrSupport()) {
+        printf("警告: DXRがサポートされていません。レイトレーシング機能は無効になります\n");
+    }
+    else {
+        printf("DXRサポート: 有効\n");
     }
 
     CreateViewPort();
@@ -404,6 +412,15 @@ UINT Engine::CurrentBackBufferIndex()
     return m_CurrentBackBufferIndex;
 }
 
+ID3D12GraphicsCommandList4* Engine::GetDxrCommandList()
+{
+    if (!m_dxrSupported || !m_pDxrCommandList)
+    {
+        return nullptr;
+    }
+    return m_pDxrCommandList.Get();
+}
+
 bool Engine::CreateDevice()
 {
     try
@@ -504,6 +521,12 @@ bool Engine::CreateCommandList()
             nullptr,
             IID_PPV_ARGS(&m_pCommandList)
         ));
+
+        // DXR用のコマンドリストインターフェースを取得
+        if (SUCCEEDED(m_pCommandList->QueryInterface(IID_PPV_ARGS(&m_pDxrCommandList))))
+        {
+            // DXR対応のコマンドリストが取得できた
+        }
 
         // コマンドリストは開かれている状態で作成されるのでいったん閉じる
         m_pCommandList->Close();
@@ -896,3 +919,31 @@ void Engine::WaitForGPU()
     // 次の同期のために、フェンス値をインクリメント
     m_fenceValue[m_CurrentBackBufferIndex]++;
 }
+
+bool Engine::CheckDxrSupport()
+{
+    // D3D12_FEATURE_DATA_D3D12_OPTIONS5を使用してDXRサポートを確認
+    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
+    HRESULT hr = m_pDevice->CheckFeatureSupport(
+        D3D12_FEATURE_D3D12_OPTIONS5,
+        &options5,
+        sizeof(options5)
+    );
+
+    if (FAILED(hr))
+    {
+        m_dxrSupported = false;
+        return false;
+    }
+
+    // RaytracingTierがTIER_1_0以上であればDXRをサポート
+    if (options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_0)
+    {
+        m_dxrSupported = false;
+        return false;
+    }
+
+    m_dxrSupported = true;
+    return true;
+}
+

@@ -14,6 +14,11 @@ public:
 	bool IsValid(); // バッファの作成に成功したかを取得
 	void CopyData(size_t size, const void* pInitData);
 
+	// DXR用のメソッド
+	ID3D12Resource* GetResource() const { return m_pBuffer.Get(); }
+	UINT GetVertexCount() const { return static_cast<UINT>(m_View.SizeInBytes / m_View.StrideInBytes); }
+	UINT GetStride() const { return static_cast<UINT>(m_View.StrideInBytes); }
+
 private:
 	bool m_IsValid = false; // バッファの作成に成功したかを取得
 	ComPtr<ID3D12Resource> m_pBuffer = nullptr; // バッファ

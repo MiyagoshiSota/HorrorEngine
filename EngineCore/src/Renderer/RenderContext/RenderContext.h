@@ -18,6 +18,7 @@
 #include "Renderer/Graphics/Buffer/IndexBuffer.h"
 #include "Renderer/Graphics/Buffer/ConstantBuffer.h"
 #include "Renderer/Graphics/DescriptorHeap/DescriptorHandle.h"
+#include "Scene/RayTracing/RayTracedShadowManager.h"
 
 class IPipelineManager;
 struct ID3D12GraphicsCommandList;
@@ -48,6 +49,7 @@ public:
         , m_ExternalTempPool(persistentPool) // <--- 参照を保持
         , m_taaJitter(0.0f, 0.0f)
         , m_taaEnabled(false)
+        , m_useRayTracedShadow(false)
     {
         Device = g_Engine->Device();
     }
@@ -178,6 +180,33 @@ public:
         }
     }
 
+    // --- Ray Traced Shadowデータ管理 ---
+    void SetRayTracedShadowData(const RayTracedShadowRenderData& data)
+    {
+        m_rayTracedShadowData = data;
+    }
+
+    const RayTracedShadowRenderData& GetRayTracedShadowData() const
+    {
+        return m_rayTracedShadowData;
+    }
+
+    void SetRayTracedShadowUpdateCallback(std::function<void(const RayTracedShadowSceneConstants&)> callback)
+    {
+        m_rayTracedShadowUpdateCallback = callback;
+    }
+
+    void UpdateRayTracedShadowConstants(const RayTracedShadowSceneConstants& constants)
+    {
+        if (m_rayTracedShadowUpdateCallback)
+        {
+            m_rayTracedShadowUpdateCallback(constants);
+        }
+    }
+
+    void SetUseRayTracedShadow(bool use) { m_useRayTracedShadow = use; }
+    bool UseRayTracedShadow() const { return m_useRayTracedShadow; }
+
     /// <summary>
     /// TAAジッターを設定
     /// </summary>
@@ -230,6 +259,9 @@ private:
     std::shared_ptr<TempRenderTargetPool> m_ExternalTempPool;
     SkyboxData m_skyboxData;
     std::function<void(DirectX::XMMATRIX)> m_skyboxUpdateCallback;
+    RayTracedShadowRenderData m_rayTracedShadowData;
+    std::function<void(const RayTracedShadowSceneConstants&)> m_rayTracedShadowUpdateCallback;
     DirectX::XMFLOAT2 m_taaJitter;
     bool m_taaEnabled;
+    bool m_useRayTracedShadow;
 };

@@ -223,7 +223,7 @@
       "inputLayoutEnable": true,
       "sampleCount": 8,
       "cullMode": "BACK",
-      "rtvFormats": ["R8G8B8A8_UNORM", "R16G16_FLOAT"]
+      "rtvFormats": ["R8G8B8A8_UNORM", "R16G16_FLOAT", "R8G8B8A8_UNORM", "R16G16B16A16_FLOAT"]
     },
     "DefaultPipelinePassNoMSAA": {
       "rootSignature": "Geometry_Default",
@@ -233,7 +233,7 @@
       "inputLayoutEnable": true,
       "sampleCount": 1,
       "cullMode": "BACK",
-      "rtvFormats": ["R8G8B8A8_UNORM", "R16G16_FLOAT"]
+      "rtvFormats": ["R8G8B8A8_UNORM", "R16G16_FLOAT", "R8G8B8A8_UNORM", "R16G16B16A16_FLOAT"]
     },
     "DebugPipelinePass": {
       "rootSignature": "Debug_Default",

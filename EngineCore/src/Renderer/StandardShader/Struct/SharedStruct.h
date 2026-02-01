@@ -58,6 +58,7 @@ public:
         DirectX::XMMATRIX LightViewProj;  // 単一のライトビュープロジェクション行列
         DirectX::XMMATRIX PrevViewProj;   // 前フレームのViewProj（ジッターなし、Motion Vector用）
         DirectX::XMMATRIX CurrViewProj;   // 現フレームのViewProj（ジッターなし、Motion Vector用）
+        int UseRayTracedShadow = 0;       // 1=レイトレシャドウをサンプル（R32 0/1）、0=深度比較
     };
 
     // CascadedShadowMapTransform は削除しました

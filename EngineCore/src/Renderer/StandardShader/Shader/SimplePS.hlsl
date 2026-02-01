@@ -13,39 +13,6 @@ SamplerState g_Sampler : register(s0);
 SamplerComparisonState g_ShadowSampler : register(s1);
 
 // =========================================================
-// 影判定関数 (0.0=影, 1.0=日向)
-// =========================================================
-float CalculateShadow(float4 posLight)
-{
-    // 1. 射影変換 (w除算)
-    float3 projCoords = posLight.xyz / posLight.w;
-
-    // 2. NDC座標(-1~1) を UV座標(0~1) に変換
-    projCoords.x = projCoords.x * 0.5 + 0.5;
-    projCoords.y = -projCoords.y * 0.5 + 0.5;
-
-    // ライトの範囲外なら影判定しない（日向扱い）
-    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
-    {
-        return 1.0;
-    }
-
-    // 3. 深度比較
-    float currentDepth = projCoords.z;
-    float bias = 0.005;
-
-    float shadow = g_ShadowMap.SampleCmpLevelZero(
-        g_ShadowSampler,
-        projCoords.xy,
-        currentDepth - bias
-    );
-
-    // GREATER_EQUAL 等の比較方向と深度フォーマットの組み合わせで解釈が反転する場合の補正
-    // 0.0=影, 1.0=日向 になるよう反転
-    return 1.0 - shadow;
-}
-
-// =========================================================
 // 定数バッファ定義
 // =========================================================
 cbuffer Transform : register(b0)
@@ -56,6 +23,9 @@ cbuffer Transform : register(b0)
     float3 CameraPosition;
     float Padding0;
     float4x4 LightViewProj;
+    float4x4 PrevViewProj;
+    float4x4 CurrViewProj;
+    int g_useRayTracedShadow; // 1=レイトレシャドウ（R32 0/1）、0=深度比較
 }
 
 cbuffer LightParams : register(b1)
@@ -108,13 +78,50 @@ struct PSInput
 };
 
 // =========================================================
-// 出力構造体（MRT: カラー + Motion Vector）
+// 出力構造体（MRT: カラー + Motion Vector + 法線 + ワールド位置）
 // =========================================================
 struct PSOutput
 {
     float4 color : SV_TARGET0;         // カラー出力
     float2 motionVector : SV_TARGET1;  // モーションベクター出力
+    float4 normal : SV_TARGET2;       // レイトレ用：法線 (xyz), パック [0,1]
+    float4 worldPos : SV_TARGET3;     // レイトレ用：ワールド位置 (xyz), w=1
 };
+
+// =========================================================
+// 影判定関数 (0.0=影, 1.0=日向)
+// =========================================================
+float CalculateShadow(float4 posLight)
+{
+    // 1. 射影変換 (w除算)
+    float3 projCoords = posLight.xyz / posLight.w;
+
+    // 2. NDC座標(-1~1) を UV座標(0~1) に変換
+    projCoords.x = projCoords.x * 0.5 + 0.5;
+    projCoords.y = -projCoords.y * 0.5 + 0.5;
+
+    // ライトの範囲外なら影判定しない（日向扱い）
+    if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+    {
+        return 1.0;
+    }
+
+    // レイトレシャドウ：R32 テクスチャの 0/1 をそのまま使用
+    if (g_useRayTracedShadow != 0)
+    {
+        return g_ShadowMap.Sample(g_Sampler, projCoords.xy).r;
+    }
+
+    // ラスタシャドウマップ：深度比較
+    float currentDepth = projCoords.z;
+    float bias = 0.005;
+    float shadow = g_ShadowMap.SampleCmpLevelZero(
+        g_ShadowSampler,
+        projCoords.xy,
+        currentDepth - bias
+    );
+    return 1.0 - shadow;
+}
 
 // =========================================================
 // PBR ヘルパー関数 (変更なし)
@@ -345,14 +352,15 @@ PSOutput main(PSInput input)
     float3 color = ambient + Lo * shadowFactor * ao + emissive;
 
     output.color = float4(color, albedoSample.a);
-    
+
     // Motion Vector計算（クリップ空間 → NDC座標）
     float2 currNDC = input.currPos.xy / input.currPos.w;
     float2 prevNDC = input.prevPos.xy / input.prevPos.w;
-    
-    // NDC座標の差分がモーションベクター（スクリーン空間での移動量）
-    // Y軸は反転（DirectXの座標系）
     output.motionVector = float2(currNDC.x - prevNDC.x, prevNDC.y - currNDC.y) * 0.5;
-    
+
+    // レイトレ用MRT：法線（0.5+0.5でパック）、ワールド位置
+    output.normal = float4(N * 0.5 + 0.5, 1.0);
+    output.worldPos = float4(input.worldPos, 1.0);
+
     return output;
 }

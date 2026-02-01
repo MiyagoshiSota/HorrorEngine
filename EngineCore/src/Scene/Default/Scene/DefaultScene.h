@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene/Default/Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Scene/Skybox/SkyboxManager.h"
+#include "Scene/RayTracing/RayTracedShadowManager.h"
 #include "Physics/MyCollisionListener.h"
 #include "Scene/ISceneBase.h"
 
@@ -34,11 +35,12 @@ public:
 	std::shared_ptr<DefaultPipelineManager> GetDefaultPipelineManager() { return m_defaultPipelineManager; }
 
 	SkyboxManager* GetSkyboxManager() { return m_skyboxManager.get(); }
+	RayTracedShadowManager* GetRayTracedShadowManager() { return m_rayTracedShadowManager.get(); }
 
-	
 private:
 	std::shared_ptr<DefaultPipelineManager> m_defaultPipelineManager;
 	std::shared_ptr<MyCollisionListener> m_CollisionListener;
 	std::unique_ptr<SkyboxManager> m_skyboxManager;
+	std::unique_ptr<RayTracedShadowManager> m_rayTracedShadowManager;
 };
 

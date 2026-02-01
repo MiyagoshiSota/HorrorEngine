@@ -84,18 +84,21 @@ void GeometryPass::Collect(RenderContext& context)
         depthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
     }
 
-    // モーションベクターバッファの取得
+    // モーションベクター・レイトレ用MRTの取得
     auto motionVectorRT = context.GetRenderTarget(ConstRenderPref::MotionVectorBuffer);
+    auto normalRT = context.GetRenderTarget(ConstRenderPref::NormalBuffer);
+    auto worldPositionRT = context.GetRenderTarget(ConstRenderPref::WorldPositionBuffer);
 
     // バリア設定
     std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
     RendererUtility::simple_change_target_state(barriers, colorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
     RendererUtility::simple_change_target_state(barriers, depthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    
     if (motionVectorRT)
-    {
         RendererUtility::simple_change_target_state(barriers, motionVectorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    }
+    if (normalRT)
+        RendererUtility::simple_change_target_state(barriers, normalRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    if (worldPositionRT)
+        RendererUtility::simple_change_target_state(barriers, worldPositionRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     if (!barriers->empty())
     {
@@ -105,28 +108,38 @@ void GeometryPass::Collect(RenderContext& context)
     colorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
     depthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
     if (motionVectorRT)
-    {
         motionVectorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-    }
+    if (normalRT)
+        normalRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+    if (worldPositionRT)
+        worldPositionRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     // Clear
     const float clearColor[] = { 0.0, 0.0, 0.0, 1 };
     const float clearMotionVector[] = { 0.0, 0.0, 0.0, 0.0 };
+    const float clearNormal[] = { 0.0, 0.0, 1.0, 1.0 }; // 法線デフォルト (0,0,1)
+    const float clearWorldPos[] = { 0.0, 0.0, 0.0, 1.0 };
     cmdList->ClearRenderTargetView(colorRT->GetRTVHandle(), clearColor, 0, nullptr);
     if (motionVectorRT)
-    {
         cmdList->ClearRenderTargetView(motionVectorRT->GetRTVHandle(), clearMotionVector, 0, nullptr);
-    }
+    if (normalRT)
+        cmdList->ClearRenderTargetView(normalRT->GetRTVHandle(), clearNormal, 0, nullptr);
+    if (worldPositionRT)
+        cmdList->ClearRenderTargetView(worldPositionRT->GetRTVHandle(), clearWorldPos, 0, nullptr);
     cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     auto sceneDepthRHandle = depthRT->GetDSVHandle();
-    
-    // MRT設定：カラー + モーションベクター
-    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[2] = { 
+
+    // MRT設定：カラー + モーションベクター + 法線 + ワールド位置
+    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[4] = {
         colorRT->GetRTVHandle(),
-        motionVectorRT ? motionVectorRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{}
+        motionVectorRT ? motionVectorRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{},
+        normalRT ? normalRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{},
+        worldPositionRT ? worldPositionRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{}
     };
-    UINT numRenderTargets = motionVectorRT ? 2 : 1;
+    UINT numRenderTargets = 2u;
+    if (normalRT) numRenderTargets = 3u;
+    if (worldPositionRT) numRenderTargets = 4u;
 
     // Viewport & Scissor (画面サイズ)
     auto resourceDesc = colorRT->GetResource()->GetDesc();
@@ -182,7 +195,10 @@ void GeometryPass::Draw(RenderContext& context)
 
     // Shadow Map SRV
     auto shadowMapRT = context.GetRenderTarget(ConstRenderPref::ShadowMap);
-    cmdList->SetGraphicsRootDescriptorTable(4, shadowMapRT->GetSRVHandle()->gpuHandle);
+    if (context.UseRayTracedShadow() && (!shadowMapRT || !shadowMapRT->GetSRVHandle()))
+        printf("[GeometryPass] 警告: レイトレシャドウ有効だが ShadowMap/SRV が null です\n");
+    if (shadowMapRT && shadowMapRT->GetSRVHandle())
+        cmdList->SetGraphicsRootDescriptorTable(4, shadowMapRT->GetSRVHandle()->gpuHandle);
 
     // --- ライト行列の計算 (シングルパス) ---
     auto lightManager = g_Scene->GetLightingManager();
@@ -219,6 +235,7 @@ void GeometryPass::Draw(RenderContext& context)
         pTransform->World = obj->GetTransform();
         pTransform->View = view;
         pTransform->Proj = proj;
+        pTransform->UseRayTracedShadow = context.UseRayTracedShadow() ? 1 : 0;
 
         // CameraPos
         XMFLOAT3 camPosF = context.Camera->GetEyePosFloat3();

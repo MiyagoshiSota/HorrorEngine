@@ -6,6 +6,7 @@
 #include "Renderer/Pass/PostProcess/Pass/UnjitterPass.h"
 #include "Renderer/Pass/ShadowProcess/Pass/CascadedShadowMapPass.h"
 #include "Renderer/Pass/ShadowProcess/Pass/SimpleShadowMapPass.h"
+#include "Renderer/Pass/ShadowProcess/Pass/RayTracedShadowPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SkyboxPass.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 #include "Renderer/Target/RenderTarget.h"
@@ -40,6 +41,10 @@ public:
 	void SetFXAAEnabled(bool enabled) { m_aaSettings.fxaaEnabled = enabled; }
 	void SetTAAEnabled(bool enabled) { m_aaSettings.taaEnabled = enabled; }
 
+	// Ray Traced Shadowの有効/無効を切り替え
+	void SetRayTracedShadowEnabled(bool enabled);
+	bool IsRayTracedShadowEnabled() const;
+
 private:
     // ポストプロセス全体（FXAA/TAAの有無もここで分岐）
     void ExecutePostProcess(RenderContext& context);
@@ -62,11 +67,16 @@ private:
 	std::shared_ptr<RenderTarget> m_historyBuffer; // 履歴バッファ
 	std::shared_ptr<RenderTarget> m_motionVectorBuffer; // モーションベクターバッファ（RG16F、MSAA対応）
 	std::shared_ptr<RenderTarget> m_motionVectorResolved; // モーションベクターバッファ（Resolve後）
+	std::shared_ptr<RenderTarget> m_normalBuffer;       // レイトレ用：法線（MSAA時は8サンプル）
+	std::shared_ptr<RenderTarget> m_worldPositionBuffer; // レイトレ用：ワールド位置（MSAA時は8サンプル）
+	std::shared_ptr<RenderTarget> m_normalBufferNonMSAA;       // レイトレ用：法線（非MSAA）
+	std::shared_ptr<RenderTarget> m_worldPositionBufferNonMSAA; // レイトレ用：ワールド位置（非MSAA）
 
 private:
 	AASettings m_aaSettings;
 
 	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
+	std::shared_ptr<RayTracedShadowPass> m_rayTracedShadowPass;
 	//std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<PostProcessManager> m_postProcessManager;
 	std::shared_ptr<FXAAPass> m_fxaaPass;

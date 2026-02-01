@@ -1,5 +1,6 @@
 #include "DefaultScene.h"
 #include "Core/App.h"
+#include "Renderer/Engine.h"
 #include "Renderer/Assimp/AssimpLoader.h"
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Core/Components/TriggerComponent.h"
@@ -82,6 +83,27 @@ bool DefaultScene::Init(std::string goFilePath)
     if (m_defaultPipelineManager && m_skyboxManager)
     {
        m_skyboxManager->LoadAndSetup(L"Assets/skybox.dds", m_defaultPipelineManager->GetSkyboxPass());
+    }
+
+    // Ray Traced Shadow Managerの初期化（DXRサポート時のみ）
+    if (g_Engine && g_Engine->IsDxrSupported())
+    {
+        m_rayTracedShadowManager = std::make_unique<RayTracedShadowManager>();
+        Microsoft::WRL::ComPtr<ID3D12Device5> device5;
+        if (SUCCEEDED(g_Engine->Device()->QueryInterface(IID_PPV_ARGS(&device5))))
+        {
+            // レイトレシャドウはシャドウマップ方式（2048x2048）で出力
+            constexpr UINT kRayTracedShadowMapSize = 2048u;
+            if (m_rayTracedShadowManager->Init(device5.Get(), kRayTracedShadowMapSize, kRayTracedShadowMapSize))
+            {
+                printf("Ray Traced Shadow Manager: 初期化成功\n");
+            }
+            else
+            {
+                printf("Ray Traced Shadow Manager: 初期化失敗\n");
+                m_rayTracedShadowManager.reset();
+            }
+        }
     }
 
     printf("シーンの初期化に成功\n");
