@@ -18,6 +18,7 @@
     <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\LightingPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
@@ -200,6 +201,9 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\ChromaticAberrationPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimplePS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SimpleVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\GBufferPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\LightingVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\LightingPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\DebugVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\DebugPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticle.hlsl" />

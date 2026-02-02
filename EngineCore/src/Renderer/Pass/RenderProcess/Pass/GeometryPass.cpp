@@ -12,6 +12,7 @@
 #include "Scene/GameObject/Component/MeshRenderer.h"
 #include "Scene/GameObject/Model/Model.h"
 #include "Scene/Default/Scene/DefaultScene.h"
+#include "Scene/Default/Renderer/PipelineManager/DefaultPipelineManager.h"
 
 using namespace DirectX;
 
@@ -22,8 +23,10 @@ static const float kShadowDistance = 10000.0f;
 // SimpleShadowMapPass と同一のライト View*Proj を使用すること（posLight とシャドウマップの座標系一致のため）
 static const float kShadowSceneWidth = 50.0f;
 static const float kShadowSceneHeight = 50.0f;
-static const float kShadowNearZ = 1.0f;
-static const float kShadowFarZ = 150.0f;
+// static const float kShadowNearZ = 1.0f;
+static const float kShadowNearZ = 0.0f;
+// static const float kShadowFarZ = 150.0f;
+static const float kShadowFarZ = 10.0f;
 static const float kShadowLightDistance = 25.0f;
 
 void CalculateLightViewProj_Geometry(
@@ -47,120 +50,170 @@ void GeometryPass::Collect(RenderContext& context)
 {
     auto cmdList = context.CommandList;
 
-    // パイプラインステートとルートシグネチャの設定
-    auto name = "Geometry_Default";
-    
-    // MSAA設定に応じてPSOを選択
-    bool msaaEnabled = true;
-    auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
-    if (defaultScene)
-    {
-        auto pipeline = defaultScene->GetDefaultPipelineManager();
-        if (pipeline)
-            msaaEnabled = pipeline->GetAASettings().msaaEnabled;
-    }
-    const char* PSOname = msaaEnabled ? "DefaultPipelinePass" : "DefaultPipelinePassNoMSAA";
-
-    cmdList->SetGraphicsRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
-    cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
-
     m_RenderQueue.clear();
     for (auto& obj : context.GameObjects)
     {
         m_RenderQueue.push_back(obj);
     }
 
-    std::shared_ptr<ITargetBase> colorRT;
-    std::shared_ptr<ITargetBase> depthRT;
+    m_useDeferred = (context.GetRenderTarget(ConstRenderPref::GBufferAlbedo) != nullptr);
 
-    if (msaaEnabled)
+    if (m_useDeferred)
     {
-        colorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
-        depthRT = context.GetRenderTarget(ConstRenderPref::MSAA_Depth);
+        // デファード: Geometry_GBuffer + GBufferPass（6 RTV）。LightingPass でライティング・影
+        const char* name = "Geometry_GBuffer";
+        const char* PSOname = "GBufferPass";
+
+        cmdList->SetGraphicsRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
+        cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
+
+        std::shared_ptr<ITargetBase> colorRT = context.GetRenderTarget(ConstRenderPref::GBufferAlbedo);
+        std::shared_ptr<ITargetBase> depthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
+        if (!colorRT || !depthRT)
+            return;
+
+        auto motionVectorRT = context.GetRenderTarget(ConstRenderPref::MotionVectorBuffer);
+        auto normalRT = context.GetRenderTarget(ConstRenderPref::NormalBuffer);
+        auto worldPositionRT = context.GetRenderTarget(ConstRenderPref::WorldPositionBuffer);
+        auto materialRT = context.GetRenderTarget(ConstRenderPref::GBufferMaterial);
+        auto emissiveRT = context.GetRenderTarget(ConstRenderPref::GBufferEmissive);
+
+        std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
+        RendererUtility::simple_change_target_state(barriers, colorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        RendererUtility::simple_change_target_state(barriers, depthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+        if (motionVectorRT) RendererUtility::simple_change_target_state(barriers, motionVectorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        if (normalRT) RendererUtility::simple_change_target_state(barriers, normalRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        if (worldPositionRT) RendererUtility::simple_change_target_state(barriers, worldPositionRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        if (materialRT) RendererUtility::simple_change_target_state(barriers, materialRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        if (emissiveRT) RendererUtility::simple_change_target_state(barriers, emissiveRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+        if (!barriers->empty())
+            cmdList->ResourceBarrier(barriers->size(), barriers->data());
+
+        colorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+        depthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
+        if (motionVectorRT) motionVectorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+        if (normalRT) normalRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+        if (worldPositionRT) worldPositionRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+        if (materialRT) materialRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+        if (emissiveRT) emissiveRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+        const float clearColor[] = { 0.0, 0.0, 0.0, 1 };
+        const float clearMotionVector[] = { 0.0, 0.0, 0.0, 0.0 };
+        const float clearNormal[] = { 0.0, 0.0, 1.0, 1.0 };
+        const float clearWorldPos[] = { 0.0, 0.0, 0.0, 1.0 };
+        const float clearMaterial[] = { 0.5, 0.0, 1.0, 0.0 };
+        const float clearEmissive[] = { 0.0, 0.0, 0.0, 1.0 };
+        cmdList->ClearRenderTargetView(colorRT->GetRTVHandle(), clearColor, 0, nullptr);
+        if (motionVectorRT) cmdList->ClearRenderTargetView(motionVectorRT->GetRTVHandle(), clearMotionVector, 0, nullptr);
+        if (normalRT) cmdList->ClearRenderTargetView(normalRT->GetRTVHandle(), clearNormal, 0, nullptr);
+        if (worldPositionRT) cmdList->ClearRenderTargetView(worldPositionRT->GetRTVHandle(), clearWorldPos, 0, nullptr);
+        if (materialRT) cmdList->ClearRenderTargetView(materialRT->GetRTVHandle(), clearMaterial, 0, nullptr);
+        if (emissiveRT) cmdList->ClearRenderTargetView(emissiveRT->GetRTVHandle(), clearEmissive, 0, nullptr);
+        cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+        D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[6] = {
+            colorRT->GetRTVHandle(),
+            motionVectorRT ? motionVectorRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{},
+            normalRT ? normalRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{},
+            worldPositionRT ? worldPositionRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{},
+            materialRT ? materialRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{},
+            emissiveRT ? emissiveRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{}
+        };
+        D3D12_CPU_DESCRIPTOR_HANDLE sceneDepthRHandle = depthRT->GetDSVHandle();
+        cmdList->OMSetRenderTargets(6u, sceneColorRTVHandle, FALSE, &sceneDepthRHandle);
     }
     else
     {
-        colorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
-        depthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
-    }
+        // フォワード: Geometry_Default + DefaultPipelinePass（4 RTV）。SimplePS でライティング・影を一括
+        bool msaaEnabled = true;
+        auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
+        if (defaultScene)
+        {
+            auto pipeline = defaultScene->GetDefaultPipelineManager();
+            if (pipeline)
+                msaaEnabled = pipeline->GetAASettings().msaaEnabled;
+        }
 
-    // モーションベクター・レイトレ用MRTの取得
-    auto motionVectorRT = context.GetRenderTarget(ConstRenderPref::MotionVectorBuffer);
-    auto normalRT = context.GetRenderTarget(ConstRenderPref::NormalBuffer);
-    auto worldPositionRT = context.GetRenderTarget(ConstRenderPref::WorldPositionBuffer);
+        const char* name = "Geometry_Default";
+        const char* PSOname = msaaEnabled ? "DefaultPipelinePass" : "DefaultPipelinePassNoMSAA";
 
-    // バリア設定
-    std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
-    RendererUtility::simple_change_target_state(barriers, colorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    RendererUtility::simple_change_target_state(barriers, depthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    if (motionVectorRT)
+        cmdList->SetGraphicsRootSignature(g_Scene->GetPipelineStateManager()->GetRootSignature(name)->Get());
+        cmdList->SetPipelineState(g_Scene->GetPipelineStateManager()->GetPipelineState(PSOname)->Get());
+
+        std::shared_ptr<ITargetBase> colorRT = msaaEnabled
+            ? context.GetRenderTarget(ConstRenderPref::MSAART)
+            : context.GetRenderTarget(ConstRenderPref::SceneColor);
+        std::shared_ptr<ITargetBase> depthRT = msaaEnabled
+            ? context.GetRenderTarget(ConstRenderPref::MSAA_Depth)
+            : context.GetRenderTarget(ConstRenderPref::SceneDepth);
+        auto motionVectorRT = context.GetRenderTarget(ConstRenderPref::MotionVectorBuffer);
+        auto normalRT = context.GetRenderTarget(ConstRenderPref::NormalBuffer);
+        auto worldPositionRT = context.GetRenderTarget(ConstRenderPref::WorldPositionBuffer);
+
+        if (!colorRT || !depthRT || !motionVectorRT || !normalRT || !worldPositionRT)
+            return;
+
+        std::shared_ptr<std::vector<D3D12_RESOURCE_BARRIER>> barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
+        RendererUtility::simple_change_target_state(barriers, colorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        RendererUtility::simple_change_target_state(barriers, depthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
         RendererUtility::simple_change_target_state(barriers, motionVectorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    if (normalRT)
         RendererUtility::simple_change_target_state(barriers, normalRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    if (worldPositionRT)
         RendererUtility::simple_change_target_state(barriers, worldPositionRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    if (!barriers->empty())
-    {
-        cmdList->ResourceBarrier(barriers->size(), barriers->data());
-    }
+        if (!barriers->empty())
+            cmdList->ResourceBarrier(barriers->size(), barriers->data());
 
-    colorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-    depthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    if (motionVectorRT)
+        colorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+        depthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
         motionVectorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-    if (normalRT)
         normalRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-    if (worldPositionRT)
         worldPositionRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    // Clear
-    const float clearColor[] = { 0.0, 0.0, 0.0, 1 };
-    const float clearMotionVector[] = { 0.0, 0.0, 0.0, 0.0 };
-    const float clearNormal[] = { 0.0, 0.0, 1.0, 1.0 }; // 法線デフォルト (0,0,1)
-    const float clearWorldPos[] = { 0.0, 0.0, 0.0, 1.0 };
-    cmdList->ClearRenderTargetView(colorRT->GetRTVHandle(), clearColor, 0, nullptr);
-    if (motionVectorRT)
+        const float clearColor[] = { 0.0, 0.0, 0.0, 1 };
+        const float clearMotionVector[] = { 0.0, 0.0, 0.0, 0.0 };
+        const float clearNormal[] = { 0.0, 0.0, 1.0, 1.0 };
+        const float clearWorldPos[] = { 0.0, 0.0, 0.0, 1.0 };
+        cmdList->ClearRenderTargetView(colorRT->GetRTVHandle(), clearColor, 0, nullptr);
         cmdList->ClearRenderTargetView(motionVectorRT->GetRTVHandle(), clearMotionVector, 0, nullptr);
-    if (normalRT)
         cmdList->ClearRenderTargetView(normalRT->GetRTVHandle(), clearNormal, 0, nullptr);
-    if (worldPositionRT)
         cmdList->ClearRenderTargetView(worldPositionRT->GetRTVHandle(), clearWorldPos, 0, nullptr);
-    cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-    auto sceneDepthRHandle = depthRT->GetDSVHandle();
+        D3D12_CPU_DESCRIPTOR_HANDLE forwardRTVHandle[4] = {
+            colorRT->GetRTVHandle(),
+            motionVectorRT->GetRTVHandle(),
+            normalRT->GetRTVHandle(),
+            worldPositionRT->GetRTVHandle()
+        };
+        D3D12_CPU_DESCRIPTOR_HANDLE forwardDepthHandle = depthRT->GetDSVHandle();
+        cmdList->OMSetRenderTargets(4u, forwardRTVHandle, FALSE, &forwardDepthHandle);
+    }
 
-    // MRT設定：カラー + モーションベクター + 法線 + ワールド位置
-    D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[4] = {
-        colorRT->GetRTVHandle(),
-        motionVectorRT ? motionVectorRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{},
-        normalRT ? normalRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{},
-        worldPositionRT ? worldPositionRT->GetRTVHandle() : D3D12_CPU_DESCRIPTOR_HANDLE{}
-    };
-    UINT numRenderTargets = 2u;
-    if (normalRT) numRenderTargets = 3u;
-    if (worldPositionRT) numRenderTargets = 4u;
-
-    // Viewport & Scissor (画面サイズ)
-    auto resourceDesc = colorRT->GetResource()->GetDesc();
-    D3D12_VIEWPORT viewport = {};
-    viewport.Width = static_cast<float>(resourceDesc.Width);
-    viewport.Height = static_cast<float>(resourceDesc.Height);
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    viewport.TopLeftX = 0;
-    viewport.TopLeftY = 0;
-
-    D3D12_RECT scissorRect = {};
-    scissorRect.left = 0;
-    scissorRect.top = 0;
-    scissorRect.right = static_cast<LONG>(resourceDesc.Width);
-    scissorRect.bottom = static_cast<LONG>(resourceDesc.Height);
-
-    cmdList->RSSetViewports(1, &viewport);
-    cmdList->RSSetScissorRects(1, &scissorRect);
-
-    cmdList->OMSetRenderTargets(numRenderTargets, sceneColorRTVHandle, FALSE, &sceneDepthRHandle);
+    // Viewport & Scissor（共通）
+    std::shared_ptr<ITargetBase> anyRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
+    if (!anyRT)
+        anyRT = context.GetRenderTarget(ConstRenderPref::MSAART);
+    if (!anyRT)
+        anyRT = context.GetRenderTarget(ConstRenderPref::GBufferAlbedo);
+    if (anyRT && anyRT->GetResource())
+    {
+        auto resourceDesc = anyRT->GetResource()->GetDesc();
+        D3D12_VIEWPORT viewport = {};
+        viewport.Width = static_cast<float>(resourceDesc.Width);
+        viewport.Height = static_cast<float>(resourceDesc.Height);
+        viewport.MinDepth = 0.0f;
+        viewport.MaxDepth = 1.0f;
+        viewport.TopLeftX = 0;
+        viewport.TopLeftY = 0;
+        cmdList->RSSetViewports(1, &viewport);
+        D3D12_RECT scissorRect = {};
+        scissorRect.left = 0;
+        scissorRect.top = 0;
+        scissorRect.right = static_cast<LONG>(resourceDesc.Width);
+        scissorRect.bottom = static_cast<LONG>(resourceDesc.Height);
+        cmdList->RSSetScissorRects(1, &scissorRect);
+    }
 }
 
 // =========================================================
@@ -193,14 +246,15 @@ void GeometryPass::Draw(RenderContext& context)
     auto materialHeap = g_Engine->GetDescriptorHeap()->GetHeap();
     cmdList->SetDescriptorHeaps(1, &materialHeap);
 
-    // Shadow Map SRV
-    auto shadowMapRT = context.GetRenderTarget(ConstRenderPref::ShadowMap);
-    if (context.UseRayTracedShadow() && (!shadowMapRT || !shadowMapRT->GetSRVHandle()))
-        printf("[GeometryPass] 警告: レイトレシャドウ有効だが ShadowMap/SRV が null です\n");
-    if (shadowMapRT && shadowMapRT->GetSRVHandle())
-        cmdList->SetGraphicsRootDescriptorTable(4, shadowMapRT->GetSRVHandle()->gpuHandle);
+    // フォワード時のみシャドウマップをバインド（Geometry_Default の table t4）。デファード時は LightingPass で参照
+    if (!m_useDeferred)
+    {
+        auto shadowRT = context.GetRenderTarget(ConstRenderPref::ShadowMap);
+        if (shadowRT && shadowRT->GetSRVHandle())
+            cmdList->SetGraphicsRootDescriptorTable(4, shadowRT->GetSRVHandle()->gpuHandle);
+    }
 
-    // --- ライト行列の計算 (シングルパス) ---
+    // --- ライト行列の計算 (VS の posLight 出力用・LightingPass/SimplePS で使用) ---
     auto lightManager = g_Scene->GetLightingManager();
     // TODO: ライトがない場合のガード
     auto directionLight = lightManager->GetDirectionalLights()[0];
@@ -235,7 +289,7 @@ void GeometryPass::Draw(RenderContext& context)
         pTransform->World = obj->GetTransform();
         pTransform->View = view;
         pTransform->Proj = proj;
-        pTransform->UseRayTracedShadow = context.UseRayTracedShadow() ? 1 : 0;
+        pTransform->UseRayTracedShadow = m_useDeferred ? 0 : (context.UseRayTracedShadow() ? 1 : 0);
 
         // CameraPos
         XMFLOAT3 camPosF = context.Camera->GetEyePosFloat3();

@@ -19,6 +19,7 @@
 #include "Renderer/Graphics/Buffer/ConstantBuffer.h"
 #include "Renderer/Graphics/DescriptorHeap/DescriptorHandle.h"
 #include "Scene/RayTracing/RayTracedShadowManager.h"
+#include "Renderer/RenderContext/ShadowTypes.h"
 
 class IPipelineManager;
 struct ID3D12GraphicsCommandList;
@@ -207,6 +208,14 @@ public:
     void SetUseRayTracedShadow(bool use) { m_useRayTracedShadow = use; }
     bool UseRayTracedShadow() const { return m_useRayTracedShadow; }
 
+    /// シャドウ契約（ライティングパスが参照）
+    void SetShadowContext(const ShadowContext& sc)
+    {
+        m_shadowContext = sc;
+        m_useRayTracedShadow = (sc.mode == ShadowMode::RayTracedMask || sc.mode == ShadowMode::RayTracedVisibility);
+    }
+    const ShadowContext& GetShadowContext() const { return m_shadowContext; }
+
     /// <summary>
     /// TAAジッターを設定
     /// </summary>
@@ -264,4 +273,5 @@ private:
     DirectX::XMFLOAT2 m_taaJitter;
     bool m_taaEnabled;
     bool m_useRayTracedShadow;
+    ShadowContext m_shadowContext;
 };

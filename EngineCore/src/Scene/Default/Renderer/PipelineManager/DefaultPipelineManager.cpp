@@ -7,11 +7,14 @@
 #include "Renderer/Engine.h"
 #include "Renderer/Pass/RenderProcess/Pass/DebugPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/GeometryPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/LightingPass.h"
 #include "Scene/Skybox/SkyboxManager.h"
 #include "Scene/RayTracing/RayTracedShadowManager.h"
 #include "Scene/Default/Scene/DefaultScene.h"
 #include "Renderer/Target/DepthStencilTarget.h"
+#include "Renderer/RenderContext/ShadowTypes.h"
 #include <d3dx12.h>
+#include <DirectXMath.h>
 
 DefaultPipelineManager::DefaultPipelineManager()
 {
@@ -68,6 +71,12 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_worldPositionBufferNonMSAA = std::make_shared<RenderTarget>();
 	m_normalBufferNonMSAA->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_worldPositionBufferNonMSAA->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_gbufferAlbedo = std::make_shared<RenderTarget>();
+	m_gbufferAlbedo->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_gbufferMaterial = std::make_shared<RenderTarget>();
+	m_gbufferMaterial->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_gbufferEmissive = std::make_shared<RenderTarget>();
+	m_gbufferEmissive->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
@@ -84,6 +93,7 @@ DefaultPipelineManager::DefaultPipelineManager()
 
 	// 一時レンダーターゲットプールの生成
 	m_tempRenderTargetPool = std::make_shared<TempRenderTargetPool>();
+	m_lightingPass = std::make_shared<LightingPass>();
 }
 
 void DefaultPipelineManager::Execute()
@@ -104,33 +114,39 @@ void DefaultPipelineManager::Execute()
     }
 
     // レンダーターゲットを設定
-    context.AddRenderTarget(ConstRenderPref::SceneColor,m_sceneColor);
-    context.AddRenderTarget(ConstRenderPref::SceneDepth,m_sceneDepth);
+    context.AddRenderTarget(ConstRenderPref::SceneColor, m_sceneColor);
+    context.AddRenderTarget(ConstRenderPref::SceneDepth, m_sceneDepth);
 	context.AddRenderTarget(ConstRenderPref::TmpColorA, m_tmpColorA);
     context.AddRenderTarget(ConstRenderPref::TmpColorB, m_tmpColorB);
 	context.AddRenderTarget(ConstRenderPref::HistoryBuffer, m_historyBuffer);
-	
-	// モーションベクターバッファ：MSAA有効時はMSAAバッファ、無効時はResolvedバッファを使用
-	if (m_aaSettings.msaaEnabled)
-	{
-		context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorBuffer);
-	}
-	else
-	{
-		context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorResolved);
-	}
-	
 	context.AddRenderTarget(ConstRenderPref::MSAART, m_msaaTarget);
 	context.AddRenderTarget(ConstRenderPref::MSAA_Depth, m_msaaDepth);
-	if (m_aaSettings.msaaEnabled)
+
+	if (m_useDeferred)
 	{
-		context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBuffer);
-		context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBuffer);
+		// デファード: G-Buffer（1x）を登録。LightingPass が SceneColor に描画する
+		context.AddRenderTarget(ConstRenderPref::GBufferAlbedo, m_gbufferAlbedo);
+		context.AddRenderTarget(ConstRenderPref::GBufferMaterial, m_gbufferMaterial);
+		context.AddRenderTarget(ConstRenderPref::GBufferEmissive, m_gbufferEmissive);
+		context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorResolved);
+		context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBufferNonMSAA);
+		context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBufferNonMSAA);
 	}
 	else
 	{
-		context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBufferNonMSAA);
-		context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBufferNonMSAA);
+		// フォワード: GeometryPass の 4 RTV 用。MSAA 有無でバッファを切り替え
+		if (m_aaSettings.msaaEnabled)
+		{
+			context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorBuffer);
+			context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBuffer);
+			context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBuffer);
+		}
+		else
+		{
+			context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorResolved);
+			context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBufferNonMSAA);
+			context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBufferNonMSAA);
+		}
 	}
 	// ShadowMapターゲットの設定（Ray Traced Shadowが有効な場合はそちらを優先）
 	auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
@@ -200,7 +216,7 @@ void DefaultPipelineManager::Execute()
         }
     }
 
-    // Shadow
+    // Shadow（ライト空間深度 or R32 マスク）
     if (m_rayTracedShadowPass && m_rayTracedShadowPass->IsEnabled())
     {
         m_rayTracedShadowPass->Execute(context);
@@ -210,20 +226,58 @@ void DefaultPipelineManager::Execute()
         m_simpleShadowMapPass->LastExecute(context);
     }
 
-    // Mesh
+    // ShadowContext を構築（LightingPass が参照）
+    {
+        ShadowContext sc;
+        sc.mode = (m_rayTracedShadowPass && m_rayTracedShadowPass->IsEnabled())
+            ? ShadowMode::RayTracedMask
+            : ShadowMode::RasterDepth;
+        const float kShadowSceneW = 50.0f;
+        const float kShadowSceneH = 50.0f;
+        const float kShadowNearZ = 0.0f;
+        const float kShadowFarZ = 10.0f;
+        const float kShadowLightDist = 25.0f;
+        auto lightManager = g_Scene->GetLightingManager();
+        if (lightManager && !lightManager->GetDirectionalLights().empty())
+        {
+            DirectX::XMFLOAT3 lightDirF = lightManager->GetDirectionalLights()[0]->Direction;
+            DirectX::XMVECTOR lightDir = DirectX::XMVector3Normalize(
+                DirectX::XMVectorSet(lightDirF.x, lightDirF.y, lightDirF.z, 0.0f));
+            DirectX::XMVECTOR targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+            DirectX::XMVECTOR lightPos = DirectX::XMVectorSubtract(
+                targetPos, DirectX::XMVectorScale(lightDir, kShadowLightDist));
+            DirectX::XMMATRIX lightView = DirectX::XMMatrixLookAtRH(
+                lightPos, targetPos, DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+            DirectX::XMMATRIX lightProj = DirectX::XMMatrixOrthographicRH(
+                kShadowSceneW, kShadowSceneH, kShadowNearZ, kShadowFarZ);
+            sc.mainLightViewProj = DirectX::XMMatrixMultiply(lightView, lightProj);
+        }
+        auto shadowRT = context.GetRenderTarget(ConstRenderPref::ShadowMap);
+        if (shadowRT && shadowRT->GetSRVHandle())
+            sc.shadowSrv = shadowRT->GetSRVHandle()->gpuHandle;
+        context.SetShadowContext(sc);
+    }
+
+    // Mesh（G-Buffer 出力）
     for (auto& pass : m_sceneRenderPasses)
     {
         pass->Execute(context);
     }
 
-    // Skybox (MSAAターゲットに描画、GeometryPassの後)
+    // Lighting（デファード時のみ: G-Buffer + Shadow → SceneColor）
+    if (m_useDeferred && m_lightingPass)
+    {
+        m_lightingPass->Execute(context);
+    }
+
+    // Skybox（SceneColor に描画）
     if (m_skyboxPass && m_skyboxPass->IsEnabled(context))
     {
         m_skyboxPass->Execute(context);
     }
 
-    // MSAA Resolve処理（MSAA有効時のみ）
-    if (m_aaSettings.msaaEnabled)
+    // MSAA Resolve処理（フォワード時かつ MSAA 有効時のみ。デファード時は LightingPass が SceneColor に直接描画済み）
+    if (m_aaSettings.msaaEnabled && !m_useDeferred)
     {
         RendererUtility::ResolveMSAA(context, ConstRenderPref::MSAART, ConstRenderPref::SceneColor);
         

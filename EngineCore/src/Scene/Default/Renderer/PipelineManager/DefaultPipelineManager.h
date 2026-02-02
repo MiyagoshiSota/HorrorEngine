@@ -8,6 +8,8 @@
 #include "Renderer/Pass/ShadowProcess/Pass/SimpleShadowMapPass.h"
 #include "Renderer/Pass/ShadowProcess/Pass/RayTracedShadowPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SkyboxPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/LightingPass.h"
+#include "Renderer/RenderContext/ShadowTypes.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 #include "Renderer/Target/RenderTarget.h"
 #include "Renderer/Target/DepthStencilTarget.h"
@@ -45,6 +47,10 @@ public:
 	void SetRayTracedShadowEnabled(bool enabled);
 	bool IsRayTracedShadowEnabled() const;
 
+	// デファード / フォワードレンダリングの切り替え
+	void SetDeferredRendering(bool useDeferred) { m_useDeferred = useDeferred; }
+	bool IsDeferredRendering() const { return m_useDeferred; }
+
 private:
     // ポストプロセス全体（FXAA/TAAの有無もここで分岐）
     void ExecutePostProcess(RenderContext& context);
@@ -69,10 +75,14 @@ private:
 	std::shared_ptr<RenderTarget> m_motionVectorResolved; // モーションベクターバッファ（Resolve後）
 	std::shared_ptr<RenderTarget> m_normalBuffer;       // レイトレ用：法線（MSAA時は8サンプル）
 	std::shared_ptr<RenderTarget> m_worldPositionBuffer; // レイトレ用：ワールド位置（MSAA時は8サンプル）
-	std::shared_ptr<RenderTarget> m_normalBufferNonMSAA;       // レイトレ用：法線（非MSAA）
-	std::shared_ptr<RenderTarget> m_worldPositionBufferNonMSAA; // レイトレ用：ワールド位置（非MSAA）
+	std::shared_ptr<RenderTarget> m_normalBufferNonMSAA;       // G-Buffer：法線（1x）
+	std::shared_ptr<RenderTarget> m_worldPositionBufferNonMSAA; // G-Buffer：ワールド位置（1x）
+	std::shared_ptr<RenderTarget> m_gbufferAlbedo;      // G-Buffer：アルベド（1x）
+	std::shared_ptr<RenderTarget> m_gbufferMaterial;   // G-Buffer：roughness, metallic, AO, emissive.r
+	std::shared_ptr<RenderTarget> m_gbufferEmissive;  // G-Buffer：emissive.g, emissive.b
 
 private:
+	bool m_useDeferred = true;  // true=デファード（G-Buffer+LightingPass）, false=フォワード（SimplePS 1パス）
 	AASettings m_aaSettings;
 
 	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
@@ -85,5 +95,6 @@ private:
     std::shared_ptr<RainParticleSystem> m_rainParticleSystem;
 	std::shared_ptr<TempRenderTargetPool> m_tempRenderTargetPool;
     std::shared_ptr<SkyboxPass> m_skyboxPass;
+	std::shared_ptr<LightingPass> m_lightingPass;
 };
 

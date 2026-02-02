@@ -16,4 +16,8 @@ public:
 	static inline const char* MotionVectorBuffer = "MotionVectorBuffer";
 	static inline const char* NormalBuffer = "NormalBuffer";
 	static inline const char* WorldPositionBuffer = "WorldPositionBuffer";
+	static inline const char* GBufferAlbedo = "GBufferAlbedo";
+	static inline const char* GBufferMaterial = "GBufferMaterial";  // roughness, metallic, AO, emissive.r
+	static inline const char* GBufferEmissive = "GBufferEmissive";   // emissive.g, emissive.b
+	static inline const char* RtShadowVisibility = "RtShadowVisibility";
 };

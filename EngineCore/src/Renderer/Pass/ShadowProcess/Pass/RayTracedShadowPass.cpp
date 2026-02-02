@@ -13,8 +13,10 @@ namespace
 {
     const float kShadowSceneWidth = 50.0f;
     const float kShadowSceneHeight = 50.0f;
-    const float kShadowNearZ = 1.0f;
-    const float kShadowFarZ = 150.0f;
+    //const float kShadowNearZ = 1.0f;
+    const float kShadowNearZ = 0.0f;
+    // const float kShadowFarZ = 150.0f;
+    const float kShadowFarZ = 10.0f;
     const float kShadowLightDistance = 25.0f;
 
     // デバッグログ: 初回とその後は N フレームごとに出力（0 で毎フレーム）

@@ -19,4 +19,5 @@ protected:
 private:
     DirectX::XMMATRIX m_prevViewProj; // 前フレームのViewProj行列（Motion Vector用）
     bool m_isFirstFrame; // 最初のフレームかどうか
+    bool m_useDeferred = true; // Collect で設定。Draw でフォワード時のみシャドウバインドに使用
 };

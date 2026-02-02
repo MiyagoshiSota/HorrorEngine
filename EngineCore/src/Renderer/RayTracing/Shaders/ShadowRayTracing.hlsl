@@ -1,37 +1,48 @@
-// Ray Tracing Shader for Hard Shadows
-// このシェーダーはDXRを使用してハードシャドウを計算します
+// Ray Tracing Shader for Shadow Map Generation
+// (ライト視点のシャドウマスク / デバッグ値を R32_FLOAT テクスチャに書き込む)
 
-// デバッグ: 段階的に return してテスト（0=本番, 1～5=ステップで早期 return）
-#define SHADOW_RAYGEN_DEBUG_STEP 3
+// -----------------------------------------------------------------------------
+// Debug 出力モード
+// -----------------------------------------------------------------------------
+// SimplePS.hlsl 側の CalculateShadow() は、
+//   g_useRayTracedShadow != 0 の場合に g_ShadowMap(R32_FLOAT) を
+//   「0 = 影」「1 = 日向」のマスクとして参照している。
+//
+// そこで、本シェーダでは以下のモードで出力内容を切り替えられるようにする。
+//
+//   SHADOW_DEBUG_MODE = 0 : 通常モード（0=影, 1=日向 のマスク出力）
+//   SHADOW_DEBUG_MODE = 1 : ヒット距離を可視化（0〜1 に正規化）
+//   SHADOW_DEBUG_MODE = 2 : ヒット有無のみ出力（ヒット=1, ミス=0）
+//   SHADOW_DEBUG_MODE = 3 : UV.x を出力（レイ生成の座標確認用）
+//   それ以外           : 生の hitDist をそのまま出力（リニア距離）
+//
+// 必要に応じて、このファイル上部の定義を変更して再ビルドすれば
+// すぐに別のデバッグモードを確認できる。
+#ifndef SHADOW_DEBUG_MODE
+#define SHADOW_DEBUG_MODE 1
+#endif
 
-// グローバルルートシグネチャパラメータ
-RaytracingAccelerationStructure g_scene : register(t0, space0);  // TLAS
-RWTexture2D<float> g_shadowOutput : register(u0);                 // シャドウマップ出力
+// グローバルルートシグネチャ
+RaytracingAccelerationStructure g_scene : register(t0, space0);
+RWTexture2D<float> g_shadowOutput : register(u0); // float1 (R32_FLOAT 等を推奨)
 
-// シーン定数バッファ（シャドウマップ方式：ライト視点の逆行列でワールド位置を復元）
 cbuffer SceneConstants : register(b0)
 {
-    float3 g_lightPosition;    // ライト位置
-    float g_lightRadius;       // ライト半径（予約）
-    float3 g_lightDirection;   // ライト方向
+    float3 g_lightPosition;
+    float g_lightRadius;
+    float3 g_lightDirection;
     float g_padding;
-    float4x4 g_invLightViewProj; // ライト視点の逆 View*Proj（シャドウマップ texel → ワールド位置）
+    row_major float4x4 g_invLightViewProj; // ライト視点の逆ViewProj
 };
 
-// レイペイロード構造体（シャドウレイ用）
-struct ShadowPayload
+// ペイロード変更: ヒットフラグではなく「距離」を持つ
+struct ShadowMapPayload
 {
-    bool isHit;  // レイがジオメトリにヒットしたか
-};
-
-// レイ属性（交差時の補間パラメータ）
-struct RayAttributes
-{
-    float2 barycentrics;
+    float hitDist; // ライトから衝突点までの距離 (Linear Depth)
 };
 
 // =============================================================================
-// Ray Generation Shader（シャドウマップ方式：各 texel でライト→シーンへレイ）
+// Ray Generation Shader
 // =============================================================================
 [shader("raygeneration")]
 void ShadowRayGen()
@@ -39,74 +50,113 @@ void ShadowRayGen()
     uint2 launchIndex = DispatchRaysIndex().xy;
     uint2 launchDim = DispatchRaysDimensions().xy;
 
-    // シャドウマップ UV [0,1] → NDC (DirectX: x [-1,1], y [1,-1], z=1 = far)
+    // 1. ライトの視錐台(Frustum)に基づいてレイの方向を計算
+    // 現在の画素(UV)から、ライト視点のFar平面(z=1.0)上のワールド座標を求める
     float2 uv = (float2(launchIndex) + 0.5) / float2(launchDim);
     float4 ndc = float4(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 1.0, 1.0);
 
-    // HLSL は列優先: C++ で転置して渡すと GPU では inv として読まれる → inv * ndc にする
-    float4 worldPos4 = mul(g_invLightViewProj, ndc);
-    float3 worldPos = worldPos4.xyz / worldPos4.w;
+    float4 targetWorldPos4 = mul(g_invLightViewProj, ndc);
 
-    // レイ：ライト位置 → そのワールド位置へ
-    float3 toPoint = worldPos - g_lightPosition;
-    float dist = length(toPoint);
-    if (dist < 1e-5)
+    // w が 0 に極端に近い場合は逆変換が破綻している可能性があるので、
+    // その画素だけ特別な値を書き込んで早期リターンする。
+    // （R32_FLOAT なので、「-1」が出ているピクセルを見れば問題箇所を特定しやすい）
+    if (abs(targetWorldPos4.w) < 1e-6f)
     {
-        g_shadowOutput[launchIndex] = 0.2f; // ライト直下は常に明るい
+        g_shadowOutput[launchIndex] = -1.0f;
         return;
     }
-    float3 rayDir = toPoint / dist;
 
+    float3 targetWorldPos = targetWorldPos4.xyz / targetWorldPos4.w;
+
+    // ライト位置からターゲット方向へのベクトル
+    float3 rayDir = normalize(targetWorldPos - g_lightPosition);
+
+    // 2. レイの設定
     RayDesc ray;
     ray.Origin = g_lightPosition;
     ray.Direction = rayDir;
-    ray.TMin = 0.01f;   // セルフシャドウ回避
-    ray.TMax = max(dist - 0.01f, 0.0f);
+    ray.TMin = 0.01f;     // セルフシャドウノイズ回避用
+    ray.TMax = 10000.0f;  // ライトの最大到達距離（シーンに合わせて十分大きく設定）
 
-    ShadowPayload payload;
-    payload.isHit = false;
-
+    // 3. ペイロード初期化（初期値は「無限遠」扱いにする）
+    ShadowMapPayload payload;
+    payload.hitDist = ray.TMax; 
+    
+    // 4. トレース実行
+    // 「最も近い交点」を知りたいので、RAY_FLAG_CULL_BACK_FACING_TRIANGLES を使用。
     TraceRay(
         g_scene,
-        RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH |
-        RAY_FLAG_SKIP_CLOSEST_HIT_SHADER,
+        RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // 裏面は無視（必要に応じて RAY_FLAG_NONE）
         0xFF, 0, 0, 0,
         ray,
         payload
     );
 
-    // ヒット=影(0), ミス=日向(1)
-    float shadowValue = payload.isHit ? 0.0f : 1.0f;
-    g_shadowOutput[launchIndex] = shadowValue;
+    // 5. 出力
+    // まず「ヒットがあったかどうか」を判定
+    bool hasHit = (payload.hitDist < ray.TMax - 1e-3f);
+
+#if SHADOW_DEBUG_MODE == 0
+    // --- 通常モード ---
+    // SimplePS.hlsl の CalculateShadow() が期待しているフォーマット:
+    //   0.0 = 影, 1.0 = 日向
+    g_shadowOutput[launchIndex] = hasHit ? 0.0f : 1.0f;
+
+#elif SHADOW_DEBUG_MODE == 1
+    // --- デバッグ: ヒット距離を 0〜1 に正規化して可視化 ---
+    // シーンスケールに応じて maxDebugDist を調整する。
+    const float maxDebugDist = 100.0f;
+    float encoded = hasHit ? saturate(payload.hitDist / maxDebugDist) : 1.0f;
+    g_shadowOutput[launchIndex] = encoded;
+
+#elif SHADOW_DEBUG_MODE == 2
+    // --- デバッグ: ヒット有無のみ ---
+    // 1.0 = ヒットあり, 0.0 = ミス
+    g_shadowOutput[launchIndex] = hasHit ? 1.0f : 0.0f;
+
+#elif SHADOW_DEBUG_MODE == 3
+    // --- デバッグ: レイ生成 UV.x の可視化 ---
+    // 左端=0.0, 右端=1.0 が滑らかに変化するかで DispatchRays の範囲や
+    // NDC/UV 変換の確認ができる。
+    g_shadowOutput[launchIndex] = uv.x;
+
+#else
+    // --- フォールバック: 生の hitDist をそのまま出力 ---
+    g_shadowOutput[launchIndex] = payload.hitDist;
+#endif
 }
 
 // =============================================================================
-// Miss Shader (レイが何にもヒットしなかった場合)
+// Miss Shader (何も当たらなかった場合)
 // =============================================================================
 [shader("miss")]
-void ShadowMiss(inout ShadowPayload payload)
+void ShadowMiss(inout ShadowMapPayload payload)
 {
-    // レイがジオメトリにヒットしなかった = 影ではない
-    payload.isHit = false;
+    // 何も当たらなかった場合は、RayGenで設定した初期値(TMax)のまま、
+    // あるいは明示的に最大値を書き込む
+    payload.hitDist = 10000.0f; 
 }
 
 // =============================================================================
-// Any Hit Shader (レイがジオメトリと交差した場合)
+// Any Hit Shader 
 // =============================================================================
+// 透明度テスト(Alpha Test)を行わない場合、Shadow Map作成においてAnyHitは不要です。
+// 不透明ジオメトリのみなら削除したほうがパフォーマンスが良いです。
+// もしパンチスルー(葉っぱなど)が必要ならここで IgnoreHit() などの処理をします。
 [shader("anyhit")]
-void ShadowAnyHit(inout ShadowPayload payload, in RayAttributes attrib)
+void ShadowAnyHit(inout ShadowMapPayload payload, in BuiltInTriangleIntersectionAttributes attrib)
 {
-    // シャドウレイなので、最初の交差で影と判定
-    payload.isHit = true;
+    // 何も当たらなかった場合は、RayGenで設定した初期値(TMax)のまま、
+    // あるいは明示的に最大値を書き込む
+    //payload.hitDist = 10000.0f; 
 }
 
 // =============================================================================
 // Closest Hit Shader (最も近い交差点)
 // =============================================================================
-// ※ RAY_FLAG_SKIP_CLOSEST_HIT_SHADERを使用しているため、このシェーダーは呼ばれない
-// しかし、パイプラインには必要なのでダミーとして定義
 [shader("closesthit")]
-void ShadowClosestHit(inout ShadowPayload payload, in RayAttributes attrib)
+void ShadowClosestHit(inout ShadowMapPayload payload, in BuiltInTriangleIntersectionAttributes attrib)
 {
-    payload.isHit = true;
+    // ライトから衝突点までの距離 (RayTCurrent) を記録
+    payload.hitDist = RayTCurrent();
 }

@@ -47,6 +47,42 @@
         "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
       ]
     },
+    "Geometry_GBuffer": {
+      "constantBufferViews": [
+        { "shaderRegister": 0 },
+        { "shaderRegister": 1 },
+        { "shaderRegister": 2 }
+      ],
+      "descriptorTables": [
+        {
+          "type": "SRV",
+          "num": 4,
+          "shaderRegister": 0
+        }
+      ],
+      "staticSamplers": [
+        {
+          "shaderRegister": 0,
+          "filter": "ANISOTROPIC",
+          "addressMode": "WRAP"
+        },
+        {
+          "shaderRegister": 1,
+          "filter": "COMPARISON_MIN_MAG_MIP_LINEAR",
+          "addressU": "BORDER",
+          "addressV": "BORDER",
+          "addressW": "BORDER",
+          "comparisonFunc": "GREATER_EQUAL",
+          "borderColor": "OPAQUE_WHITE"
+        }
+      ],
+      "flags": [
+        "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT",
+        "DENY_HULL_SHADER_ROOT_ACCESS",
+        "DENY_DOMAIN_SHADER_ROOT_ACCESS",
+        "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+      ]
+    },
     "Debug_Default": {
       "constantBufferViews": [
         {
@@ -212,6 +248,38 @@
         "DENY_DOMAIN_SHADER_ROOT_ACCESS",
         "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
       ]
+    },
+    "Lighting_Default": {
+      "constantBufferViews": [
+        { "shaderRegister": 0 },
+        { "shaderRegister": 1 }
+      ],
+      "descriptorTables": [
+        { "type": "SRV", "num": 1, "shaderRegister": 0 },
+        { "type": "SRV", "num": 1, "shaderRegister": 1 },
+        { "type": "SRV", "num": 1, "shaderRegister": 2 },
+        { "type": "SRV", "num": 1, "shaderRegister": 3 },
+        { "type": "SRV", "num": 1, "shaderRegister": 4 },
+        { "type": "SRV", "num": 1, "shaderRegister": 5 },
+        { "type": "SRV", "num": 1, "shaderRegister": 6 }
+      ],
+      "staticSamplers": [
+        {
+          "shaderRegister": 0,
+          "filter": "LINEAR",
+          "addressMode": "WRAP"
+        },
+        {
+          "shaderRegister": 1,
+          "filter": "COMPARISON_MIN_MAG_MIP_LINEAR",
+          "addressU": "BORDER",
+          "addressV": "BORDER",
+          "addressW": "BORDER",
+          "comparisonFunc": "GREATER_EQUAL",
+          "borderColor": "OPAQUE_WHITE"
+        }
+      ],
+      "flags": [ "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT" ]
     }
   },
   "PipelineStates": {
@@ -234,6 +302,16 @@
       "sampleCount": 1,
       "cullMode": "BACK",
       "rtvFormats": ["R8G8B8A8_UNORM", "R16G16_FLOAT", "R8G8B8A8_UNORM", "R16G16B16A16_FLOAT"]
+    },
+    "GBufferPass": {
+      "rootSignature": "Geometry_GBuffer",
+      "vertexShader": "../x64/Debug/SimpleVS.cso",
+      "pixelShader": "../x64/Debug/GBufferPS.cso",
+      "depthEnable": true,
+      "inputLayoutEnable": true,
+      "sampleCount": 1,
+      "cullMode": "BACK",
+      "rtvFormats": ["R8G8B8A8_UNORM", "R16G16_FLOAT", "R8G8B8A8_UNORM", "R16G16B16A16_FLOAT", "R8G8B8A8_UNORM", "R8G8B8A8_UNORM"]
     },
     "DebugPipelinePass": {
       "rootSignature": "Debug_Default",
@@ -359,6 +437,15 @@
       "inputLayoutEnable": true,
       "sampleCount": 1,
       "cullMode": "NONE"
+    },
+    "LightingPass": {
+      "rootSignature": "Lighting_Default",
+      "vertexShader": "../x64/Debug/LightingVS.cso",
+      "pixelShader": "../x64/Debug/LightingPS.cso",
+      "depthEnable": false,
+      "inputLayoutEnable": false,
+      "sampleCount": 1,
+      "rtvFormats": ["R8G8B8A8_UNORM"]
     }
   }
 }

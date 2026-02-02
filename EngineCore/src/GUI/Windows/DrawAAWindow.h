@@ -12,9 +12,9 @@ class DrawAAWindow : public IDrawWindow
 public:
 	void draw() override
 	{
-		ImGui::SetNextWindowSizeConstraints(ImVec2(220.0f, 120.0f), ImVec2(FLT_MAX, FLT_MAX));
+		ImGui::SetNextWindowSizeConstraints(ImVec2(260.0f, 160.0f), ImVec2(FLT_MAX, FLT_MAX));
 
-		if (!ImGui::Begin("Anti-Aliasing", &m_isVisible))
+		if (!ImGui::Begin("Rendering / Anti-Aliasing", &m_isVisible))
 		{
 			ImGui::End();
 			return;
@@ -37,6 +37,15 @@ public:
 		}
 
 		AASettings& aa = pipeline->GetAASettings();
+
+		// --- デファード / フォワード ---
+		bool useDeferred = pipeline->IsDeferredRendering();
+		if (ImGui::Checkbox("Deferred Rendering", &useDeferred))
+			pipeline->SetDeferredRendering(useDeferred);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("ON: G-Buffer + LightingPass (PBR). OFF: Forward (SimplePS 1-pass, MSAA possible).");
+
+		ImGui::Separator();
 
 		// --- MSAA (サンプリング型) ---
 		bool msaa = aa.msaaEnabled;

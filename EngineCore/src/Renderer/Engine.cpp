@@ -33,14 +33,14 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
     m_FrameBufferHeight = windowHeight;
     m_hWnd = hwnd;
 
- //#if defined(_DEBUG)
- //    // デバッグレイヤーを有効化
- //    ComPtr<ID3D12Debug> debugController;
- //    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf()))))
- //    {
- //        debugController->EnableDebugLayer();
- //    }
- //#endif
+ #if defined(_DEBUG)
+     // デバッグレイヤーを有効化
+     ComPtr<ID3D12Debug> debugController;
+     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf()))))
+     {
+         debugController->EnableDebugLayer();
+     }
+ #endif
 
     if (!CreateDevice()) {
         printf("デバイスの初期化に失敗\n");

@@ -39,17 +39,23 @@ void SkyboxPass::Execute(RenderContext& context)
     // パイプラインステートとルートシグネチャの設定
     const auto rootSigName = "Skybox_Default";
     
-    // MSAA設定を取得
+    // G-Buffer パス時は 1x、それ以外は MSAA 設定に応じて PSO を選択
     bool msaaEnabled = true;
-    auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
-    if (defaultScene)
+    bool useDeferred = (context.GetRenderTarget(ConstRenderPref::GBufferAlbedo) != nullptr);
+    if (!useDeferred)
     {
-        auto pipeline = defaultScene->GetDefaultPipelineManager();
-        if (pipeline)
-            msaaEnabled = pipeline->GetAASettings().msaaEnabled;
+        auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
+        if (defaultScene)
+        {
+            auto pipeline = defaultScene->GetDefaultPipelineManager();
+            if (pipeline)
+                msaaEnabled = pipeline->GetAASettings().msaaEnabled;
+        }
     }
-    
-    // MSAA設定に応じてPSOを選択
+    else
+    {
+        msaaEnabled = false;
+    }
     const char* psoName = msaaEnabled ? "SkyboxPass" : "SkyboxPassNoMSAA";
 
     auto rootSig = g_Scene->GetPipelineStateManager()->GetRootSignature(rootSigName);
@@ -65,8 +71,13 @@ void SkyboxPass::Execute(RenderContext& context)
 
     std::shared_ptr<ITargetBase> colorRT;
     std::shared_ptr<ITargetBase> depthRT;
-
-    if (msaaEnabled)
+    // G-Buffer + Lighting パス時は SceneColor に LightingPass が書いているのでそこに描画
+    if (context.GetRenderTarget(ConstRenderPref::GBufferAlbedo))
+    {
+        colorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
+        depthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
+    }
+    else if (msaaEnabled)
     {
         colorRT = context.GetRenderTarget(ConstRenderPref::MSAART);
         depthRT = context.GetRenderTarget(ConstRenderPref::MSAA_Depth);

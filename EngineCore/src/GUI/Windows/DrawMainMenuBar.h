@@ -244,11 +244,11 @@ private:
             }
         }
 
-        // Anti-Aliasing Window
+        // Rendering / Anti-Aliasing Window
         if (aaWindow)
         {
             bool visible = aaWindow->IsVisible();
-            if (ImGui::MenuItem("Anti-Aliasing Window", nullptr, &visible))
+            if (ImGui::MenuItem("Rendering / Anti-Aliasing Window", nullptr, &visible))
             {
                 aaWindow->SetVisible(visible);
             }
