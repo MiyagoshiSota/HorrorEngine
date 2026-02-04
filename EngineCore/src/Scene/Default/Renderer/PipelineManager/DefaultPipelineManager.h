@@ -9,6 +9,7 @@
 #include "Renderer/Pass/ShadowProcess/Pass/RayTracedShadowPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SkyboxPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/LightingPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/SSAOPass.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 #include "Renderer/Target/RenderTarget.h"
@@ -80,6 +81,7 @@ private:
 	std::shared_ptr<RenderTarget> m_gbufferAlbedo;      // G-Buffer：アルベド（1x）
 	std::shared_ptr<RenderTarget> m_gbufferMaterial;   // G-Buffer：roughness, metallic, AO, emissive.r
 	std::shared_ptr<RenderTarget> m_gbufferEmissive;  // G-Buffer：emissive.g, emissive.b
+	std::shared_ptr<RenderTarget> m_ssaoBuffer;      // SSAO出力（R8）
 
 private:
 	bool m_useDeferred = true;  // true=デファード（G-Buffer+LightingPass）, false=フォワード（SimplePS 1パス）
@@ -96,5 +98,6 @@ private:
 	std::shared_ptr<TempRenderTargetPool> m_tempRenderTargetPool;
     std::shared_ptr<SkyboxPass> m_skyboxPass;
 	std::shared_ptr<LightingPass> m_lightingPass;
+	std::shared_ptr<SSAOPass> m_ssaoPass;
 };
 

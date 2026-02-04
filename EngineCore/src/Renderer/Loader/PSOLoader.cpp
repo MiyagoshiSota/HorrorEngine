@@ -307,6 +307,9 @@ std::shared_ptr<PipelineStateManager> PSOLoader::LoadFromFile(const std::string&
                     else if (formatStr == "DXGI_FORMAT_R16G16B16A16_FLOAT"){
                         renderTargetFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 					}
+                    else if (formatStr == "DXGI_FORMAT_R8_UNORM") {
+                        renderTargetFormat = DXGI_FORMAT_R8_UNORM;
+                    }
                 }
                 
                 // rtvFormats配列のパース（MRT対応）

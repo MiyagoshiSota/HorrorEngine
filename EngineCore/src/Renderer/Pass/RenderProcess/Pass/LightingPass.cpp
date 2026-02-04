@@ -54,6 +54,7 @@ void LightingPass::Execute(RenderContext& context)
     auto materialRT = context.GetRenderTarget(ConstRenderPref::GBufferMaterial);
     auto emissiveRT = context.GetRenderTarget(ConstRenderPref::GBufferEmissive);
     auto shadowRT = context.GetRenderTarget(ConstRenderPref::ShadowMap);
+    auto ssaoRT = context.GetRenderTarget(ConstRenderPref::SSAOBuffer);
     auto sceneColorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
 
     if (!albedoRT || !normalRT || !worldPosRT || !sceneColorRT)
@@ -74,6 +75,8 @@ void LightingPass::Execute(RenderContext& context)
         TransitionToSRV(cmdList, emissiveRT);
     if (shadowRT)
         TransitionToSRV(cmdList, shadowRT);
+    if (ssaoRT)
+        TransitionToSRV(cmdList, ssaoRT);
     TransitionToRTV(cmdList, sceneColorRT);
 
     LightingTransformCB* cb = static_cast<LightingTransformCB*>(m_lightingTransformCB->GetPtr());
@@ -117,6 +120,10 @@ void LightingPass::Execute(RenderContext& context)
         cmdList->SetGraphicsRootDescriptorTable(8, shadowRT->GetSRVHandle()->gpuHandle);
     else
         cmdList->SetGraphicsRootDescriptorTable(8, albedoRT->GetSRVHandle()->gpuHandle);
+    if (ssaoRT && ssaoRT->GetSRVHandle())
+        cmdList->SetGraphicsRootDescriptorTable(9, ssaoRT->GetSRVHandle()->gpuHandle);
+    else
+        cmdList->SetGraphicsRootDescriptorTable(9, albedoRT->GetSRVHandle()->gpuHandle);
 
     cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmdList->DrawInstanced(3, 1, 0, 0);

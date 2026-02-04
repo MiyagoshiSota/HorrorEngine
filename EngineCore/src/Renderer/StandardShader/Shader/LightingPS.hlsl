@@ -8,6 +8,7 @@ Texture2D g_WorldPos : register(t2);
 Texture2D g_Material : register(t4);
 Texture2D g_Emissive : register(t5);
 Texture2D g_ShadowMap : register(t6);
+Texture2D g_SSAO : register(t7);
 
 SamplerState g_Sampler : register(s0);
 SamplerComparisonState g_ShadowSampler : register(s1);
@@ -129,6 +130,8 @@ float4 main(PSInput input) : SV_TARGET
     float roughness = matSample.r;
     float metallic = matSample.g;
     float ao = max(matSample.b, 1.0);
+    float ssao = g_SSAO.Sample(g_Sampler, input.uv).r;
+    ao *= ssao;
     float2 emissiveGB = g_Emissive.Sample(g_Sampler, input.uv).rg;
     float3 emissive = float3(matSample.a, emissiveGB.r, emissiveGB.g);
 

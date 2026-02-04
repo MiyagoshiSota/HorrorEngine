@@ -31,8 +31,9 @@ VSOutput main(VSInput input)
     // ベクトルを行列の左から掛ける
     float4 pos = mul(float4(input.pos, 1.0f), ViewProj);
 
-    // 深度固定ハック
-    output.svpos = pos.xyww;
+    // NOTE: Reverse-Z対応 深度を0.0(最遠)に固定する
+    output.svpos = pos.xyzw;
+    output.svpos.z = 0.0f; 
 
     return output;
 }

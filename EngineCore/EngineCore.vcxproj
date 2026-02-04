@@ -55,6 +55,7 @@
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\LightingPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
     <ClInclude Include="src\Renderer\Pass\IRenderPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
     <ClInclude Include="src\Renderer\Target\RenderTarget.h" />
@@ -429,6 +431,26 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\LightingPS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOVS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOPS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>

@@ -19,6 +19,7 @@
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\LightingPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
@@ -88,6 +89,7 @@
     <ClInclude Include="src\Renderer\PipelineManager\IPipelineManager.h" />
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHandle.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
     <ClInclude Include="src\Renderer\Target\RenderTarget.h" />
@@ -204,6 +206,8 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\GBufferPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\LightingVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\LightingPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOVS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\DebugVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\DebugPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticle.hlsl" />

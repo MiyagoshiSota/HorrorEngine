@@ -41,10 +41,14 @@ public:
     DirectX::XMMATRIX GetViewMatrix() const;
 
     /**
-     * @brief 射影行列を計算して返します。
+     * @brief 射影行列を計算して返します（Reversed-Z: near=1, far=0）。
      */
     DirectX::XMMATRIX GetProjectionMatrix() const;
 
+    /** @brief 近クリップ面距離（Reversed-Z用の線形化等に使用） */
+    float GetNearPlane() const { return m_NearPlane; }
+    /** @brief 遠クリップ面距離 */
+    float GetFarPlane() const { return m_FarPlane; }
 
 private:
     /**
@@ -86,6 +90,8 @@ private:
     DirectX::XMVECTOR m_TargetPos; // 注視点
     float m_Fov;                   // 視野角 (ラジアン)
     float m_Aspect;                // アスペクト比
+    float m_NearPlane = 0.5f;      // 近クリップ面
+    float m_FarPlane = 30.0f;      // 遠クリップ面
 
     // --- カメラのローカル座標系ベクトル ---
     DirectX::XMVECTOR m_Forward;   // Z軸 (見ている方向)

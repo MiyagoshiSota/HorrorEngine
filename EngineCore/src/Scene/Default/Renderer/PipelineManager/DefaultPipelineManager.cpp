@@ -8,6 +8,7 @@
 #include "Renderer/Pass/RenderProcess/Pass/DebugPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/GeometryPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/LightingPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/SSAOPass.h"
 #include "Scene/Skybox/SkyboxManager.h"
 #include "Scene/RayTracing/RayTracedShadowManager.h"
 #include "Scene/Default/Scene/DefaultScene.h"
@@ -77,6 +78,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_gbufferMaterial->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_gbufferEmissive = std::make_shared<RenderTarget>();
 	m_gbufferEmissive->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_ssaoBuffer = std::make_shared<RenderTarget>();
+	m_ssaoBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
@@ -94,6 +97,7 @@ DefaultPipelineManager::DefaultPipelineManager()
 	// 一時レンダーターゲットプールの生成
 	m_tempRenderTargetPool = std::make_shared<TempRenderTargetPool>();
 	m_lightingPass = std::make_shared<LightingPass>();
+	m_ssaoPass = std::make_shared<SSAOPass>();
 }
 
 void DefaultPipelineManager::Execute()
@@ -131,6 +135,7 @@ void DefaultPipelineManager::Execute()
 		context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorResolved);
 		context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBufferNonMSAA);
 		context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBufferNonMSAA);
+		context.AddRenderTarget(ConstRenderPref::SSAOBuffer, m_ssaoBuffer);
 	}
 	else
 	{
@@ -268,7 +273,13 @@ void DefaultPipelineManager::Execute()
         pass->Execute(context);
     }
 
-    // Lighting（デファード時のみ: G-Buffer + Shadow → SceneColor）
+    // SSAO（デファード時のみ: Depth + Normal → SSAOBuffer）
+    if (m_useDeferred && m_ssaoPass)
+    {
+        m_ssaoPass->Execute(context);
+    }
+
+    // Lighting（デファード時のみ: G-Buffer + Shadow + SSAO → SceneColor）
     if (m_useDeferred && m_lightingPass)
     {
         m_lightingPass->Execute(context);

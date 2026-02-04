@@ -51,7 +51,8 @@ DirectX::XMMATRIX SceneCamera::GetViewMatrix() const
 
 DirectX::XMMATRIX SceneCamera::GetProjectionMatrix() const
 {
-    return DirectX::XMMatrixPerspectiveFovLH(m_Fov, m_Aspect, 0.1f, 1000.0f); // 近クリップ/遠クリップ
+    // Reversed-Z: NearZ/FarZ を入れ替えると depth が 1 at near, 0 at far になる（DirectX 公式）。
+    return DirectX::XMMatrixPerspectiveFovLH(m_Fov, m_Aspect, m_FarPlane, m_NearPlane);
 }
 
 void SceneCamera::Update(float deltaTime)

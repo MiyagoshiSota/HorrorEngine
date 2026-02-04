@@ -221,7 +221,7 @@ void Engine::BeginRender()
         m_pCommandList->ClearRenderTargetView(currentRtvHandle, clearColor, 0, nullptr);
 
         // 深度ステンシルビューをクリア
-        m_pCommandList->ClearDepthStencilView(currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        m_pCommandList->ClearDepthStencilView(currentDsvHandle, D3D12_CLEAR_FLAG_DEPTH, 0.0f, 0, 0, nullptr); // Reversed-Z
 
         if (callCount == 1)
         {
@@ -724,7 +724,7 @@ bool Engine::CreateDepthStencil()
 
     D3D12_CLEAR_VALUE dsvClearValue;
     dsvClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-    dsvClearValue.DepthStencil.Depth = 1.0f;
+    dsvClearValue.DepthStencil.Depth = 0.0f; // Reversed-Z
     dsvClearValue.DepthStencil.Stencil = 0;
 
     auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);

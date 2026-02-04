@@ -110,7 +110,7 @@ void GeometryPass::Collect(RenderContext& context)
         if (worldPositionRT) cmdList->ClearRenderTargetView(worldPositionRT->GetRTVHandle(), clearWorldPos, 0, nullptr);
         if (materialRT) cmdList->ClearRenderTargetView(materialRT->GetRTVHandle(), clearMaterial, 0, nullptr);
         if (emissiveRT) cmdList->ClearRenderTargetView(emissiveRT->GetRTVHandle(), clearEmissive, 0, nullptr);
-        cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 0.0f, 0, 0, nullptr); // Reversed-Z
 
         D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[6] = {
             colorRT->GetRTVHandle(),
@@ -178,7 +178,7 @@ void GeometryPass::Collect(RenderContext& context)
         cmdList->ClearRenderTargetView(motionVectorRT->GetRTVHandle(), clearMotionVector, 0, nullptr);
         cmdList->ClearRenderTargetView(normalRT->GetRTVHandle(), clearNormal, 0, nullptr);
         cmdList->ClearRenderTargetView(worldPositionRT->GetRTVHandle(), clearWorldPos, 0, nullptr);
-        cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        cmdList->ClearDepthStencilView(depthRT->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 0.0f, 0, 0, nullptr); // Reversed-Z
 
         D3D12_CPU_DESCRIPTOR_HANDLE forwardRTVHandle[4] = {
             colorRT->GetRTVHandle(),

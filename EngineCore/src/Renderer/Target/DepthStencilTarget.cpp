@@ -41,7 +41,7 @@ void DepthStencilTarget::Create(
     // Clear
     D3D12_CLEAR_VALUE clearValue;
     clearValue.Format = dsvFormat;
-    clearValue.DepthStencil.Depth = 1.0f;
+    clearValue.DepthStencil.Depth = 0.0f; // Reversed-Z: far = 0
     clearValue.DepthStencil.Stencil = 0;
 
     // ヒープのプロパティを設定
