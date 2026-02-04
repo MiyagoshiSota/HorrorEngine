@@ -92,9 +92,8 @@ bool DefaultScene::Init(std::string goFilePath)
         Microsoft::WRL::ComPtr<ID3D12Device5> device5;
         if (SUCCEEDED(g_Engine->Device()->QueryInterface(IID_PPV_ARGS(&device5))))
         {
-            // レイトレシャドウはシャドウマップ方式（2048x2048）で出力
-            constexpr UINT kRayTracedShadowMapSize = 2048u;
-            if (m_rayTracedShadowManager->Init(device5.Get(), kRayTracedShadowMapSize, kRayTracedShadowMapSize))
+            // カメラ視点のため、解像度は画面サイズに合わせる
+            if (m_rayTracedShadowManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
             {
                 printf("Ray Traced Shadow Manager: 初期化成功\n");
             }

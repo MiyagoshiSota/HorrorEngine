@@ -290,6 +290,7 @@ void GeometryPass::Draw(RenderContext& context)
         pTransform->View = view;
         pTransform->Proj = proj;
         pTransform->UseRayTracedShadow = m_useDeferred ? 0 : (context.UseRayTracedShadow() ? 1 : 0);
+        pTransform->InvRayTracedShadowMapSize = context.GetInvRayTracedShadowMapSize();
 
         // CameraPos
         XMFLOAT3 camPosF = context.Camera->GetEyePosFloat3();

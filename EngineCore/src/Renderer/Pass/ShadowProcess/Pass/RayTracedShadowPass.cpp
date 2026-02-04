@@ -113,76 +113,38 @@ void RayTracedShadowPass::Execute(RenderContext& context)
     DirectX::XMVECTOR targetPos = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
     DirectX::XMVECTOR lightPos = DirectX::XMVectorSubtract(
         targetPos, DirectX::XMVectorScale(lightDir, kShadowLightDistance));
-    DirectX::XMMATRIX lightView = DirectX::XMMatrixLookAtRH(
-        lightPos, targetPos, DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
-    DirectX::XMMATRIX lightProj = DirectX::XMMatrixOrthographicRH(
-        kShadowSceneWidth, kShadowSceneHeight, kShadowNearZ, kShadowFarZ);
-    DirectX::XMMATRIX lightViewProj = DirectX::XMMatrixMultiply(lightView, lightProj);
-    DirectX::XMMATRIX invLightViewProj;
+    // カメラ視点の逆 ViewProj（レイ方向用）
+    const auto cameraView = DirectX::XMMatrixLookAtLH(
+        context.Camera->GetEyePos(),
+        context.Camera->GetTargetPos(),
+        context.Camera->GetUpward());
+    const auto cameraProj = context.GetProjectionMatrix();
+    const DirectX::XMMATRIX cameraViewProj = DirectX::XMMatrixMultiply(cameraView, cameraProj);
     DirectX::XMVECTOR det;
-    invLightViewProj = DirectX::XMMatrixInverse(&det, lightViewProj);
+    const DirectX::XMMATRIX invCameraViewProj = DirectX::XMMatrixInverse(&det, cameraViewProj);
 
     RayTracedShadowSceneConstants sceneConstants = {};
     DirectX::XMStoreFloat3(&sceneConstants.lightPosition, lightPos);
     sceneConstants.lightRadius = 1.0f;
     sceneConstants.lightDirection = lightDirF;
-    DirectX::XMStoreFloat4x4(&sceneConstants.invLightViewProj, DirectX::XMMatrixTranspose(invLightViewProj));
-    context.UpdateRayTracedShadowConstants(sceneConstants);
+    DirectX::XMStoreFloat3(&sceneConstants.cameraPosition, context.Camera->GetEyePos());
+    DirectX::XMStoreFloat4x4(&sceneConstants.invCameraViewProj, DirectX::XMMatrixTranspose(invCameraViewProj));
+    const UINT frameIndex = g_Engine->CurrentBackBufferIndex();
+    context.UpdateRayTracedShadowConstants(sceneConstants, frameIndex);
 
     // デバッグログ（初回と kDebugLogIntervalFrames ごと）
     const bool shouldLog = (s_debugFrameCount == 0u) || (kDebugLogIntervalFrames > 0u && (s_debugFrameCount % kDebugLogIntervalFrames) == 0u);
     if (shouldLog)
     {
-        float detF;
-        DirectX::XMStoreFloat(&detF, det);
         DirectX::XMFLOAT3 lightPosF;
         DirectX::XMStoreFloat3(&lightPosF, lightPos);
-        DirectX::XMFLOAT3 lightDirNormF;
-        DirectX::XMStoreFloat3(&lightDirNormF, lightDir);
-        float dirLen = sqrtf(lightDirF.x * lightDirF.x + lightDirF.y * lightDirF.y + lightDirF.z * lightDirF.z);
 
-        // 画面中央(NDC 0,0,1)を逆行列でワールドに変換（HLSL と同一: inv*ndc → C++では (inv*ndc)^T = ndc*inv^T）
-        DirectX::XMVECTOR ndcCenter = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
-        DirectX::XMVECTOR worldCenter = DirectX::XMVector4Transform(ndcCenter, DirectX::XMMatrixTranspose(invLightViewProj));
-        DirectX::XMFLOAT4 worldCenterF;
-        DirectX::XMStoreFloat4(&worldCenterF, worldCenter);
-        float w = worldCenterF.w;
-        float cx = (fabsf(w) > 1e-6f) ? (worldCenterF.x / w) : worldCenterF.x;
-        float cy = (fabsf(w) > 1e-6f) ? (worldCenterF.y / w) : worldCenterF.y;
-        float cz = (fabsf(w) > 1e-6f) ? (worldCenterF.z / w) : worldCenterF.z;
-
-        printf("[RayTracedShadow] DEBUG frame=%u ---\n", s_debugFrameCount);
-        printf("  lightDirection (raw)   = (%.4f, %.4f, %.4f) len=%.4f %s\n",
-            lightDirF.x, lightDirF.y, lightDirF.z, dirLen, (fabsf(dirLen - 1.0f) > 0.01f) ? "<- NOT NORMALIZED" : "");
-        printf("  lightDirection (norm)  = (%.4f, %.4f, %.4f)\n", lightDirNormF.x, lightDirNormF.y, lightDirNormF.z);
-        printf("  lightPosition          = (%.4f, %.4f, %.4f)\n", lightPosF.x, lightPosF.y, lightPosF.z);
-        printf("  det(invLightViewProj)   = %.6e (0=singular)\n", detF);
-        printf("  dispatch               = %u x %u\n", data.width, data.height);
-        printf("  invLightViewProj row0  = (%.4f, %.4f, %.4f, %.4f)\n",
-            sceneConstants.invLightViewProj._11, sceneConstants.invLightViewProj._12,
-            sceneConstants.invLightViewProj._13, sceneConstants.invLightViewProj._14);
-        printf("  worldPos(NDC center)   = (%.4f, %.4f, %.4f) w=%.4f\n", cx, cy, cz, w);
-
-        // --- 確認候補1: SimpleShadowMapPass と同一パラメータ・行列 ---
-        printf("  [確認1] SimpleShadowMapPass と同一か ---\n");
-        printf("    ortho params (XMMatrixOrthographicRH) = width=%.1f height=%.1f near=%.1f far=%.1f\n",
-            kShadowSceneWidth, kShadowSceneHeight, kShadowNearZ, kShadowFarZ);
-        printf("    lightDistance = %.1f (SimpleShadowMapPass は 25.0f 固定)\n", kShadowLightDistance);
-        DirectX::XMFLOAT4X4 viewF, projF;
-        DirectX::XMStoreFloat4x4(&viewF, lightView);
-        DirectX::XMStoreFloat4x4(&projF, lightProj);
-        printf("    lightView  row0 = (%.4f, %.4f, %.4f, %.4f)\n",
-            viewF._11, viewF._12, viewF._13, viewF._14);
-        printf("    lightProj  row0 = (%.4f, %.4f, %.4f, %.4f)\n",
-            projF._11, projF._12, projF._13, projF._14);
-
-        // --- 確認候補2: HLSL の invLightViewProj 解釈 ---
-        printf("  [確認2] CB=transpose(inv), HLSL column-major => M=inv, mul(M,ndc)=inv*ndc\n");
-
-        // --- 確認候補3: 正射影 near/far を OrthographicRH にそのまま渡しているか ---
-        printf("  [確認3] OrthographicRH に渡している値 = near=%.1f far=%.1f (上記 ortho params と一致)\n",
-            kShadowNearZ, kShadowFarZ);
-        printf("  BLAS数 = %zu (1 GameObject = 1 BLAS。各BLAS内にモデル全サブメッシュを含む)\n", blasCount);
+        printf("[RayTracedShadow] DEBUG frame=%u (camera-view) ---\n", s_debugFrameCount);
+        printf("  lightPosition   = (%.4f, %.4f, %.4f)\n", lightPosF.x, lightPosF.y, lightPosF.z);
+        printf("  cameraPosition  = (%.4f, %.4f, %.4f)\n",
+            sceneConstants.cameraPosition.x, sceneConstants.cameraPosition.y, sceneConstants.cameraPosition.z);
+        printf("  dispatch        = %u x %u\n", data.width, data.height);
+        printf("  BLAS数 = %zu\n", blasCount);
     }
     s_debugFrameCount++;
 

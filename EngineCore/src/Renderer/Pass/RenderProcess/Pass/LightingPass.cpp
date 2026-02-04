@@ -81,7 +81,8 @@ void LightingPass::Execute(RenderContext& context)
     cb->Padding0 = 0.0f;
     DirectX::XMStoreFloat4x4(&cb->LightViewProj, DirectX::XMMatrixTranspose(sc.mainLightViewProj));
     cb->ShadowMode = static_cast<int>(sc.mode);
-    cb->Padding1[0] = cb->Padding1[1] = cb->Padding1[2] = 0;
+    cb->InvRayTracedShadowMapSize = context.GetInvRayTracedShadowMapSize();
+    cb->Padding1[0] = 0;
 
     const float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = sceneColorRT->GetRTVHandle();

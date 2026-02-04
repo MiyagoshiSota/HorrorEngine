@@ -51,6 +51,7 @@ public:
         , m_taaJitter(0.0f, 0.0f)
         , m_taaEnabled(false)
         , m_useRayTracedShadow(false)
+        , m_invRayTracedShadowMapSize(0.0f, 0.0f)
     {
         Device = g_Engine->Device();
     }
@@ -192,21 +193,23 @@ public:
         return m_rayTracedShadowData;
     }
 
-    void SetRayTracedShadowUpdateCallback(std::function<void(const RayTracedShadowSceneConstants&)> callback)
+    void SetRayTracedShadowUpdateCallback(std::function<void(const RayTracedShadowSceneConstants&, UINT)> callback)
     {
         m_rayTracedShadowUpdateCallback = callback;
     }
 
-    void UpdateRayTracedShadowConstants(const RayTracedShadowSceneConstants& constants)
+    void UpdateRayTracedShadowConstants(const RayTracedShadowSceneConstants& constants, UINT frameIndex)
     {
         if (m_rayTracedShadowUpdateCallback)
         {
-            m_rayTracedShadowUpdateCallback(constants);
+            m_rayTracedShadowUpdateCallback(constants, frameIndex);
         }
     }
 
     void SetUseRayTracedShadow(bool use) { m_useRayTracedShadow = use; }
     bool UseRayTracedShadow() const { return m_useRayTracedShadow; }
+    void SetInvRayTracedShadowMapSize(float invW, float invH) { m_invRayTracedShadowMapSize = DirectX::XMFLOAT2(invW, invH); }
+    DirectX::XMFLOAT2 GetInvRayTracedShadowMapSize() const { return m_invRayTracedShadowMapSize; }
 
     /// シャドウ契約（ライティングパスが参照）
     void SetShadowContext(const ShadowContext& sc)
@@ -269,9 +272,10 @@ private:
     SkyboxData m_skyboxData;
     std::function<void(DirectX::XMMATRIX)> m_skyboxUpdateCallback;
     RayTracedShadowRenderData m_rayTracedShadowData;
-    std::function<void(const RayTracedShadowSceneConstants&)> m_rayTracedShadowUpdateCallback;
+    std::function<void(const RayTracedShadowSceneConstants&, UINT)> m_rayTracedShadowUpdateCallback;
     DirectX::XMFLOAT2 m_taaJitter;
     bool m_taaEnabled;
     bool m_useRayTracedShadow;
+    DirectX::XMFLOAT2 m_invRayTracedShadowMapSize;
     ShadowContext m_shadowContext;
 };

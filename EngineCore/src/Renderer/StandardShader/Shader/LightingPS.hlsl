@@ -17,8 +17,9 @@ cbuffer LightingTransform : register(b0)
     float3 CameraPosition;
     float Padding0;
     float4x4 LightViewProj;
-    int ShadowMode;  // 0=None, 1=RasterDepth, 2=RayTracedMask, 3=RayTracedVisibility
-    int Padding1[3];
+    int ShadowMode;  // 0=None, 1=RasterDepth, 2=RayTracedMask(カメラ視点・スクリーンUV), 3=RayTracedVisibility
+    float2 InvRayTracedShadowMapSize; // ShadowMode==2 時: 1/width, 1/height（スクリーンUVサンプル用）
+    int Padding1[1];
 }
 
 cbuffer LightParams : register(b1)
@@ -84,9 +85,17 @@ float3 FresnelSchlick(float cosTheta, float3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-float CalculateShadow(float4 posLight)
+// screenPosXY: ShadowMode==2（レイトレカメラ視点）のときのみ使用（SV_POSITION.xy）
+float CalculateShadow(float4 posLight, float2 screenPosXY)
 {
     if (ShadowMode == 0) return 1.0;
+
+    // レイトレシャドウ（カメラ視点）：スクリーンUVでサンプル（フォワードの SimplePS と同一）
+    if (ShadowMode == 2)
+    {
+        float2 screenUV = screenPosXY * InvRayTracedShadowMapSize;
+        return g_ShadowMap.Sample(g_Sampler, screenUV).r;
+    }
 
     float3 projCoords = posLight.xyz / posLight.w;
     projCoords.x = projCoords.x * 0.5 + 0.5;
@@ -94,9 +103,6 @@ float CalculateShadow(float4 posLight)
 
     if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
         return 1.0;
-
-    if (ShadowMode == 2)
-        return g_ShadowMap.Sample(g_Sampler, projCoords.xy).r;
 
     float currentDepth = projCoords.z;
     float bias = 0.005;
@@ -200,7 +206,7 @@ float4 main(PSInput input) : SV_TARGET
     }
 
     float4 posLight = mul(float4(worldPos, 1.0), LightViewProj);
-    float shadowFactor = CalculateShadow(posLight);
+    float shadowFactor = CalculateShadow(posLight, input.svpos.xy);
     float3 ambient = AmbientColor.rgb * albedo * ao;
     float3 color = ambient + Lo * shadowFactor * ao + emissive;
     return float4(color, albedoSample.a);

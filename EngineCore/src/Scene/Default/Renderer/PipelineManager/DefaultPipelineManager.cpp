@@ -148,6 +148,7 @@ void DefaultPipelineManager::Execute()
 			context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBufferNonMSAA);
 		}
 	}
+	
 	// ShadowMapターゲットの設定（Ray Traced Shadowが有効な場合はそちらを優先）
 	auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
 	if (defaultScene && m_rayTracedShadowPass && m_rayTracedShadowPass->IsEnabled())
@@ -155,11 +156,13 @@ void DefaultPipelineManager::Execute()
 		auto rayTracedShadowManager = defaultScene->GetRayTracedShadowManager();
 		if (rayTracedShadowManager && rayTracedShadowManager->IsValid())
 		{
-			auto renderData = rayTracedShadowManager->GetRenderData();
+			const UINT frameIndex = g_Engine->CurrentBackBufferIndex();
+			auto renderData = rayTracedShadowManager->GetRenderData(frameIndex);
 			if (renderData.shadowMapTarget)
 			{
 				context.AddRenderTarget(ConstRenderPref::ShadowMap, renderData.shadowMapTarget);
 				context.SetUseRayTracedShadow(true);
+				context.SetInvRayTracedShadowMapSize(1.0f / renderData.width, 1.0f / renderData.height);
 			}
 			else
 			{
@@ -208,10 +211,11 @@ void DefaultPipelineManager::Execute()
         auto rayTracedShadowManager = defaultScene->GetRayTracedShadowManager();
         if (rayTracedShadowManager && rayTracedShadowManager->IsValid())
         {
-            auto renderData = rayTracedShadowManager->GetRenderData();
+            const UINT frameIndex = g_Engine->CurrentBackBufferIndex();
+            auto renderData = rayTracedShadowManager->GetRenderData(frameIndex);
             context.SetRayTracedShadowData(renderData);
-            context.SetRayTracedShadowUpdateCallback([rayTracedShadowManager](const RayTracedShadowSceneConstants& constants) {
-                rayTracedShadowManager->UpdateSceneConstants(constants);
+            context.SetRayTracedShadowUpdateCallback([rayTracedShadowManager](const RayTracedShadowSceneConstants& constants, UINT fi) {
+                rayTracedShadowManager->UpdateSceneConstants(constants, fi);
             });
         }
     }

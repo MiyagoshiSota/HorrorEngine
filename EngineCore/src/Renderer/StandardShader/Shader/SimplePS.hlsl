@@ -26,6 +26,7 @@ cbuffer Transform : register(b0)
     float4x4 PrevViewProj;
     float4x4 CurrViewProj;
     int g_useRayTracedShadow; // 1=レイトレシャドウ（R32 0/1）、0=深度比較
+    float2 g_InvRayTracedShadowMapSize; // レイトレ時: スクリーンUV用 1/width, 1/height
 }
 
 cbuffer LightParams : register(b1)
@@ -90,9 +91,17 @@ struct PSOutput
 
 // =========================================================
 // 影判定関数 (0.0=影, 1.0=日向)
+// screenPosXY: レイトレ時のみ使用（SV_POSITION.xy）
 // =========================================================
-float CalculateShadow(float4 posLight)
+float CalculateShadow(float4 posLight, float2 screenPosXY)
 {
+    // レイトレシャドウ（カメラ視点）：スクリーンUVでサンプル
+    if (g_useRayTracedShadow != 0)
+    {
+        float2 screenUV = screenPosXY * g_InvRayTracedShadowMapSize;
+        return g_ShadowMap.Sample(g_Sampler, screenUV).r;
+    }
+
     // 1. 射影変換 (w除算)
     float3 projCoords = posLight.xyz / posLight.w;
 
@@ -104,12 +113,6 @@ float CalculateShadow(float4 posLight)
     if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
     {
         return 1.0;
-    }
-
-    // レイトレシャドウ：R32 テクスチャの 0/1 をそのまま使用
-    if (g_useRayTracedShadow != 0)
-    {
-        return g_ShadowMap.Sample(g_Sampler, projCoords.xy).r;
     }
 
     // ラスタシャドウマップ：深度比較
@@ -343,7 +346,7 @@ PSOutput main(PSInput input)
     }
     
     // 影の計算
-    float shadowFactor = CalculateShadow(input.posLight);
+    float shadowFactor = CalculateShadow(input.posLight, input.svpos.xy);
 
     // 環境光
     float3 ambient = AmbientColor.rgb * albedo * ao;

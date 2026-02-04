@@ -29,7 +29,8 @@ bool RayTracedShadowManager::Init(ID3D12Device5* device, UINT width, UINT height
     std::wstring shaderPath = L"../EngineCore/src/Renderer/RayTracing/Shaders/ShadowRayTracing.hlsl";
     printf("[RayTracedShadowManager] シェーダーパス: %ls\n", shaderPath.c_str());
 
-    if (!m_pipelineState->Create(device, shaderPath.c_str()))
+    // 再帰深度2: カメラレイ → ClosestHit でシャドウレイを発射するため
+    if (!m_pipelineState->Create(device, shaderPath.c_str(), 32, 8, 2))
     {
         printf("[RayTracedShadowManager] エラー: Ray Tracing Pipeline Stateの作成に失敗しました\n");
         return false;
@@ -89,32 +90,35 @@ bool RayTracedShadowManager::Init(ID3D12Device5* device, UINT width, UINT height
         return false;
     }
 
+    const UINT cbSize = (sizeof(RayTracedShadowSceneConstants) + 255) & ~255;
     auto heapProps2 = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(
-        (sizeof(RayTracedShadowSceneConstants) + 255) & ~255
-    );
+    auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(cbSize);
 
-    ThrowIfFailed(device->CreateCommittedResource(
-        &heapProps2,
-        D3D12_HEAP_FLAG_NONE,
-        &bufferDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(m_sceneConstantBuffer.GetAddressOf())
-    ));
+    for (UINT i = 0; i < kFrameBufferCount; ++i)
+    {
+        ThrowIfFailed(device->CreateCommittedResource(
+            &heapProps2,
+            D3D12_HEAP_FLAG_NONE,
+            &bufferDesc,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(m_sceneConstantBuffers[i].GetAddressOf())
+        ));
+    }
 
     m_initialized = true;
     printf("[RayTracedShadowManager] ===== Ray Traced Shadow Manager 初期化成功 =====\n");
     return true;
 }
 
-RayTracedShadowRenderData RayTracedShadowManager::GetRenderData() const
+RayTracedShadowRenderData RayTracedShadowManager::GetRenderData(UINT frameIndex) const
 {
     RayTracedShadowRenderData data = {};
     if (!m_initialized)
     {
         return data;
     }
+    const UINT index = frameIndex % kFrameBufferCount;
     data.asManager = m_asManager.get();
     data.pipelineState = m_pipelineState.get();
     data.shaderBindingTable = m_shaderBindingTable.get();
@@ -123,7 +127,7 @@ RayTracedShadowRenderData RayTracedShadowManager::GetRenderData() const
     data.clearUavCpuHandle = m_clearUavHeap
         ? m_clearUavHeap->GetCPUDescriptorHandleForHeapStart()
         : D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
-    data.sceneConstantBuffer = m_sceneConstantBuffer.Get();
+    data.sceneConstantBuffer = m_sceneConstantBuffers[index].Get();
     data.pShadowOutputState = const_cast<D3D12_RESOURCE_STATES*>(&m_shadowOutputState);
     data.width = m_width;
     data.height = m_height;
@@ -132,17 +136,19 @@ RayTracedShadowRenderData RayTracedShadowManager::GetRenderData() const
     return data;
 }
 
-void RayTracedShadowManager::UpdateSceneConstants(const RayTracedShadowSceneConstants& constants)
+void RayTracedShadowManager::UpdateSceneConstants(const RayTracedShadowSceneConstants& constants, UINT frameIndex)
 {
-    if (!m_sceneConstantBuffer)
+    const UINT index = frameIndex % kFrameBufferCount;
+    ID3D12Resource* cb = m_sceneConstantBuffers[index].Get();
+    if (!cb)
     {
         return;
     }
     void* mappedData = nullptr;
-    if (SUCCEEDED(m_sceneConstantBuffer->Map(0, nullptr, &mappedData)))
+    if (SUCCEEDED(cb->Map(0, nullptr, &mappedData)))
     {
         memcpy(mappedData, &constants, sizeof(RayTracedShadowSceneConstants));
-        m_sceneConstantBuffer->Unmap(0, nullptr);
+        cb->Unmap(0, nullptr);
     }
 }
 
