@@ -103,6 +103,18 @@ bool DefaultScene::Init(std::string goFilePath)
                 m_rayTracedShadowManager.reset();
             }
         }
+
+        // RTAO Managerの初期化（同一DXRデバイス・解像度でTLASはShadowと共有）
+        m_rayTracedAOManager = std::make_unique<RayTracedAOManager>();
+        if (device5 && m_rayTracedAOManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
+        {
+            printf("Ray Traced AO Manager: 初期化成功\n");
+        }
+        else
+        {
+            printf("Ray Traced AO Manager: 初期化失敗\n");
+            m_rayTracedAOManager.reset();
+        }
     }
 
     printf("シーンの初期化に成功\n");

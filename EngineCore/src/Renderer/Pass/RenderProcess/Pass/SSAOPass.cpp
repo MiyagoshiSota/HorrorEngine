@@ -82,7 +82,7 @@ void SSAOPass::Execute(RenderContext& context)
     cb->Radius = m_radius;
     cb->Bias = m_bias;
     cb->Power = m_power;
-    cb->Padding0 = 0.0f;
+    cb->Enable = m_enabled ? 1.0f : 0.0f;
 
     const float clearColor[] = { 1.0f, 0.0f, 0.0f, 1.0f };
     cmdList->ClearRenderTargetView(ssaoRT->GetRTVHandle(), clearColor, 0, nullptr);

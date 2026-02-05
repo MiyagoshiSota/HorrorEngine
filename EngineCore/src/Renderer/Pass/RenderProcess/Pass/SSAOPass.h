@@ -17,7 +17,7 @@ struct alignas(256) SSAOConstants
     float Radius;
     float Bias;
     float Power;
-    float Padding0;
+    float Enable;
 };
 
 /// 深度・法線バッファからスクリーン空間アンビエントオクルージョンを計算し、AOマップを出力する
@@ -31,6 +31,8 @@ public:
     void SetRadius(float radius) { m_radius = radius; }
     void SetBias(float bias) { m_bias = bias; }
     void SetPower(float power) { m_power = power; }
+    void SetEnabled(bool enabled) { m_enabled = enabled; }
+    bool IsEnabled() const { return m_enabled; }
     float GetRadius() const { return m_radius; }
     float GetBias() const { return m_bias; }
     float GetPower() const { return m_power; }
@@ -40,4 +42,5 @@ private:
     float m_radius = 0.5f;
     float m_bias = 0.025f;
     float m_power = 2.0f;
+    bool m_enabled = true;
 };

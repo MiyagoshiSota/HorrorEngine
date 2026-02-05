@@ -90,7 +90,7 @@ private:
     DirectX::XMVECTOR m_TargetPos; // 注視点
     float m_Fov;                   // 視野角 (ラジアン)
     float m_Aspect;                // アスペクト比
-    float m_NearPlane = 0.5f;      // 近クリップ面
+    float m_NearPlane = 0.3f;      // 近クリップ面
     float m_FarPlane = 30.0f;      // 遠クリップ面
 
     // --- カメラのローカル座標系ベクトル ---

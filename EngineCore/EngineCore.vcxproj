@@ -55,6 +55,8 @@
     <ClCompile Include="src\Renderer\PipelineManager\IPipelineManager.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\LightingPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
@@ -80,6 +82,8 @@
     <ClCompile Include="src\Scene\Skybox\SkyboxManager.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedShadowManager.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedShadowMapTarget.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedAOManager.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedAOTarget.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
     <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
@@ -175,6 +179,8 @@
     <ClInclude Include="src\Renderer\RenderContext\RenderContext.h" />
     <ClInclude Include="src\Renderer\Pass\IRenderPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
@@ -202,6 +208,8 @@
     <ClInclude Include="src\Scene\Skybox\SkyboxManager.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedShadowManager.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedShadowMapTarget.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedAOManager.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedAOTarget.h" />
     <ClInclude Include="src\Scene\ISceneBase.h" />
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Time\TimeManager.h" />
@@ -451,6 +459,16 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOPS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoisePS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>

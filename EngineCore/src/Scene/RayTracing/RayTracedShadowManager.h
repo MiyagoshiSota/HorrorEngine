@@ -67,6 +67,10 @@ public:
     /// 有効かどうか
     bool IsValid() const { return m_initialized; }
 
+    /// 他パス（RTAO等）で同一TLASを共有するためのアクセサ
+    AccelerationStructureManager* GetASManager() { return m_asManager.get(); }
+    const AccelerationStructureManager* GetASManager() const { return m_asManager.get(); }
+
 private:
     bool CreateDescriptorHeap(ID3D12Device5* device);
     /// ClearUnorderedAccessViewFloat の第2引数用。非シェーダー可視ヒープに UAV を1つ作成する。

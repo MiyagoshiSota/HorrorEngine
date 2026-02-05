@@ -16,7 +16,7 @@ cbuffer SSAOConstants : register(b0)
     float Radius;
     float Bias;
     float Power;
-    float Padding0;
+    float Enable;
 };
 
 static const int kSampleCount = 16;
@@ -54,8 +54,8 @@ float3 GetRandomOffset(float2 uv)
 void BuildTBN(float3 N, out float3 T, out float3 B)
 {
     float3 up = abs(N.z) < 0.999 ? float3(0, 0, 1) : float3(1, 0, 0);
-    T = normalize(cross(up, N));
-    B = cross(N, T);
+    T = normalize(cross(up, N)); // 法線と上方向の外積から接線を生成
+    B = cross(N, T); // 法線と接線の外積から副法線を生成
 }
 
 struct PSInput
@@ -66,57 +66,68 @@ struct PSInput
 
 float main(PSInput input) : SV_TARGET
 {
+    if (Enable < 0.5)
+        return 1.0;
+    // サンプリング位置の深度を取得
     float depth = g_Depth.SampleLevel(g_Sampler, input.uv, 0);
-    if (depth <= 0.0) // Reversed-Z: far = 0 (no geometry)
+    if (depth <= 0.0) // 深度が0以下の場合はサンプリングを行わない
         return 1.0;
 
+    // 法線を取得
     float3 normalEnc = g_Normal.SampleLevel(g_Sampler, input.uv, 0).xyz;
-    float3 N = normalEnc * 2.0 - 1.0;
-    N = normalize(mul((float3x3)View, N));
+    float3 N = normalEnc * 2.0 - 1.0; // 法線を[-1,1]の範囲に正規化
+    N = normalize(mul((float3x3)View, N)); // ビュー空間に変換
 
     // NDC (DirectX: 0~1 depth, 左手系)
-    float2 ndc = input.uv * 2.0 - 1.0;
-    ndc.y = -ndc.y;
-    float4 clipPos = float4(ndc.x, ndc.y, depth, 1.0);
-    float4 viewPosH = mul(InvProjection, clipPos);
-    float3 viewPos = viewPosH.xyz / viewPosH.w;
+    float2 ndc = input.uv * 2.0 - 1.0; // 正規化デバイス座標系に変換
+    ndc.y = -ndc.y; // UV座標は上が0なのでY軸を反転
+    float4 clipPos = float4(ndc.x, ndc.y, depth, 1.0); // クリップ空間に変換
+    float4 viewPosH = mul(InvProjection, clipPos); // ビュー空間に変換
+    float3 viewPos = viewPosH.xyz / viewPosH.w; // 同次座標の除算
 
+    // ランダムオフセットを取得
     float3 randomVec = GetRandomOffset(input.uv);
     float3 T, B;
     BuildTBN(N, T, B);
     float3x3 TBN = float3x3(T, B, N);
-    T = normalize(T + randomVec * 0.1);
-    B = normalize(cross(N, T));
-    TBN = float3x3(T, B, N);
+    T = normalize(T + randomVec * 0.1); // マッハバンドを防ぐためにランダムオフセットを追加
+    B = normalize(cross(N, T)); // 法線と接線の外積から副法線を生成 
+    TBN = float3x3(T, B, N); // TBN行列を生成
 
-    float occlusion = 0.0;
-    float farPlane = ProjectionParams.x;
-    float invScreenWidth = 1.0 / ProjectionParams.z;
-    float invScreenHeight = 1.0 / ProjectionParams.w;
+    float occlusion = 0.0; // 遮蔽量
+    float farPlane = ProjectionParams.x; // 遠クリップ面
 
     for (int i = 0; i < kSampleCount; i++)
     {
-        float3 offset = mul(kSampleKernel[i], TBN);
-        float3 sampleViewPos = viewPos + offset * Radius;
-        float4 sampleClip = mul(Projection, float4(sampleViewPos, 1.0));
-        sampleClip.xyz /= sampleClip.w;
+        // ランダムサンプル方向ベクトルを生成
+        float3 offset = mul(kSampleKernel[i], TBN); // ランダムサンプル方向ベクトル
+        float3 sampleViewPos = viewPos + offset * Radius; // ランダムサンプル位置(半径分だけサンプリング方向に移動)
+        
+        // ランダムサンプル位置をクリップ空間に変換
+        float4 sampleClip = mul(Projection, float4(sampleViewPos, 1.0)); // ランダムサンプル位置をクリップ空間に変換
+        sampleClip.xyz /= sampleClip.w; // NDCに変換
 
-        float2 sampleUV;
-        sampleUV.x = sampleClip.x * 0.5 + 0.5;
-        sampleUV.y = -sampleClip.y * 0.5 + 0.5;
+        // ランダムサンプル位置をスクリーン空間に変換
+        float2 sampleUV; // スクリーン空間のUV座標
+        sampleUV.x = sampleClip.x * 0.5 + 0.5; // 0~1の範囲に変換
+        sampleUV.y = -sampleClip.y * 0.5 + 0.5; // 0~1の範囲に変換
 
+        // ランダムサンプル位置がスクリーン空間の範囲外の場合はサンプリングを行わない
         if (sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0)
             continue;
 
+        // ランダムサンプル位置の深度を取得
         float sampleDepth = g_Depth.SampleLevel(g_Sampler, sampleUV, 0);
-        float expectedDepth = sampleClip.z;
-        float rangeCheck = smoothstep(0.0, 1.0, Radius / abs(viewPos.z - sampleViewPos.z));
-        // Reversed-Z: closer = larger depth. Occlusion when surface at sampleUV is further than sample point.
-        if (sampleDepth < expectedDepth - Bias)
-            occlusion += rangeCheck;
+        float expectedDepth = sampleClip.z; // ランダムサンプル位置の深度
+        float rangeCheck = smoothstep(0.0, 1.0, Radius / abs(viewPos.z - sampleViewPos.z)); // ランダムサンプル位置の深度とサンプリング位置の深度の差を0~1の範囲に変換
+        
+        // ランダムサンプル位置の深度がサンプリング位置の深度よりも遠い場合は遮蔽量を増やす
+        if (sampleDepth < expectedDepth - Bias) // 深度バイアスを考慮
+            occlusion += rangeCheck; // 遮蔽量を増やす
     }
 
-    occlusion = 1.0 - (occlusion / (float)kSampleCount);
-    occlusion = pow(saturate(occlusion), Power);
-    return occlusion;
+    // 遮蔽量を計算
+    occlusion = 1.0 - (occlusion / (float)kSampleCount); // 遮蔽量を0~1の範囲に変換
+    occlusion = pow(saturate(occlusion), Power); // 遮蔽量をPower乗算(コントラストを上げる)
+    return occlusion; // 遮蔽量を返す
 }

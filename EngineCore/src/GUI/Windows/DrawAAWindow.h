@@ -77,6 +77,20 @@ public:
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Enable hardware ray tracing for hard shadows. Requires DXR support.");
 
+		// --- RTAO (Ray Traced Ambient Occlusion) ---
+		bool rtao = pipeline->IsRayTracedAOEnabled();
+		if (ImGui::Checkbox("RTAO (DXR)", &rtao))
+			pipeline->SetRayTracedAOEnabled(rtao);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Ray traced ambient occlusion. Replaces SSAO when enabled. Requires DXR support.");
+
+		// --- SSAO ---
+		bool ssao = pipeline->IsSSAOEnabled();
+		if (ImGui::Checkbox("SSAO", &ssao))
+			pipeline->SetSSAOEnabled(ssao);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Screen-space ambient occlusion. Ignored when RTAO is enabled.");
+
 		ImGui::End();
 	}
 

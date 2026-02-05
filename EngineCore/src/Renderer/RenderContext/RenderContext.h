@@ -19,6 +19,7 @@
 #include "Renderer/Graphics/Buffer/ConstantBuffer.h"
 #include "Renderer/Graphics/DescriptorHeap/DescriptorHandle.h"
 #include "Scene/RayTracing/RayTracedShadowManager.h"
+#include "Scene/RayTracing/RayTracedAOManager.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
 
 class IPipelineManager;
@@ -211,6 +212,15 @@ public:
     void SetInvRayTracedShadowMapSize(float invW, float invH) { m_invRayTracedShadowMapSize = DirectX::XMFLOAT2(invW, invH); }
     DirectX::XMFLOAT2 GetInvRayTracedShadowMapSize() const { return m_invRayTracedShadowMapSize; }
 
+    // --- Ray Traced AO データ管理 ---
+    void SetRayTracedAOData(const RayTracedAORenderData& data) { m_rayTracedAOData = data; }
+    const RayTracedAORenderData& GetRayTracedAOData() const { return m_rayTracedAOData; }
+    void SetRayTracedAOUpdateCallback(std::function<void(const RayTracedAOConstants&, UINT)> callback) { m_rayTracedAOUpdateCallback = callback; }
+    void UpdateRayTracedAOConstants(const RayTracedAOConstants& constants, UINT frameIndex)
+    {
+        if (m_rayTracedAOUpdateCallback) m_rayTracedAOUpdateCallback(constants, frameIndex);
+    }
+
     /// シャドウ契約（ライティングパスが参照）
     void SetShadowContext(const ShadowContext& sc)
     {
@@ -273,6 +283,8 @@ private:
     std::function<void(DirectX::XMMATRIX)> m_skyboxUpdateCallback;
     RayTracedShadowRenderData m_rayTracedShadowData;
     std::function<void(const RayTracedShadowSceneConstants&, UINT)> m_rayTracedShadowUpdateCallback;
+    RayTracedAORenderData m_rayTracedAOData;
+    std::function<void(const RayTracedAOConstants&, UINT)> m_rayTracedAOUpdateCallback;
     DirectX::XMFLOAT2 m_taaJitter;
     bool m_taaEnabled;
     bool m_useRayTracedShadow;

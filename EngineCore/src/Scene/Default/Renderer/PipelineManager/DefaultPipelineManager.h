@@ -10,6 +10,8 @@
 #include "Renderer/Pass/RenderProcess/Pass/SkyboxPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/LightingPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SSAOPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/RTAODenoisePass.h"
+#include "Renderer/Pass/RenderProcess/Pass/RTAOPass.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 #include "Renderer/Target/RenderTarget.h"
@@ -48,9 +50,17 @@ public:
 	void SetRayTracedShadowEnabled(bool enabled);
 	bool IsRayTracedShadowEnabled() const;
 
+	// RTAOの有効/無効を切り替え
+	void SetRayTracedAOEnabled(bool enabled);
+	bool IsRayTracedAOEnabled() const;
+
 	// デファード / フォワードレンダリングの切り替え
 	void SetDeferredRendering(bool useDeferred) { m_useDeferred = useDeferred; }
 	bool IsDeferredRendering() const { return m_useDeferred; }
+
+	// SSAOの有効/無効を切り替え
+	void SetSSAOEnabled(bool enabled) { m_ssaoEnabled = enabled; }
+	bool IsSSAOEnabled() const { return m_ssaoEnabled; }
 
 private:
     // ポストプロセス全体（FXAA/TAAの有無もここで分岐）
@@ -82,13 +92,16 @@ private:
 	std::shared_ptr<RenderTarget> m_gbufferMaterial;   // G-Buffer：roughness, metallic, AO, emissive.r
 	std::shared_ptr<RenderTarget> m_gbufferEmissive;  // G-Buffer：emissive.g, emissive.b
 	std::shared_ptr<RenderTarget> m_ssaoBuffer;      // SSAO出力（R8）
+	std::shared_ptr<RenderTarget> m_rtaoDenoiseBuffer; // RTAOデノイズ出力（R32）
 
 private:
 	bool m_useDeferred = true;  // true=デファード（G-Buffer+LightingPass）, false=フォワード（SimplePS 1パス）
 	AASettings m_aaSettings;
+	bool m_ssaoEnabled = true;
 
 	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<RayTracedShadowPass> m_rayTracedShadowPass;
+	std::shared_ptr<RTAOPass> m_rayTracedAOPass;
 	//std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<PostProcessManager> m_postProcessManager;
 	std::shared_ptr<FXAAPass> m_fxaaPass;
@@ -99,5 +112,6 @@ private:
     std::shared_ptr<SkyboxPass> m_skyboxPass;
 	std::shared_ptr<LightingPass> m_lightingPass;
 	std::shared_ptr<SSAOPass> m_ssaoPass;
+	std::shared_ptr<RTAODenoisePass> m_rtaoDenoisePass;
 };
 

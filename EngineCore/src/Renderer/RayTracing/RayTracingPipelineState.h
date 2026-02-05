@@ -13,13 +13,21 @@ public:
     RayTracingPipelineState() = default;
     ~RayTracingPipelineState() = default;
 
-    /// パイプラインを構築
+    /// パイプラインを構築（Shadow用）
     bool Create(
         ID3D12Device5* device,
         const wchar_t* shaderLibraryPath,
         UINT maxPayloadSize = 32,
         UINT maxAttributeSize = 8,
         UINT maxRecursionDepth = 1
+    );
+
+    /// RTAO用パイプラインを構築（別HLSL・別ルートシグネチャ）
+    bool CreateForRTAO(
+        ID3D12Device5* device,
+        const wchar_t* shaderLibraryPath,
+        UINT maxPayloadSize = 8,
+        UINT maxAttributeSize = 8
     );
 
     ID3D12StateObject* GetStateObject() const { return m_stateObject.Get(); }
@@ -48,7 +56,7 @@ public:
     ShaderBindingTable() = default;
     ~ShaderBindingTable() = default;
 
-    /// SBTを構築
+    /// SBTを構築（Shadow用）
     bool Build(
         ID3D12Device5* device,
         RayTracingPipelineState* pipelineState,
@@ -56,6 +64,9 @@ public:
         UINT numMissShaders,
         UINT numHitGroups
     );
+
+    /// RTAO用SBTを構築（RayGen/Miss/HitGroup 各1）
+    bool BuildForRTAO(ID3D12Device5* device, RayTracingPipelineState* pipelineState);
 
     /// ディスパッチ記述子を取得
     D3D12_DISPATCH_RAYS_DESC GetDispatchRaysDesc(UINT width, UINT height) const;

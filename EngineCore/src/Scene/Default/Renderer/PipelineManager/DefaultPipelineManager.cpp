@@ -28,6 +28,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 	{
 		m_rayTracedShadowPass = std::make_shared<RayTracedShadowPass>();
 		m_rayTracedShadowPass->SetEnabled(false); // デフォルトは無効
+		m_rayTracedAOPass = std::make_shared<RTAOPass>();
+		m_rayTracedAOPass->SetEnabled(false); // デフォルトは無効
 	}
 
 	// ParticleSystemの初期化
@@ -80,6 +82,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_gbufferEmissive->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_ssaoBuffer = std::make_shared<RenderTarget>();
 	m_ssaoBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_rtaoDenoiseBuffer = std::make_shared<RenderTarget>();
+	m_rtaoDenoiseBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
@@ -98,6 +102,7 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_tempRenderTargetPool = std::make_shared<TempRenderTargetPool>();
 	m_lightingPass = std::make_shared<LightingPass>();
 	m_ssaoPass = std::make_shared<SSAOPass>();
+	m_rtaoDenoisePass = std::make_shared<RTAODenoisePass>();
 }
 
 void DefaultPipelineManager::Execute()
@@ -118,6 +123,7 @@ void DefaultPipelineManager::Execute()
     }
 
     // レンダーターゲットを設定
+    auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
     context.AddRenderTarget(ConstRenderPref::SceneColor, m_sceneColor);
     context.AddRenderTarget(ConstRenderPref::SceneDepth, m_sceneDepth);
 	context.AddRenderTarget(ConstRenderPref::TmpColorA, m_tmpColorA);
@@ -135,7 +141,28 @@ void DefaultPipelineManager::Execute()
 		context.AddRenderTarget(ConstRenderPref::MotionVectorBuffer, m_motionVectorResolved);
 		context.AddRenderTarget(ConstRenderPref::NormalBuffer, m_normalBufferNonMSAA);
 		context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBufferNonMSAA);
-		context.AddRenderTarget(ConstRenderPref::SSAOBuffer, m_ssaoBuffer);
+		// RTAO有効時はRTAO raw + デノイズ出力、無効時は従来のSSAOバッファ
+		if (m_rayTracedAOPass && m_rayTracedAOPass->IsEnabled() && defaultScene)
+		{
+			auto aoManager = defaultScene->GetRayTracedAOManager();
+			if (aoManager && aoManager->IsValid())
+			{
+				auto aoData = aoManager->GetRenderData(g_Engine->CurrentBackBufferIndex(), defaultScene->GetRayTracedShadowManager()->GetASManager());
+				if (aoData.aoTarget)
+				{
+					context.AddRenderTarget(ConstRenderPref::RTAORaw, aoData.aoTarget);
+					context.AddRenderTarget(ConstRenderPref::SSAOBuffer, m_rtaoDenoiseBuffer);
+				}
+				else
+				{
+					context.AddRenderTarget(ConstRenderPref::SSAOBuffer, m_ssaoBuffer);
+				}
+			}
+			else
+				context.AddRenderTarget(ConstRenderPref::SSAOBuffer, m_ssaoBuffer);
+		}
+		else
+			context.AddRenderTarget(ConstRenderPref::SSAOBuffer, m_ssaoBuffer);
 	}
 	else
 	{
@@ -153,9 +180,8 @@ void DefaultPipelineManager::Execute()
 			context.AddRenderTarget(ConstRenderPref::WorldPositionBuffer, m_worldPositionBufferNonMSAA);
 		}
 	}
-	
+
 	// ShadowMapターゲットの設定（Ray Traced Shadowが有効な場合はそちらを優先）
-	auto defaultScene = std::dynamic_pointer_cast<DefaultScene>(g_Scene);
 	if (defaultScene && m_rayTracedShadowPass && m_rayTracedShadowPass->IsEnabled())
 	{
 		auto rayTracedShadowManager = defaultScene->GetRayTracedShadowManager();
@@ -223,6 +249,18 @@ void DefaultPipelineManager::Execute()
                 rayTracedShadowManager->UpdateSceneConstants(constants, fi);
             });
         }
+        // RTAO用データをContextに設定（TLASはShadowと共有）
+        auto aoManager = defaultScene->GetRayTracedAOManager();
+        auto shadowManager = defaultScene->GetRayTracedShadowManager();
+        if (aoManager && aoManager->IsValid() && shadowManager && shadowManager->IsValid())
+        {
+            const UINT frameIndex = g_Engine->CurrentBackBufferIndex();
+            auto aoData = aoManager->GetRenderData(frameIndex, shadowManager->GetASManager());
+            context.SetRayTracedAOData(aoData);
+            context.SetRayTracedAOUpdateCallback([aoManager](const RayTracedAOConstants& constants, UINT fi) {
+                aoManager->UpdateConstants(constants, fi);
+            });
+        }
     }
 
     // Shadow（ライト空間深度 or R32 マスク）
@@ -273,10 +311,20 @@ void DefaultPipelineManager::Execute()
         pass->Execute(context);
     }
 
-    // SSAO（デファード時のみ: Depth + Normal → SSAOBuffer）
-    if (m_useDeferred && m_ssaoPass)
+    // SSAO または RTAO（デファード時のみ）
+    if (m_useDeferred)
     {
-        m_ssaoPass->Execute(context);
+        if (m_rayTracedAOPass && m_rayTracedAOPass->IsEnabled())
+        {
+            m_rayTracedAOPass->Execute(context);
+            if (m_rtaoDenoisePass)
+                m_rtaoDenoisePass->Execute(context);
+        }
+        else if (m_ssaoPass)
+        {
+            m_ssaoPass->SetEnabled(m_ssaoEnabled);
+            m_ssaoPass->Execute(context);
+        }
     }
 
     // Lighting（デファード時のみ: G-Buffer + Shadow + SSAO → SceneColor）
@@ -514,6 +562,19 @@ bool DefaultPipelineManager::IsRayTracedShadowEnabled() const
 	{
 		return m_rayTracedShadowPass->IsEnabled();
 	}
+	return false;
+}
+
+void DefaultPipelineManager::SetRayTracedAOEnabled(bool enabled)
+{
+	if (m_rayTracedAOPass)
+		m_rayTracedAOPass->SetEnabled(enabled);
+}
+
+bool DefaultPipelineManager::IsRayTracedAOEnabled() const
+{
+	if (m_rayTracedAOPass)
+		return m_rayTracedAOPass->IsEnabled();
 	return false;
 }
 
