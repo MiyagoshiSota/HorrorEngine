@@ -84,6 +84,14 @@ public:
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Ray traced ambient occlusion. Replaces SSAO when enabled. Requires DXR support.");
 
+		// --- RTAO Denoise Mode (RTAO有効時のみ意味がある) ---
+		const char* denoiseItems[] = { "Off (copy)", "Bilateral (5x5)", "Separable (2-pass)", "A-Trous (5-pass)" };
+		int denoiseIndex = static_cast<int>(pipeline->GetRTAODenoiseMode());
+		if (ImGui::Combo("RTAO Denoise", &denoiseIndex, denoiseItems, 4))
+			pipeline->SetRTAODenoiseMode(static_cast<RTAODenoiseMode>(denoiseIndex));
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Off: raw AO. Bilateral: 5x5 bilateral. Separable: 2-pass bilateral. A-Trous: 5-pass wavelet.");
+
 		// --- SSAO ---
 		bool ssao = pipeline->IsSSAOEnabled();
 		if (ImGui::Checkbox("SSAO", &ssao))

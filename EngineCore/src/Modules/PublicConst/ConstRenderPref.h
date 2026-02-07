@@ -21,5 +21,6 @@ public:
 	static inline const char* GBufferEmissive = "GBufferEmissive";   // emissive.g, emissive.b
 	static inline const char* SSAOBuffer = "SSAOBuffer";
 	static inline const char* RTAORaw = "RTAORaw";
+	static inline const char* RTAODenoiseTemp = "RTAODenoiseTemp";
 	static inline const char* RtShadowVisibility = "RtShadowVisibility";
 };

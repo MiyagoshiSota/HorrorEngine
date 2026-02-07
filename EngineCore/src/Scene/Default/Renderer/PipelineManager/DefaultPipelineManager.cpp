@@ -84,6 +84,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_ssaoBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_rtaoDenoiseBuffer = std::make_shared<RenderTarget>();
 	m_rtaoDenoiseBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_rtaoDenoiseTemp = std::make_shared<RenderTarget>();
+	m_rtaoDenoiseTemp->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
@@ -152,6 +154,7 @@ void DefaultPipelineManager::Execute()
 				{
 					context.AddRenderTarget(ConstRenderPref::RTAORaw, aoData.aoTarget);
 					context.AddRenderTarget(ConstRenderPref::SSAOBuffer, m_rtaoDenoiseBuffer);
+					context.AddRenderTarget(ConstRenderPref::RTAODenoiseTemp, m_rtaoDenoiseTemp);
 				}
 				else
 				{
@@ -576,5 +579,18 @@ bool DefaultPipelineManager::IsRayTracedAOEnabled() const
 	if (m_rayTracedAOPass)
 		return m_rayTracedAOPass->IsEnabled();
 	return false;
+}
+
+void DefaultPipelineManager::SetRTAODenoiseMode(RTAODenoiseMode mode)
+{
+	if (m_rtaoDenoisePass)
+		m_rtaoDenoisePass->SetDenoiseMode(mode);
+}
+
+RTAODenoiseMode DefaultPipelineManager::GetRTAODenoiseMode() const
+{
+	if (m_rtaoDenoisePass)
+		return m_rtaoDenoisePass->GetDenoiseMode();
+	return RTAODenoiseMode::Bilateral;
 }
 

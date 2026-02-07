@@ -54,6 +54,10 @@ public:
 	void SetRayTracedAOEnabled(bool enabled);
 	bool IsRayTracedAOEnabled() const;
 
+	// RTAOデノイズモード: Off=コピーのみ, Bilateral=5x5 Bilateral, Separable=Separable Bilateral
+	void SetRTAODenoiseMode(RTAODenoiseMode mode);
+	RTAODenoiseMode GetRTAODenoiseMode() const;
+
 	// デファード / フォワードレンダリングの切り替え
 	void SetDeferredRendering(bool useDeferred) { m_useDeferred = useDeferred; }
 	bool IsDeferredRendering() const { return m_useDeferred; }
@@ -93,6 +97,7 @@ private:
 	std::shared_ptr<RenderTarget> m_gbufferEmissive;  // G-Buffer：emissive.g, emissive.b
 	std::shared_ptr<RenderTarget> m_ssaoBuffer;      // SSAO出力（R8）
 	std::shared_ptr<RenderTarget> m_rtaoDenoiseBuffer; // RTAOデノイズ出力（R32）
+	std::shared_ptr<RenderTarget> m_rtaoDenoiseTemp;   // Separable用中間バッファ（R32）
 
 private:
 	bool m_useDeferred = true;  // true=デファード（G-Buffer+LightingPass）, false=フォワード（SimplePS 1パス）

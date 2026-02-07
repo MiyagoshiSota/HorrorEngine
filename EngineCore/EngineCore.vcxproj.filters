@@ -216,7 +216,10 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\LightingPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOPS.hlsl" />
-    <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoisePS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoiseBilateralPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoiseSeparablePS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoiseCopyPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoiseATrousPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\DebugVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\DebugPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\ComputeShader\RainParticle.hlsl" />

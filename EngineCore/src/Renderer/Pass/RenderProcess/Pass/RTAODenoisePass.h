@@ -13,7 +13,18 @@ struct alignas(256) RTAODenoiseConstants
     float DepthSigma;
     float NormalSigma;
     DirectX::XMFLOAT2 InvScreenSize;
-    float Padding0;
+    DirectX::XMFLOAT2 BlurDirection; // (1,0)=horizontal, (0,1)=vertical (Separable時のみ使用)
+    float StepSize;   // À-Trous のステップ (1, 2, 4, 8, 16)
+    float Padding1;
+};
+
+/// デノイズモード: Off=コピーのみ, Bilateral, Separable, À-Trous
+enum class RTAODenoiseMode
+{
+    Off,
+    Bilateral,
+    Separable,
+    ATrous
 };
 
 class RTAODenoisePass : public IRenderPass
@@ -23,6 +34,8 @@ public:
 
     void Execute(RenderContext& context) override;
 
+    void SetDenoiseMode(RTAODenoiseMode mode) { m_denoiseMode = mode; }
+    RTAODenoiseMode GetDenoiseMode() const { return m_denoiseMode; }
     void SetDepthSigma(float v) { m_depthSigma = v; }
     void SetNormalSigma(float v) { m_normalSigma = v; }
     float GetDepthSigma() const { return m_depthSigma; }
@@ -30,6 +43,7 @@ public:
 
 private:
     std::shared_ptr<ConstantBuffer> m_constants;
+    RTAODenoiseMode m_denoiseMode = RTAODenoiseMode::Bilateral;
     float m_depthSigma = 16.0f;
     float m_normalSigma = 8.0f;
 };
