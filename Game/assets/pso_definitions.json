@@ -310,7 +310,8 @@
         { "type": "SRV", "num": 1, "shaderRegister": 4 },
         { "type": "SRV", "num": 1, "shaderRegister": 5 },
         { "type": "SRV", "num": 1, "shaderRegister": 6 },
-        { "type": "SRV", "num": 1, "shaderRegister": 7 }
+        { "type": "SRV", "num": 1, "shaderRegister": 7 },
+        { "type": "SRV", "num": 1, "shaderRegister": 8 }
       ],
       "staticSamplers": [
         {

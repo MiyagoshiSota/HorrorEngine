@@ -12,6 +12,7 @@
 #include "Renderer/Pass/RenderProcess/Pass/SSAOPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/RTAODenoisePass.h"
 #include "Renderer/Pass/RenderProcess/Pass/RTAOPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/RTGIPass.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 #include "Renderer/Target/RenderTarget.h"
@@ -53,6 +54,10 @@ public:
 	// RTAOの有効/無効を切り替え
 	void SetRayTracedAOEnabled(bool enabled);
 	bool IsRayTracedAOEnabled() const;
+
+	// RTGIの有効/無効を切り替え
+	void SetRayTracedGIEnabled(bool enabled);
+	bool IsRayTracedGIEnabled() const;
 
 	// RTAOデノイズモード: Off=コピーのみ, Bilateral=5x5 Bilateral, Separable=Separable Bilateral
 	void SetRTAODenoiseMode(RTAODenoiseMode mode);
@@ -107,6 +112,7 @@ private:
 	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<RayTracedShadowPass> m_rayTracedShadowPass;
 	std::shared_ptr<RTAOPass> m_rayTracedAOPass;
+	std::shared_ptr<RTGIPass> m_rayTracedGIPass;
 	//std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<PostProcessManager> m_postProcessManager;
 	std::shared_ptr<FXAAPass> m_fxaaPass;

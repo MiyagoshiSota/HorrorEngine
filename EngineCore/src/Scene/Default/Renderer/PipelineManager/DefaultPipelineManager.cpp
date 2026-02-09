@@ -11,6 +11,7 @@
 #include "Renderer/Pass/RenderProcess/Pass/SSAOPass.h"
 #include "Scene/Skybox/SkyboxManager.h"
 #include "Scene/RayTracing/RayTracedShadowManager.h"
+#include "Scene/RayTracing/RayTracedGIManager.h"
 #include "Scene/Default/Scene/DefaultScene.h"
 #include "Renderer/Target/DepthStencilTarget.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
@@ -30,6 +31,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 		m_rayTracedShadowPass->SetEnabled(false); // デフォルトは無効
 		m_rayTracedAOPass = std::make_shared<RTAOPass>();
 		m_rayTracedAOPass->SetEnabled(false); // デフォルトは無効
+		m_rayTracedGIPass = std::make_shared<RTGIPass>();
+		m_rayTracedGIPass->SetEnabled(false); // デフォルトは無効
 	}
 
 	// ParticleSystemの初期化
@@ -166,6 +169,17 @@ void DefaultPipelineManager::Execute()
 		}
 		else
 			context.AddRenderTarget(ConstRenderPref::SSAOBuffer, m_ssaoBuffer);
+		// RTGI有効時はContextにRTGI出力を登録（LightingPassで使用）
+		if (m_rayTracedGIPass && m_rayTracedGIPass->IsEnabled() && defaultScene)
+		{
+			auto giManager = defaultScene->GetRayTracedGIManager();
+			if (giManager && giManager->IsValid())
+			{
+				auto giData = giManager->GetRenderData(g_Engine->CurrentBackBufferIndex(), defaultScene->GetRayTracedShadowManager()->GetASManager());
+				if (giData.giTarget)
+					context.AddRenderTarget(ConstRenderPref::RTGIBuffer, giData.giTarget);
+			}
+		}
 	}
 	else
 	{
@@ -264,6 +278,17 @@ void DefaultPipelineManager::Execute()
                 aoManager->UpdateConstants(constants, fi);
             });
         }
+        // RTGI用データをContextに設定
+        auto giManager = defaultScene->GetRayTracedGIManager();
+        if (giManager && giManager->IsValid() && shadowManager && shadowManager->IsValid())
+        {
+            const UINT frameIndex = g_Engine->CurrentBackBufferIndex();
+            auto giData = giManager->GetRenderData(frameIndex, shadowManager->GetASManager());
+            context.SetRayTracedGIData(giData);
+            context.SetRayTracedGIUpdateCallback([giManager](const RayTracedGIConstants& constants, UINT fi) {
+                giManager->UpdateConstants(constants, fi);
+            });
+        }
     }
 
     // Shadow（ライト空間深度 or R32 マスク）
@@ -328,11 +353,15 @@ void DefaultPipelineManager::Execute()
             m_ssaoPass->SetEnabled(m_ssaoEnabled);
             m_ssaoPass->Execute(context);
         }
+        // RTGI（デファード時のみ、ON/OFF可能）
+        if (m_rayTracedGIPass && m_rayTracedGIPass->IsEnabled())
+            m_rayTracedGIPass->Execute(context);
     }
 
-    // Lighting（デファード時のみ: G-Buffer + Shadow + SSAO → SceneColor）
+    // Lighting（デファード時のみ: G-Buffer + Shadow + SSAO + RTGI → SceneColor）
     if (m_useDeferred && m_lightingPass)
     {
+        context.SetRTGIEnabled(m_rayTracedGIPass && m_rayTracedGIPass->IsEnabled());
         m_lightingPass->Execute(context);
     }
 
@@ -578,6 +607,19 @@ bool DefaultPipelineManager::IsRayTracedAOEnabled() const
 {
 	if (m_rayTracedAOPass)
 		return m_rayTracedAOPass->IsEnabled();
+	return false;
+}
+
+void DefaultPipelineManager::SetRayTracedGIEnabled(bool enabled)
+{
+	if (m_rayTracedGIPass)
+		m_rayTracedGIPass->SetEnabled(enabled);
+}
+
+bool DefaultPipelineManager::IsRayTracedGIEnabled() const
+{
+	if (m_rayTracedGIPass)
+		return m_rayTracedGIPass->IsEnabled();
 	return false;
 }
 

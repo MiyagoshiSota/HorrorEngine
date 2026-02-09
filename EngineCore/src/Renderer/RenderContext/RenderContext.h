@@ -20,6 +20,7 @@
 #include "Renderer/Graphics/DescriptorHeap/DescriptorHandle.h"
 #include "Scene/RayTracing/RayTracedShadowManager.h"
 #include "Scene/RayTracing/RayTracedAOManager.h"
+#include "Scene/RayTracing/RayTracedGIManager.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
 
 class IPipelineManager;
@@ -221,6 +222,18 @@ public:
         if (m_rayTracedAOUpdateCallback) m_rayTracedAOUpdateCallback(constants, frameIndex);
     }
 
+    // --- Ray Traced GI データ管理 ---
+    void SetRayTracedGIData(const RayTracedGIRenderData& data) { m_rayTracedGIData = data; }
+    const RayTracedGIRenderData& GetRayTracedGIData() const { return m_rayTracedGIData; }
+    void SetRayTracedGIUpdateCallback(std::function<void(const RayTracedGIConstants&, UINT)> callback) { m_rayTracedGIUpdateCallback = callback; }
+    void UpdateRayTracedGIConstants(const RayTracedGIConstants& constants, UINT frameIndex)
+    {
+        if (m_rayTracedGIUpdateCallback) m_rayTracedGIUpdateCallback(constants, frameIndex);
+    }
+
+    void SetRTGIEnabled(bool enabled) { m_rtgiEnabled = enabled; }
+    bool IsRTGIEnabled() const { return m_rtgiEnabled; }
+
     /// シャドウ契約（ライティングパスが参照）
     void SetShadowContext(const ShadowContext& sc)
     {
@@ -285,6 +298,9 @@ private:
     std::function<void(const RayTracedShadowSceneConstants&, UINT)> m_rayTracedShadowUpdateCallback;
     RayTracedAORenderData m_rayTracedAOData;
     std::function<void(const RayTracedAOConstants&, UINT)> m_rayTracedAOUpdateCallback;
+    RayTracedGIRenderData m_rayTracedGIData;
+    std::function<void(const RayTracedGIConstants&, UINT)> m_rayTracedGIUpdateCallback;
+    bool m_rtgiEnabled = false;
     DirectX::XMFLOAT2 m_taaJitter;
     bool m_taaEnabled;
     bool m_useRayTracedShadow;

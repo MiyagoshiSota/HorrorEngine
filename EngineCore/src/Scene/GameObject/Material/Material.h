@@ -68,6 +68,14 @@ public:
     void SetColor(DirectX::XMFLOAT4 color) { m_BaseColor = color; }
     DirectX::XMFLOAT4 GetColor() const { return m_BaseColor; }
 
+    /// スロット名でテクスチャを取得（RTGI等でSRVを別ヒープに作成する用）。未設定なら白テクスチャ。
+    std::shared_ptr<Texture2D> GetTexture(const std::string& name) const
+    {
+        auto it = m_textureProperties.find(name);
+        if (it != m_textureProperties.end() && it->second)
+            return it->second;
+        return TextureResourceManager::Instance().WhiteTexture();
+    }
 
     // --- DirectX 12 内部処理 ---
 

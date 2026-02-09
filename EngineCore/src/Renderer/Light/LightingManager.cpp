@@ -57,7 +57,7 @@ void LightingManager::UpdateConstantBuffer() const
     SharedStruct::LightingParams lightingParams = {};
 
     // 環境光の設定
-    lightingParams.AmbientColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+    lightingParams.AmbientColor = DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 0.3f);
 
     // 平行光源の設定
     lightingParams.NumDirectionalLights = static_cast<int>(m_DirectionalLights.size());

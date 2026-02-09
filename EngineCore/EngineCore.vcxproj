@@ -57,6 +57,7 @@
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\LightingPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
@@ -84,6 +85,8 @@
     <ClCompile Include="src\Scene\RayTracing\RayTracedShadowMapTarget.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedAOManager.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedAOTarget.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedGIManager.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedGITarget.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
     <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
@@ -181,6 +184,7 @@
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
@@ -210,6 +214,8 @@
     <ClInclude Include="src\Scene\RayTracing\RayTracedShadowMapTarget.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedAOManager.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedAOTarget.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedGIManager.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedGITarget.h" />
     <ClInclude Include="src\Scene\ISceneBase.h" />
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Time\TimeManager.h" />

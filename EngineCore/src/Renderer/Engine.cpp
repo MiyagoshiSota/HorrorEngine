@@ -48,22 +48,22 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
     }
 
     // CreateDevice()内、デバイス作成が成功した後に追加
-#if defined(_DEBUG)
-    ComPtr<ID3D12InfoQueue> pInfoQueue;
-    if (SUCCEEDED(m_pDevice->QueryInterface(IID_PPV_ARGS(pInfoQueue.GetAddressOf()))))
-    {
-        // 重大なエラーが発生した場合、プログラムを停止させる
-        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+// #if defined(_DEBUG)
+//     ComPtr<ID3D12InfoQueue> pInfoQueue;
+//     if (SUCCEEDED(m_pDevice->QueryInterface(IID_PPV_ARGS(pInfoQueue.GetAddressOf()))))
+//     {
+//         // 重大なエラーが発生した場合、プログラムを停止させる
+//         pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+//         pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
 
-        // 特定のエラーメッセージを抑制する例（必要に応じて）
-        // D3D12_MESSAGE_ID messageIds[] = { ... };
-        // D3D12_INFO_QUEUE_FILTER filter = {};
-        // filter.DenyList.NumIDs = _countof(messageIds);
-        // filter.DenyList.pIDList = messageIds;
-        // pInfoQueue->AddStorageFilterEntries(&filter);
-    }
-#endif
+//         // 特定のエラーメッセージを抑制する例（必要に応じて）
+//         // D3D12_MESSAGE_ID messageIds[] = { ... };
+//         // D3D12_INFO_QUEUE_FILTER filter = {};
+//         // filter.DenyList.NumIDs = _countof(messageIds);
+//         // filter.DenyList.pIDList = messageIds;
+//         // pInfoQueue->AddStorageFilterEntries(&filter);
+//     }
+// #endif
 
     if (!CreateCommandQueue())
     {

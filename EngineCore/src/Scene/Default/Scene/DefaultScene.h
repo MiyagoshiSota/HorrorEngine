@@ -3,6 +3,7 @@
 #include "Scene/Skybox/SkyboxManager.h"
 #include "Scene/RayTracing/RayTracedShadowManager.h"
 #include "Scene/RayTracing/RayTracedAOManager.h"
+#include "Scene/RayTracing/RayTracedGIManager.h"
 #include "Physics/MyCollisionListener.h"
 #include "Scene/ISceneBase.h"
 
@@ -38,6 +39,7 @@ public:
 	SkyboxManager* GetSkyboxManager() { return m_skyboxManager.get(); }
 	RayTracedShadowManager* GetRayTracedShadowManager() { return m_rayTracedShadowManager.get(); }
 	RayTracedAOManager* GetRayTracedAOManager() { return m_rayTracedAOManager.get(); }
+	RayTracedGIManager* GetRayTracedGIManager() { return m_rayTracedGIManager.get(); }
 
 private:
 	std::shared_ptr<DefaultPipelineManager> m_defaultPipelineManager;
@@ -45,5 +47,6 @@ private:
 	std::unique_ptr<SkyboxManager> m_skyboxManager;
 	std::unique_ptr<RayTracedShadowManager> m_rayTracedShadowManager;
 	std::unique_ptr<RayTracedAOManager> m_rayTracedAOManager;
+	std::unique_ptr<RayTracedGIManager> m_rayTracedGIManager;
 };
 

@@ -30,6 +30,14 @@ public:
         UINT maxAttributeSize = 8
     );
 
+    /// RTGI用パイプラインを構築（1-bounce間接光）
+    bool CreateForRTGI(
+        ID3D12Device5* device,
+        const wchar_t* shaderLibraryPath,
+        UINT maxPayloadSize = 12,
+        UINT maxAttributeSize = 8
+    );
+
     ID3D12StateObject* GetStateObject() const { return m_stateObject.Get(); }
     ID3D12StateObjectProperties* GetStateObjectProperties() const
     {
@@ -67,6 +75,15 @@ public:
 
     /// RTAO用SBTを構築（RayGen/Miss/HitGroup 各1）
     bool BuildForRTAO(ID3D12Device5* device, RayTracingPipelineState* pipelineState);
+
+    /// RTGI用SBTを構築（RayGen/Miss 各1、HitGroup は numHitGroups 件・各レコードに VB/IB ディスクリプタ先頭を渡す）
+    bool BuildForRTGI(ID3D12Device5* device, RayTracingPipelineState* pipelineState);
+    bool BuildForRTGI(
+        ID3D12Device5* device,
+        RayTracingPipelineState* pipelineState,
+        UINT numHitGroupRecords,
+        D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptorForVBIB,
+        UINT descriptorIncrementSize);
 
     /// ディスパッチ記述子を取得
     D3D12_DISPATCH_RAYS_DESC GetDispatchRaysDesc(UINT width, UINT height) const;

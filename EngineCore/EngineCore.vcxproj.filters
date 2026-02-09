@@ -20,6 +20,7 @@
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\LightingPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
@@ -68,6 +69,8 @@
     <ClCompile Include="src\Renderer\Pass\ShadowProcess\Pass\RayTracedShadowPass.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedAOManager.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedAOTarget.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedGIManager.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedGITarget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -94,6 +97,7 @@
     <ClInclude Include="src\Renderer\Graphics\DescriptorHeap\DescriptorHandle.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
@@ -193,6 +197,8 @@
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\RayTracedShadowPass.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedAOManager.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedAOTarget.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedGIManager.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedGITarget.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />

@@ -58,6 +58,7 @@ public:
         DirectX::XMMATRIX transform;      // ワールド変換行列
         UINT instanceID;                   // インスタンスID（シェーダーで使用）
         UINT instanceMask;                 // レイトレーシングマスク
+        UINT contributionToHitGroupIndex; // ヒットグループテーブル先頭オフセット（RTGI用）
         D3D12_GPU_VIRTUAL_ADDRESS blasAddress; // 対応するBLASのアドレス
     };
 
@@ -108,10 +109,18 @@ public:
         return m_blasList; 
     }
 
+    /// RTGI用: ジオメトリごとのVB/IB（BuildAccelerationStructuresで蓄積）
+    struct GeometryBuffers { ID3D12Resource* vertexBuffer = nullptr; ID3D12Resource* indexBuffer = nullptr; };
+    const std::vector<GeometryBuffers>& GetGeometryBuffers() const { return m_geometryBuffers; }
+    const std::vector<UINT>& GetGeometryCountPerInstance() const { return m_geometryCountPerInstance; }
+    UINT GetTotalGeometryCount() const { return static_cast<UINT>(m_geometryBuffers.size()); }
+
     /// ASが構築済みかどうかを確認
     bool IsBuilt() const { return m_tlas != nullptr && !m_blasList.empty(); }
 
 private:
     std::unique_ptr<TopLevelAS> m_tlas;
     std::vector<std::unique_ptr<BottomLevelAS>> m_blasList;
+    std::vector<GeometryBuffers> m_geometryBuffers;
+    std::vector<UINT> m_geometryCountPerInstance;
 };

@@ -54,22 +54,22 @@ bool DefaultScene::Init(std::string goFilePath)
         5.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, 0.5f)
     );
-    // m_LightingManager->AddPointLight(
-    //    LightType::Point,
-    //    DirectX::XMFLOAT3(1.0f, .0f, .0f),
-    //    3.0f,
-    //    DirectX::XMFLOAT3(0.0f, 5.0f, 0.0f),
-    //    500.0f,
-    //    0.005f
-    // );
-    // m_LightingManager->AddSpotLight(
-    //    LightType::Spot,
-    //    DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f),
-    //    5.0f,
-    //    DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f),
-    //    DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f),
-    //    0.7f, 1.0f,100, 0.01f
-    // );
+    //m_LightingManager->AddPointLight(
+    //   LightType::Point,
+    //   DirectX::XMFLOAT3(1.0f, .0f, .0f),
+    //   3.0f,
+    //   DirectX::XMFLOAT3(0.0f, 5.0f, 0.0f),
+    //   500.0f,
+    //   0.005f
+    //);
+    //m_LightingManager->AddSpotLight(
+    //   LightType::Spot,
+    //   DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f),
+    //   5.0f,
+    //   DirectX::XMFLOAT3(0.0f, 10.0f, 0.0f),
+    //   DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f),
+    //   0.7f, 1.0f,100, 0.01f
+    //);
 
     printf("PSOの生成\n");
 
@@ -114,6 +114,18 @@ bool DefaultScene::Init(std::string goFilePath)
         {
             printf("Ray Traced AO Manager: 初期化失敗\n");
             m_rayTracedAOManager.reset();
+        }
+
+        // RTGI Managerの初期化（TLASはShadowと共有）
+        m_rayTracedGIManager = std::make_unique<RayTracedGIManager>();
+        if (device5 && m_rayTracedGIManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
+        {
+            printf("Ray Traced GI Manager: 初期化成功\n");
+        }
+        else
+        {
+            printf("Ray Traced GI Manager: 初期化失敗\n");
+            m_rayTracedGIManager.reset();
         }
     }
 

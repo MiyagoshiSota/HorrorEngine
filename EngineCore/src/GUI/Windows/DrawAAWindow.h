@@ -84,6 +84,13 @@ public:
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Ray traced ambient occlusion. Replaces SSAO when enabled. Requires DXR support.");
 
+		// --- RTGI (Ray Traced Global Illumination) ---
+		bool rtgi = pipeline->IsRayTracedGIEnabled();
+		if (ImGui::Checkbox("RTGI (DXR)", &rtgi))
+			pipeline->SetRayTracedGIEnabled(rtgi);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Ray traced global illumination (1-bounce indirect). Requires DXR support.");
+
 		// --- RTAO Denoise Mode (RTAO有効時のみ意味がある) ---
 		const char* denoiseItems[] = { "Off (copy)", "Bilateral (5x5)", "Separable (2-pass)", "A-Trous (5-pass)" };
 		int denoiseIndex = static_cast<int>(pipeline->GetRTAODenoiseMode());

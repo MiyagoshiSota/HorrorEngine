@@ -290,7 +290,7 @@ bool TopLevelAS::Build(
 
         desc.InstanceID = instance.instanceID;
         desc.InstanceMask = instance.instanceMask;
-        desc.InstanceContributionToHitGroupIndex = 0;
+        desc.InstanceContributionToHitGroupIndex = instance.contributionToHitGroupIndex;
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
         desc.AccelerationStructure = instance.blasAddress;
 
@@ -393,11 +393,14 @@ bool AccelerationStructureManager::BuildAccelerationStructures(
         return false;
     }
 
-    // 既存のBLASをクリア
+    // 既存のBLASとジオメトリバッファ一覧をクリア
     m_blasList.clear();
+    m_geometryBuffers.clear();
+    m_geometryCountPerInstance.clear();
 
     // 各ゲームオブジェクトごとにBLASを作成
     std::vector<TopLevelAS::Instance> tlasInstances;
+    UINT accumulatedHitGroupOffset = 0;
 
     for (size_t i = 0; i < gameObjects.size(); ++i)
     {
@@ -407,34 +410,48 @@ bool AccelerationStructureManager::BuildAccelerationStructures(
             continue;
         }
 
-        // MeshRendererコンポーネントを持つGameObjectのみ処理
         auto meshRenderer = gameObject->FindComponent<MeshRenderer>();
         if (!meshRenderer || !meshRenderer->model || meshRenderer->model->m_Meshes.empty())
         {
             continue;
         }
 
-        // BLASを作成（このGameObjectの全サブメッシュを1つのBLASに含む）
         const size_t meshCount = meshRenderer->model->m_Meshes.size();
+        for (size_t m = 0; m < meshCount; ++m)
+        {
+            auto mesh = meshRenderer->model->m_Meshes[m];
+            auto vb = mesh->get_vertex_buffer();
+            auto ib = mesh->get_index_buffer();
+            if (vb && ib && vb->GetResource() && ib->GetResource())
+            {
+                GeometryBuffers gb;
+                gb.vertexBuffer = vb->GetResource();
+                gb.indexBuffer = ib->GetResource();
+                m_geometryBuffers.push_back(gb);
+            }
+        }
+        m_geometryCountPerInstance.push_back(static_cast<UINT>(meshCount));
+
         auto blas = std::make_unique<BottomLevelAS>();
         std::vector<std::shared_ptr<GameObject>> singleObject = { gameObject };
-        
         if (!blas->Build(device, commandList, singleObject))
         {
+            m_geometryBuffers.resize(m_geometryBuffers.size() - meshCount);
+            m_geometryCountPerInstance.pop_back();
             continue;
         }
 
-        printf("[AccelerationStructure] BLAS[%zu] ジオメトリ(サブメッシュ)数 = %zu\n", m_blasList.size(), meshCount);
-
-        // TLASインスタンスを作成
         TopLevelAS::Instance instance;
         instance.transform = gameObject->GetTransform();
         instance.instanceID = static_cast<UINT>(i);
         instance.instanceMask = 0xFF;
+        instance.contributionToHitGroupIndex = accumulatedHitGroupOffset;
         instance.blasAddress = blas->GetGpuAddress();
 
+        accumulatedHitGroupOffset += static_cast<UINT>(meshCount);
         tlasInstances.push_back(instance);
         m_blasList.push_back(std::move(blas));
+        printf("[AccelerationStructure] BLAS[%zu] ジオメトリ数 = %zu\n", m_blasList.size(), meshCount);
     }
 
     if (tlasInstances.empty())
@@ -462,8 +479,8 @@ bool AccelerationStructureManager::UpdateTopLevelAS(
         return false;
     }
 
-    // インスタンスリストを再構築
     std::vector<TopLevelAS::Instance> tlasInstances;
+    UINT accumulatedHitGroupOffset = 0;
 
     for (size_t i = 0; i < gameObjects.size() && i < m_blasList.size(); ++i)
     {
@@ -472,20 +489,21 @@ bool AccelerationStructureManager::UpdateTopLevelAS(
         {
             continue;
         }
-
-        // MeshRendererコンポーネントを持つGameObjectのみ処理
         auto meshRenderer = gameObject->FindComponent<MeshRenderer>();
         if (!meshRenderer || !meshRenderer->model || meshRenderer->model->m_Meshes.empty())
         {
             continue;
         }
+        UINT geomCount = (i < m_geometryCountPerInstance.size()) ? m_geometryCountPerInstance[i] : 0;
 
         TopLevelAS::Instance instance;
         instance.transform = gameObject->GetTransform();
         instance.instanceID = static_cast<UINT>(i);
         instance.instanceMask = 0xFF;
+        instance.contributionToHitGroupIndex = accumulatedHitGroupOffset;
         instance.blasAddress = m_blasList[i]->GetGpuAddress();
 
+        accumulatedHitGroupOffset += geomCount;
         tlasInstances.push_back(instance);
     }
 
