@@ -63,8 +63,8 @@ float4 main(PSInput input) : SV_TARGET
     float roughness = g_Material.SampleLevel(g_Sampler, input.uv, 0).r;
 
     // 粗さが0.85以上の場合は反射を無効化
-    if (roughness > 0.85)
-        return float4(0.0, 0.0, 0.0, 0.0);
+    // if (roughness > 0.5)
+    //     return float4(0.0, 0.0, 0.0, 0.0);
 
     // 深度を取得
     float depthNDC = g_Depth.SampleLevel(g_Sampler, input.uv, 0);

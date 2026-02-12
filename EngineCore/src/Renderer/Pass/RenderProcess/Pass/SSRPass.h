@@ -44,7 +44,7 @@ private:
     std::shared_ptr<ConstantBuffer> m_ssrConstants;
     bool m_enabled = true;
     float m_maxRayDistance = 50.0f;
-    float m_rayStep = 0.5f;
+    float m_rayStep = 1.0f;
     int m_maxSteps = 64;
     float m_thickness = 0.1f;
 };
