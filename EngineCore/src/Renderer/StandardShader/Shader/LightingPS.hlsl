@@ -1,5 +1,5 @@
-// ライティングパス：G-Buffer + シャドウ + RTGIから最終カラーを計算
-// t0=Albedo, t1=Normal, t2=WorldPos, t3=Motion, t4=Material, t5=Emissive, t6=ShadowMap, t7=SSAO, t8=RTGI
+// ライティングパス：G-Buffer + シャドウ + RTGI + RT Reflection から最終カラーを計算
+// t0=Albedo, t1=Normal, t2=WorldPos, t3=Motion, t4=Material, t5=Emissive, t6=ShadowMap, t7=SSAO, t8=RTGI, t9=RTReflection
 // b0=LightingTransform, b1=LightParams
 
 Texture2D g_Albedo : register(t0);
@@ -10,6 +10,7 @@ Texture2D g_Emissive : register(t5);
 Texture2D g_ShadowMap : register(t6);
 Texture2D g_SSAO : register(t7);
 Texture2D g_RTGI : register(t8);
+Texture2D g_RTReflection : register(t9);
 
 SamplerState g_Sampler : register(s0);
 SamplerComparisonState g_ShadowSampler : register(s1);
@@ -21,7 +22,8 @@ cbuffer LightingTransform : register(b0)
     float4x4 LightViewProj;
     int ShadowMode;  // 0=None, 1=RasterDepth, 2=RayTracedMask(カメラ視点・スクリーンUV), 3=RayTracedVisibility
     float2 InvRayTracedShadowMapSize; // ShadowMode==2 時: 1/width, 1/height（スクリーンUVサンプル用）
-    int RTGIEnabled; // 0=OFF, 1=ON
+    int RTGIEnabled;       // 0=OFF, 1=ON
+    int RTReflectionEnabled; // 0=OFF, 1=ON
     int Padding1[1];
 }
 
@@ -218,6 +220,12 @@ float4 main(PSInput input) : SV_TARGET
     {
         float3 indirectGI = g_RTGI.Sample(g_Sampler, input.uv).rgb;
         color += indirectGI * albedo * ao;
+    }
+    if (RTReflectionEnabled != 0)
+    {
+        float3 refl = g_RTReflection.Sample(g_Sampler, input.uv).rgb;
+        float reflF = 1.0 - roughness;
+        color += refl * reflF;
     }
     return float4(color, albedoSample.a);
 }

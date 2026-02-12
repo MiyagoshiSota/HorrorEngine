@@ -127,6 +127,17 @@ bool DefaultScene::Init(std::string goFilePath)
             printf("Ray Traced GI Manager: 初期化失敗\n");
             m_rayTracedGIManager.reset();
         }
+
+        m_rayTracedReflectionManager = std::make_unique<RayTracedReflectionManager>();
+        if (device5 && m_rayTracedReflectionManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
+        {
+            printf("Ray Traced Reflection Manager: 初期化成功\n");
+        }
+        else
+        {
+            printf("Ray Traced Reflection Manager: 初期化失敗\n");
+            m_rayTracedReflectionManager.reset();
+        }
     }
 
     printf("シーンの初期化に成功\n");

@@ -34,6 +34,14 @@ public:
     bool CreateForRTGI(
         ID3D12Device5* device,
         const wchar_t* shaderLibraryPath,
+        UINT maxPayloadSize = 16,
+        UINT maxAttributeSize = 8
+    );
+
+    /// RT Reflection用パイプラインを構築（鏡面反射レイ）
+    bool CreateForRTReflection(
+        ID3D12Device5* device,
+        const wchar_t* shaderLibraryPath,
         UINT maxPayloadSize = 12,
         UINT maxAttributeSize = 8
     );
@@ -79,6 +87,15 @@ public:
     /// RTGI用SBTを構築（RayGen/Miss 各1、HitGroup は numHitGroups 件・各レコードに VB/IB ディスクリプタ先頭を渡す）
     bool BuildForRTGI(ID3D12Device5* device, RayTracingPipelineState* pipelineState);
     bool BuildForRTGI(
+        ID3D12Device5* device,
+        RayTracingPipelineState* pipelineState,
+        UINT numHitGroupRecords,
+        D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptorForVBIB,
+        UINT descriptorIncrementSize);
+
+    /// RT Reflection用SBTを構築（RTGIと同様に HitGroup  per geometry）
+    bool BuildForRTReflection(ID3D12Device5* device, RayTracingPipelineState* pipelineState);
+    bool BuildForRTReflection(
         ID3D12Device5* device,
         RayTracingPipelineState* pipelineState,
         UINT numHitGroupRecords,

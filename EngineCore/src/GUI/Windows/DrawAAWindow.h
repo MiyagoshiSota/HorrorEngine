@@ -91,6 +91,22 @@ public:
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Ray traced global illumination (1-bounce indirect). Requires DXR support.");
 
+		// --- RT Reflection (Ray Traced Reflection) ---
+		bool rtReflection = pipeline->IsRayTracedReflectionEnabled();
+		if (ImGui::Checkbox("RT Reflection (DXR)", &rtReflection))
+			pipeline->SetRayTracedReflectionEnabled(rtReflection);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Ray traced mirror reflection from G-Buffer. Requires DXR support.");
+		auto reflMgr = scene->GetRayTracedReflectionManager();
+		if (reflMgr)
+		{
+			bool debugReflColors = reflMgr->IsDebugGeometryColors();
+			if (ImGui::Checkbox("RT Reflection: Debug geometry colors", &debugReflColors))
+				reflMgr->SetDebugGeometryColors(debugReflColors);
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Bind distinct solid colors per geometry to verify SBT hit group selection.");
+		}
+
 		// --- RTAO Denoise Mode (RTAO有効時のみ意味がある) ---
 		const char* denoiseItems[] = { "Off (copy)", "Bilateral (5x5)", "Separable (2-pass)", "A-Trous (5-pass)" };
 		int denoiseIndex = static_cast<int>(pipeline->GetRTAODenoiseMode());
@@ -105,6 +121,13 @@ public:
 			pipeline->SetSSAOEnabled(ssao);
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Screen-space ambient occlusion. Ignored when RTAO is enabled.");
+
+		// --- SSR (Screen-Space Reflection) ---
+		bool ssr = pipeline->IsSSREnabled();
+		if (ImGui::Checkbox("SSR", &ssr))
+			pipeline->SetSSREnabled(ssr);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Screen-space reflection. Blends reflection over SceneColor after lighting.");
 
 		ImGui::End();
 	}

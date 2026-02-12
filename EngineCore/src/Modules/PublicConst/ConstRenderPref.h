@@ -24,4 +24,6 @@ public:
 	static inline const char* RTAODenoiseTemp = "RTAODenoiseTemp";
 	static inline const char* RTGIBuffer = "RTGIBuffer";
 	static inline const char* RtShadowVisibility = "RtShadowVisibility";
+	static inline const char* SSRBuffer = "SSRBuffer";
+	static inline const char* RTReflectionBuffer = "RTReflectionBuffer";
 };

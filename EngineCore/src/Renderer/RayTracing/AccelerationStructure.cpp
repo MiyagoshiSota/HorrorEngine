@@ -452,11 +452,24 @@ bool AccelerationStructureManager::BuildAccelerationStructures(
         tlasInstances.push_back(instance);
         m_blasList.push_back(std::move(blas));
         printf("[AccelerationStructure] BLAS[%zu] ジオメトリ数 = %zu\n", m_blasList.size(), meshCount);
+        printf("[RTReflection/AS] instance#%zu contributionToHitGroupIndex=%u meshCount=%zu\n",
+            tlasInstances.size() - 1u, instance.contributionToHitGroupIndex, meshCount);
     }
 
     if (tlasInstances.empty())
     {
         return false;
+    }
+
+    // 並び比較用: TLAS 構築時のジオメトリ順をログ（RT Reflection の SBT と一致するか調査）
+    {
+        const size_t geomCount = m_geometryBuffers.size();
+        printf("[RTReflection/AS] BuildAccelerationStructures: geometryCount=%zu\n", geomCount);
+        const size_t logLimit = (geomCount > 32u) ? 32u : geomCount;
+        for (size_t k = 0; k < logLimit; ++k)
+            printf("  [AS] geom#%zu vb=%p\n", k, m_geometryBuffers[k].vertexBuffer);
+        if (geomCount > 32u)
+            printf("  ... and %zu more\n", geomCount - 32u);
     }
 
     // TLASを作成

@@ -4,6 +4,7 @@
 #include "Scene/RayTracing/RayTracedShadowManager.h"
 #include "Scene/RayTracing/RayTracedAOManager.h"
 #include "Scene/RayTracing/RayTracedGIManager.h"
+#include "Scene/RayTracing/RayTracedReflectionManager.h"
 #include "Physics/MyCollisionListener.h"
 #include "Scene/ISceneBase.h"
 
@@ -40,6 +41,7 @@ public:
 	RayTracedShadowManager* GetRayTracedShadowManager() { return m_rayTracedShadowManager.get(); }
 	RayTracedAOManager* GetRayTracedAOManager() { return m_rayTracedAOManager.get(); }
 	RayTracedGIManager* GetRayTracedGIManager() { return m_rayTracedGIManager.get(); }
+	RayTracedReflectionManager* GetRayTracedReflectionManager() { return m_rayTracedReflectionManager.get(); }
 
 private:
 	std::shared_ptr<DefaultPipelineManager> m_defaultPipelineManager;
@@ -48,5 +50,6 @@ private:
 	std::unique_ptr<RayTracedShadowManager> m_rayTracedShadowManager;
 	std::unique_ptr<RayTracedAOManager> m_rayTracedAOManager;
 	std::unique_ptr<RayTracedGIManager> m_rayTracedGIManager;
+	std::unique_ptr<RayTracedReflectionManager> m_rayTracedReflectionManager;
 };
 

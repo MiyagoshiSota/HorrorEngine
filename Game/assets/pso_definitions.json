@@ -311,7 +311,8 @@
         { "type": "SRV", "num": 1, "shaderRegister": 5 },
         { "type": "SRV", "num": 1, "shaderRegister": 6 },
         { "type": "SRV", "num": 1, "shaderRegister": 7 },
-        { "type": "SRV", "num": 1, "shaderRegister": 8 }
+        { "type": "SRV", "num": 1, "shaderRegister": 8 },
+        { "type": "SRV", "num": 1, "shaderRegister": 9 }
       ],
       "staticSamplers": [
         {
@@ -328,6 +329,32 @@
           "comparisonFunc": "GREATER_EQUAL",
           "borderColor": "OPAQUE_WHITE"
         }
+      ],
+      "flags": [ "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT" ]
+    },
+    "SSR_Default": {
+      "constantBufferViews": [{ "shaderRegister": 0 }],
+      "descriptorTables": [
+        { "type": "SRV", "num": 1, "shaderRegister": 0 },
+        { "type": "SRV", "num": 1, "shaderRegister": 1 },
+        { "type": "SRV", "num": 1, "shaderRegister": 2 },
+        { "type": "SRV", "num": 1, "shaderRegister": 3 },
+        { "type": "SRV", "num": 1, "shaderRegister": 4 }
+      ],
+      "staticSamplers": [
+        { "shaderRegister": 0, "filter": "LINEAR", "addressMode": "CLAMP" }
+      ],
+      "flags": [ "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT" ]
+    },
+    "SSRComposite_Default": {
+      "constantBufferViews": [{ "shaderRegister": 0 }],
+      "descriptorTables": [
+        { "type": "SRV", "num": 1, "shaderRegister": 0 },
+        { "type": "SRV", "num": 1, "shaderRegister": 1 },
+        { "type": "SRV", "num": 1, "shaderRegister": 2 }
+      ],
+      "staticSamplers": [
+        { "shaderRegister": 0, "filter": "LINEAR", "addressMode": "CLAMP" }
       ],
       "flags": [ "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT" ]
     }
@@ -545,6 +572,24 @@
       "inputLayoutEnable": false,
       "sampleCount": 1,
       "format": "DXGI_FORMAT_R32_FLOAT"
+    },
+    "SSRPass": {
+      "rootSignature": "SSR_Default",
+      "vertexShader": "../x64/Debug/SSAOVS.cso",
+      "pixelShader": "../x64/Debug/SSRPS.cso",
+      "depthEnable": false,
+      "inputLayoutEnable": false,
+      "sampleCount": 1,
+      "format": "DXGI_FORMAT_R8G8B8A8_UNORM"
+    },
+    "SSRCompositePass": {
+      "rootSignature": "SSRComposite_Default",
+      "vertexShader": "../x64/Debug/SSAOVS.cso",
+      "pixelShader": "../x64/Debug/SSRCompositePS.cso",
+      "depthEnable": false,
+      "inputLayoutEnable": false,
+      "sampleCount": 1,
+      "rtvFormats": ["R8G8B8A8_UNORM"]
     }
   }
 }

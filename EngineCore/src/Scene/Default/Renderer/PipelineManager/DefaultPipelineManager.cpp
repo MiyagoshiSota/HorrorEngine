@@ -9,9 +9,12 @@
 #include "Renderer/Pass/RenderProcess/Pass/GeometryPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/LightingPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SSAOPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/SSRPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/SSRCompositePass.h"
 #include "Scene/Skybox/SkyboxManager.h"
 #include "Scene/RayTracing/RayTracedShadowManager.h"
 #include "Scene/RayTracing/RayTracedGIManager.h"
+#include "Scene/RayTracing/RayTracedReflectionManager.h"
 #include "Scene/Default/Scene/DefaultScene.h"
 #include "Renderer/Target/DepthStencilTarget.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
@@ -33,6 +36,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 		m_rayTracedAOPass->SetEnabled(false); // デフォルトは無効
 		m_rayTracedGIPass = std::make_shared<RTGIPass>();
 		m_rayTracedGIPass->SetEnabled(false); // デフォルトは無効
+		m_rayTracedReflectionPass = std::make_shared<RTReflectionPass>();
+		m_rayTracedReflectionPass->SetEnabled(false); // デフォルトは無効
 	}
 
 	// ParticleSystemの初期化
@@ -89,6 +94,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_rtaoDenoiseBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_rtaoDenoiseTemp = std::make_shared<RenderTarget>();
 	m_rtaoDenoiseTemp->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_ssrBuffer = std::make_shared<RenderTarget>();
+	m_ssrBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
@@ -108,6 +115,8 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_lightingPass = std::make_shared<LightingPass>();
 	m_ssaoPass = std::make_shared<SSAOPass>();
 	m_rtaoDenoisePass = std::make_shared<RTAODenoisePass>();
+	m_ssrPass = std::make_shared<SSRPass>();
+	m_ssrCompositePass = std::make_shared<SSRCompositePass>();
 }
 
 void DefaultPipelineManager::Execute()
@@ -180,6 +189,19 @@ void DefaultPipelineManager::Execute()
 					context.AddRenderTarget(ConstRenderPref::RTGIBuffer, giData.giTarget);
 			}
 		}
+		// RT Reflection有効時はContextにRT Reflection出力を登録（LightingPassで使用）
+		if (m_rayTracedReflectionPass && m_rayTracedReflectionPass->IsEnabled() && defaultScene)
+		{
+			auto reflectionManager = defaultScene->GetRayTracedReflectionManager();
+			if (reflectionManager && reflectionManager->IsValid())
+			{
+				auto reflData = reflectionManager->GetRenderData(g_Engine->CurrentBackBufferIndex(), defaultScene->GetRayTracedShadowManager()->GetASManager());
+				if (reflData.reflectionTarget)
+					context.AddRenderTarget(ConstRenderPref::RTReflectionBuffer, reflData.reflectionTarget);
+			}
+		}
+		// SSR用バッファを登録（SSRPass が書き込み、SSRCompositePass が参照）
+		context.AddRenderTarget(ConstRenderPref::SSRBuffer, m_ssrBuffer);
 	}
 	else
 	{
@@ -289,6 +311,17 @@ void DefaultPipelineManager::Execute()
                 giManager->UpdateConstants(constants, fi);
             });
         }
+        // RT Reflection用データをContextに設定
+        auto reflectionManager = defaultScene->GetRayTracedReflectionManager();
+        if (reflectionManager && reflectionManager->IsValid() && shadowManager && shadowManager->IsValid())
+        {
+            const UINT frameIndex = g_Engine->CurrentBackBufferIndex();
+            auto reflData = reflectionManager->GetRenderData(frameIndex, shadowManager->GetASManager());
+            context.SetRayTracedReflectionData(reflData);
+            context.SetRayTracedReflectionUpdateCallback([reflectionManager](const RayTracedReflectionConstants& constants, UINT fi) {
+                reflectionManager->UpdateConstants(constants, fi);
+            });
+        }
     }
 
     // Shadow（ライト空間深度 or R32 マスク）
@@ -356,13 +389,76 @@ void DefaultPipelineManager::Execute()
         // RTGI（デファード時のみ、ON/OFF可能）
         if (m_rayTracedGIPass && m_rayTracedGIPass->IsEnabled())
             m_rayTracedGIPass->Execute(context);
+        // RT Reflection（デファード時のみ、ON/OFF可能）
+        if (m_rayTracedReflectionPass && m_rayTracedReflectionPass->IsEnabled())
+            m_rayTracedReflectionPass->Execute(context);
     }
 
-    // Lighting（デファード時のみ: G-Buffer + Shadow + SSAO + RTGI → SceneColor）
+    // Lighting（デファード時のみ: G-Buffer + Shadow + SSAO + RTGI + RT Reflection → SceneColor）
     if (m_useDeferred && m_lightingPass)
     {
         context.SetRTGIEnabled(m_rayTracedGIPass && m_rayTracedGIPass->IsEnabled());
+        context.SetRTReflectionEnabled(m_rayTracedReflectionPass && m_rayTracedReflectionPass->IsEnabled());
         m_lightingPass->Execute(context);
+    }
+
+    // SSR（デファード時のみ: SceneColor + Depth + G-Buffer → SSRBuffer → TmpColorA → SceneColor）
+    if (m_useDeferred && m_ssrPass && m_ssrCompositePass && m_ssrEnabled)
+    {
+        auto cmdList = context.CommandList;
+        auto sceneColorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
+        auto sceneDepthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
+        if (sceneColorRT && sceneDepthRT && sceneColorRT->GetResource() && sceneDepthRT->GetResource())
+        {
+            if (sceneColorRT->GetCurrentState() != D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+            {
+                D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+                    sceneColorRT->GetResource(),
+                    sceneColorRT->GetCurrentState(),
+                    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+                cmdList->ResourceBarrier(1, &barrier);
+                sceneColorRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            }
+            if (sceneDepthRT->GetCurrentState() != D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+            {
+                D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+                    sceneDepthRT->GetResource(),
+                    sceneDepthRT->GetCurrentState(),
+                    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+                cmdList->ResourceBarrier(1, &barrier);
+                sceneDepthRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            }
+            m_ssrPass->Execute(context);
+            context.SetDestRT(m_tmpColorA);
+            m_ssrCompositePass->Execute(context);
+            if (m_tmpColorA->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+            {
+                D3D12_RESOURCE_BARRIER barriers[2] = {
+                    CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorA->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_SOURCE),
+                    CD3DX12_RESOURCE_BARRIER::Transition(m_sceneColor->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST)
+                };
+                cmdList->ResourceBarrier(2, barriers);
+                m_tmpColorA->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
+                m_sceneColor->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
+                cmdList->CopyResource(m_sceneColor->GetResource(), m_tmpColorA->GetResource());
+                D3D12_RESOURCE_BARRIER barriersBack[2] = {
+                    CD3DX12_RESOURCE_BARRIER::Transition(m_tmpColorA->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+                    CD3DX12_RESOURCE_BARRIER::Transition(m_sceneColor->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET)
+                };
+                cmdList->ResourceBarrier(2, barriersBack);
+                m_tmpColorA->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+                m_sceneColor->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+            }
+            if (sceneDepthRT->GetCurrentState() != D3D12_RESOURCE_STATE_DEPTH_WRITE)
+            {
+                D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+                    sceneDepthRT->GetResource(),
+                    sceneDepthRT->GetCurrentState(),
+                    D3D12_RESOURCE_STATE_DEPTH_WRITE);
+                cmdList->ResourceBarrier(1, &barrier);
+                sceneDepthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
+            }
+        }
     }
 
     // Skybox（SceneColor に描画）
@@ -620,6 +716,19 @@ bool DefaultPipelineManager::IsRayTracedGIEnabled() const
 {
 	if (m_rayTracedGIPass)
 		return m_rayTracedGIPass->IsEnabled();
+	return false;
+}
+
+void DefaultPipelineManager::SetRayTracedReflectionEnabled(bool enabled)
+{
+	if (m_rayTracedReflectionPass)
+		m_rayTracedReflectionPass->SetEnabled(enabled);
+}
+
+bool DefaultPipelineManager::IsRayTracedReflectionEnabled() const
+{
+	if (m_rayTracedReflectionPass)
+		return m_rayTracedReflectionPass->IsEnabled();
 	return false;
 }
 

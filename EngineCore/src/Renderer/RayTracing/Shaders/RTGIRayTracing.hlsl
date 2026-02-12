@@ -207,7 +207,7 @@ void RTGIRayGen()
     accIndirect /= float(numRays);
     accIndirect *= g_indirectIntensity;
 
-    g_giOutput[launchIndex] = float4(accDirect + accIndirect, 1.0);
+    g_giOutput[launchIndex] = float4(accIndirect, 1.0);
 }
 
 [shader("miss")]

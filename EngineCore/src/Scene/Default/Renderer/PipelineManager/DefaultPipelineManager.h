@@ -13,6 +13,9 @@
 #include "Renderer/Pass/RenderProcess/Pass/RTAODenoisePass.h"
 #include "Renderer/Pass/RenderProcess/Pass/RTAOPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/RTGIPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/RTReflectionPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/SSRPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/SSRCompositePass.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
 #include "Renderer/Target/RenderTarget.h"
@@ -59,6 +62,10 @@ public:
 	void SetRayTracedGIEnabled(bool enabled);
 	bool IsRayTracedGIEnabled() const;
 
+	// RT Reflectionの有効/無効を切り替え
+	void SetRayTracedReflectionEnabled(bool enabled);
+	bool IsRayTracedReflectionEnabled() const;
+
 	// RTAOデノイズモード: Off=コピーのみ, Bilateral=5x5 Bilateral, Separable=Separable Bilateral
 	void SetRTAODenoiseMode(RTAODenoiseMode mode);
 	RTAODenoiseMode GetRTAODenoiseMode() const;
@@ -70,6 +77,10 @@ public:
 	// SSAOの有効/無効を切り替え
 	void SetSSAOEnabled(bool enabled) { m_ssaoEnabled = enabled; }
 	bool IsSSAOEnabled() const { return m_ssaoEnabled; }
+
+	// SSRの有効/無効を切り替え
+	void SetSSREnabled(bool enabled) { m_ssrEnabled = enabled; }
+	bool IsSSREnabled() const { return m_ssrEnabled; }
 
 private:
     // ポストプロセス全体（FXAA/TAAの有無もここで分岐）
@@ -103,16 +114,19 @@ private:
 	std::shared_ptr<RenderTarget> m_ssaoBuffer;      // SSAO出力（R8）
 	std::shared_ptr<RenderTarget> m_rtaoDenoiseBuffer; // RTAOデノイズ出力（R32）
 	std::shared_ptr<RenderTarget> m_rtaoDenoiseTemp;   // Separable用中間バッファ（R32）
+	std::shared_ptr<RenderTarget> m_ssrBuffer;        // SSR反射カラー出力（RGBA）
 
 private:
 	bool m_useDeferred = true;  // true=デファード（G-Buffer+LightingPass）, false=フォワード（SimplePS 1パス）
 	AASettings m_aaSettings;
 	bool m_ssaoEnabled = true;
+	bool m_ssrEnabled = true;
 
 	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<RayTracedShadowPass> m_rayTracedShadowPass;
 	std::shared_ptr<RTAOPass> m_rayTracedAOPass;
 	std::shared_ptr<RTGIPass> m_rayTracedGIPass;
+	std::shared_ptr<RTReflectionPass> m_rayTracedReflectionPass;
 	//std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<PostProcessManager> m_postProcessManager;
 	std::shared_ptr<FXAAPass> m_fxaaPass;
@@ -124,5 +138,7 @@ private:
 	std::shared_ptr<LightingPass> m_lightingPass;
 	std::shared_ptr<SSAOPass> m_ssaoPass;
 	std::shared_ptr<RTAODenoisePass> m_rtaoDenoisePass;
+	std::shared_ptr<SSRPass> m_ssrPass;
+	std::shared_ptr<SSRCompositePass> m_ssrCompositePass;
 };
 

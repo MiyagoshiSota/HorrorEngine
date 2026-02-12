@@ -56,6 +56,7 @@ void LightingPass::Execute(RenderContext& context)
     auto shadowRT = context.GetRenderTarget(ConstRenderPref::ShadowMap);
     auto ssaoRT = context.GetRenderTarget(ConstRenderPref::SSAOBuffer);
     auto rtgiRT = context.GetRenderTarget(ConstRenderPref::RTGIBuffer);
+    auto rtReflectionRT = context.GetRenderTarget(ConstRenderPref::RTReflectionBuffer);
     auto sceneColorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
 
     if (!albedoRT || !normalRT || !worldPosRT || !sceneColorRT)
@@ -80,6 +81,8 @@ void LightingPass::Execute(RenderContext& context)
         TransitionToSRV(cmdList, ssaoRT);
     if (rtgiRT)
         TransitionToSRV(cmdList, rtgiRT);
+    if (rtReflectionRT)
+        TransitionToSRV(cmdList, rtReflectionRT);
     TransitionToRTV(cmdList, sceneColorRT);
 
     LightingTransformCB* cb = static_cast<LightingTransformCB*>(m_lightingTransformCB->GetPtr());
@@ -89,7 +92,7 @@ void LightingPass::Execute(RenderContext& context)
     cb->ShadowMode = static_cast<int>(sc.mode);
     cb->InvRayTracedShadowMapSize = context.GetInvRayTracedShadowMapSize();
     cb->RTGIEnabled = context.IsRTGIEnabled() ? 1 : 0;
-    cb->Padding1 = 0;
+    cb->RTReflectionEnabled = context.IsRTReflectionEnabled() ? 1 : 0;
 
     const float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = sceneColorRT->GetRTVHandle();
@@ -132,6 +135,10 @@ void LightingPass::Execute(RenderContext& context)
         cmdList->SetGraphicsRootDescriptorTable(10, rtgiRT->GetSRVHandle()->gpuHandle);
     else
         cmdList->SetGraphicsRootDescriptorTable(10, albedoRT->GetSRVHandle()->gpuHandle);
+    if (rtReflectionRT && rtReflectionRT->GetSRVHandle())
+        cmdList->SetGraphicsRootDescriptorTable(11, rtReflectionRT->GetSRVHandle()->gpuHandle);
+    else
+        cmdList->SetGraphicsRootDescriptorTable(11, albedoRT->GetSRVHandle()->gpuHandle);
 
     cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     cmdList->DrawInstanced(3, 1, 0, 0);

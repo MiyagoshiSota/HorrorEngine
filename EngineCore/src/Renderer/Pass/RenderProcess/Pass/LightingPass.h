@@ -17,8 +17,9 @@ struct alignas(256) LightingTransformCB
     DirectX::XMFLOAT4X4 LightViewProj;
     int ShadowMode;
     DirectX::XMFLOAT2 InvRayTracedShadowMapSize; // ShadowMode==RayTracedMask 時: スクリーンUV用
-    int RTGIEnabled; // 0=OFF, 1=ON
-    int Padding1;
+    int RTGIEnabled;       // 0=OFF, 1=ON
+    int RTReflectionEnabled; // 0=OFF, 1=ON
+    int Padding1[1];
 };
 
 /// G-Buffer + シャドウから最終カラーを計算するフルスクリーンパス

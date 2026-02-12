@@ -1,5 +1,7 @@
 #include "RainParticleSystem.h"
 
+#include <Modules/PublicConst/ConstRenderPref.h>
+
 #include "Core/App.h"
 #include "Modules/Renderer/RendereUtility.h"
 #include "Modules/DxHelper.h"
@@ -169,8 +171,8 @@ void RainParticleSystem::Draw(RenderContext& context)
     auto PSOname = "RainParticleRenderPass";
 
     // RenderTargetの取得
-    auto sceneColorRT = context.GetSourceRT();
-    auto sceneDepthRT = context.GetDestRT();
+    auto sceneColorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
+    auto sceneDepthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
     
     // シーン定数バッファの更新
     auto sceneConstant = sceneConstantBuffer->GetPtr<SceneConstants>();

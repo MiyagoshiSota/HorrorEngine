@@ -58,7 +58,10 @@
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTReflectionPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSRPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSRCompositePass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
@@ -87,6 +90,8 @@
     <ClCompile Include="src\Scene\RayTracing\RayTracedAOTarget.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedGIManager.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedGITarget.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedReflectionManager.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedReflectionTarget.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
     <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
@@ -185,7 +190,10 @@
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTReflectionPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSRPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSRCompositePass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
     <ClInclude Include="src\Renderer\Target\RenderTarget.h" />
@@ -216,6 +224,8 @@
     <ClInclude Include="src\Scene\RayTracing\RayTracedAOTarget.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedGIManager.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedGITarget.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedReflectionManager.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedReflectionTarget.h" />
     <ClInclude Include="src\Scene\ISceneBase.h" />
     <ClInclude Include="src\Scene\SceneManager.h" />
     <ClInclude Include="src\Scene\Time\TimeManager.h" />
@@ -465,6 +475,26 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOPS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SSRPS.hlsl">
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SSRCompositePS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>

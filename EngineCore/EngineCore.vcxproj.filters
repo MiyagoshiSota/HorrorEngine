@@ -21,8 +21,11 @@
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\LightingPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTReflectionPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSRPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSRCompositePass.cpp" />
     <ClCompile Include="src\Renderer\Target\DepthStencilTarget.cpp" />
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
@@ -71,6 +74,8 @@
     <ClCompile Include="src\Scene\RayTracing\RayTracedAOTarget.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedGIManager.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedGITarget.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedReflectionManager.cpp" />
+    <ClCompile Include="src\Scene\RayTracing\RayTracedReflectionTarget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\App.h" />
@@ -98,8 +103,11 @@
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\GeometryPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTReflectionPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSRPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSRCompositePass.h" />
     <ClInclude Include="src\Renderer\Target\DepthStencilTarget.h" />
     <ClInclude Include="src\Renderer\Target\ITargetBase.h" />
     <ClInclude Include="src\Renderer\Target\RenderTarget.h" />
@@ -199,6 +207,8 @@
     <ClInclude Include="src\Scene\RayTracing\RayTracedAOTarget.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedGIManager.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedGITarget.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedReflectionManager.h" />
+    <ClInclude Include="src\Scene\RayTracing\RayTracedReflectionTarget.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\Renderer\StandardShader\Shader\MonochromePS.hlsl" />
@@ -222,6 +232,8 @@
     <FxCompile Include="src\Renderer\StandardShader\Shader\LightingPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOVS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\SSAOPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SSRPS.hlsl" />
+    <FxCompile Include="src\Renderer\StandardShader\Shader\SSRCompositePS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoiseBilateralPS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoiseSeparablePS.hlsl" />
     <FxCompile Include="src\Renderer\StandardShader\Shader\RTAODenoiseCopyPS.hlsl" />
