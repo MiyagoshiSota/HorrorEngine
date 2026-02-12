@@ -25,7 +25,7 @@
 struct AASettings
 {
 	static constexpr UINT kMSAASampleCount = 8; // 固定値
-	bool msaaEnabled = true;  // MSAA ON/OFF
+	bool msaaEnabled = false;  // MSAA ON/OFF (Forward only)
 	bool fxaaEnabled = false;
 	bool taaEnabled = false;
 };
@@ -82,6 +82,14 @@ public:
 	void SetSSREnabled(bool enabled) { m_ssrEnabled = enabled; }
 	bool IsSSREnabled() const { return m_ssrEnabled; }
 
+	// 各パスへのアクセス（ランタイムパラメータ変更用）
+	std::shared_ptr<SSAOPass> GetSSAOPass() { return m_ssaoPass; }
+	std::shared_ptr<SSRPass> GetSSRPass() { return m_ssrPass; }
+	std::shared_ptr<RTAOPass> GetRTAOPass() { return m_rayTracedAOPass; }
+	std::shared_ptr<RTAODenoisePass> GetRTAODenoisePass() { return m_rtaoDenoisePass; }
+	std::shared_ptr<RTGIPass> GetRayTracedGIPass() { return m_rayTracedGIPass; }
+	std::shared_ptr<RTReflectionPass> GetRayTracedReflectionPass() { return m_rayTracedReflectionPass; }
+
 private:
     // ポストプロセス全体（FXAA/TAAの有無もここで分岐）
     void ExecutePostProcess(RenderContext& context);
@@ -119,8 +127,8 @@ private:
 private:
 	bool m_useDeferred = true;  // true=デファード（G-Buffer+LightingPass）, false=フォワード（SimplePS 1パス）
 	AASettings m_aaSettings;
-	bool m_ssaoEnabled = true;
-	bool m_ssrEnabled = true;
+	bool m_ssaoEnabled = false;
+	bool m_ssrEnabled = false;
 
 	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<RayTracedShadowPass> m_rayTracedShadowPass;

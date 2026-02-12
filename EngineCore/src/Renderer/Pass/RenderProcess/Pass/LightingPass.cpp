@@ -3,11 +3,50 @@
 #include "Modules/PublicConst/ConstRenderPref.h"
 #include "Renderer/Engine.h"
 #include "Scene/ISceneBase.h"
+#include "Scene/Default/Scene/DefaultScene.h"
 #include "Renderer/Target/RenderTarget.h"
 #include <d3dx12.h>
 
 namespace
 {
+    // GeometryPass / SimpleShadowMapPass / DefaultPipelineManager / RayTracedShadowPass と
+    // 完全に同一のライト空間パラメータを使用してライト行列を計算する。
+    // これにより、SimplePS と LightingPS の posLight / projCoords が一致し、
+    // どちらのパスでも同じシャドウマップを参照できるようにする。
+    bool CalculateMainLightViewProj(DirectX::XMMATRIX& outLightViewProj)
+    {
+        using namespace DirectX;
+
+        const float kShadowSceneWidth = 50.0f;
+        const float kShadowSceneHeight = 50.0f;
+        const float kShadowNearZ = 1.0f;
+        const float kShadowFarZ = 150.0f;
+        const float kShadowLightDistance = 25.0f;
+
+        auto lightManager = g_Scene->GetLightingManager();
+        if (!lightManager || lightManager->GetDirectionalLights().empty())
+        {
+            return false;
+        }
+
+        XMFLOAT3 lightDirF = lightManager->GetDirectionalLights()[0]->Direction;
+        XMVECTOR lightDir = XMVector3Normalize(
+            XMVectorSet(lightDirF.x, lightDirF.y, lightDirF.z, 0.0f));
+
+        XMVECTOR targetPos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+        XMVECTOR lightPos = XMVectorSubtract(
+            targetPos, XMVectorScale(lightDir, kShadowLightDistance));
+
+        XMMATRIX lightView = XMMatrixLookAtRH(
+            lightPos, targetPos, XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+        XMMATRIX lightProj = XMMatrixOrthographicRH(
+            kShadowSceneWidth, kShadowSceneHeight, kShadowNearZ, kShadowFarZ);
+
+        // GeometryPass と同様に View * Proj の順で掛ける
+        outLightViewProj = XMMatrixMultiply(lightView, lightProj);
+        return true;
+    }
+
     void TransitionToSRV(ID3D12GraphicsCommandList* cmdList, std::shared_ptr<ITargetBase> rt)
     {
         if (!rt || !rt->GetResource())
@@ -88,7 +127,20 @@ void LightingPass::Execute(RenderContext& context)
     LightingTransformCB* cb = static_cast<LightingTransformCB*>(m_lightingTransformCB->GetPtr());
     cb->CameraPosition = context.Camera->GetEyePosFloat3();
     cb->Padding0 = 0.0f;
-    DirectX::XMStoreFloat4x4(&cb->LightViewProj, DirectX::XMMatrixTranspose(sc.mainLightViewProj));
+
+    // SimplePS / GeometryPass と完全に同一のライト行列を再計算して使用する。
+    // （ShadowContext.mainLightViewProj とは別に、forward と deferred の posLight を確実に一致させる）
+    DirectX::XMMATRIX mainLightViewProj;
+    if (CalculateMainLightViewProj(mainLightViewProj))
+    {
+        DirectX::XMStoreFloat4x4(&cb->LightViewProj, DirectX::XMMatrixTranspose(mainLightViewProj));
+    }
+    else
+    {
+        // ライトが無い場合は恒等行列をセットしておく（影なし扱い）
+        DirectX::XMStoreFloat4x4(&cb->LightViewProj, DirectX::XMMatrixIdentity());
+    }
+
     cb->ShadowMode = static_cast<int>(sc.mode);
     cb->InvRayTracedShadowMapSize = context.GetInvRayTracedShadowMapSize();
     cb->RTGIEnabled = context.IsRTGIEnabled() ? 1 : 0;

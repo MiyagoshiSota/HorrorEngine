@@ -102,10 +102,14 @@ float CalculateShadow(float4 posLight, float2 screenPosXY)
         return g_ShadowMap.Sample(g_Sampler, screenUV).r;
     }
 
+    // 射影変換 (w除算)
     float3 projCoords = posLight.xyz / posLight.w;
+    
+    // NDC座標(-1~1) を UV座標(0~1) に変換
     projCoords.x = projCoords.x * 0.5 + 0.5;
     projCoords.y = -projCoords.y * 0.5 + 0.5;
 
+    // ライトの範囲外なら影判定しない
     if (projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
         return 1.0;
 
@@ -212,10 +216,13 @@ float4 main(PSInput input) : SV_TARGET
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
+    // 影判定
     float4 posLight = mul(float4(worldPos, 1.0), LightViewProj);
     float shadowFactor = CalculateShadow(posLight, input.svpos.xy);
+    
     float3 ambient = AmbientColor.rgb * albedo * ao;
     float3 color = ambient + Lo * shadowFactor * ao + emissive;
+    
     if (RTGIEnabled != 0)
     {
         float3 indirectGI = g_RTGI.Sample(g_Sampler, input.uv).rgb;

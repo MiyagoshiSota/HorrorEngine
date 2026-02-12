@@ -29,6 +29,11 @@ public:
 		SetPassConstantBuffer(std::make_shared<ConstantBuffer>(sizeof(TAAPassParams)));
 	}
 
+	void SetBlendFactor(float v) { m_blendFactor = v; }
+	void SetHistoryWeight(float v) { m_historyWeight = v; }
+	float GetBlendFactor() const { return m_blendFactor; }
+	float GetHistoryWeight() const { return m_historyWeight; }
+
 	void ApplyParameters(
 		ID3D12GraphicsCommandList* cmdList,
 		RenderContext& context,
@@ -38,8 +43,8 @@ public:
 		auto* shaderParams = GetPassConstantBuffer()->GetPtr<TAAPassParams>();
 		shaderParams->invWidth = 1.0f / context.ScreenWidth;
 		shaderParams->invHeight = 1.0f / context.ScreenHeight;
-		shaderParams->blendFactor = 0.1f;
-		shaderParams->historyWeight = 0.9f; // 履歴を90%使用
+		shaderParams->blendFactor = m_blendFactor;
+		shaderParams->historyWeight = m_historyWeight;
 		shaderParams->currentJitterX = m_currentJitter.x;
 		shaderParams->currentJitterY = m_currentJitter.y;
 		shaderParams->previousJitterX = m_previousJitter.x;
@@ -115,4 +120,6 @@ private:
 	int m_frameIndex;
 	DirectX::XMFLOAT2 m_currentJitter;
 	DirectX::XMFLOAT2 m_previousJitter;
+	float m_blendFactor = 0.1f;
+	float m_historyWeight = 0.9f;
 };

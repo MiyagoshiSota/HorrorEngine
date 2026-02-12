@@ -102,10 +102,10 @@ float CalculateShadow(float4 posLight, float2 screenPosXY)
         return g_ShadowMap.Sample(g_Sampler, screenUV).r;
     }
 
-    // 1. 射影変換 (w除算)
+    // 射影変換 (w除算)
     float3 projCoords = posLight.xyz / posLight.w;
 
-    // 2. NDC座標(-1~1) を UV座標(0~1) に変換
+    // NDC座標(-1~1) を UV座標(0~1) に変換
     projCoords.x = projCoords.x * 0.5 + 0.5;
     projCoords.y = -projCoords.y * 0.5 + 0.5;
 

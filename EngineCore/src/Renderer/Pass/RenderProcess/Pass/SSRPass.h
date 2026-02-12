@@ -39,6 +39,10 @@ public:
     void SetRayStep(float s) { m_rayStep = s; }
     void SetMaxSteps(int s) { m_maxSteps = s; }
     void SetThickness(float t) { m_thickness = t; }
+    float GetMaxRayDistance() const { return m_maxRayDistance; }
+    float GetRayStep() const { return m_rayStep; }
+    int GetMaxSteps() const { return m_maxSteps; }
+    float GetThickness() const { return m_thickness; }
 
 private:
     std::shared_ptr<ConstantBuffer> m_ssrConstants;
