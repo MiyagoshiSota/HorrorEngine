@@ -1,7 +1,7 @@
-// RTAO copy pass (no denoise: RTAORaw -> output)
-// t0: AO raw
+// Copy pass (no denoise, AO / GI 共通)
+// t0: signal (AO: .r only, GI: .rgb)
 
-Texture2D<float> g_AO : register(t0);
+Texture2D<float4> g_Signal : register(t0);
 SamplerState g_Sampler : register(s0);
 
 struct VSOut
@@ -12,6 +12,6 @@ struct VSOut
 
 float4 main(VSOut input) : SV_Target
 {
-    float ao = g_AO.Sample(g_Sampler, input.uv);
-    return float4(ao, 0.0, 0.0, 1.0);
+    float3 signal = g_Signal.Sample(g_Sampler, input.uv).rgb;
+    return float4(signal, 1.0);
 }

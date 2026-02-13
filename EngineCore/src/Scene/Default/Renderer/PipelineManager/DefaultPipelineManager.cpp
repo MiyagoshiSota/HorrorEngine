@@ -20,6 +20,7 @@
 #include "Renderer/RenderContext/ShadowTypes.h"
 #include <d3dx12.h>
 #include <DirectXMath.h>
+#include <cstring>
 
 DefaultPipelineManager::DefaultPipelineManager()
 {
@@ -96,6 +97,10 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_rtaoDenoiseTemp->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_ssrBuffer = std::make_shared<RenderTarget>();
 	m_ssrBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_rtgiDenoisedBuffer = std::make_shared<RenderTarget>();
+	m_rtgiDenoisedBuffer->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
+	m_rtgiDenoiseTemp = std::make_shared<RenderTarget>();
+	m_rtgiDenoiseTemp->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 1, 0, g_Engine->AllocateRtvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	m_shadowDepth->Create(g_Engine->Device(), 2048, 2048, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
     m_sceneDepth->Create(g_Engine->Device(), kWindowWidth, kWindowHeight, DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_R32_FLOAT, 1, 1, 1, 0, g_Engine->AllocateDsvHandle(), g_Engine->GetDescriptorHeap()->Allocate(1));
 	// HACK:Depthの数が決め打ちになってるのでPass内のカスケードの数と合わせる
@@ -115,6 +120,7 @@ DefaultPipelineManager::DefaultPipelineManager()
 	m_lightingPass = std::make_shared<LightingPass>();
 	m_ssaoPass = std::make_shared<SSAOPass>();
 	m_rtaoDenoisePass = std::make_shared<RTAODenoisePass>();
+	m_rtgiDenoisePass = std::make_shared<RTGIDenoisePass>();
 	m_ssrPass = std::make_shared<SSRPass>();
 	m_ssrCompositePass = std::make_shared<SSRCompositePass>();
 }
@@ -186,7 +192,17 @@ void DefaultPipelineManager::Execute()
 			{
 				auto giData = giManager->GetRenderData(g_Engine->CurrentBackBufferIndex(), defaultScene->GetRayTracedShadowManager()->GetASManager());
 				if (giData.giTarget)
-					context.AddRenderTarget(ConstRenderPref::RTGIBuffer, giData.giTarget);
+				{
+					const bool rtgiDenoiseEnabled = m_rtgiDenoisePass && GetRTGIDenoiseMode() != RTAODenoiseMode::Off;
+					if (rtgiDenoiseEnabled)
+					{
+						context.AddRenderTarget(ConstRenderPref::RTGIRaw, giData.giTarget);
+						context.AddRenderTarget(ConstRenderPref::RTGIBuffer, m_rtgiDenoisedBuffer);
+						context.AddRenderTarget(ConstRenderPref::RTGIDenoiseTemp, m_rtgiDenoiseTemp);
+					}
+					else
+						context.AddRenderTarget(ConstRenderPref::RTGIBuffer, giData.giTarget);
+				}
 			}
 		}
 		// RT Reflection有効時はContextにRT Reflection出力を登録（LightingPassで使用）
@@ -388,7 +404,11 @@ void DefaultPipelineManager::Execute()
         }
         // RTGI（デファード時のみ、ON/OFF可能）
         if (m_rayTracedGIPass && m_rayTracedGIPass->IsEnabled())
+        {
             m_rayTracedGIPass->Execute(context);
+            if (m_rtgiDenoisePass && GetRTGIDenoiseMode() != RTAODenoiseMode::Off)
+                m_rtgiDenoisePass->Execute(context);
+        }
         // RT Reflection（デファード時のみ、ON/OFF可能）
         if (m_rayTracedReflectionPass && m_rayTracedReflectionPass->IsEnabled())
             m_rayTracedReflectionPass->Execute(context);
@@ -742,6 +762,86 @@ RTAODenoiseMode DefaultPipelineManager::GetRTAODenoiseMode() const
 {
 	if (m_rtaoDenoisePass)
 		return m_rtaoDenoisePass->GetDenoiseMode();
-	return RTAODenoiseMode::Bilateral;
+	return RTAODenoiseMode::Off;
+}
+
+void DefaultPipelineManager::SetRTGIDenoiseMode(RTAODenoiseMode mode)
+{
+	if (m_rtgiDenoisePass)
+		m_rtgiDenoisePass->SetDenoiseMode(mode);
+}
+
+RTAODenoiseMode DefaultPipelineManager::GetRTGIDenoiseMode() const
+{
+	if (m_rtgiDenoisePass)
+		return m_rtgiDenoisePass->GetDenoiseMode();
+	return RTAODenoiseMode::Off;
+}
+
+std::shared_ptr<ITargetBase> DefaultPipelineManager::GetRenderTargetForPreview(const char* name, DefaultScene* scene) const
+{
+	if (!name) return nullptr;
+	if (strcmp(name, ConstRenderPref::SceneColor) == 0) return m_sceneColor;
+	if (strcmp(name, ConstRenderPref::SceneDepth) == 0) return m_sceneDepth;
+	if (strcmp(name, ConstRenderPref::ShadowMap) == 0) return m_shadowDepth;
+	if (strcmp(name, ConstRenderPref::NormalBuffer) == 0) return m_normalBufferNonMSAA;
+	if (strcmp(name, ConstRenderPref::WorldPositionBuffer) == 0) return m_worldPositionBufferNonMSAA;
+	if (strcmp(name, ConstRenderPref::GBufferAlbedo) == 0) return m_gbufferAlbedo;
+	if (strcmp(name, ConstRenderPref::GBufferMaterial) == 0) return m_gbufferMaterial;
+	if (strcmp(name, ConstRenderPref::GBufferEmissive) == 0) return m_gbufferEmissive;
+	if (strcmp(name, ConstRenderPref::SSAOBuffer) == 0)
+		return (m_rayTracedAOPass && m_rayTracedAOPass->IsEnabled()) ? m_rtaoDenoiseBuffer : m_ssaoBuffer;
+	if (strcmp(name, ConstRenderPref::RTAORaw) == 0)
+	{
+		if (scene && m_rayTracedAOPass && m_rayTracedAOPass->IsEnabled())
+		{
+			auto shadowMgr = scene->GetRayTracedShadowManager();
+			auto aoMgr = scene->GetRayTracedAOManager();
+			if (shadowMgr && aoMgr && aoMgr->IsValid())
+			{
+				auto aoData = aoMgr->GetRenderData(g_Engine->CurrentBackBufferIndex(), shadowMgr->GetASManager());
+				return aoData.aoTarget;
+			}
+		}
+		return nullptr;
+	}
+	if (strcmp(name, ConstRenderPref::RTAODenoiseTemp) == 0) return m_rtaoDenoiseTemp;
+	if (strcmp(name, ConstRenderPref::RTGIBuffer) == 0)
+	{
+		if (m_rayTracedGIPass && m_rayTracedGIPass->IsEnabled())
+		{
+			if (GetRTGIDenoiseMode() != RTAODenoiseMode::Off)
+				return m_rtgiDenoisedBuffer;
+			if (scene)
+			{
+				auto shadowMgr = scene->GetRayTracedShadowManager();
+				auto giMgr = scene->GetRayTracedGIManager();
+				if (shadowMgr && giMgr && giMgr->IsValid())
+				{
+					auto giData = giMgr->GetRenderData(g_Engine->CurrentBackBufferIndex(), shadowMgr->GetASManager());
+					return giData.giTarget;
+				}
+			}
+		}
+		return nullptr;
+	}
+	if (strcmp(name, ConstRenderPref::RTGIRaw) == 0)
+	{
+		if (scene && m_rayTracedGIPass && m_rayTracedGIPass->IsEnabled())
+		{
+			auto shadowMgr = scene->GetRayTracedShadowManager();
+			auto giMgr = scene->GetRayTracedGIManager();
+			if (shadowMgr && giMgr && giMgr->IsValid())
+			{
+				auto giData = giMgr->GetRenderData(g_Engine->CurrentBackBufferIndex(), shadowMgr->GetASManager());
+				return giData.giTarget;
+			}
+		}
+		return nullptr;
+	}
+	if (strcmp(name, ConstRenderPref::RTGIDenoiseTemp) == 0) return m_rtgiDenoiseTemp;
+	if (strcmp(name, ConstRenderPref::SSRBuffer) == 0) return m_ssrBuffer;
+	if (strcmp(name, ConstRenderPref::MotionVectorBuffer) == 0) return m_motionVectorResolved;
+	return nullptr;
 }
 

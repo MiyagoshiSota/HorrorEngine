@@ -1,8 +1,8 @@
-// RTAO Bilateral Filter (normal + world position + spatial)
-// t0: AO raw, t1: normal, t2: world position
+// Joint Bilateral Filter (AO / GI 共通: normal + world position + spatial)
+// t0: signal (AO: .r only, GI: .rgb), t1: normal, t2: world position
 // b0: constants
 
-Texture2D<float> g_AO : register(t0);
+Texture2D<float4> g_Signal : register(t0);
 Texture2D<float4> g_Normal : register(t1);
 Texture2D<float4> g_WorldPos : register(t2);
 SamplerState g_Sampler : register(s0);
@@ -37,12 +37,12 @@ float DepthFromWorld(float3 worldPos)
 float4 main(VSOut input) : SV_Target
 {
     float2 uv = input.uv;
-    float aoCenter = g_AO.Sample(g_Sampler, uv);
+    float3 signalCenter = g_Signal.Sample(g_Sampler, uv).rgb;
     float3 nCenter = DecodeNormal(g_Normal.Sample(g_Sampler, uv));
     float3 wpCenter = g_WorldPos.Sample(g_Sampler, uv).xyz;
     float depthCenter = DepthFromWorld(wpCenter);
 
-    float sum = 0.0;
+    float3 sumRGB = 0.0;
     float wsum = 0.0;
 
     [unroll]
@@ -54,7 +54,7 @@ float4 main(VSOut input) : SV_Target
             float2 duv = float2(x, y) * g_InvScreenSize;
             float2 uv2 = uv + duv;
 
-            float ao = g_AO.Sample(g_Sampler, uv2);
+            float3 signal = g_Signal.Sample(g_Sampler, uv2).rgb;
             float3 n = DecodeNormal(g_Normal.Sample(g_Sampler, uv2));
             float3 wp = g_WorldPos.Sample(g_Sampler, uv2).xyz;
             float depth = DepthFromWorld(wp);
@@ -69,11 +69,11 @@ float4 main(VSOut input) : SV_Target
             float wDepth = exp(-d * d * g_DepthSigma);
 
             float w = wSpatial * wNormal * wDepth;
-            sum += ao * w;
+            sumRGB += signal * w;
             wsum += w;
         }
     }
 
-    float aoFiltered = (wsum > 1e-5) ? (sum / wsum) : aoCenter;
-    return float4(aoFiltered, 0.0, 0.0, 1.0);
+    float3 filtered = (wsum > 1e-5) ? (sumRGB / wsum) : signalCenter;
+    return float4(filtered, 1.0);
 }

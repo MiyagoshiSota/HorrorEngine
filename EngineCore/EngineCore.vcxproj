@@ -58,6 +58,7 @@
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.cpp" />
+    <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTGIDenoisePass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\RTReflectionPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.cpp" />
     <ClCompile Include="src\Renderer\Pass\RenderProcess\Pass\SSRPass.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAOPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTAODenoisePass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTGIPass.h" />
+    <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTGIDenoisePass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\RTReflectionPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSAOPass.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SSRPass.h" />

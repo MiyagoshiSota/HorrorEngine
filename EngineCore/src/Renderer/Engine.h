@@ -58,6 +58,12 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE AllocateRtvHandle();
 	D3D12_CPU_DESCRIPTOR_HANDLE AllocateDsvHandle();
 
+#ifndef BUILD_STANDALONE
+	/// ImGuiでテクスチャ表示用。リソースにSRVをImGuiヒープに直接作成し、GPUハンドルを返す。
+	/// CopyDescriptorsSimpleはCPU書き込み専用ヒープから読めないため、CreateShaderResourceViewを使用。
+	D3D12_GPU_DESCRIPTOR_HANDLE GetImGuiSrvForTexture(ID3D12Resource* resource);
+#endif
+
 public:
 	ID3D12Device6* Device();
 	ID3D12GraphicsCommandList* CommandList();

@@ -1,36 +1,17 @@
 #pragma once
 
 #include "Renderer/Pass/IRenderPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/RTAODenoisePass.h"
 #include "Renderer/RenderContext/RenderContext.h"
 #include "Renderer/Graphics/Buffer/ConstantBuffer.h"
 #include <DirectXMath.h>
 #include <memory>
 
-/// RTAOの空間的デノイズ（法線+距離のバイラテラル）
-struct alignas(256) RTAODenoiseConstants
-{
-    DirectX::XMFLOAT3 CameraPosition;
-    float DepthSigma;
-    float NormalSigma;
-    DirectX::XMFLOAT2 InvScreenSize;
-    DirectX::XMFLOAT2 BlurDirection; // (1,0)=horizontal, (0,1)=vertical (Separable時のみ使用)
-    float StepSize;   // À-Trous のステップ (1, 2, 4, 8, 16)
-    float Padding1;
-};
-
-/// デノイズモード: Off=コピーのみ, Bilateral, Separable, À-Trous
-enum class RTAODenoiseMode
-{
-    Off,
-    Bilateral,
-    Separable,
-    ATrous
-};
-
-class RTAODenoisePass : public IRenderPass
+/// RTGI用デノイズパス（RTAODenoiseと同一アルゴリズム、RGB入力出力）
+class RTGIDenoisePass : public IRenderPass
 {
 public:
-    RTAODenoisePass();
+    RTGIDenoisePass();
 
     void Execute(RenderContext& context) override;
 

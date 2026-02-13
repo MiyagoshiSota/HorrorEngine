@@ -8,7 +8,7 @@
 #include <string>
 
 /// レンダリング設定を1ウィンドウ＋タブで集約
-/// タブ: RenderRing, AA, Shadow, AO, AO Denoise, Reflection, GI
+/// タブ: RenderRing, AA, Shadow, AO, AO Denoise, Reflection, GI, GI Denoise
 class DrawAAWindow : public IDrawWindow
 {
 public:
@@ -48,6 +48,7 @@ public:
 			DrawAODenoiseTab(pipeline);
 			DrawReflectionTab(pipeline, scene);
 			DrawGITab(pipeline);
+			DrawGIDenoiseTab(pipeline);
 			ImGui::EndTabBar();
 		}
 
@@ -101,6 +102,7 @@ private:
 			else
 				Pass("SSAOPass", ssao);
 			Pass("RTGIPass", rtgi);
+			Pass("RTGIDenoisePass", rtgi && pipeline->GetRTGIDenoiseMode() != RTAODenoiseMode::Off);
 			Pass("RTReflectionPass", rtr);
 			Pass("LightingPass", true);
 			if (ssr)
@@ -420,6 +422,43 @@ private:
 			int numRays = static_cast<int>(rtgiPass->GetNumRaysPerPixel());
 			if (ImGui::SliderInt("RTGI Rays/Pixel", &numRays, 1, 16))
 				rtgiPass->SetNumRaysPerPixel(static_cast<UINT>(numRays));
+		}
+
+		ImGui::EndDisabled();
+		ImGui::EndTabItem();
+	}
+
+	void DrawGIDenoiseTab(std::shared_ptr<DefaultPipelineManager> pipeline)
+	{
+		if (!ImGui::BeginTabItem("GI Denoise"))
+			return;
+
+		const bool useDeferred = pipeline->IsDeferredRendering();
+		const bool rtgi = pipeline->IsRayTracedGIEnabled();
+		ImGui::TextColored(ImVec4(0.5f, 0.8f, 1.0f, 1.0f), "--- Deferred + RT GI only ---");
+		ImGui::BeginDisabled(!useDeferred || !rtgi);
+		if (!useDeferred)
+			ImGui::TextDisabled("RT GI Denoise: Deferred required.");
+		else if (!rtgi)
+			ImGui::TextDisabled("RT GI Denoise: Enable RT GI first.");
+
+		ImGui::TextColored(ImVec4(0.5f, 0.8f, 1.0f, 1.0f), "RTGI Denoise (AO同様のjoint bilateral)");
+		const char* giDenoiseItems[] = { "Off (raw)", "Bilateral (5x5)", "Bilateral Separable (2-pass)", "A-Trous (5-pass)" };
+		int giDenoiseIndex = static_cast<int>(pipeline->GetRTGIDenoiseMode());
+		if (ImGui::Combo("RTGI Denoise", &giDenoiseIndex, giDenoiseItems, 4))
+			pipeline->SetRTGIDenoiseMode(static_cast<RTAODenoiseMode>(giDenoiseIndex));
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("RTGI用デノイザ。Off/Bilateral/Separable/A-Trous。");
+
+		auto rtgiDenoisePass = pipeline->GetRTGIDenoisePass();
+		if (rtgiDenoisePass && rtgi && pipeline->GetRTGIDenoiseMode() != RTAODenoiseMode::Off)
+		{
+			float depthSigma = rtgiDenoisePass->GetDepthSigma();
+			if (ImGui::SliderFloat("Depth Sigma", &depthSigma, 1.0f, 64.0f, "%.1f"))
+				rtgiDenoisePass->SetDepthSigma(depthSigma);
+			float normalSigma = rtgiDenoisePass->GetNormalSigma();
+			if (ImGui::SliderFloat("Normal Sigma", &normalSigma, 1.0f, 32.0f, "%.1f"))
+				rtgiDenoisePass->SetNormalSigma(normalSigma);
 		}
 
 		ImGui::EndDisabled();

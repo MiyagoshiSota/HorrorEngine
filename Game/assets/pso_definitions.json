@@ -573,6 +573,42 @@
       "sampleCount": 1,
       "format": "DXGI_FORMAT_R32_FLOAT"
     },
+    "RTGIDenoiseCopyPass": {
+      "rootSignature": "RTAO_Copy",
+      "vertexShader": "../x64/Debug/SSAOVS.cso",
+      "pixelShader": "../x64/Debug/RTAODenoiseCopyPS.cso",
+      "depthEnable": false,
+      "inputLayoutEnable": false,
+      "sampleCount": 1,
+      "format": "DXGI_FORMAT_R8G8B8A8_UNORM"
+    },
+    "RTGIDenoiseBilateralPass": {
+      "rootSignature": "RTAO_Denoise",
+      "vertexShader": "../x64/Debug/SSAOVS.cso",
+      "pixelShader": "../x64/Debug/RTAODenoiseBilateralPS.cso",
+      "depthEnable": false,
+      "inputLayoutEnable": false,
+      "sampleCount": 1,
+      "format": "DXGI_FORMAT_R8G8B8A8_UNORM"
+    },
+    "RTGIDenoiseSeparablePass": {
+      "rootSignature": "RTAO_Denoise",
+      "vertexShader": "../x64/Debug/SSAOVS.cso",
+      "pixelShader": "../x64/Debug/RTAODenoiseSeparablePS.cso",
+      "depthEnable": false,
+      "inputLayoutEnable": false,
+      "sampleCount": 1,
+      "format": "DXGI_FORMAT_R8G8B8A8_UNORM"
+    },
+    "RTGIDenoiseATrousPass": {
+      "rootSignature": "RTAO_Denoise",
+      "vertexShader": "../x64/Debug/SSAOVS.cso",
+      "pixelShader": "../x64/Debug/RTAODenoiseATrousPS.cso",
+      "depthEnable": false,
+      "inputLayoutEnable": false,
+      "sampleCount": 1,
+      "format": "DXGI_FORMAT_R8G8B8A8_UNORM"
+    },
     "SSRPass": {
       "rootSignature": "SSR_Default",
       "vertexShader": "../x64/Debug/SSAOVS.cso",

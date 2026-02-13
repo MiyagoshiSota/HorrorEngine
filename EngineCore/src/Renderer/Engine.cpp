@@ -14,6 +14,7 @@
 #include "GUI/Windows/DrawTaskManagerWindow.h"
 #include "GUI/Windows/DrawWorkManagerWindow.h"
 #include "GUI/Windows/DrawBuildWindow.h"
+#include "GUI/Windows/DrawTexturePreviewWindow.h"
 #endif // BUILD_STANDALONE
 #include <d3d12.h>
 #include <d3dx12.h>
@@ -653,9 +654,49 @@ bool Engine::InitImGui()
     m_drawWindows.push_back(std::make_shared<DrawModelsWindow>());
     m_drawWindows.push_back(std::make_shared<DrawTaskManagerWindow>());
     m_drawWindows.push_back(std::make_shared<DrawWorkManagerWindow>());
-    m_drawWindows.push_back(std::make_shared<DrawBuildWindow>());
+	m_drawWindows.push_back(std::make_shared<DrawBuildWindow>());
+	m_drawWindows.push_back(std::make_shared<DrawTexturePreviewWindow>());
 
     return true;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE Engine::GetImGuiSrvForTexture(ID3D12Resource* resource)
+{
+    if (!m_ImGuiSrvHeap || !resource) return D3D12_GPU_DESCRIPTOR_HANDLE{};
+
+    constexpr UINT kPreviewSlotStart = 1;
+    constexpr UINT kPreviewSlotCount = 16;
+    static UINT s_nextSlot = 0;
+    const UINT slotIndex = kPreviewSlotStart + (s_nextSlot % kPreviewSlotCount);
+    s_nextSlot++;
+
+    const UINT incrementSize = m_pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    D3D12_CPU_DESCRIPTOR_HANDLE destCpu = m_ImGuiSrvHeap->GetCPUDescriptorHandleForHeapStart();
+    D3D12_GPU_DESCRIPTOR_HANDLE destGpu = m_ImGuiSrvHeap->GetGPUDescriptorHandleForHeapStart();
+    destCpu.ptr += slotIndex * incrementSize;
+    destGpu.ptr += slotIndex * incrementSize;
+
+    D3D12_RESOURCE_DESC resDesc = resource->GetDesc();
+    DXGI_FORMAT srvFormat = resDesc.Format;
+    if (srvFormat == DXGI_FORMAT_R24G8_TYPELESS)
+        srvFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+    else if (srvFormat == DXGI_FORMAT_R32_TYPELESS)
+        srvFormat = DXGI_FORMAT_R32_FLOAT;
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = srvFormat;
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.ViewDimension = (resDesc.SampleDesc.Count > 1) ? D3D12_SRV_DIMENSION_TEXTURE2DMS : D3D12_SRV_DIMENSION_TEXTURE2D;
+    if (srvDesc.ViewDimension == D3D12_SRV_DIMENSION_TEXTURE2D)
+    {
+        srvDesc.Texture2D.MipLevels = resDesc.MipLevels;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        srvDesc.Texture2D.PlaneSlice = 0;
+        srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+    }
+
+    m_pDevice->CreateShaderResourceView(resource, &srvDesc, destCpu);
+    return destGpu;
 }
 #endif // BUILD_STANDALONE
 

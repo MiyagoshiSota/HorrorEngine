@@ -13,11 +13,13 @@
 #include "Renderer/Pass/RenderProcess/Pass/RTAODenoisePass.h"
 #include "Renderer/Pass/RenderProcess/Pass/RTAOPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/RTGIPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/RTGIDenoisePass.h"
 #include "Renderer/Pass/RenderProcess/Pass/RTReflectionPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SSRPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SSRCompositePass.h"
 #include "Renderer/RenderContext/ShadowTypes.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
+#include "Renderer/Target/ITargetBase.h"
 #include "Renderer/Target/RenderTarget.h"
 #include "Renderer/Target/DepthStencilTarget.h"
 
@@ -70,6 +72,10 @@ public:
 	void SetRTAODenoiseMode(RTAODenoiseMode mode);
 	RTAODenoiseMode GetRTAODenoiseMode() const;
 
+	// RTGIデノイズモード（AOと同じアルゴリズム、RGB対応）
+	void SetRTGIDenoiseMode(RTAODenoiseMode mode);
+	RTAODenoiseMode GetRTGIDenoiseMode() const;
+
 	// デファード / フォワードレンダリングの切り替え
 	void SetDeferredRendering(bool useDeferred) { m_useDeferred = useDeferred; }
 	bool IsDeferredRendering() const { return m_useDeferred; }
@@ -88,6 +94,11 @@ public:
 	std::shared_ptr<RTAOPass> GetRTAOPass() { return m_rayTracedAOPass; }
 	std::shared_ptr<RTAODenoisePass> GetRTAODenoisePass() { return m_rtaoDenoisePass; }
 	std::shared_ptr<RTGIPass> GetRayTracedGIPass() { return m_rayTracedGIPass; }
+	std::shared_ptr<RTGIDenoisePass> GetRTGIDenoisePass() { return m_rtgiDenoisePass; }
+
+	/// テクスチャプレビュー用。ConstRenderPrefの名前でバッファを取得。nullptrの場合は非アクティブ。
+	/// sceneを渡すとRTGIBuffer/RTAORaw等のScene所有バッファも解決可能。
+	std::shared_ptr<ITargetBase> GetRenderTargetForPreview(const char* name, class DefaultScene* scene = nullptr) const;
 	std::shared_ptr<RTReflectionPass> GetRayTracedReflectionPass() { return m_rayTracedReflectionPass; }
 
 private:
@@ -123,6 +134,8 @@ private:
 	std::shared_ptr<RenderTarget> m_rtaoDenoiseBuffer; // RTAOデノイズ出力（R32）
 	std::shared_ptr<RenderTarget> m_rtaoDenoiseTemp;   // Separable用中間バッファ（R32）
 	std::shared_ptr<RenderTarget> m_ssrBuffer;        // SSR反射カラー出力（RGBA）
+	std::shared_ptr<RenderTarget> m_rtgiDenoisedBuffer; // RTGIデノイズ出力（RGBA）
+	std::shared_ptr<RenderTarget> m_rtgiDenoiseTemp;   // RTGIデノイズ中間バッファ（RGBA）
 
 private:
 	bool m_useDeferred = true;  // true=デファード（G-Buffer+LightingPass）, false=フォワード（SimplePS 1パス）
@@ -134,6 +147,7 @@ private:
 	std::shared_ptr<RayTracedShadowPass> m_rayTracedShadowPass;
 	std::shared_ptr<RTAOPass> m_rayTracedAOPass;
 	std::shared_ptr<RTGIPass> m_rayTracedGIPass;
+	std::shared_ptr<RTGIDenoisePass> m_rtgiDenoisePass;
 	std::shared_ptr<RTReflectionPass> m_rayTracedReflectionPass;
 	//std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<PostProcessManager> m_postProcessManager;
