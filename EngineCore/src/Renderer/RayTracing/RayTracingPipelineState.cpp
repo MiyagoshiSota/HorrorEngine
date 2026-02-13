@@ -5,6 +5,7 @@
 #include <d3d12shader.h>
 #include <dxcapi.h>
 #include <atlbase.h>
+#include <cstdio>
 #include <cstring>
 #include <vector>
 
@@ -23,8 +24,6 @@ bool RayTracingPipelineState::Create(
         printf("[RayTracingPipelineState] エラー: デバイスまたはシェーダーパスがnullです\n");
         return false;
     }
-
-    printf("[RayTracingPipelineState] シェーダーライブラリをロード中: %ls\n", shaderLibraryPath);
 
     // -------------------------------------------------------------------------
     // DXCによるシェーダーコンパイル
@@ -97,49 +96,6 @@ bool RayTracingPipelineState::Create(
 
     ComPtr<IDxcBlob> shaderBlob;
     compileResult->GetResult(&shaderBlob);
-
-    // -------------------------------------------------------------------------
-    // DXIL エクスポート名のダンプ（デバッグ用）
-    // -------------------------------------------------------------------------
-    {
-        ComPtr<IDxcContainerReflection> containerReflection;
-        hr = DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&containerReflection));
-        if (SUCCEEDED(hr))
-        {
-            hr = containerReflection->Load(shaderBlob.Get());
-            if (SUCCEEDED(hr))
-            {
-                UINT32 dxilPartIndex = 0;
-                const UINT32 kDxilFourcc = 0x4C495844; // 'DXIL'
-                hr = containerReflection->FindFirstPartKind(kDxilFourcc, &dxilPartIndex);
-                if (SUCCEEDED(hr))
-                {
-                    ComPtr<ID3D12LibraryReflection> libraryReflection;
-                    hr = containerReflection->GetPartReflection(dxilPartIndex, IID_PPV_ARGS(&libraryReflection));
-                    if (SUCCEEDED(hr))
-                    {
-                        D3D12_LIBRARY_DESC libDesc = {};
-                        hr = libraryReflection->GetDesc(&libDesc);
-                        if (SUCCEEDED(hr))
-                        {
-                            printf("[RayTracingPipelineState] DXIL Export (%u functions):\n", libDesc.FunctionCount);
-                            for (UINT i = 0; i < libDesc.FunctionCount; ++i)
-                            {
-                                ID3D12FunctionReflection* functionReflection = libraryReflection->GetFunctionByIndex(static_cast<INT>(i));
-                                if (functionReflection)
-                                {
-                                    D3D12_FUNCTION_DESC funcDesc = {};
-                                    hr = functionReflection->GetDesc(&funcDesc);
-                                    if (SUCCEEDED(hr) && funcDesc.Name && funcDesc.Name[0] != '\0')
-                                        printf("  [%u] %s\n", i, funcDesc.Name);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     // -------------------------------------------------------------------------
     //　State Object の構築準備
@@ -263,8 +219,6 @@ bool RayTracingPipelineState::Create(
     // -------------------------------------------------------------------------
     // State Object 作成 (Final)
     // -------------------------------------------------------------------------
-    printf("[RayTracingPipelineState] State Objectを作成中 (subobjects: %zu)\n", subobjects.size());
-
     D3D12_STATE_OBJECT_DESC stateObjectDesc = {};
     stateObjectDesc.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
     stateObjectDesc.NumSubobjects = static_cast<UINT>(subobjects.size());
@@ -278,45 +232,8 @@ bool RayTracingPipelineState::Create(
         return false;
     }
 
-    printf("[RayTracingPipelineState] State Object作成成功\n");
-
-    // -------------------------------------------------------------------------
-    // Properties取得 (Identifier取得用)
-    // -------------------------------------------------------------------------
     hr = m_stateObject->QueryInterface(IID_PPV_ARGS(m_stateObjectProperties.GetAddressOf()));
     if (FAILED(hr)) return false;
-
-    // 確認用: GetShaderIdentifier の戻り値と ID の全バイトをダンプ
-    {
-        const UINT idSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
-        void* idPtr = m_stateObjectProperties->GetShaderIdentifier(kRayGenExport);
-
-        printf("[RayTracingPipelineState] GetShaderIdentifier(\"%ls\") => %s\n",
-            kRayGenExport, idPtr ? "非null" : "null");
-
-        if (idPtr)
-        {
-            const UINT8* bytes = static_cast<const UINT8*>(idPtr);
-            printf("[RayTracingPipelineState] RayGen ID 全 %u バイト (hex):\n  ", idSize);
-            for (UINT i = 0; i < idSize; ++i)
-            {
-                printf("%02X", bytes[i]);
-                if ((i + 1) % 16 == 0 && i + 1 < idSize)
-                    printf("\n  ");
-                else if (i + 1 < idSize)
-                    printf(" ");
-            }
-            printf("\n");
-            UINT32 word0, word1;
-            memcpy(&word0, idPtr, 4);
-            memcpy(&word1, static_cast<const UINT8*>(idPtr) + 4, 4);
-            printf("[RayTracingPipelineState] RayGen ID offset 0 (LE): 0x%08X, offset 4 (LE): 0x%08X\n", word0, word1);
-        }
-        else
-        {
-            printf("[RayTracingPipelineState] 警告: RayGen ID が取得できませんでした (Export名不一致?)\n");
-        }
-    }
 
     return true;
 }
@@ -470,7 +387,6 @@ bool RayTracingPipelineState::CreateForRTAO(
     }
     hr = m_stateObject->QueryInterface(IID_PPV_ARGS(m_stateObjectProperties.GetAddressOf()));
     if (FAILED(hr)) return false;
-    printf("[RayTracingPipelineState] RTAO State Object作成成功\n");
     return true;
 }
 
@@ -658,7 +574,6 @@ bool RayTracingPipelineState::CreateForRTGI(
     }
     hr = m_stateObject->QueryInterface(IID_PPV_ARGS(m_stateObjectProperties.GetAddressOf()));
     if (FAILED(hr)) return false;
-    printf("[RayTracingPipelineState] RTGI State Object作成成功\n");
     return true;
 }
 
@@ -845,7 +760,6 @@ bool RayTracingPipelineState::CreateForRTReflection(
     }
     hr = m_stateObject->QueryInterface(IID_PPV_ARGS(m_stateObjectProperties.GetAddressOf()));
     if (FAILED(hr)) return false;
-    printf("[RayTracingPipelineState] RTReflection State Object作成成功\n");
     return true;
 }
 
@@ -1165,8 +1079,6 @@ bool ShaderBindingTable::BuildForRTReflection(
     if (FAILED(hr)) return false;
     if (FAILED(m_hitGroupShaderTable->Map(0, nullptr, &mapped))) return false;
     memset(mapped, 0, hitGroupTableSize);
-    printf("[RTReflection/SBT] BuildForRTReflection: numHitGroups=%u baseDescriptor.ptr=%llu descriptorIncrementSize=%u\n",
-        m_numHitGroups, (unsigned long long)baseDescriptorForVBIB.ptr, descriptorIncrementSize);
     for (UINT i = 0; i < m_numHitGroups; ++i)
     {
         char* record = static_cast<char*>(mapped) + i * kRecordStride;
@@ -1176,8 +1088,6 @@ bool ShaderBindingTable::BuildForRTReflection(
             D3D12_GPU_DESCRIPTOR_HANDLE handle;
             handle.ptr = baseDescriptorForVBIB.ptr + i * 3u * descriptorIncrementSize;
             memcpy(record + shaderIdentifierSize, &handle, sizeof(handle));
-            if (i < 3u || i == m_numHitGroups - 1u)
-                printf("[RTReflection/SBT] hitGroupRecord#%u -> descriptorTable.ptr=%llu\n", i, (unsigned long long)handle.ptr);
         }
     }
     m_hitGroupShaderTable->Unmap(0, nullptr);

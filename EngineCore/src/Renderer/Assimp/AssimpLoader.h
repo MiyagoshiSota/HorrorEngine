@@ -11,6 +11,7 @@ struct SharedStruct::Vertex;
 
 struct aiMesh;
 struct aiMaterial;
+struct aiScene;
 
 struct ImportSettings // インポートするときのパラメータ
 {
@@ -27,6 +28,6 @@ public:
 
 private:
     void LoadMesh(SharedStruct::Mesh& dst, const aiMesh* src, bool inverseU, bool inverseV);
-    void LoadTexture(const wchar_t* filename, SharedStruct::Mesh& dst, const aiMaterial* src);
+    void LoadTexture(const wchar_t* filename, SharedStruct::Mesh& dst, const aiMaterial* src, const aiScene* scene);
 };
 

@@ -7,7 +7,6 @@
 #include <d3dx12.h>
 #include <wrl/client.h>
 #include <DirectXMath.h>
-#include <cstdio>
 
 namespace
 {
@@ -18,10 +17,6 @@ namespace
     const float kShadowFarZ = 150.0f;
     // const float kShadowFarZ = 10.0f;
     const float kShadowLightDistance = 25.0f;
-
-    // デバッグログ: 初回とその後は N フレームごとに出力（0 で毎フレーム）
-    static constexpr UINT kDebugLogIntervalFrames = 120u;
-    static UINT s_debugFrameCount = 0u;
 }
 
 void RayTracedShadowPass::Execute(RenderContext& context)
@@ -54,17 +49,12 @@ void RayTracedShadowPass::Execute(RenderContext& context)
     {
         if (!data.asManager->BuildAccelerationStructures(device5.Get(), commandList, context.GameObjects))
         {
-            printf("[RayTracedShadowPass] エラー: Acceleration Structureの構築に失敗しました (GameObjects=%zu)\n",
-                context.GameObjects.size());
             return;
         }
-        printf("[RayTracedShadowPass] AS構築完了 BLAS数=%zu\n", data.asManager->GetBottomLevelASList().size());
     }
 
-    const size_t blasCount = data.asManager->GetBottomLevelASList().size();
-    if (blasCount == 0u)
+    if (data.asManager->GetBottomLevelASList().size() == 0u)
     {
-        printf("[RayTracedShadowPass] 警告: BLASが0です。DispatchRaysをスキップします。\n");
         return;
     }
 
@@ -102,8 +92,6 @@ void RayTracedShadowPass::Execute(RenderContext& context)
     auto lightManager = g_Scene->GetLightingManager();
     if (!lightManager || lightManager->GetDirectionalLights().empty())
     {
-        if (s_debugFrameCount == 0u)
-            printf("[RayTracedShadow] DEBUG: LightingManager または DirectionalLights が空\n");
         return;
     }
     auto directionLight = lightManager->GetDirectionalLights()[0];
@@ -131,22 +119,6 @@ void RayTracedShadowPass::Execute(RenderContext& context)
     DirectX::XMStoreFloat4x4(&sceneConstants.invCameraViewProj, DirectX::XMMatrixTranspose(invCameraViewProj));
     const UINT frameIndex = g_Engine->CurrentBackBufferIndex();
     context.UpdateRayTracedShadowConstants(sceneConstants, frameIndex);
-
-    // デバッグログ（初回と kDebugLogIntervalFrames ごと）
-    const bool shouldLog = (s_debugFrameCount == 0u) || (kDebugLogIntervalFrames > 0u && (s_debugFrameCount % kDebugLogIntervalFrames) == 0u);
-    if (shouldLog)
-    {
-        DirectX::XMFLOAT3 lightPosF;
-        DirectX::XMStoreFloat3(&lightPosF, lightPos);
-
-        printf("[RayTracedShadow] DEBUG frame=%u (camera-view) ---\n", s_debugFrameCount);
-        printf("  lightPosition   = (%.4f, %.4f, %.4f)\n", lightPosF.x, lightPosF.y, lightPosF.z);
-        printf("  cameraPosition  = (%.4f, %.4f, %.4f)\n",
-            sceneConstants.cameraPosition.x, sceneConstants.cameraPosition.y, sceneConstants.cameraPosition.z);
-        printf("  dispatch        = %u x %u\n", data.width, data.height);
-        printf("  BLAS数 = %zu\n", blasCount);
-    }
-    s_debugFrameCount++;
 
     commandList->SetPipelineState1(data.pipelineState->GetStateObject());
 
@@ -182,9 +154,6 @@ void RayTracedShadowPass::Execute(RenderContext& context)
 
     auto dispatchDesc = data.shaderBindingTable->GetDispatchRaysDesc(data.width, data.height);
     commandList->DispatchRays(&dispatchDesc);
-    // デバッグ: 初回のみ DispatchRays 完了をログ
-    if (s_debugFrameCount == 1u)
-        printf("[RayTracedShadowPass] DispatchRays 完了 (出力→PIXEL_SHADER_RESOURCE)\n");
 
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         data.shadowOutputResource,

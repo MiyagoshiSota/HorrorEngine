@@ -4,6 +4,9 @@
 
 #include "Core/App.h"
 #include "Input/InputDevice.h"
+#ifndef BUILD_STANDALONE
+#include "imgui.h"
+#endif
 
 void SceneCamera::Init()
 {
@@ -82,7 +85,11 @@ void SceneCamera::Update(float deltaTime)
         Rotate(-mouse_delta.x * m_RotationSpeed * 0.5f, m_RotationSpeed * mouse_delta.y * 0.5f);
     }
     
-    // FPS風移動 (WASD)
+    // FPS風移動 (WASD) — ImGui入力中は無視
+#ifndef BUILD_STANDALONE
+    if (ImGui::GetIO().WantCaptureKeyboard)
+        return;
+#endif
     float moveSpeed = m_MoveSpeed * deltaTime;
     DirectX::XMVECTOR moveDir = DirectX::XMVectorZero();
 

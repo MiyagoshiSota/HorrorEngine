@@ -1,5 +1,7 @@
 #include "AssimpLoader.h"
 #include "Renderer/StandardShader/Struct/SharedStruct.h"
+#include "Renderer/Texture/Texture2D.h"
+#include "Renderer/Texture/TextureResourceManager.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -8,6 +10,7 @@
 #include <filesystem>
 #include <Windows.h> // MultiByteToWideChar / WideCharToMultiByte のために必要
 #include <cassert> // assert のために必要
+#include <cstdlib> // atoi
 
 namespace fs = std::filesystem;
 
@@ -114,8 +117,8 @@ bool AssimpLoader::Load(ImportSettings settings)
         const auto pMaterial = scene->mMaterials[materialIndex];
 
         // 正しいマテリアルを使ってテクスチャをロードする
-        // (settings.filename を渡して、テクスチャの基底パスを解決する)
-        LoadTexture(settings.filename, meshes[i], pMaterial);
+        // (settings.filename を渡して、テクスチャの基底パスを解決する。GLB埋め込み用に scene を渡す)
+        LoadTexture(settings.filename, meshes[i], pMaterial, scene);
     }
 
     return true;
@@ -185,33 +188,65 @@ void AssimpLoader::LoadMesh(SharedStruct::Mesh& dst, const aiMesh* src, bool inv
  * @param dst      ロード結果を格納するメッシュ
  * @param src      assimpのマテリアル
 */
-void AssimpLoader::LoadTexture(const wchar_t* filename, SharedStruct::Mesh& dst, const aiMaterial* src)
+void AssimpLoader::LoadTexture(const wchar_t* filename, SharedStruct::Mesh& dst, const aiMaterial* src, const aiScene* scene)
 {
-    // FBXのディレクトリパス
     auto dir = GetDirectoryPath(filename);
 
-    // テクスチャ読み込みを試みるヘルパーラムダ
-    // [引数]
-    // - outPath:   (出力) 見つかったテクスチャのフルパス
-    // - outHasMap: (出力) テクスチャが見つかったかどうかのフラグ
-    // - texType:   (入力) assimpのテクスチャタイプ
     auto TryLoadTexture =
         [&](std::wstring& outPath, bool& outHasMap, aiTextureType texType) -> bool
     {
         aiString path;
-        // 0番目のテクスチャスロットを取得
-        if (src->GetTexture(texType, 0, &path) == AI_SUCCESS)
+        if (src->GetTexture(texType, 0, &path) != AI_SUCCESS)
         {
-            // テクスチャパスは相対パスで入っている (例: "textures/albedo.png")
-            auto file = std::string(path.C_Str());
-            // モデルのディレクトリパスと結合してフルパスにする
-            outPath = dir + ToWideString(file);
-            outHasMap = true;
-            return true;
+            outPath.clear();
+            outHasMap = false;
+            return false;
         }
-        outPath.clear();
-        outHasMap = false;
-        return false;
+
+        const auto file = std::string(path.C_Str());
+        const std::wstring cacheKey = dir + ToWideString(file);
+
+        // GLB埋め込みテクスチャ: Assimp は "*0", "*1" のような仮パスを返す（ファイルパスではない）
+        if (!file.empty() && file[0] == '*' && scene != nullptr && scene->HasTextures())
+        {
+            const int index = std::atoi(file.c_str() + 1);
+            if (index >= 0 && index < static_cast<int>(scene->mNumTextures))
+            {
+                const aiTexture* embedded = scene->mTextures[index];
+                std::shared_ptr<Texture2D> loaded;
+                if (embedded->mHeight == 0)
+                {
+                    // 圧縮データ (PNG/JPEG等)。mWidth はバイト長
+                    loaded = Texture2D::LoadFromMemory(
+                        reinterpret_cast<const uint8_t*>(embedded->pcData),
+                        static_cast<size_t>(embedded->mWidth));
+                }
+                else
+                {
+                    // 非圧縮 RGBA
+                    loaded = Texture2D::CreateFromRawRGBA(
+                        reinterpret_cast<const uint8_t*>(embedded->pcData),
+                        embedded->mWidth,
+                        embedded->mHeight);
+                }
+                if (loaded)
+                {
+                    TextureResourceManager::Instance().RegisterTexture(cacheKey, loaded);
+                    outPath = cacheKey;
+                    outHasMap = true;
+                    return true;
+                }
+                // 埋め込みのロードに失敗した場合はテクスチャなしとする
+                outPath.clear();
+                outHasMap = false;
+                return false;
+            }
+        }
+
+        // 外部ファイル: パスのみ設定（後で GetTexture でロード）
+        outPath = cacheKey;
+        outHasMap = true;
+        return true;
     };
 
     // Albedo (Base Color) マップ

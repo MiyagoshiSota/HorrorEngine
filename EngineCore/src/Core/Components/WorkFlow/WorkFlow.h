@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <string>
 #include <vector>
 #include "Core/Components/TriggerComponent.h" // TriggerComponentの定義をインクルード
@@ -27,9 +27,16 @@ public:
         if (m_mode == EWorkFlowMode::Sequential)
         {
             // シーケンシャルモード
-            if (m_currentTaskIndex < m_tasks.size())
+            while (m_currentTaskIndex < static_cast<int>(m_tasks.size()))
             {
                 TriggerComponent* currentTask = m_tasks[m_currentTaskIndex];
+
+                // nullptr（Noneタスク）の場合はスキップして次へ
+                if (!currentTask)
+                {
+                    ++m_currentTaskIndex;
+                    continue;
+                }
                 
                 // 現在のタスクをアクティベート
                 currentTask->Activate(); 
@@ -37,12 +44,17 @@ public:
                 // タスクが完了したら次のタスクへ
                 if (currentTask->IsCompleted())
                 {
-                    m_currentTaskIndex++;
+                    ++m_currentTaskIndex;
+                    continue;
                 }
+
+                // まだ完了していないタスクがあるので一旦抜ける
+                break;
             }
-            else
+
+            // すべてのタスク（nullptr含む）を処理し終えたら完了
+            if (m_currentTaskIndex >= static_cast<int>(m_tasks.size()))
             {
-                // 全てのタスクが完了
                 m_isComplete = true;
             }
         }
@@ -51,7 +63,13 @@ public:
             bool allDone = true;
             for (auto task : m_tasks)
             {
-                task->Activate(); // 全てのタスクを最初からアクティベート
+                if (!task)
+                {
+                    // nullptr（Noneタスク）はスキップ
+                    continue;
+                }
+
+                task->Activate(); // 実タスクのみアクティベート
                 if (!task->IsCompleted())
                 {
                     allDone = false;
@@ -69,7 +87,10 @@ public:
         m_currentTaskIndex = 0;
         for (auto task : m_tasks)
         {
-            task->ResetTask();
+            if (task)
+            {
+                task->ResetTask();
+            }
         }
     }
 

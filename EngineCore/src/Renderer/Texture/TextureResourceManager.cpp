@@ -26,6 +26,12 @@ std::shared_ptr<Texture2D> TextureResourceManager::GetTexture(const std::wstring
     return nullptr;
 }
 
+void TextureResourceManager::RegisterTexture(const std::wstring& path, std::shared_ptr<Texture2D> tex)
+{
+    if (tex)
+        m_textureCache[path] = std::move(tex);
+}
+
 std::shared_ptr<Texture2D> TextureResourceManager::WhiteTexture()
 {
 

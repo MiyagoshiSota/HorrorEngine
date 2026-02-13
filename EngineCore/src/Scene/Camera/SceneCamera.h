@@ -19,12 +19,16 @@ public:
     float GetFOV() const { return m_Fov; }
     float GetAspect() const { return m_Aspect; }
 
-    void SetEyePos(float x, float y, float z, float w = 0.0f) { 
-        m_EyePos = DirectX::XMVectorSet(x, y, z, w); 
+    void SetEyePos(float x, float y, float z, float w = 0.0f) {
+        m_EyePos = DirectX::XMVectorSet(x, y, z, w);
     }
     void SetTargetPos(float x, float y, float z, float w = 0.0f) {
         m_TargetPos = DirectX::XMVectorSet(x, y, z, w);
     }
+    /// <summary>
+    /// SetEyePos/SetTargetPos で位置を直接設定した後に呼び、m_Forward/m_Right/m_CameraUp を再計算する。
+    /// </summary>
+    void RefreshVectors() { UpdateCameraVectors(); }
     void SetFOV(float fov) { m_Fov = fov; }
     void SetAspect(float aspect) { m_Aspect = aspect; }
 

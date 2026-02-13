@@ -15,6 +15,7 @@
 #include "GUI/Windows/DrawWorkManagerWindow.h"
 #include "GUI/Windows/DrawBuildWindow.h"
 #include "GUI/Windows/DrawTexturePreviewWindow.h"
+#include "GUI/Windows/DrawPlayerWindow.h"
 #endif // BUILD_STANDALONE
 #include <d3d12.h>
 #include <d3dx12.h>
@@ -90,9 +91,6 @@ bool Engine::Init(HWND hwnd, UINT windowWidth, UINT windowHeight)
     // DXRサポート確認
     if (!CheckDxrSupport()) {
         printf("警告: DXRがサポートされていません。レイトレーシング機能は無効になります\n");
-    }
-    else {
-        printf("DXRサポート: 有効\n");
     }
 
     CreateViewPort();
@@ -656,6 +654,7 @@ bool Engine::InitImGui()
     m_drawWindows.push_back(std::make_shared<DrawWorkManagerWindow>());
 	m_drawWindows.push_back(std::make_shared<DrawBuildWindow>());
 	m_drawWindows.push_back(std::make_shared<DrawTexturePreviewWindow>());
+	m_drawWindows.push_back(std::make_shared<DrawPlayerWindow>());
 
     return true;
 }

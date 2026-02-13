@@ -10,10 +10,14 @@
 #include "Physics/Component/Rigidbody.h"
 #include "Renderer/Loader/PSOLoader.h"
 #include "Scene/Character/Player/PlayerController.h"
+#include "Scene/Character/Player/Player.h"
+#include "Scene/Camera/PlayModeCameraConfig.h"
 #include "Scene/GameObject/GameObject.h"
 #include "Scene/GameObject/Component/MeshRenderer.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
 #include "Scene/Time/TimeManager.h"
+#include "Input/InputDevice.h"
+#include <cmath>
 
 using namespace DirectX;
 using json = nlohmann::json;
@@ -93,49 +97,29 @@ bool DefaultScene::Init(std::string goFilePath)
         if (SUCCEEDED(g_Engine->Device()->QueryInterface(IID_PPV_ARGS(&device5))))
         {
             // カメラ視点のため、解像度は画面サイズに合わせる
-            if (m_rayTracedShadowManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
+            if (!m_rayTracedShadowManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
             {
-                printf("Ray Traced Shadow Manager: 初期化成功\n");
-            }
-            else
-            {
-                printf("Ray Traced Shadow Manager: 初期化失敗\n");
                 m_rayTracedShadowManager.reset();
             }
         }
 
         // RTAO Managerの初期化（同一DXRデバイス・解像度でTLASはShadowと共有）
         m_rayTracedAOManager = std::make_unique<RayTracedAOManager>();
-        if (device5 && m_rayTracedAOManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
+        if (!device5 || !m_rayTracedAOManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
         {
-            printf("Ray Traced AO Manager: 初期化成功\n");
-        }
-        else
-        {
-            printf("Ray Traced AO Manager: 初期化失敗\n");
             m_rayTracedAOManager.reset();
         }
 
         // RTGI Managerの初期化（TLASはShadowと共有）
         m_rayTracedGIManager = std::make_unique<RayTracedGIManager>();
-        if (device5 && m_rayTracedGIManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
+        if (!device5 || !m_rayTracedGIManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
         {
-            printf("Ray Traced GI Manager: 初期化成功\n");
-        }
-        else
-        {
-            printf("Ray Traced GI Manager: 初期化失敗\n");
             m_rayTracedGIManager.reset();
         }
 
         m_rayTracedReflectionManager = std::make_unique<RayTracedReflectionManager>();
-        if (device5 && m_rayTracedReflectionManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
+        if (!device5 || !m_rayTracedReflectionManager->Init(device5.Get(), kWindowWidth, kWindowHeight))
         {
-            printf("Ray Traced Reflection Manager: 初期化成功\n");
-        }
-        else
-        {
-            printf("Ray Traced Reflection Manager: 初期化失敗\n");
             m_rayTracedReflectionManager.reset();
         }
     }
@@ -164,6 +148,9 @@ void DefaultScene::Update(float deltaTime)
     m_physicsWorld->update(deltaTime);
 
     m_LightingManager->UpdateConstantBuffer();
+
+    // PlayMode 用カメラ設定の適用
+    ApplyPlayModeCamera(deltaTime);
 }
 
 void DefaultScene::EditorUpdate(float deltaTime)
@@ -208,6 +195,104 @@ void DefaultScene::RebuidPhysicsWorld()
     m_physicsWorld->setEventListener(m_CollisionListener.get());
 
     m_physicsWorld->setIsDebugRenderingEnabled(true);
+}
+
+void DefaultScene::ApplyPlayModeCamera(float deltaTime)
+{
+	auto& config = PlayModeCameraConfig::GetInstance();
+
+	if (config.GetMode() == PlayModeCameraConfig::Mode::Free)
+	{
+		m_Camera->Update(deltaTime);
+		return;
+	}
+
+	auto playerGo = Player::GetInstance().GetPlayerGameObject();
+	if (!playerGo || !m_Camera)
+		return;
+
+	// GameObjectWindow と同じく GameObject の GetPosition / GetRotation から取得
+	const XMFLOAT3 pos = playerGo->GetPosition();
+	const float posX = pos.x;
+	const float posY = pos.y;
+	const float posZ = pos.z;
+
+	const XMFLOAT3 rotDeg = playerGo->GetRotation();
+	// DEBUG: プレイヤーオブジェクトの位置と回転を出力
+	printf("[PlayModeCamera] Player pos=(%.3f, %.3f, %.3f) rot=(%.3f, %.3f, %.3f) deg\n",
+		posX, posY, posZ, rotDeg.x, rotDeg.y, rotDeg.z);
+
+	const float sens = config.GetRotationSensitivity() * 0.5f; // Free と同程度
+	auto& input = InputDevice::GetInstance();
+	const auto mouseDelta = input.GetMouseDelta();
+
+	if (config.GetMode() == PlayModeCameraConfig::Mode::FirstPerson)
+	{
+		// 1人称: Free と同じく右ドラッグで視点回転
+		if (input.IsMouseDown(1))
+			config.AddFirstPersonRotation(-mouseDelta.x * sens, -mouseDelta.y * sens);
+
+		const float yaw = config.GetFirstPersonYaw();
+		const float pitch = config.GetFirstPersonPitch();
+		const float cp = cosf(pitch);
+		const float sp = sinf(pitch);
+		const float cy = cosf(yaw);
+		const float sy = sinf(yaw);
+		const float fwdX = sy * cp;
+		const float fwdY = sp;
+		const float fwdZ = -cy * cp;
+
+		const XMFLOAT3 offset = config.GetFirstPersonEyeOffset();
+		const float ex = posX + offset.x;
+		const float ey = posY + offset.y;
+		const float ez = posZ + offset.z;
+		const float dist = 1.0f;
+		m_Camera->SetEyePos(ex, ey, ez);
+		m_Camera->SetTargetPos(ex + fwdX * dist, ey + fwdY * dist, ez + fwdZ * dist);
+		m_Camera->RefreshVectors();
+		return;
+	}
+
+	if (config.GetMode() == PlayModeCameraConfig::Mode::Follow)
+	{
+		// 3人称: プレイヤーを中心にオービット（右ドラッグで回転）
+		if (input.IsMouseDown(1))
+			config.AddFollowOrbitRotation(-mouseDelta.x * sens, mouseDelta.y * sens);
+
+		const float dist = config.GetFollowDistance();
+		const float lookAtH = config.GetFollowLookAtHeight();
+		const float smooth = config.GetFollowSmoothSpeed();
+
+		const float oy = config.GetFollowOrbitYaw();
+		const float op = config.GetFollowOrbitPitch();
+		const float co = cosf(op);
+		const float so = sinf(op);
+		const float cy = cosf(oy);
+		const float sy = sinf(oy);
+		// 注視点からカメラへの方向（Y-up 球面）
+		const float dirX = co * sy;
+		const float dirY = so;
+		const float dirZ = co * cy;
+
+		const float lookX = posX;
+		const float lookY = posY + lookAtH;
+		const float lookZ = posZ;
+		const float desiredEyeX = lookX + dirX * dist;
+		const float desiredEyeY = lookY + dirY * dist;
+		const float desiredEyeZ = lookZ + dirZ * dist;
+
+		const float t = 1.0f - expf(-smooth * deltaTime);
+		XMVECTOR curEye = m_Camera->GetEyePos();
+		XMVECTOR curTgt = m_Camera->GetTargetPos();
+		XMVECTOR desEye = XMVectorSet(desiredEyeX, desiredEyeY, desiredEyeZ, 1.0f);
+		XMVECTOR desTgt = XMVectorSet(lookX, lookY, lookZ, 1.0f);
+		XMVECTOR newEye = XMVectorLerp(curEye, desEye, t);
+		XMVECTOR newTgt = XMVectorLerp(curTgt, desTgt, t);
+
+		m_Camera->SetEyePos(XMVectorGetX(newEye), XMVectorGetY(newEye), XMVectorGetZ(newEye));
+		m_Camera->SetTargetPos(XMVectorGetX(newTgt), XMVectorGetY(newTgt), XMVectorGetZ(newTgt));
+		m_Camera->RefreshVectors();
+	}
 }
 
 void DefaultScene::InitializeGameObject(std::string filePath)

@@ -7,6 +7,7 @@
 #include "GUI/Windows/DrawModelsWindow.h"
 #include "GUI/Windows/DrawTaskManagerWindow.h"
 #include "GUI/Windows/DrawWorkManagerWindow.h"
+#include "GUI/Windows/DrawPlayerWindow.h"
 #include "GUI/Windows/DrawDayWindow.h"
 #include "Modules/PublicConst/ConstGuiPref.h"
 #include <fstream>
@@ -69,6 +70,7 @@ void LayoutPresetManager::SetWindowVisibility(LayoutPresetType presetType)
     std::shared_ptr<DrawModelsWindow> modelsWindow;
     std::shared_ptr<DrawTaskManagerWindow> taskManagerWindow;
     std::shared_ptr<DrawWorkManagerWindow> workManagerWindow;
+    std::shared_ptr<DrawPlayerWindow> playerWindow;
     std::shared_ptr<DrawDayWindow> dayWindow;
 
     for (auto& window : windows)
@@ -78,6 +80,7 @@ void LayoutPresetManager::SetWindowVisibility(LayoutPresetType presetType)
         if (!modelsWindow) modelsWindow = std::dynamic_pointer_cast<DrawModelsWindow>(window);
         if (!taskManagerWindow) taskManagerWindow = std::dynamic_pointer_cast<DrawTaskManagerWindow>(window);
         if (!workManagerWindow) workManagerWindow = std::dynamic_pointer_cast<DrawWorkManagerWindow>(window);
+        if (!playerWindow) playerWindow = std::dynamic_pointer_cast<DrawPlayerWindow>(window);
         if (!dayWindow) dayWindow = std::dynamic_pointer_cast<DrawDayWindow>(window);
     }
 
@@ -85,7 +88,7 @@ void LayoutPresetManager::SetWindowVisibility(LayoutPresetType presetType)
     switch (presetType)
     {
     case LayoutPresetType::MakeMode:
-        // MakeMode: Day, Work Manager, Task Manager, Game Object Window, Models Window を表示
+        // MakeMode: Day, Work Manager, Task Manager, Game Object Window, Models Window, Player Window を表示
         // Mode Window は常に表示（固定UI）
         // Post Process Preset Window を非表示
         if (dayWindow) dayWindow->SetVisible(true);
@@ -93,6 +96,7 @@ void LayoutPresetManager::SetWindowVisibility(LayoutPresetType presetType)
         if (taskManagerWindow) taskManagerWindow->SetVisible(true);
         if (gameObjectWindow) gameObjectWindow->SetVisible(true);
         if (modelsWindow) modelsWindow->SetVisible(true);
+        if (playerWindow) playerWindow->SetVisible(true);
         if (modeWindowTyped) modeWindowTyped->SetVisible(true);
         if (postProcessWindow) postProcessWindow->SetVisible(false);
         break;
@@ -106,6 +110,7 @@ void LayoutPresetManager::SetWindowVisibility(LayoutPresetType presetType)
         if (taskManagerWindow) taskManagerWindow->SetVisible(false);
         if (gameObjectWindow) gameObjectWindow->SetVisible(false);
         if (modelsWindow) modelsWindow->SetVisible(false);
+        if (playerWindow) playerWindow->SetVisible(false);
         if (modeWindowTyped) modeWindowTyped->SetVisible(true);
         if (postProcessWindow) postProcessWindow->SetVisible(true);
         break;

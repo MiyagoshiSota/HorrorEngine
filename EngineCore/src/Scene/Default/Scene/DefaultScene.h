@@ -26,6 +26,8 @@ public:
 	void RebuidPhysicsWorld() override;
 	void InitializeGameObject(std::string filePath) override;
 
+	void ApplyPlayModeCamera(float deltaTime);
+
 	bool SerializeGameObjects(const std::string& goFilePath) override;
 	void DeserializeGameObjects(const std::string& goFilePath) override;
 

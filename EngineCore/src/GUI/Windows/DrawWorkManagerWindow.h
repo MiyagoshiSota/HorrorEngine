@@ -22,10 +22,10 @@ public:
 
 private:
     // UIをセクションごとに分割するためのヘルパー関数
-    void DrawWorkListColumn();
-    void DrawWorkFlowColumn();
+    // paneHeightY > 0 のとき、Childの高さを指定（左カラム上下均等用）
+    void DrawWorkListColumn(float paneHeightY = 0.0f);
+    void DrawWorkFlowColumn(float paneHeightY = 0.0f);
     void DrawTaskColumn();
-    void DrawTaskCreatorPanel(); // ユーザーリクエスト 3 のためのUI
 
     // シーンから利用可能なTriggerComponentを収集するヘルパー
     void RefreshTriggerCache();
@@ -37,13 +37,7 @@ private:
     // 新規作成用のバッファ
     char m_newWorkNameBuffer[128];
     char m_newFlowNameBuffer[128];
-    char m_newTaskNameBuffer[128];
 
     // シーン内の全TriggerComponentのキャッシュ（「利用可能なタスク」リスト用）
     std::vector<TriggerComponent*> m_sceneTriggersCache;
-    
-    // タスク作成UI用
-    int m_selectedGameObjectIndex; // ターゲットGameObjectのインデックス
-    std::string m_selectedConditionName; // 選択中のCondition名
-    std::string m_selectedActionName;    // 選択中のAction(Reward)名
 };

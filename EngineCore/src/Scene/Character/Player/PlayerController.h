@@ -2,6 +2,9 @@
 #include "Input/InputDevice.h"
 #include "Scene/GameObject/GameObject.h"
 #include "Scene/GameObject/Component/Component.h"
+#ifndef BUILD_STANDALONE
+#include "imgui.h"
+#endif
 
 class PLayerController : public Component
 {
@@ -12,6 +15,10 @@ public:
     
     void update(float deltaTime) override
     {
+#ifndef BUILD_STANDALONE
+        if (ImGui::GetIO().WantCaptureKeyboard)
+            return;
+#endif
         const auto& inputDevice = InputDevice::GetInstance();
         
         DirectX::XMFLOAT3 direction = { 0.0f, 0.0f,0.0f };
@@ -26,11 +33,11 @@ public:
         }
         if (inputDevice.IsKeyDown('A'))
         {
-            direction.x = -1.0f;
+            direction.x = 1.0f;
         }
         if (inputDevice.IsKeyDown('D'))
         {
-            direction.x = 1.0f;
+            direction.x = -1.0f;
         }
 
         // 移動

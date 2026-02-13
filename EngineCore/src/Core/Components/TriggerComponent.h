@@ -119,71 +119,61 @@ public:
     {
         auto& factory = TriggerFactory::GetInstance();
 
-        // === Condition の設定 UI ===
+        // === Condition の設定 UI（TreeNode） ===
         {
-            // ファクトリからCondition名のリストを取得
             auto conditionNames = factory.GetRegisteredConditionNames();
-            // Conditionを解除するための "None" を追加
             conditionNames.insert(conditionNames.begin(), "None");
-
-            // 現在設定されているConditionの名前を取得
             std::string currentConditionName = Condition ? Condition->GetName() : "None";
 
-            // コンボボックス（ドロップダウンリスト）
-            if (ImGui::BeginCombo("Trigger Condition", currentConditionName.c_str()))
+            if (ImGui::TreeNode(this, "Trigger (Condition): %s", currentConditionName.c_str()))
             {
-                for (const auto& name : conditionNames)
+                if (ImGui::BeginCombo("Trigger Condition", currentConditionName.c_str()))
                 {
-                    bool is_selected = (currentConditionName == name);
-                    if (ImGui::Selectable(name.c_str(), is_selected))
+                    for (const auto& name : conditionNames)
                     {
-                        // 選択が変更された場合
-                        if (name == "None")
+                        bool is_selected = (currentConditionName == name);
+                        if (ImGui::Selectable(name.c_str(), is_selected))
                         {
-                            Condition = nullptr; // Noneが選ばれたらnullptrに
+                            if (name == "None")
+                                Condition = nullptr;
+                            else if (currentConditionName != name)
+                                Condition = factory.CreateCondition(name);
                         }
-                        else if (currentConditionName != name)
-                        {
-                            // 違うものが選ばれたらファクトリで生成して差し替える
-                            Condition = factory.CreateCondition(name);
-                        }
+                        if (is_selected)
+                            ImGui::SetItemDefaultFocus();
                     }
-                    if (is_selected)
-                    {
-                        ImGui::SetItemDefaultFocus();
-                    }
+                    ImGui::EndCombo();
                 }
-                ImGui::EndCombo();
+                if (Condition)
+                    Condition->DrawInspectorUI();
+                ImGui::TreePop();
             }
         }
 
         ImGui::Separator();
 
-        // === Actions の設定 UI ===
+        // === Actions の設定 UI（各ActionをTreeNodeで表示） ===
         {
             ImGui::Text("Actions");
 
-            // --- 現在のActionリストを削除ボタン付きで表示 ---
-            int actionToRemove = -1; // 削除対象のインデックス
-            for (int i = 0; i < Actions.size(); ++i)
+            int actionToRemove = -1;
+            for (int i = 0; i < static_cast<int>(Actions.size()); ++i)
             {
                 if (!Actions[i]) continue;
 
-                ImGui::PushID(i); // ImGuiが要素を区別するためのID
-                ImGui::Text("- %s", Actions[i]->GetName().c_str());
-                ImGui::SameLine();
-                if (ImGui::Button("Remove"))
+                ImGui::PushID(i);
+                if (ImGui::TreeNode(Actions[i].get(), "Action: %s", Actions[i]->GetName().c_str()))
                 {
-                    actionToRemove = i; // 削除ボタンが押されたらインデックスを記録
+                    if (ImGui::Button("Remove"))
+                        actionToRemove = i;
+                    Actions[i]->DrawInspectorUI();
+                    ImGui::TreePop();
                 }
                 ImGui::PopID();
             }
 
-            // ループの外で安全に削除
             if (actionToRemove != -1)
-            {
                 Actions.erase(Actions.begin() + actionToRemove);
-            }
 
             // --- 新しいActionを追加するUI ---
             

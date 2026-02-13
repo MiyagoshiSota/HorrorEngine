@@ -10,6 +10,7 @@
 #include "Modules/PublicConst/ConstPathPref.h"
 #include "Renderer/Engine.h"
 #include "Scene/SceneManager.h"
+#include "Scene/ScenePicker.h"
 
 HINSTANCE g_hInst;
 HWND g_hWnd = NULL;
@@ -169,6 +170,8 @@ void MainLoop() {
 			// SceneTypeに応じて更新処理を分岐
 			if (g_sceneType == SceneType::PlayMode)
 			{
+				ScenePicker::GetInstance().Update();
+				// printf("%s\n",ScenePicker::GetInstance().GetPickedObject()->GetName().c_str());
 				if (frameCount == 1)
 				{
 					printf("[MainLoop] Scene->Update()を呼び出し\n");

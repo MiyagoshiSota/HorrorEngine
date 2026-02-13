@@ -10,12 +10,10 @@
 
 // コンストラクタ
 DrawWorkManagerWindow::DrawWorkManagerWindow()
-    :m_selectedWork(nullptr), m_selectedWorkflow(nullptr), m_selectedGameObjectIndex(-1)
+    : m_selectedWork(nullptr), m_selectedWorkflow(nullptr)
 {
-    // バッファの初期化
     memset(m_newWorkNameBuffer, 0, sizeof(m_newWorkNameBuffer));
     memset(m_newFlowNameBuffer, 0, sizeof(m_newFlowNameBuffer));
-    memset(m_newTaskNameBuffer, 0, sizeof(m_newTaskNameBuffer));
 }
 
 // 毎フレーム呼ばれるメインの描画関数
@@ -42,18 +40,20 @@ void DrawWorkManagerWindow::draw()
 
         ImGui::Separator();
 
-        // --- 2. メインの3カラムレイアウト ---
-        ImGui::Columns(3, "WorkManagerLayout", true);
+        // --- 2. メインレイアウト ---
+        // 左カラムに「Works」と「Workflows in」を縦に並べ、右カラムに「Workflow:」(Task管理) を配置する
+        ImGui::Columns(2, "WorkManagerLayout", true);
 
-        // カラム1: Work一覧
-        DrawWorkListColumn();
+        // 左カラムの上下を均等にする高さ
+        const float leftColumnHeight = ImGui::GetContentRegionAvail().y;
+        const float halfPaneHeight = (leftColumnHeight > 0.0f) ? (leftColumnHeight * 0.5f) : 0.0f;
+
+        // 左カラム: Work一覧 + WorkFlow一覧（縦並び・均等高さ）
+        DrawWorkListColumn(halfPaneHeight);
+        DrawWorkFlowColumn(halfPaneHeight);
         ImGui::NextColumn();
 
-        // カラム2: 選択中WorkのWorkFlow一覧
-        DrawWorkFlowColumn();
-        ImGui::NextColumn();
-
-        // カラム3: Taskの管理 (Workflowへの追加 / 新規Task作成)
+        // 右カラム: Taskの管理 (Workflowへの追加 / 新規Task作成)
         DrawTaskColumn();
         ImGui::Columns(1);
     }
@@ -61,9 +61,10 @@ void DrawWorkManagerWindow::draw()
 }
 
 // カラム1: Work一覧の描画
-void DrawWorkManagerWindow::DrawWorkListColumn()
+void DrawWorkManagerWindow::DrawWorkListColumn(float paneHeightY)
 {
-    ImGui::BeginChild("WorkListPane");
+    const ImVec2 childSize(0.0f, paneHeightY > 0.0f ? paneHeightY : 0.0f);
+    ImGui::BeginChild("WorkListPane", childSize, false);
     ImGui::Text("Works");
     ImGui::Separator();
 
@@ -188,9 +189,10 @@ void DrawWorkManagerWindow::DrawWorkListColumn()
 }
 
 // カラム2: WorkFlow一覧の描画
-void DrawWorkManagerWindow::DrawWorkFlowColumn()
+void DrawWorkManagerWindow::DrawWorkFlowColumn(float paneHeightY)
 {
-    ImGui::BeginChild("WorkFlowListPane");
+    const ImVec2 childSize(0.0f, paneHeightY > 0.0f ? paneHeightY : 0.0f);
+    ImGui::BeginChild("WorkFlowListPane", childSize, false);
     if (!m_selectedWork)
     {
         ImGui::Text("Select a Work");
@@ -293,12 +295,23 @@ void DrawWorkManagerWindow::DrawTaskColumn()
     int task_to_remove = -1;
     for (int i = 0; i < m_selectedWorkflow->m_tasks.size(); ++i)
     {
-        const auto task = m_selectedWorkflow->m_tasks[i];
-        if (!task) continue; // 安全確認
+        auto* task = m_selectedWorkflow->m_tasks[i];
 
-        ImGui::PushID(task);
+        // ID はインデックスベースにして、nullptr（Noneタスク）でも扱えるようにする
+        ImGui::PushID(i);
         
-        std::string task_label = task->GetTaskName() + " (on " + task->gameObject->GetName() + ")";
+        std::string task_label;
+        if (task)
+        {
+            task_label = task->GetTaskName();
+            if (task->gameObject)
+                task_label += " (on " + task->gameObject->GetName() + ")";
+        }
+        else
+        {
+            task_label = "None (Empty Task)";
+        }
+
         ImGui::Selectable(task_label.c_str());
 
         // ドラッグ＆ドロップ (並べ替え用)
@@ -336,8 +349,9 @@ void DrawWorkManagerWindow::DrawTaskColumn()
     {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TASK_PAYLOAD"))
         {
+            // ペイロードには &task でコピーした「ポインタの値」が入っているので、1回デリファレンスする
             TriggerComponent* receivedTask =
-                static_cast<TriggerComponent*>(payload->Data);
+                *static_cast<TriggerComponent* const*>(payload->Data);
 
             // 既に追加されていないかチェック
             bool alreadyAdded = false;
@@ -365,13 +379,17 @@ void DrawWorkManagerWindow::DrawTaskColumn()
         const bool in_workflow = std::find(m_selectedWorkflow->m_tasks.begin(), m_selectedWorkflow->m_tasks.end(), task)
             != m_selectedWorkflow->m_tasks.end();
         
+        std::string availableLabel = task->GetTaskName();
+        if (task->gameObject)
+            availableLabel += " (on " + task->gameObject->GetName() + ")";
+
         if (in_workflow) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-            ImGui::Selectable((task->GetTaskName() + " (on " + task->gameObject->GetName() + ")").c_str());
+            ImGui::Selectable(availableLabel.c_str());
             ImGui::PopStyleColor();
         } else {
             // ドラッグ可能なアイテムとして設定
-            ImGui::Selectable((task->GetTaskName() + " (on " + task->gameObject->GetName() + ")").c_str());
+            ImGui::Selectable(availableLabel.c_str());
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
             {
                 ImGui::SetDragDropPayload("TASK_PAYLOAD", &task, sizeof(TriggerComponent*)); 
@@ -382,121 +400,7 @@ void DrawWorkManagerWindow::DrawTaskColumn()
     }
     ImGui::EndChild();
 
-    ImGui::Separator();
-
-    // --- 3. GUIでTaskを作成 ---
-    DrawTaskCreatorPanel();
-
     ImGui::EndChild();
-}
-
-// カラム3の下部：新しいTask (TriggerComponent) を作成するUI
-void DrawWorkManagerWindow::DrawTaskCreatorPanel()
-{
-    ImGui::Text("Create New Task");
-    auto& factory = TriggerFactory::GetInstance();
-    
-    // Task Name
-    ImGui::InputText("Task Name", m_newTaskNameBuffer, IM_ARRAYSIZE(m_newTaskNameBuffer));
-    
-    // Target GameObject
-    std::string currentTargetName = "Select GameObject...";
-    if (m_selectedGameObjectIndex >= 0 && m_selectedGameObjectIndex < g_Scene->GetGameObjects().size()) {
-        currentTargetName = g_Scene->GetGameObjects()[m_selectedGameObjectIndex]->GetName();
-    }
-
-    if (ImGui::BeginCombo("Target GameObject", currentTargetName.c_str()))
-    {
-        auto gameObjects = g_Scene->GetGameObjects();
-        for (int i = 0; i < gameObjects.size(); ++i)
-        {
-            bool isSelected = (m_selectedGameObjectIndex == i);
-            if (ImGui::Selectable(gameObjects[i]->GetName().c_str(), isSelected))
-            {
-                m_selectedGameObjectIndex = i;
-            }
-            if (isSelected) ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
-
-    // Action (Condition)
-    auto conditionNames = factory.GetRegisteredConditionNames();
-    if (m_selectedConditionName.empty() && !conditionNames.empty()) {
-        m_selectedConditionName = conditionNames[0];
-    }
-    if (ImGui::BeginCombo("Trigger (Condition)", m_selectedConditionName.c_str()))
-    {
-        for (const auto& name : conditionNames)
-        {
-            if (ImGui::Selectable(name.c_str(), m_selectedConditionName == name)) {
-                m_selectedConditionName = name;
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    // Reward (Action)
-    auto actionNames = factory.GetRegisteredActionNames();
-    if (m_selectedActionName.empty() && !actionNames.empty()) {
-        m_selectedActionName = actionNames[0];
-    }
-    if (ImGui::BeginCombo("Reward (Action)", m_selectedActionName.c_str()))
-    {
-        for (const auto& name : actionNames)
-        {
-            if (ImGui::Selectable(name.c_str(), m_selectedActionName == name)) {
-                m_selectedActionName = name;
-            }
-        }
-        ImGui::EndCombo();
-    }
-    
-    // Create Button
-    // ターゲットGameObjectが選択され、かつTask名が入力されている場合のみボタンを有効化
-    bool canCreate = (m_selectedGameObjectIndex != -1 && strlen(m_newTaskNameBuffer) > 0);
-    if (!canCreate) {
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-    }
-    
-    if (ImGui::Button("Create & Add to Selected Workflow") && canCreate)
-    {
-        std::shared_ptr<GameObject> targetObject = g_Scene->GetGameObjects()[m_selectedGameObjectIndex];
-        
-        // GameObjectにTriggerComponentを追加
-        auto newTrigger = targetObject->AddComponent<TriggerComponent>(); // AddComponentはT*を返すと仮定
-
-        // TargetComponentの初期化
-        newTrigger->SetTaskName(m_newTaskNameBuffer);
-        newTrigger->Initialize(targetObject);
-        newTrigger->ResetTask();
-        
-        // ConditionとActionをFactoryから作成してセット
-        if (!m_selectedConditionName.empty()) {
-            newTrigger->Condition = factory.CreateCondition(m_selectedConditionName);
-        }
-        if (!m_selectedActionName.empty()) {
-            newTrigger->Actions.push_back(factory.CreateAction(m_selectedActionName));
-        }
-
-        // 現在選択中のWorkflowにも追加する
-        if(m_selectedWorkflow)
-        {
-            m_selectedWorkflow->m_tasks.push_back(newTrigger);
-        }
-        
-        // UIの入力欄をリセット
-        m_newTaskNameBuffer[0] = '\0';
-        m_selectedGameObjectIndex = -1;
-        // m_selectedConditionName と m_selectedActionName はリセットしない (連続作成のため)
-    }
-
-    if (!canCreate) {
-        ImGui::PopStyleVar();
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("Please select a target GameObject and enter a Task Name.");
-        }
-    }
 }
 
 // ヘルパー：シーン内の全TriggerComponentをキャッシュに格納

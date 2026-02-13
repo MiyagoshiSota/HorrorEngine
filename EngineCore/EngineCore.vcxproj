@@ -30,6 +30,7 @@
     <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
     <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
     <ClCompile Include="src\GUI\Windows\DrawWorkManagerWindow.cpp" />
+    <ClCompile Include="src\GUI\Windows\DrawPlayerWindow.cpp" />
     <ClCompile Include="src\GUI\Build\BuildManager.cpp" />
     <ClCompile Include="src\GUI\Managers\LayoutPresetManager.cpp" />
     <ClCompile Include="src\Input\InputDevice.cpp" />
@@ -47,6 +48,7 @@
     <ClCompile Include="src\Renderer\RayTracing\RayTracingPipelineState.cpp" />
     <ClCompile Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.cpp" />
     <ClCompile Include="src\Scene\Default\Scene\DefaultScene.cpp" />
+    <ClCompile Include="src\Scene\Character\Player\Player.cpp" />
     <ClCompile Include="src\Scene\GameObject\Loader\GameObjectLoader.cpp" />
     <ClCompile Include="src\Renderer\Graphics\RootSignatureBuilder.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\PipelineStateManager.cpp" />
@@ -67,6 +69,7 @@
     <ClCompile Include="src\Renderer\Target\ITargetBase.cpp" />
     <ClCompile Include="src\Renderer\Target\RenderTarget.cpp" />
     <ClCompile Include="src\Scene\Camera\SceneCamera.cpp" />
+    <ClCompile Include="src\Scene\Camera\PlayModeCameraConfig.cpp" />
     <ClCompile Include="src\Scene\GameObject\GameObject.cpp" />
     <ClCompile Include="src\Scene\GameObject\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Scene\GameObject\Material\Material.cpp" />
@@ -94,6 +97,7 @@
     <ClCompile Include="src\Scene\RayTracing\RayTracedReflectionManager.cpp" />
     <ClCompile Include="src\Scene\RayTracing\RayTracedReflectionTarget.cpp" />
     <ClCompile Include="src\Scene\SceneManager.cpp" />
+    <ClCompile Include="src\Scene\ScenePicker.cpp" />
     <ClCompile Include="src\Scene\Time\TimeManager.cpp" />
     <ClCompile Include="src\Source\3DModel\Loader\ModelLoader.cpp" />
     <ClCompile Include="src\Renderer\Texture\TextureResourceManager.cpp" />
@@ -130,6 +134,7 @@
     <ClInclude Include="src\GUI\Windows\DrawAAWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawTaskManagerWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawWorkManagerWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawPlayerWindow.h" />
     <ClInclude Include="src\GUI\Build\BuildManager.h" />
     <ClInclude Include="src\GUI\Windows\DrawBuildWindow.h" />
     <ClInclude Include="src\GUI\Managers\LayoutPresetManager.h" />
@@ -171,6 +176,7 @@
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\Pass\SimpleShadowMapPass.h" />
     <ClInclude Include="src\Renderer\Pass\ShadowProcess\ShadowProcessPassBase.h" />
     <ClInclude Include="src\Renderer\RenderContext\TempRenderTargetPool.h" />
+    <ClInclude Include="src\Scene\Character\Player\Player.h" />
     <ClInclude Include="src\Scene\Character\Player\PlayerController.h" />
     <ClInclude Include="src\Scene\Default\Renderer\PipelineManager\DefaultPipelineManager.h" />
     <ClInclude Include="src\Scene\Default\Scene\DefaultScene.h" />
@@ -218,6 +224,7 @@
     <ClInclude Include="src\Renderer\Texture\TextureCube.h" />
     <ClInclude Include="src\Renderer\Pass\RenderProcess\Pass\SkyboxPass.h" />
     <ClInclude Include="src\Scene\Camera\SceneCamera.h" />
+    <ClInclude Include="src\Scene\Camera\PlayModeCameraConfig.h" />
     <ClInclude Include="src\Scene\ResourceManager\SceneResourceManager.h" />
     <ClInclude Include="src\Scene\Skybox\SkyboxManager.h" />
     <ClInclude Include="src\Scene\RayTracing\RayTracedShadowManager.h" />
@@ -230,6 +237,7 @@
     <ClInclude Include="src\Scene\RayTracing\RayTracedReflectionTarget.h" />
     <ClInclude Include="src\Scene\ISceneBase.h" />
     <ClInclude Include="src\Scene\SceneManager.h" />
+    <ClInclude Include="src\Scene\ScenePicker.h" />
     <ClInclude Include="src\Scene\Time\TimeManager.h" />
     <ClInclude Include="src\Source\3DModel\Loader\ModelLoader.h" />
     <ClInclude Include="src\Renderer\Texture\TextureResourceManager.h" />

@@ -15,7 +15,11 @@ public:
     // ファクトリーメソッド: パスからロードしてインスタンスを返す
     // (直接newせず、失敗時にnullptrを返せるようにする)
     static std::shared_ptr<Texture2D> Load(const std::wstring& path);
-        static std::shared_ptr<Texture2D> CreateWhiteTexture();
+    /// メモリ上の画像データ（PNG/JPEG等）からテクスチャを生成（GLB埋め込みテクスチャ用）
+    static std::shared_ptr<Texture2D> LoadFromMemory(const uint8_t* data, size_t dataSize);
+    /// 非圧縮RGBAデータからテクスチャを生成（Assimp埋め込みテクスチャの非圧縮用）
+    static std::shared_ptr<Texture2D> CreateFromRawRGBA(const uint8_t* data, uint32_t width, uint32_t height);
+    static std::shared_ptr<Texture2D> CreateWhiteTexture();
 
     // ゲッター
     const std::wstring& GetPath() const { return m_path; }
@@ -29,7 +33,8 @@ public:
 private:
     // 実際のロード処理 (内部用)
     bool InternalLoad(const std::wstring& path);
-	bool InternalCreateFromData(const uint8_t* data, size_t dataSize, uint32_t width, uint32_t height);
+    bool InternalLoadFromMemory(const uint8_t* data, size_t dataSize);
+    bool InternalCreateFromData(const uint8_t* data, size_t dataSize, uint32_t width, uint32_t height);
     Microsoft::WRL::ComPtr<ID3D12Resource> GetDefaultResource(size_t width, size_t height);
 
 private:

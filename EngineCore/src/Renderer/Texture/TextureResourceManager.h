@@ -23,6 +23,9 @@ public:
     // テクスチャ取得のメイン関数
     // まだロードされていなければcreateTextureし、ロード済みならキャッシュを返す
     std::shared_ptr<Texture2D> GetTexture(const std::wstring path);
+
+    /// GLB埋め込みテクスチャなど、パスでロードできないテクスチャをキャッシュに登録する
+    void RegisterTexture(const std::wstring& path, std::shared_ptr<Texture2D> tex);
     std::shared_ptr<Texture2D> GetTexture(const std::string path)
     {
         // 文字列をワイド文字列に変換

@@ -2,7 +2,6 @@
 #include "Renderer/Engine.h"
 #include "Modules/DxHelper.h"
 #include <d3dx12.h>
-#include <Windows.h>
 #include <stdio.h>
 
 bool RayTracedShadowManager::Init(ID3D12Device5* device, UINT width, UINT height)
@@ -13,8 +12,6 @@ bool RayTracedShadowManager::Init(ID3D12Device5* device, UINT width, UINT height
         return false;
     }
 
-    printf("[RayTracedShadowManager] 初期化開始 (解像度: %ux%u)\n", width, height);
-
     m_width = width;
     m_height = height;
 
@@ -22,12 +19,7 @@ bool RayTracedShadowManager::Init(ID3D12Device5* device, UINT width, UINT height
 
     m_pipelineState = std::make_unique<RayTracingPipelineState>();
 
-    wchar_t currentDir[MAX_PATH];
-    GetCurrentDirectoryW(MAX_PATH, currentDir);
-    printf("[RayTracedShadowManager] カレントディレクトリ: %ls\n", currentDir);
-
     std::wstring shaderPath = L"../EngineCore/src/Renderer/RayTracing/Shaders/ShadowRayTracing.hlsl";
-    printf("[RayTracedShadowManager] シェーダーパス: %ls\n", shaderPath.c_str());
 
     // 再帰深度2: カメラレイ → ClosestHit でシャドウレイを発射するため
     if (!m_pipelineState->Create(device, shaderPath.c_str(), 32, 8, 2))
@@ -107,7 +99,6 @@ bool RayTracedShadowManager::Init(ID3D12Device5* device, UINT width, UINT height
     }
 
     m_initialized = true;
-    printf("[RayTracedShadowManager] ===== Ray Traced Shadow Manager 初期化成功 =====\n");
     return true;
 }
 

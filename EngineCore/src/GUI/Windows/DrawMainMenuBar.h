@@ -10,6 +10,7 @@
 #include "GUI/Windows/DrawModelsWindow.h"
 #include "GUI/Windows/DrawTaskManagerWindow.h"
 #include "GUI/Windows/DrawWorkManagerWindow.h"
+#include "GUI/Windows/DrawPlayerWindow.h"
 #include "GUI/Windows/DrawDayWindow.h"
 #include "GUI/Windows/DrawModeWindow.h"
 #include "GUI/Windows/DrawBuildWindow.h"
@@ -210,6 +211,7 @@ private:
         std::shared_ptr<DrawModelsWindow> modelsWindow;
         std::shared_ptr<DrawTaskManagerWindow> taskManagerWindow;
         std::shared_ptr<DrawWorkManagerWindow> workManagerWindow;
+        std::shared_ptr<DrawPlayerWindow> playerWindow;
         
         // ウィンドウリストから各型のウィンドウを検索
         for (auto& window : windows)
@@ -220,6 +222,7 @@ private:
             if (!modelsWindow) modelsWindow = std::dynamic_pointer_cast<DrawModelsWindow>(window);
             if (!taskManagerWindow) taskManagerWindow = std::dynamic_pointer_cast<DrawTaskManagerWindow>(window);
             if (!workManagerWindow) workManagerWindow = std::dynamic_pointer_cast<DrawWorkManagerWindow>(window);
+            if (!playerWindow) playerWindow = std::dynamic_pointer_cast<DrawPlayerWindow>(window);
         }
         
         // Game Object Window
@@ -281,6 +284,16 @@ private:
             if (ImGui::MenuItem("Work Manager Window", nullptr, &visible))
             {
                 workManagerWindow->SetVisible(visible);
+            }
+        }
+
+        // Player Window
+        if (playerWindow)
+        {
+            bool visible = playerWindow->IsVisible();
+            if (ImGui::MenuItem("Player Window", nullptr, &visible))
+            {
+                playerWindow->SetVisible(visible);
             }
         }
     }

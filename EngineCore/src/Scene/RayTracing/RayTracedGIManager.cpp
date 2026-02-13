@@ -107,7 +107,6 @@ bool RayTracedGIManager::Init(ID3D12Device5* device, UINT width, UINT height)
     }
 
     m_initialized = true;
-    printf("[RayTracedGIManager] RTGI Manager 初期化成功\n");
     return true;
 }
 

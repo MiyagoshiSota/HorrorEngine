@@ -1,0 +1,139 @@
+{
+    "gameObjects": [
+        {
+            "components": [
+                {
+                    "model_name": "Cafe",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "STATIC",
+                    "collider": {
+                        "halfExtents": [
+                            20.0,
+                            0.10000000149011612,
+                            20.0
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": false,
+                    "type": "Rigidbody"
+                }
+            ],
+            "name": "Cafe",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "DYNAMIC",
+                    "collider": {
+                        "halfExtents": [
+                            5.0000002374872565e-05,
+                            0.20480000972747803,
+                            5.0000002374872565e-05
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": true,
+                    "type": "Rigidbody"
+                },
+                {
+                    "MoveSpeed": 5.0,
+                    "type": "PlayerController"
+                }
+            ],
+            "name": "PlayerCube",
+            "position": [
+                0.0,
+                1.2000000476837158,
+                6.099999904632568
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                0.10000000149011612,
+                0.800000011920929,
+                0.10000000149011612
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "CupBox",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "Trigger": {
+                        "name": "ClickOnObjectCondition"
+                    },
+                    "type": "Trigger"
+                }
+            ],
+            "name": "CupBox",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "CoffeeMachine",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "CoffeeMachine",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    ],
+    "scene_name": "../Game/Assets/Days\\Cafe.json"
+}

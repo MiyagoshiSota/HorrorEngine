@@ -113,27 +113,6 @@ public:
         float farZ = 150.0f;
         DirectX::XMMATRIX lightProj = DirectX::XMMatrixOrthographicRH(sceneWidth, sceneHeight, nearZ, farZ);
 
-        // デバッグログ（RayTracedShadowPass との比較用、120フレームごと）
-        {
-            static UINT s_debugFrameCount = 0u;
-            constexpr UINT kDebugLogIntervalFrames = 120u;
-            const bool shouldLog = (s_debugFrameCount == 0u) || (kDebugLogIntervalFrames > 0u && (s_debugFrameCount % kDebugLogIntervalFrames) == 0u);
-            if (shouldLog)
-            {
-                DirectX::XMFLOAT4X4 viewF, projF;
-                DirectX::XMStoreFloat4x4(&viewF, lightView);
-                DirectX::XMStoreFloat4x4(&projF, lightProj);
-                printf("[SimpleShadowMap] DEBUG frame=%u ---\n", s_debugFrameCount);
-                printf("  ortho params = width=%.1f height=%.1f near=%.1f far=%.1f lightDistance=25.0\n",
-                    sceneWidth, sceneHeight, nearZ, farZ);
-                printf("  lightView row0 = (%.4f, %.4f, %.4f, %.4f)\n",
-                    viewF._11, viewF._12, viewF._13, viewF._14);
-                printf("  lightProj row0 = (%.4f, %.4f, %.4f, %.4f)\n",
-                    projF._11, projF._12, projF._13, projF._14);
-            }
-            s_debugFrameCount++;
-        }
-
         for (auto& obj : m_RenderQueue)
         {
             // 定数バッファの更新

@@ -3,6 +3,18 @@
     "WorldEnvironment": {
       "model_path": "assets/glTF/Sponza.gltf",
       "model_name": "WorldEnvironment"
-    }
+    },
+    "Cafe":{
+      "model_path": "assets/silent_hills_cafe_5to2_inspired_scene/scene/scene.gltf",
+      "model_name": "Cafe"
+    },
+    "CupBox":{
+      "model_path": "assets/silent_hills_cafe_5to2_inspired_scene/box/box.gltf",
+      "model_name": "CupBox"
+    },
+    "CoffeeMachine":{
+      "model_path": "assets/silent_hills_cafe_5to2_inspired_scene/coffee-machine/coffee-machine.gltf",
+      "model_name": "CoffeeMachine"
+    }   
   }
 } 

@@ -5,6 +5,20 @@
                 {
                     "model_name": "primitive/cube",
                     "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "KINEMATIC",
+                    "collider": {
+                        "halfExtents": [
+                            36.125,
+                            0.020000001415610313,
+                            15.125
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": false,
+                    "type": "Rigidbody"
                 }
             ],
             "name": "primitive/cube",
@@ -19,11 +33,53 @@
                 0.0
             ],
             "scale": [
+                8.5,
+                0.20000000298023224,
+                5.5
+            ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "primitive/cube",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "DYNAMIC",
+                    "collider": {
+                        "halfExtents": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ],
+                        "isTrigger": false,
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": true,
+                    "type": "Rigidbody"
+                },
+                {
+                    "MoveSpeed": 5.0,
+                    "type": "PlayerController"
+                }
+            ],
+            "name": "PlayerCube",
+            "position": [
+                0.0,
+                2.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
                 1.0,
                 1.0,
                 1.0
             ]
         }
     ],
-    "scene_name": "assets/scene.json"
+    "scene_name": "Assets/scene.json"
 }

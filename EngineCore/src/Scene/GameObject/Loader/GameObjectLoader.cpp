@@ -5,9 +5,13 @@
 #include "Modules/PublicConst/ConstGameObjectSaveParamPref.h"
 #include "Core/Components/TriggerComponent.h"
 #include "Core/Components/TriggerFactory.h"
+#include "Core/Components/Reward/AddItemReward.h"
 #include "Core/Components/Reward/PlaySoundReward.h"
 #include "Core/Components/Reward/PrintHelloReward.h"
+#include "Core/Components/Reward/SetObjectTransformReward.h"
 #include "Core/Components/Reward/StartWorkReward.h"
+#include "Core/Components/Trigger/ClickOnObjectCondition.h"
+#include "Core/Components/Trigger/ClickWithItemCondition.h"
 #include "Core/Components/Trigger/CountDownCondition.h"
 #include "Core/Components/Trigger/OnGameObjectEnterCondition.h"
 #include "Physics/Component/Rigidbody.h"
@@ -83,11 +87,15 @@ void GameObjectLoader::ComponentsInitialize()
 	// Trigger Factoryの初期化
 	auto& factory = TriggerFactory::GetInstance();
 	// Conditionを登録
+	factory.RegisterCondition<ClickOnObjectCondition>("ClickOnObjectCondition");
+	factory.RegisterCondition<ClickWithItemCondition>("ClickWithItemCondition");
 	factory.RegisterCondition<OnGameObjectEnterCondition>("OnGameObjectEnterCondition");
 	factory.RegisterCondition<CountDownCondition>("CountDownCondition");
 	// Actionを登録
+	factory.RegisterAction<AddItemReward>("AddItemReward");
 	factory.RegisterAction<PlaySoundReward>("PlaySoundReward");
 	factory.RegisterAction<PrintHelloReward>("PrintHelloReward");
+	factory.RegisterAction<SetObjectTransformReward>("SetObjectTransformReward");
 	factory.RegisterAction<StartWorkReward>("StartWorkReward");
 }
 

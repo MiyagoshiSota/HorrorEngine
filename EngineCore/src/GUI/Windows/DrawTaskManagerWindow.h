@@ -12,6 +12,10 @@ public:
     std::string s_SelectedConditionName = "";
     std::string s_SelectedActionName = "";
     
+private:
+    // 新規作成するTaskの名前入力用バッファ
+    char m_newTaskNameBuffer[128] = { 0 };
+    
 public:
     void draw() override
     {
@@ -57,18 +61,23 @@ public:
                     const auto& trigger = triggers[i];
                     ImGui::PushID(trigger); // 各TriggerComponentを一意に識別
 
-                    ImGui::Text("Task %d", i + 1);
-                    ImGui::SameLine();
-
-                    // 削除ボタン
-                    if (ImGui::Button("Delete Task"))
+                    // TaskごとにTreeNodeを作成
+                    if (ImGui::TreeNode(trigger, "Task: %s", trigger->GetTaskName().c_str()))
                     {
-                        gameObject->RemoveComponent(trigger);
-                        ImGui::PopID();
-                        break; // vectorが変更されるのでループを抜ける
-                    }
+                        // 削除ボタン
+                        if (ImGui::Button("Delete Task"))
+                        {
+                            gameObject->RemoveComponent(trigger);
+                            ImGui::TreePop();
+                            ImGui::PopID();
+                            break; // vectorが変更されるのでループを抜ける
+                        }
 
-                    trigger->DrawInspectorUI(); 
+                        // Task(Trigger)の詳細編集UI
+                        trigger->DrawInspectorUI(); 
+
+                        ImGui::TreePop();
+                    }
 
                     ImGui::Separator();
                     ImGui::PopID();
@@ -80,6 +89,9 @@ public:
         ImGui::Separator();
         ImGui::Spacing();
         ImGui::Text("Create New Task");
+        
+        // [Task Name] : 新規Taskの表示名を入力
+        ImGui::InputText("Task Name", m_newTaskNameBuffer, IM_ARRAYSIZE(m_newTaskNameBuffer));
         
         // [Target] : GameObjectを選択
         std::string currentTargetName = s_TargetForNewTask ? s_TargetForNewTask->GetName() : "None";
@@ -131,10 +143,13 @@ public:
         // 作成ボタン
         if (ImGui::Button("Create Task"))
         {
-            if (s_TargetForNewTask && !s_SelectedConditionName.empty() && !s_SelectedActionName.empty())
+            if (s_TargetForNewTask && !s_SelectedConditionName.empty() && !s_SelectedActionName.empty() && strlen(m_newTaskNameBuffer) > 0)
             {
                 // TargetのGameObjectにTriggerComponentを追加
                 const auto newTrigger = s_TargetForNewTask->AddComponent<TriggerComponent>();
+                
+                // Task名を設定
+                newTrigger->SetTaskName(m_newTaskNameBuffer);
                 
                 // Condition と Action をファクトリで生成して設定
                 newTrigger->Condition = factory.CreateCondition(s_SelectedConditionName);
@@ -146,6 +161,9 @@ public:
                 }
 
                 newTrigger->Initialize(s_TargetForNewTask);
+
+                // 入力欄をリセット
+                m_newTaskNameBuffer[0] = '\0';
             }
         }
         ImGui::End();

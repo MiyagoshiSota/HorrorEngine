@@ -109,7 +109,6 @@ bool RayTracedReflectionManager::Init(ID3D12Device5* device, UINT width, UINT he
     }
 
     m_initialized = true;
-    printf("[RayTracedReflectionManager] RT Reflection Manager 初期化成功\n");
     return true;
 }
 
