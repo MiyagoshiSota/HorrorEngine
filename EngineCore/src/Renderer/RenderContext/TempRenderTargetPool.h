@@ -13,7 +13,6 @@ class TempRenderTargetPool
 public:
     TempRenderTargetPool() = default;
     ~TempRenderTargetPool() {
-        // 必要であればここでプール内の全リソースを解放する処理
         m_Pool.clear();
     }
 
@@ -38,17 +37,17 @@ public:
         if (it != m_Pool.end())
         {
             auto target = *it;
-            // プール（貸出可能リスト）から削除して返す
+            // プールから削除して返す
             m_Pool.erase(it);
             return target;
         }
 
-        // 見つからなかった場合（新規作成）
+        // 見つからなかった場合は新規作成
         auto newTarget = std::make_shared<RenderTarget>();
 
-        // RenderTargetのCreateに必要な引数は環境に合わせて調整してください
+        // RenderTargetの作成
         newTarget->Create(
-            g_Engine->Device(), // Device取得
+            g_Engine->Device(),
             static_cast<UINT>(width),
             static_cast<UINT>(height),
             format,
@@ -70,7 +69,7 @@ public:
     {
         if (target)
         {
-            // 将来の再利用のためにリストに追加
+            // 再利用のためにリストに追加
             m_Pool.push_back(target);
         }
     }
