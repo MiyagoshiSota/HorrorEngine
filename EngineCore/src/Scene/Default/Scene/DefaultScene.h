@@ -26,19 +26,21 @@ public:
 	void RebuidPhysicsWorld() override;
 	void InitializeGameObject(std::string filePath) override;
 
-	void ApplyPlayModeCamera(float deltaTime);
-
 	bool SerializeGameObjects(const std::string& goFilePath) override;
 	void DeserializeGameObjects(const std::string& goFilePath) override;
 
+	/// <summary>
+	/// PlayMode用カメラの適用
+	/// </summary>
+	void ApplyPlayModeCamera(float deltaTime);
+
 public:
-	std::shared_ptr<PostProcessManager> GetPostProcessManager()
-	{
-		return m_defaultPipelineManager->GetPostProcessManager();
-	};
 
+	/// <summary>
+	/// 各種ManagerのGetter
+	/// </summary>
+	std::shared_ptr<PostProcessManager> GetPostProcessManager(){ return m_defaultPipelineManager->GetPostProcessManager(); };
 	std::shared_ptr<DefaultPipelineManager> GetDefaultPipelineManager() { return m_defaultPipelineManager; }
-
 	SkyboxManager* GetSkyboxManager() { return m_skyboxManager.get(); }
 	RayTracedShadowManager* GetRayTracedShadowManager() { return m_rayTracedShadowManager.get(); }
 	RayTracedAOManager* GetRayTracedAOManager() { return m_rayTracedAOManager.get(); }

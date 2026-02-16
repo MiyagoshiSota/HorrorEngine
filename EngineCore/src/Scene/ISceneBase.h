@@ -66,12 +66,17 @@ public:
 	/// </summary>
 	virtual void Draw() = 0;
 
+	/// <summary>
+	/// PhysicsWorldの再構築
+	/// </summary>
 	virtual void RebuidPhysicsWorld() = 0;
 
+	/// <summary>
+	/// ゲームオブジェクトの初期化
+	/// </summary>
 	virtual void InitializeGameObject(std::string goFilePath) = 0;
 
 	// --Getter--
-
 	// Manager
 	std::shared_ptr<SceneCamera> GetSceneCamera() { return m_Camera; }
 	std::shared_ptr<PipelineStateManager> GetPipelineStateManager() { return m_PipelineStateManager; }
@@ -82,6 +87,10 @@ public:
 
 	// Object
 	std::vector<std::shared_ptr <GameObject>> GetGameObjects() { return m_GameObjects; }
+	
+	/// <summary>
+	/// ゲームオブジェクトの追加
+	/// </summary>
 	void AddGameObject(std::shared_ptr<GameObject> go)
 	{
 		if (m_isInUpdateLoop)
@@ -89,6 +98,10 @@ public:
 		else
 			m_GameObjects.push_back(std::move(go));
 	}
+	
+	/// <summary>
+	/// ゲームオブジェクトの削除
+	/// <summary>
 	void RemoveGameObject(std::shared_ptr<GameObject> go)
 	{
 		if (m_isInUpdateLoop)
@@ -107,6 +120,10 @@ public:
 	reactphysics3d::PhysicsCommon& GetPhysicsCommon() { return physics_common; }
 
 	// --Setter--
+
+	/// <summary>
+	/// ゲームオブジェクトの設定
+	/// </summary>
 	void SetAllGameObject(std::vector<std::shared_ptr <GameObject>> game_objects) { m_GameObjects = game_objects; }
 
 
@@ -129,6 +146,9 @@ protected:
 	std::vector<std::shared_ptr<GameObject>> m_pendingGameObjectsToRemove;
 	bool m_isInUpdateLoop = false;
 
+	/// <summary>
+	/// 待機中のゲームオブジェクトの処理
+	/// </summary>
 	void FlushPendingGameObjectChanges()
 	{
 		for (auto& go : m_pendingGameObjectsToRemove)

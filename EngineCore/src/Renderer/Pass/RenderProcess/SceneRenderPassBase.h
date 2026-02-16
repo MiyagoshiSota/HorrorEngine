@@ -18,10 +18,15 @@ public:
         Draw(context);
     }
 
+    /// <summary>
+    /// 最後のパスとして実行する
+    /// </summary>
+    /// <param name="context"></param>
     void LastExecute(RenderContext& context)
     {
         // このパスで描画するオブジェクトを収集する
         Collect(context);
+
         // 収集したオブジェクトを描画する
         Draw(context);
 	}

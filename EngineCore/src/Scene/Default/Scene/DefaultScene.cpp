@@ -36,8 +36,6 @@ bool DefaultScene::Init(std::string goFilePath)
 
     // PipelineManagerの初期化
     m_PipelineManager = std::make_unique<DefaultPipelineManager>();
-    // DefaultPipelineManager型にキャスト
-    // NOTE:DefaultPipelineManagerのメソッドを使用可能にするため
     m_defaultPipelineManager = std::dynamic_pointer_cast<DefaultPipelineManager>(GetPipelineManager());
 
     // PhysicsWorldの初期化
@@ -55,6 +53,7 @@ bool DefaultScene::Init(std::string goFilePath)
     m_LightingManager = std::make_unique<LightingManager>();
     m_LightingManager->Init();
 
+    // Debug用のライトを追加
     m_LightingManager->AddDirectionalLight(
         LightType::Directional,
         DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f),
@@ -80,19 +79,19 @@ bool DefaultScene::Init(std::string goFilePath)
 
     printf("PSOの生成\n");
 
+    // PSOの読み込み
     PSOLoader::LoadFromFile(ConstPathPref::kPSOJsonPath, m_PipelineStateManager);
 
     // SkyboxManagerの初期化
     m_skyboxManager = std::make_unique<SkyboxManager>();
     
     // Skyboxキューブマップの設定
-    // TODO: パスを設定ファイルから読み込むように変更する
     if (m_defaultPipelineManager && m_skyboxManager)
     {
        m_skyboxManager->LoadAndSetup(L"Assets/skybox.dds", m_defaultPipelineManager->GetSkyboxPass());
     }
 
-    // Ray Traced Shadow Managerの初期化（DXRサポート時のみ）
+    // Ray Traced Shadow Managerの初期化
     if (g_Engine && g_Engine->IsDxrSupported())
     {
         m_rayTracedShadowManager = std::make_unique<RayTracedShadowManager>();
@@ -140,21 +139,25 @@ bool DefaultScene::Init(std::string goFilePath)
 
 void DefaultScene::Update(float deltaTime)
 {
+    // 基底クラスの更新
     ISceneBase::Update(deltaTime);
 
+    // プレイヤーの手持ちアイテムの更新
     Player::GetInstance().UpdateHeldItemTransform();
 
     // ポストプロセスマネージャの更新
     m_defaultPipelineManager->GetPostProcessManager()->Update(deltaTime);
 
-    GetPhysicsWorld()->setIsDebugRenderingEnabled(true);
-    // デバッグ線（AABB等）を update 内で計算させるため、その前に表示フラグを設定する
-    auto& debugRenderer = GetPhysicsWorld()->getDebugRenderer();
-    debugRenderer.setIsDebugItemDisplayed(reactphysics3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
     // 物理演算の更新
     m_physicsWorld->update(deltaTime);
 
+    // ライティングマネージャの更新
     m_LightingManager->UpdateConstantBuffer();
+
+    // デバッグ線を表示するためのフラグを設定
+    GetPhysicsWorld()->setIsDebugRenderingEnabled(true);
+    auto& debugRenderer = GetPhysicsWorld()->getDebugRenderer();
+    debugRenderer.setIsDebugItemDisplayed(reactphysics3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
 
     // PlayMode 用カメラ設定の適用
     ApplyPlayModeCamera(deltaTime);
@@ -162,19 +165,23 @@ void DefaultScene::Update(float deltaTime)
 
 void DefaultScene::EditorUpdate(float deltaTime)
 {
+    // 基底クラスの更新
     ISceneBase::EditorUpdate(deltaTime);
 
     // ポストプロセスマネージャの更新
     m_defaultPipelineManager->GetPostProcessManager()->Update(deltaTime);
 
+    // ライティングマネージャの更新
     m_LightingManager->UpdateConstantBuffer();
 
     // SceneCameraの更新
     m_Camera->Update(deltaTime);
 
+    // デバッグ線を表示するためのフラグを設定
     GetPhysicsWorld()->setIsDebugRenderingEnabled(true);
     auto& debugRenderer = GetPhysicsWorld()->getDebugRenderer();
     debugRenderer.setIsDebugItemDisplayed(reactphysics3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
+    
     // エディタでは物理シミュレーションを回さず、GameObject の位置で剛体を同期してからデバッグ用プリミティブのみ計算する（重力等がかからない）
     for (const auto& obj : GetGameObjects())
     {

@@ -8,7 +8,9 @@ class IRenderPass
 public:
     virtual ~IRenderPass() = default;
 
-    // このパスを実行する
-    // RenderPipelineから必要な情報(コマンドリストなど)を受け取る
+    /// <summary>
+	/// パスを実行するための純粋仮想関数
+    /// </summary>
+    /// <param name="context"></param>
     virtual void Execute(RenderContext& context) = 0;
 };

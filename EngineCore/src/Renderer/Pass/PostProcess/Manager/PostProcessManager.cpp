@@ -1,10 +1,7 @@
 #include "PostProcessManager.h"
 
 #include <set>
-#include <d3dx12.h>
 
-#include "Core/App.h"
-#include "Modules/PublicConst/ConstRenderPref.h"
 #include "Renderer/Pass/PostProcess/Pass/BloomPass.h"
 #include "Renderer/Target/RenderTarget.h"
 #include "Renderer/Pass/PostProcess/Pass/ChromaticAberration.h"
@@ -157,6 +154,24 @@ void PostProcessManager::Update(float deltaTime)
     }
 }
 
+void PostProcessManager::PreparePassesForFrame()
+{
+	const auto& order = GetCurrentPresetOrder();
+	for (const auto& passName : order)
+	{
+		auto it = m_AvailablePasses.find(passName);
+		if (it != m_AvailablePasses.end() && it->second)
+		{
+			PostProcessParameter params;
+			if (m_CurrentSettings.count(passName))
+			{
+				params = m_CurrentSettings.at(passName);
+			}
+			it->second->SetParameters(params);
+		}
+	}
+}
+
 const std::vector<std::string>& PostProcessManager::GetCurrentPresetOrder() const
 {
     if (m_IsBlending)
@@ -174,142 +189,35 @@ std::shared_ptr<ITargetBase> PostProcessManager::GetDebugPassOutput(const std::s
     return it->second;
 }
 
-void PostProcessManager::ExecutePasses(RenderContext& context, std::shared_ptr<ITargetBase> optionalFinalOutputRT)
+void PostProcessManager::SetDebugPassOutput(const std::string& passName, const std::shared_ptr<ITargetBase>& rt)
 {
-    const auto& activePassesOrder = m_IsBlending ? m_TargetPreset.order : m_Presets[m_CurrentPresetName].order;
+    if (!m_CapturePassOutputsForDebug) return;
+    if (!rt) return;
 
-    // 後段出力先が指定されているがプリセットが空 → SceneColor をその RT にコピー
-    if (optionalFinalOutputRT != nullptr && activePassesOrder.empty())
+    // RenderTarget にキャストできるものだけを記録する
+    auto renderTarget = std::dynamic_pointer_cast<RenderTarget>(rt);
+    if (!renderTarget) return;
+
+    m_DebugPassOutputs[passName] = renderTarget;
+}
+
+const std::vector<std::shared_ptr<PostProcessPassBase>>& PostProcessManager::GetActivePasses() const
+{
+    m_ActivePassesCache.clear();
+
+    // 現在有効なプリセットのパス順序を取得
+    const auto& order = m_IsBlending
+        ? m_TargetPreset.order
+        : (m_Presets.count(m_CurrentPresetName) ? m_Presets.at(m_CurrentPresetName).order : std::vector<std::string>{});
+
+    for (const auto& passName : order)
     {
-        auto sceneColor = context.GetRenderTarget(ConstRenderPref::SceneColor);
-        if (sceneColor && sceneColor->GetResource() && optionalFinalOutputRT->GetResource())
+        auto it = m_AvailablePasses.find(passName);
+        if (it != m_AvailablePasses.end() && it->second)
         {
-            auto cmdList = context.CommandList;
-            D3D12_RESOURCE_BARRIER barriers[2] = {
-                CD3DX12_RESOURCE_BARRIER::Transition(sceneColor->GetResource(), sceneColor->GetCurrentState(), D3D12_RESOURCE_STATE_COPY_SOURCE),
-                CD3DX12_RESOURCE_BARRIER::Transition(optionalFinalOutputRT->GetResource(), optionalFinalOutputRT->GetCurrentState(), D3D12_RESOURCE_STATE_COPY_DEST)
-            };
-            cmdList->ResourceBarrier(2, barriers);
-            sceneColor->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
-            optionalFinalOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
-            cmdList->CopyResource(optionalFinalOutputRT->GetResource(), sceneColor->GetResource());
-            D3D12_RESOURCE_BARRIER barriersBack[2] = {
-                CD3DX12_RESOURCE_BARRIER::Transition(sceneColor->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
-                CD3DX12_RESOURCE_BARRIER::Transition(optionalFinalOutputRT->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-            };
-            sceneColor->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-            optionalFinalOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-            cmdList->ResourceBarrier(2, barriersBack);
+            m_ActivePassesCache.push_back(it->second);
         }
-        return;
-    }
-    if (activePassesOrder.empty()) return;
-
-    // デバッグ用キャプチャ: 前フレーム分のRTをプールに返却
-    if (m_CapturePassOutputsForDebug)
-    {
-        for (auto& [name, rt] : m_DebugPassOutputs)
-            context.ReleaseTempRenderTarget(rt);
-        m_DebugPassOutputs.clear();
     }
 
-    std::shared_ptr<ITargetBase> sourceRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
-
-    // 中間バッファを2つ用意
-    std::shared_ptr<ITargetBase> bufferA = context.GetRenderTarget(ConstRenderPref::TmpColorA);
-    std::shared_ptr<ITargetBase> bufferB = context.GetRenderTarget(ConstRenderPref::TmpColorB);
-
-    auto cmdList = context.CommandList;
-
-    for (size_t i = 0; i < activePassesOrder.size(); ++i)
-    {
-        const std::string& passName = activePassesOrder[i];
-
-        // 実行すべきパスオブジェクトを取得
-        if (!m_AvailablePasses.count(passName)) continue;
-        auto& pass = m_AvailablePasses[passName];
-
-        // 現在のブレンド状態から、このパス用のパラメータを取得
-        const auto& params = m_CurrentSettings[passName];
-        pass->SetParameters(params);
-
-        // 最後のパスなら出力先はバックバッファ（または optionalFinalOutputRT）
-        bool isLastPass = (i == activePassesOrder.size() - 1);
-        std::shared_ptr<ITargetBase> passOutputRT;
-
-        if (isLastPass && optionalFinalOutputRT == nullptr)
-        {
-            D3D12_CPU_DESCRIPTOR_HANDLE backBufferRTV = g_Engine->GetCurrentRtvHandle();
-            context.SetSourceRT(sourceRT);
-            pass->LastExecute(context, backBufferRTV);
-            passOutputRT = nullptr; // バックバッファはSRVがないためキャプチャしない
-        }
-        else if (isLastPass && optionalFinalOutputRT != nullptr)
-        {
-            if (optionalFinalOutputRT->GetCurrentState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
-            {
-                D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                    optionalFinalOutputRT->GetResource(),
-                    optionalFinalOutputRT->GetCurrentState(),
-                    D3D12_RESOURCE_STATE_RENDER_TARGET);
-                cmdList->ResourceBarrier(1, &barrier);
-                optionalFinalOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
-            }
-            context.SetSourceRT(sourceRT);
-            context.SetDestRT(optionalFinalOutputRT);
-            pass->Execute(context);
-            passOutputRT = optionalFinalOutputRT;
-        }
-        else
-        {
-            std::shared_ptr<ITargetBase> destRT = (i % 2 == 0) ? bufferA : bufferB;
-            context.SetSourceRT(sourceRT);
-            context.SetDestRT(destRT);
-            pass->Execute(context);
-            passOutputRT = destRT;
-        }
-
-        // デバッグ用: パス出力をキャプチャ（SRVがある場合のみ。CopyResource は同一フォーマット必須のためソースのフォーマットを使用）
-        if (m_CapturePassOutputsForDebug && passOutputRT && passOutputRT->GetSRVHandle() && passOutputRT->GetResource())
-        {
-            const float w = static_cast<float>(passOutputRT->GetWidth());
-            const float h = static_cast<float>(passOutputRT->GetHeight());
-            const DXGI_FORMAT srcFormat = passOutputRT->GetResource()->GetDesc().Format;
-            std::shared_ptr<RenderTarget> copyRT = context.GetTempRenderTarget(w, h, srcFormat);
-            if (copyRT && copyRT->GetResource())
-            {
-                D3D12_RESOURCE_BARRIER barriers[2] = {
-                    CD3DX12_RESOURCE_BARRIER::Transition(passOutputRT->GetResource(), passOutputRT->GetCurrentState(), D3D12_RESOURCE_STATE_COPY_SOURCE),
-                    CD3DX12_RESOURCE_BARRIER::Transition(copyRT->GetResource(), copyRT->GetCurrentState(), D3D12_RESOURCE_STATE_COPY_DEST)
-                };
-                cmdList->ResourceBarrier(2, barriers);
-                passOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
-                copyRT->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
-
-                cmdList->CopyResource(copyRT->GetResource(), passOutputRT->GetResource());
-
-                D3D12_RESOURCE_BARRIER barriersAfter[2] = {
-                    CD3DX12_RESOURCE_BARRIER::Transition(passOutputRT->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
-                    CD3DX12_RESOURCE_BARRIER::Transition(copyRT->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-                };
-                cmdList->ResourceBarrier(2, barriersAfter);
-                passOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-                copyRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-                m_DebugPassOutputs[passName] = copyRT;
-            }
-        }
-
-        // 最後のパスでなければ、次のパスが入力として読めるよう出力を SRV 状態へ
-        if (!isLastPass && passOutputRT && passOutputRT->GetCurrentState() != D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
-        {
-            D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-                passOutputRT->GetResource(), passOutputRT->GetCurrentState(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-            cmdList->ResourceBarrier(1, &barrier);
-            passOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        }
-
-        if (!isLastPass)
-            sourceRT = context.GetDestRT();
-    }
+    return m_ActivePassesCache;
 }

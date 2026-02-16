@@ -25,8 +25,12 @@ public:
     // 毎フレーム呼び出す
     void Update(float deltaTime);
 
-    // 描画時に呼び出す
-    void ExecutePasses(RenderContext& context, std::shared_ptr<ITargetBase> optionalFinalOutputRT = nullptr);
+    /// フレーム開始時に、アクティブなパスへ現在のプリセットパラメータを適用する
+    void PreparePassesForFrame();
+
+    /// 現在アクティブなポストプロセスパスのリストを返す
+    /// （プリセットの order と AvailablePasses に基づく）
+    const std::vector<std::shared_ptr<PostProcessPassBase>>& GetActivePasses() const;
 
 public:
 	std::list<std::string> GetPresetNames() const {
@@ -47,6 +51,12 @@ public:
 	/// 指定パス名のキャプチャ済み出力テクスチャ
 	std::shared_ptr<ITargetBase> GetDebugPassOutput(const std::string& passName) const;
 
+	/// デバッグ用パス出力のクリア
+	void ClearDebugPassOutputs() { m_DebugPassOutputs.clear(); }
+
+	/// デバッグ用にパス出力を登録する
+	void SetDebugPassOutput(const std::string& passName, const std::shared_ptr<ITargetBase>& rt);
+
 private:
     std::map<std::string, PostProcessPreset> m_Presets; // ロードした全プリセット
 	std::map<std::string, std::shared_ptr<PostProcessPassBase>> m_AvailablePasses; // 利用可能な全ポストプロセスパス
@@ -65,4 +75,7 @@ private:
 	// 各パス出力のキャプチャ
 	bool m_CapturePassOutputsForDebug = false;
 	std::map<std::string, std::shared_ptr<RenderTarget>> m_DebugPassOutputs;
+
+    // 現在のプリセット設定に基づくアクティブパスキャッシュ
+    mutable std::vector<std::shared_ptr<PostProcessPassBase>> m_ActivePassesCache;
 };

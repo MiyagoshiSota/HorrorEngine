@@ -50,7 +50,7 @@
                     "type": "MeshRenderer"
                 },
                 {
-                    "bodyType": "STATIC",
+                    "bodyType": "DYNAMIC",
                     "collider": {
                         "halfExtents": [
                             1.0,
@@ -85,9 +85,9 @@
                 0.0
             ],
             "scale": [
-                0.0010000000474974513,
-                0.0010000000474974513,
-                0.0010000000474974513
+                0.10000000149011612,
+                0.800000011920929,
+                0.10000000149011612
             ]
         },
         {
@@ -95,6 +95,13 @@
                 {
                     "model_name": "CupBox",
                     "type": "MeshRenderer"
+                },
+                {
+                    "Trigger": {
+                        "name": "ClickOnObjectCondition"
+                    },
+                    "taskName": "Untitled Task",
+                    "type": "Trigger"
                 },
                 {
                     "bodyType": "STATIC",
@@ -114,23 +121,6 @@
                     },
                     "isGravityEnabled": false,
                     "type": "Rigidbody"
-                },
-                {
-                    "Actions": [
-                        {
-                            "name": "AddSceneObjectToItemListReward"
-                        },
-                        {
-                            "name": "PlaySoundAction",
-                            "soundName": "PickUp.mp3",
-                            "use3d": false
-                        }
-                    ],
-                    "Trigger": {
-                        "name": "ClickOnObjectCondition"
-                    },
-                    "taskName": "PickUp",
-                    "type": "Trigger"
                 }
             ],
             "name": "CupBox",
@@ -174,24 +164,6 @@
                     },
                     "isGravityEnabled": false,
                     "type": "Rigidbody"
-                },
-                {
-                    "Actions": [
-                        {
-                            "name": "SetMaterialColorReward"
-                        },
-                        {
-                            "name": "PlaySoundAction",
-                            "soundName": "Coffee.mp3",
-                            "use3d": false
-                        }
-                    ],
-                    "Trigger": {
-                        "name": "ClickWithItemCondition",
-                        "requiredItemId": "Cup"
-                    },
-                    "taskName": "Brew",
-                    "type": "Trigger"
                 }
             ],
             "name": "CoffeeMachine",
@@ -235,33 +207,6 @@
                     },
                     "isGravityEnabled": false,
                     "type": "Rigidbody"
-                },
-                {
-                    "Actions": [
-                        {
-                            "name": "PlaceHeldItemReward"
-                        },
-                        {
-                            "name": "PlaySoundAction",
-                            "soundName": "Serve.mp3",
-                            "use3d": false
-                        },
-                        {
-                            "name": "SetSkyboxParamsReward"
-                        },
-                        {
-                            "name": "SetLightColorReward"
-                        },
-                        {
-                            "name": "BlendPostProcessPresetReward"
-                        }
-                    ],
-                    "Trigger": {
-                        "name": "ClickWithItemCondition",
-                        "requiredItemId": "Cup"
-                    },
-                    "taskName": "Serve",
-                    "type": "Trigger"
                 }
             ],
             "name": "Waiter",
@@ -315,31 +260,5 @@
         }
     ],
     "scene_name": "Assets/Tmp/edit_scene_tmp.json",
-    "works": [
-        {
-            "name": "Caffee",
-            "rewardActions": [],
-            "startCondition": null,
-            "workflows": [
-                {
-                    "mode": "Sequential",
-                    "name": "HotCoffee",
-                    "tasks": [
-                        {
-                            "gameObjectName": "CupBox",
-                            "triggerIndex": 0
-                        },
-                        {
-                            "gameObjectName": "CoffeeMachine",
-                            "triggerIndex": 0
-                        },
-                        {
-                            "gameObjectName": "Waiter",
-                            "triggerIndex": 0
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
+    "works": []
 }
