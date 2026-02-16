@@ -1,0 +1,105 @@
+{
+  "name": "Deferred Rendering Pipeline",
+  "render_targets": [
+    { "name": "SceneColor", "format": "RGBA16_FLOAT" },
+    { "name": "SceneDepth", "format": "D32_FLOAT" },
+    { "name": "G_Normal", "format": "RGBA16_FLOAT" },
+    { "name": "G_WorldPos", "format": "RGBA32_FLOAT" },
+    { "name": "G_Albedo", "format": "RGBA8_UNORM" },
+    { "name": "G_Material", "format": "RGBA8_UNORM" },
+    { "name": "G_Emissive", "format": "RGBA8_UNORM" },
+    { "name": "ShadowDepth", "format": "D32_FLOAT" },
+    { "name": "SSAO_Buffer", "format": "R8_UNORM" },
+    { "name": "RTAO_Buffer", "format": "R16_FLOAT" },
+    { "name": "SSR_Buffer", "format": "RGBA16_FLOAT" },
+    { "name": "MotionVectors", "format": "RG16_FLOAT" },
+    { "name": "History", "format": "RGBA16_FLOAT" },
+    { "name": "TempA", "format": "RGBA16_FLOAT" },
+    { "name": "TempB", "format": "RGBA16_FLOAT" }
+  ],
+  "passes": [
+    {
+      "name": "Shadows",
+      "type": "SimpleShadowMap",
+      "enabled_by": "Shadows.Enabled",
+      "outputs": [ "ShadowDepth" ]
+    },
+    {
+      "name": "RayTracedShadows",
+      "type": "RayTracedShadow",
+      "enabled_by": "RayTracing.Shadows.Enabled"
+    },
+    {
+      "name": "G-Buffer",
+      "type": "Geometry",
+      "enabled_by": "Rendering.Deferred",
+      "outputs": [ "G_Normal", "G_WorldPos", "G_Albedo", "G_Material", "G_Emissive", "MotionVectors", "SceneDepth" ]
+    },
+    {
+      "name": "SSAO",
+      "type": "SSAO",
+      "enabled_by": "SSAO.Enabled",
+      "inputs": [ "G_Normal", "SceneDepth" ],
+      "outputs": [ "SSAO_Buffer" ]
+    },
+    {
+      "name": "RTAO",
+      "type": "RTAO",
+      "enabled_by": "RayTracing.AO.Enabled",
+      "inputs": [ "G_Normal", "G_WorldPos" ],
+      "outputs": [ "RTAO_Buffer" ]
+    },
+    {
+      "name": "Lighting",
+      "type": "Lighting",
+      "enabled_by": "Rendering.Deferred",
+      "inputs": [ "G_Normal", "G_WorldPos", "G_Albedo", "G_Material", "G_Emissive", "SSAO_Buffer", "RTAO_Buffer", "ShadowDepth" ],
+      "outputs": [ "SceneColor" ]
+    },
+    {
+      "name": "Skybox",
+      "type": "Skybox",
+      "outputs": [ "SceneColor" ]
+    },
+    {
+      "name": "SSR",
+      "type": "SSR",
+      "enabled_by": "SSR.Enabled",
+      "inputs": [ "SceneColor", "G_Normal", "G_WorldPos", "SceneDepth" ],
+      "outputs": [ "SSR_Buffer" ]
+    },
+    {
+      "name": "SSRComposite",
+      "type": "SSRComposite",
+      "enabled_by": "SSR.Enabled",
+      "inputs": [ "SceneColor", "SSR_Buffer" ],
+      "outputs": [ "TempA" ]
+    },
+    {
+      "name": "PostProcessing",
+      "type": "PostProcessManager",
+      "inputs": [ "SceneColor" ],
+      "outputs": [ "TempA" ]
+    },
+    {
+      "name": "TAA",
+      "type": "TAA",
+      "enabled_by": "AA.TAA.Enabled",
+      "inputs": [ "TempA", "MotionVectors", "History" ],
+      "outputs": [ "SceneColor", "History" ]
+    },
+    {
+      "name": "FXAA",
+      "type": "FXAA",
+      "enabled_by": "AA.FXAA.Enabled",
+      "inputs": [ "SceneColor" ],
+      "outputs": [ "BACKBUFFER" ]
+    },
+    {
+      "name": "Debug",
+      "type": "Debug",
+      "enabled_by": "Debug.Pass.Enabled",
+      "outputs": [ "SceneColor" ]
+    }
+  ]
+}

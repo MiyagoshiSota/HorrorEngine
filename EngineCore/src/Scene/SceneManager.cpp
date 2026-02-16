@@ -2,6 +2,7 @@
 #include "Scene/ISceneBase.h"
 #include "Scene/Default/Scene/DefaultScene.h"
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
+#include "Core/Components/Work/WorkManager.h"
 
 // App.cppで実体を定義する
 
@@ -23,6 +24,9 @@ void SceneManager::ProcessSceneRequest()
     // 古いシーンのリソースを解放する
     if (g_Scene)
     {
+        // Day(Scene) に紐づく Works を破棄する
+        WorkManager::GetInstance().Clear();
+
         // コマンドリストが開いている場合、閉じて実行する
         g_Engine->CloseAndExecuteCommandList();
         

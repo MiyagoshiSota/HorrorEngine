@@ -198,6 +198,11 @@ void DrawPlayerWindow::DrawInventorySection()
 		ImGui::PushID(static_cast<int>(i));
 		ImGui::Text("%s", inventory[i].c_str());
 		ImGui::SameLine();
+		if (ImGui::SmallButton("Equip"))
+		{
+			player.EquipItem(inventory[i]);
+		}
+		ImGui::SameLine();
 		if (ImGui::SmallButton("Remove"))
 		{
 			player.RemoveItem(inventory[i]);
@@ -206,6 +211,19 @@ void DrawPlayerWindow::DrawInventorySection()
 		}
 		ImGui::PopID();
 	}
+
+	ImGui::Spacing();
+	ImGui::Text("Held Item");
+	const auto held = player.GetHeldItemInstance();
+	if (held)
+	{
+		ImGui::Text("%s", held->GetName().c_str());
+		ImGui::SameLine();
+		if (ImGui::SmallButton("Unequip"))
+			player.UnequipItem();
+	}
+	else
+		ImGui::TextDisabled("(none)");
 
 	if (inventory.empty())
 		ImGui::TextDisabled("(empty)");

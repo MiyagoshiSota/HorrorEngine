@@ -3,8 +3,10 @@
 #include <set>
 #include <d3dx12.h>
 
+#include "Core/App.h"
 #include "Modules/PublicConst/ConstRenderPref.h"
 #include "Renderer/Pass/PostProcess/Pass/BloomPass.h"
+#include "Renderer/Target/RenderTarget.h"
 #include "Renderer/Pass/PostProcess/Pass/ChromaticAberration.h"
 #include "Renderer/Pass/PostProcess/Pass/FilmGrainPass.h"
 #include "Renderer/Pass/PostProcess/Pass/MonochromePass.h"
@@ -155,6 +157,23 @@ void PostProcessManager::Update(float deltaTime)
     }
 }
 
+const std::vector<std::string>& PostProcessManager::GetCurrentPresetOrder() const
+{
+    if (m_IsBlending)
+        return m_TargetPreset.order;
+    if (m_Presets.count(m_CurrentPresetName))
+        return m_Presets.at(m_CurrentPresetName).order;
+    static const std::vector<std::string> kEmpty;
+    return kEmpty;
+}
+
+std::shared_ptr<ITargetBase> PostProcessManager::GetDebugPassOutput(const std::string& passName) const
+{
+    auto it = m_DebugPassOutputs.find(passName);
+    if (it == m_DebugPassOutputs.end()) return nullptr;
+    return it->second;
+}
+
 void PostProcessManager::ExecutePasses(RenderContext& context, std::shared_ptr<ITargetBase> optionalFinalOutputRT)
 {
     const auto& activePassesOrder = m_IsBlending ? m_TargetPreset.order : m_Presets[m_CurrentPresetName].order;
@@ -186,11 +205,21 @@ void PostProcessManager::ExecutePasses(RenderContext& context, std::shared_ptr<I
     }
     if (activePassesOrder.empty()) return;
 
+    // デバッグ用キャプチャ: 前フレーム分のRTをプールに返却
+    if (m_CapturePassOutputsForDebug)
+    {
+        for (auto& [name, rt] : m_DebugPassOutputs)
+            context.ReleaseTempRenderTarget(rt);
+        m_DebugPassOutputs.clear();
+    }
+
     std::shared_ptr<ITargetBase> sourceRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
 
     // 中間バッファを2つ用意
     std::shared_ptr<ITargetBase> bufferA = context.GetRenderTarget(ConstRenderPref::TmpColorA);
     std::shared_ptr<ITargetBase> bufferB = context.GetRenderTarget(ConstRenderPref::TmpColorB);
+
+    auto cmdList = context.CommandList;
 
     for (size_t i = 0; i < activePassesOrder.size(); ++i)
     {
@@ -206,37 +235,78 @@ void PostProcessManager::ExecutePasses(RenderContext& context, std::shared_ptr<I
 
         // 最後のパスなら出力先はバックバッファ（または optionalFinalOutputRT）
         bool isLastPass = (i == activePassesOrder.size() - 1);
+        std::shared_ptr<ITargetBase> passOutputRT;
+
         if (isLastPass && optionalFinalOutputRT == nullptr)
         {
-			// バックバッファのRTVハンドルを取得
             D3D12_CPU_DESCRIPTOR_HANDLE backBufferRTV = g_Engine->GetCurrentRtvHandle();
-
             context.SetSourceRT(sourceRT);
             pass->LastExecute(context, backBufferRTV);
+            passOutputRT = nullptr; // バックバッファはSRVがないためキャプチャしない
         }
         else if (isLastPass && optionalFinalOutputRT != nullptr)
         {
-            // 後段パス用に指定RTへ出力
-            // optionalFinalOutputRT を RENDER_TARGET 状態に遷移
             if (optionalFinalOutputRT->GetCurrentState() != D3D12_RESOURCE_STATE_RENDER_TARGET)
             {
                 D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
                     optionalFinalOutputRT->GetResource(),
                     optionalFinalOutputRT->GetCurrentState(),
                     D3D12_RESOURCE_STATE_RENDER_TARGET);
-                context.CommandList->ResourceBarrier(1, &barrier);
+                cmdList->ResourceBarrier(1, &barrier);
                 optionalFinalOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
             }
             context.SetSourceRT(sourceRT);
             context.SetDestRT(optionalFinalOutputRT);
             pass->Execute(context);
+            passOutputRT = optionalFinalOutputRT;
         }
         else
         {
             std::shared_ptr<ITargetBase> destRT = (i % 2 == 0) ? bufferA : bufferB;
             context.SetSourceRT(sourceRT);
             context.SetDestRT(destRT);
-			pass->Execute(context);
+            pass->Execute(context);
+            passOutputRT = destRT;
+        }
+
+        // デバッグ用: パス出力をキャプチャ（SRVがある場合のみ。CopyResource は同一フォーマット必須のためソースのフォーマットを使用）
+        if (m_CapturePassOutputsForDebug && passOutputRT && passOutputRT->GetSRVHandle() && passOutputRT->GetResource())
+        {
+            const float w = static_cast<float>(passOutputRT->GetWidth());
+            const float h = static_cast<float>(passOutputRT->GetHeight());
+            const DXGI_FORMAT srcFormat = passOutputRT->GetResource()->GetDesc().Format;
+            std::shared_ptr<RenderTarget> copyRT = context.GetTempRenderTarget(w, h, srcFormat);
+            if (copyRT && copyRT->GetResource())
+            {
+                D3D12_RESOURCE_BARRIER barriers[2] = {
+                    CD3DX12_RESOURCE_BARRIER::Transition(passOutputRT->GetResource(), passOutputRT->GetCurrentState(), D3D12_RESOURCE_STATE_COPY_SOURCE),
+                    CD3DX12_RESOURCE_BARRIER::Transition(copyRT->GetResource(), copyRT->GetCurrentState(), D3D12_RESOURCE_STATE_COPY_DEST)
+                };
+                cmdList->ResourceBarrier(2, barriers);
+                passOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_COPY_SOURCE);
+                copyRT->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
+
+                cmdList->CopyResource(copyRT->GetResource(), passOutputRT->GetResource());
+
+                D3D12_RESOURCE_BARRIER barriersAfter[2] = {
+                    CD3DX12_RESOURCE_BARRIER::Transition(passOutputRT->GetResource(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+                    CD3DX12_RESOURCE_BARRIER::Transition(copyRT->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+                };
+                cmdList->ResourceBarrier(2, barriersAfter);
+                passOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+                copyRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+                m_DebugPassOutputs[passName] = copyRT;
+            }
+        }
+
+        // 最後のパスでなければ、次のパスが入力として読めるよう出力を SRV 状態へ
+        if (!isLastPass && passOutputRT && passOutputRT->GetCurrentState() != D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+        {
+            D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+                passOutputRT->GetResource(), passOutputRT->GetCurrentState(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            cmdList->ResourceBarrier(1, &barrier);
+            passOutputRT->SetCurrentState(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         }
 
         if (!isLastPass)

@@ -56,6 +56,18 @@ public:
     const std::wstring& GetCubeMapPath() const { return m_cubeMapPath; }
 
     /// <summary>
+    /// Skybox の明るさ倍率を設定（デフォルト 1.0）
+    /// </summary>
+    void SetIntensity(float intensity) { m_intensity = intensity; }
+    float GetIntensity() const { return m_intensity; }
+
+    /// <summary>
+    /// Skybox の色ティントを設定（デフォルト 1,1,1）
+    /// </summary>
+    void SetTint(const DirectX::XMFLOAT3& tint) { m_tint = tint; }
+    const DirectX::XMFLOAT3& GetTint() const { return m_tint; }
+
+    /// <summary>
     /// 描画に必要なデータを取得（SkyboxPass用）
     /// </summary>
     struct RenderData
@@ -80,6 +92,8 @@ private:
 private:
     bool m_initialized = false;
     std::wstring m_cubeMapPath;
+    float m_intensity = 1.0f;
+    DirectX::XMFLOAT3 m_tint = { 1.0f, 1.0f, 1.0f };
 
     // キューブマップテクスチャ
     std::shared_ptr<TextureCube> m_cubeMap;

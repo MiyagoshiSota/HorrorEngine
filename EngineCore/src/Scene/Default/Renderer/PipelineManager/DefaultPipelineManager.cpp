@@ -47,9 +47,9 @@ DefaultPipelineManager::DefaultPipelineManager()
 	// SkyboxPassの初期化
 	m_skyboxPass = std::make_shared<SkyboxPass>();
 
-    // Passを追加
+    // Passを追加（DebugPass は Lighting/Skybox の後に実行するため別扱い）
     AddRenderProcessPass(std::make_shared<GeometryPass>());
-	// AddRenderProcessPass(std::make_shared<DebugPass>());
+	m_debugPass = std::make_shared<DebugPass>();
 
     // ターゲットの生成
     m_sceneColor = std::make_shared<RenderTarget>();
@@ -485,6 +485,19 @@ void DefaultPipelineManager::Execute()
     if (m_skyboxPass && m_skyboxPass->IsEnabled(context))
     {
         m_skyboxPass->Execute(context);
+    }
+
+    // DebugPass（物理コライダー等のデバッグ線を Lighting/Skybox の上に描画。上書きされないよう最後に実行）
+    if (m_debugPass && m_debugPassEnabled)
+    {
+        auto sceneColorRT = context.GetRenderTarget(ConstRenderPref::SceneColor);
+        auto sceneDepthRT = context.GetRenderTarget(ConstRenderPref::SceneDepth);
+        if (sceneColorRT && sceneDepthRT)
+        {
+            context.SetSourceRT(sceneColorRT);
+            context.SetDestRT(sceneDepthRT);
+            m_debugPass->Execute(context);
+        }
     }
 
     // MSAA Resolve処理（フォワード時かつ MSAA 有効時のみ。デファード時は LightingPass が SceneColor に直接描画済み）

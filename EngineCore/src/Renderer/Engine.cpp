@@ -16,6 +16,7 @@
 #include "GUI/Windows/DrawBuildWindow.h"
 #include "GUI/Windows/DrawTexturePreviewWindow.h"
 #include "GUI/Windows/DrawPlayerWindow.h"
+#include "GUI/Windows/DrawFpsWindow.h"
 #endif // BUILD_STANDALONE
 #include <d3d12.h>
 #include <d3dx12.h>
@@ -655,6 +656,7 @@ bool Engine::InitImGui()
 	m_drawWindows.push_back(std::make_shared<DrawBuildWindow>());
 	m_drawWindows.push_back(std::make_shared<DrawTexturePreviewWindow>());
 	m_drawWindows.push_back(std::make_shared<DrawPlayerWindow>());
+	m_drawWindows.push_back(std::make_shared<DrawFpsWindow>());
 
     return true;
 }

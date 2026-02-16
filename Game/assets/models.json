@@ -15,6 +15,14 @@
     "CoffeeMachine":{
       "model_path": "assets/silent_hills_cafe_5to2_inspired_scene/coffee-machine/coffee-machine.gltf",
       "model_name": "CoffeeMachine"
-    }   
+    },
+    "Waiter":{
+      "model_path": "assets/silent_hills_cafe_5to2_inspired_scene/waiter/waiter.gltf",
+      "model_name": "Waiter"
+    },
+    "Cup":{
+      "model_path": "assets/BlueCup/Blue.gltf",
+      "model_name": "Cup"
+    }
   }
 } 

@@ -30,6 +30,9 @@ private:
     // シーンから利用可能なTriggerComponentを収集するヘルパー
     void RefreshTriggerCache();
 
+    /// 現在の Works リストに対して選択ポインタを検証し、無効ならリセットする（Play→Edit 後のクラッシュ防止）
+    void ValidateSelection();
+
     // --- GUIの状態管理用変数 ---
     Work* m_selectedWork;
     WorkFlow* m_selectedWorkflow;

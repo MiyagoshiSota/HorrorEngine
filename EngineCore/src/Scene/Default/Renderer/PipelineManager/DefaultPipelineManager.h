@@ -8,6 +8,7 @@
 #include "Renderer/Pass/ShadowProcess/Pass/SimpleShadowMapPass.h"
 #include "Renderer/Pass/ShadowProcess/Pass/RayTracedShadowPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SkyboxPass.h"
+#include "Renderer/Pass/RenderProcess/Pass/DebugPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/LightingPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/SSAOPass.h"
 #include "Renderer/Pass/RenderProcess/Pass/RTAODenoisePass.h"
@@ -36,7 +37,7 @@ class DefaultPipelineManager : public IPipelineManager
 {
 public:
     DefaultPipelineManager();
-    
+
     void Execute() override;
 
 public:
@@ -87,6 +88,10 @@ public:
 	// SSRの有効/無効を切り替え
 	void SetSSREnabled(bool enabled) { m_ssrEnabled = enabled; }
 	bool IsSSREnabled() const { return m_ssrEnabled; }
+
+	// DebugPass（物理コライダー等のデバッグ線描画）の有効/無効を切り替え
+	void SetDebugPassEnabled(bool enabled) { m_debugPassEnabled = enabled; }
+	bool IsDebugPassEnabled() const { return m_debugPassEnabled; }
 
 	// 各パスへのアクセス（ランタイムパラメータ変更用）
 	std::shared_ptr<SSAOPass> GetSSAOPass() { return m_ssaoPass; }
@@ -142,6 +147,7 @@ private:
 	AASettings m_aaSettings;
 	bool m_ssaoEnabled = false;
 	bool m_ssrEnabled = false;
+	bool m_debugPassEnabled = true;
 
 	std::shared_ptr<SimpleShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<RayTracedShadowPass> m_rayTracedShadowPass;
@@ -149,7 +155,6 @@ private:
 	std::shared_ptr<RTGIPass> m_rayTracedGIPass;
 	std::shared_ptr<RTGIDenoisePass> m_rtgiDenoisePass;
 	std::shared_ptr<RTReflectionPass> m_rayTracedReflectionPass;
-	//std::shared_ptr<CascadesShadowMapPass> m_simpleShadowMapPass;
 	std::shared_ptr<PostProcessManager> m_postProcessManager;
 	std::shared_ptr<FXAAPass> m_fxaaPass;
 	std::shared_ptr<TAAPass> m_taaPass;
@@ -157,10 +162,10 @@ private:
     std::shared_ptr<RainParticleSystem> m_rainParticleSystem;
 	std::shared_ptr<TempRenderTargetPool> m_tempRenderTargetPool;
     std::shared_ptr<SkyboxPass> m_skyboxPass;
+	std::shared_ptr<DebugPass> m_debugPass;
 	std::shared_ptr<LightingPass> m_lightingPass;
 	std::shared_ptr<SSAOPass> m_ssaoPass;
 	std::shared_ptr<RTAODenoisePass> m_rtaoDenoisePass;
 	std::shared_ptr<SSRPass> m_ssrPass;
 	std::shared_ptr<SSRCompositePass> m_ssrCompositePass;
 };
-

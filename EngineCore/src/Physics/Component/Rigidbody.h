@@ -79,10 +79,7 @@ public:
     {
         // RigidBodyがinitializeで作成されている前提
         if (!m_RigidBody)
-        {
-            printf("Error: Rigidbody::deserialize called before RigidBody was initialized.\n");
             return;
-        }
 
         // --- 定数クラスのエイリアス ---
         using Prefs = ConstGameObjectSaveParamPref;
@@ -97,9 +94,7 @@ public:
                 m_RigidBody->enableGravity(data);
             }
             else
-            {
-                printf("Warning: Rigidbody 'isGravityEnabled' is not a boolean.\n");
-            }
+            { }
         }
 
         // 剛体のType
@@ -123,9 +118,7 @@ public:
                 }
             }
             else
-            {
-                printf("Warning: Rigidbody 'bodyType' is not a string.\n");
-            }
+            { }
         }
 
         // Colliderの生成
@@ -133,18 +126,31 @@ public:
         {
             // エラーチェック (型がobjectか)
             if (!jsonData[Prefs::kRigidbodyCollider].is_object())
-            {
-                printf("Warning: Rigidbody 'collider' is not an object.\n");
                 return;
-            }
 
             const auto& colliderJson = jsonData[Prefs::kRigidbodyCollider]; // 定数を使用
 
             if (colliderJson.contains(Prefs::kColliderShape) && colliderJson[Prefs::kColliderShape].is_string())
             {
                 m_collider = std::make_shared<EngineCollider>();
-                std::string shapeType = colliderJson[Prefs::kColliderShape].get<std::string>(); // 定数を使用
-                reactphysics3d::Transform localTransform = reactphysics3d::Transform::identity(); // TODO: Jsonから読み込む
+                std::string shapeType = colliderJson[Prefs::kColliderShape].get<std::string>();
+
+                reactphysics3d::Transform localTransform = reactphysics3d::Transform::identity();
+                if (colliderJson.contains(Prefs::kColliderOffset) && colliderJson[Prefs::kColliderOffset].is_array() &&
+                    colliderJson[Prefs::kColliderOffset].size() == 3)
+                {
+                    try
+                    {
+                        std::vector<float> off = colliderJson[Prefs::kColliderOffset].get<std::vector<float>>();
+                        localTransform = reactphysics3d::Transform(
+                            reactphysics3d::Vector3(off[0], off[1], off[2]),
+                            reactphysics3d::Quaternion::identity());
+                    }
+                    catch (const nlohmann::json::type_error&)
+                    {
+                        // 型エラー時は identity のまま
+                    }
+                }
 
                 bool created = false;
 
@@ -163,10 +169,8 @@ public:
                         created = m_collider->CreateBox(GetRigidbody(), size, reactphysics3d::Vector3(he[0], he[1], he[2]),
                                                          localTransform);
                     }
-                    catch (const nlohmann::json::type_error& e)
-                    {
-                        printf("Warning: Collider 'halfExtents' has incorrect type: %s\n", e.what());
-                    }
+                    catch (const nlohmann::json::type_error&)
+                    { }
                 }
                 // SPHERE
                 else if (shapeType == Prefs::kColliderShapeSphere && // 定数を使用
@@ -178,10 +182,8 @@ public:
                         float r = colliderJson[Prefs::kColliderSphereRadius].get<float>(); // 定数を使用
                         created = m_collider->CreateSphere(GetRigidbody(), size, r, localTransform);
                     }
-                    catch (const nlohmann::json::type_error& e)
-                    {
-                        printf("Warning: Collider 'radius' (Sphere) has incorrect type: %s\n", e.what());
-                    }
+                    catch (const nlohmann::json::type_error&)
+                    { }
                 }
                 // CAPSULE
                 else if (shapeType == Prefs::kColliderShapeCapsule && // 定数を使用
@@ -196,17 +198,12 @@ public:
                         float h = colliderJson[Prefs::kColliderCapsuleHeight].get<float>(); // 定数を使用
                         created = m_collider->CreateCapsule(GetRigidbody(), size, r, h, localTransform);
                     }
-                    catch (const nlohmann::json::type_error& e)
-                    {
-                        printf("Warning: Collider 'radius' or 'height' (Capsule) has incorrect type: %s\n", e.what());
-                    }
+                    catch (const nlohmann::json::type_error&)
+                    { }
                 }
 
                 if (!created)
-                {
-                    printf("Collider deserialization failed for shape: %s\n", shapeType.c_str());
                     m_collider.reset();
-                }
                 // Trigger設定の読み込み
                 else if (colliderJson.contains(Prefs::kColliderIsTrigger) && // 定数を使用
                     colliderJson[Prefs::kColliderIsTrigger].is_boolean())
@@ -219,16 +216,12 @@ public:
                             m_collider->GetCollider()->setIsTrigger(isTrigger);
                         }
                     }
-                    catch (const nlohmann::json::type_error& e)
-                    {
-                        printf("Warning: Collider 'isTrigger' has incorrect type: %s\n", e.what());
-                    }
+                    catch (const nlohmann::json::type_error&)
+                    { }
                 }
             }
             else
-            {
-                printf("Warning: Rigidbody 'collider' object is missing 'shape' string.\n");
-            }
+            { }
         }
     }
 
@@ -373,10 +366,7 @@ public:
                 }
 
                 if (!success)
-                {
-                    printf("Failed to create collider!\n");
-                    m_collider.reset(); // 失敗したらリセット
-                }
+                    m_collider.reset();
             }
         }
     }

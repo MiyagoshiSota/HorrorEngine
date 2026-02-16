@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Components/TriggerContext/TriggerContext.h"
+#include <nlohmann/json_fwd.hpp>
 
 class GameObject;
 
@@ -20,4 +21,9 @@ public:
 #endif // BUILD_STANDALONE
 
     virtual std::string GetName() const = 0;
+
+    /// シーン保存用。Condition 固有のパラメータを j に書き出す（name は呼び出し元で設定済み）
+    virtual void Serialize(nlohmann::json& j) const {}
+    /// シーン読込用。j から Condition 固有のパラメータを復元する
+    virtual void Deserialize(const nlohmann::json& j) {}
 };

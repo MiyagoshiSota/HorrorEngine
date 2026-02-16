@@ -307,7 +307,10 @@ void GeometryPass::Draw(RenderContext& context)
         cmdList->SetGraphicsRootConstantBufferView(0, constantBuffer->GetAddress());
 
         // 描画
-        auto model = obj->FindComponent<MeshRenderer>()->model;
+        auto meshRenderer = obj->FindComponent<MeshRenderer>();
+        if (meshRenderer == nullptr || meshRenderer->model == nullptr)
+            continue;
+        auto model = meshRenderer->model;
         auto origin_data = g_ModelLoader->GetModelOriginData(model->m_name);
 
         for (size_t i = 0; i < model->m_Meshes.size(); i++)
@@ -317,7 +320,11 @@ void GeometryPass::Draw(RenderContext& context)
 
             auto materialBuffer = model->m_Materials[i]->GetConstantBuffer();
             auto pMaterial = materialBuffer->GetPtr<DirectX::XMFLOAT4>();
-            pMaterial[0] = model->m_Materials[i]->GetColor();
+            DirectX::XMFLOAT4 colorToUse;
+            if (meshRenderer && meshRenderer->GetMaterialColorOverride(i, colorToUse))
+                pMaterial[0] = colorToUse;
+            else
+                pMaterial[0] = model->m_Materials[i]->GetColor();
             cmdList->SetGraphicsRootConstantBufferView(2, materialBuffer->GetAddress());
 
             cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

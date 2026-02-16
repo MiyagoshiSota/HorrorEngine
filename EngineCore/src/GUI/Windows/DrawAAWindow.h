@@ -49,6 +49,7 @@ public:
 			DrawReflectionTab(pipeline, scene);
 			DrawGITab(pipeline);
 			DrawGIDenoiseTab(pipeline);
+			DrawDebugTab(pipeline);
 			ImGui::EndTabBar();
 		}
 
@@ -118,6 +119,7 @@ private:
 
 		Section("4. Composition");
 		Pass("SkyboxPass", true);
+		Pass("DebugPass (Collider Wireframe)", pipeline->IsDebugPassEnabled());
 		if (!useDeferred && aa.msaaEnabled)
 			Pass("MSAA Resolve", true);
 		Pass("RainParticleSystem", true);
@@ -462,6 +464,21 @@ private:
 		}
 
 		ImGui::EndDisabled();
+		ImGui::EndTabItem();
+	}
+
+	void DrawDebugTab(std::shared_ptr<DefaultPipelineManager> pipeline)
+	{
+		if (!ImGui::BeginTabItem("Debug"))
+			return;
+
+		ImGui::TextColored(ImVec4(0.5f, 0.8f, 1.0f, 1.0f), "--- Debug Pass ---");
+		bool debugPassEnabled = pipeline->IsDebugPassEnabled();
+		if (ImGui::Checkbox("DebugPass (Collider Wireframe)", &debugPassEnabled))
+			pipeline->SetDebugPassEnabled(debugPassEnabled);
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("物理コライダー（AABB）のワイヤーフレームを描画する。");
+
 		ImGui::EndTabItem();
 	}
 };

@@ -186,7 +186,17 @@ void PipelineState::SetDepthFunc(D3D12_COMPARISON_FUNC func)
 	descGS.DepthStencilState.DepthFunc = func;
 }
 
+void PipelineState::SetDepthWriteMask(D3D12_DEPTH_WRITE_MASK mask)
+{
+	descGS.DepthStencilState.DepthWriteMask = mask;
+}
+
 void PipelineState::SetWireFrame(bool wireFrame)
 {
 	descGS.RasterizerState.FillMode = wireFrame ? D3D12_FILL_MODE_WIREFRAME : D3D12_FILL_MODE_SOLID;
+}
+
+void PipelineState::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE type)
+{
+	descGS.PrimitiveTopologyType = type;
 }

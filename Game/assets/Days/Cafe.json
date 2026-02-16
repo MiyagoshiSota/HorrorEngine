@@ -10,11 +10,16 @@
                     "bodyType": "STATIC",
                     "collider": {
                         "halfExtents": [
-                            20.0,
-                            0.10000000149011612,
-                            20.0
+                            6.0,
+                            0.5,
+                            1.0
                         ],
                         "isTrigger": false,
+                        "offset": [
+                            0.0,
+                            -0.5,
+                            6.0
+                        ],
                         "shape": "Box"
                     },
                     "isGravityEnabled": false,
@@ -48,11 +53,16 @@
                     "bodyType": "DYNAMIC",
                     "collider": {
                         "halfExtents": [
-                            5.0000002374872565e-05,
-                            0.20480000972747803,
-                            5.0000002374872565e-05
+                            1.0,
+                            1.0,
+                            1.0
                         ],
                         "isTrigger": false,
+                        "offset": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
                         "shape": "Box"
                     },
                     "isGravityEnabled": true,
@@ -66,7 +76,7 @@
             "name": "PlayerCube",
             "position": [
                 0.0,
-                1.2000000476837158,
+                0.8100000023841858,
                 6.099999904632568
             ],
             "rotation": [
@@ -90,7 +100,27 @@
                     "Trigger": {
                         "name": "ClickOnObjectCondition"
                     },
+                    "taskName": "Untitled Task",
                     "type": "Trigger"
+                },
+                {
+                    "bodyType": "STATIC",
+                    "collider": {
+                        "halfExtents": [
+                            0.20000000298023224,
+                            0.30000001192092896,
+                            0.20000000298023224
+                        ],
+                        "isTrigger": false,
+                        "offset": [
+                            0.05000000074505806,
+                            1.2999999523162842,
+                            7.150000095367432
+                        ],
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": false,
+                    "type": "Rigidbody"
                 }
             ],
             "name": "CupBox",
@@ -115,6 +145,25 @@
                 {
                     "model_name": "CoffeeMachine",
                     "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "STATIC",
+                    "collider": {
+                        "halfExtents": [
+                            0.20000000298023224,
+                            0.30000001192092896,
+                            0.20000000298023224
+                        ],
+                        "isTrigger": false,
+                        "offset": [
+                            -1.2000000476837158,
+                            1.2999999523162842,
+                            7.150000095367432
+                        ],
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": false,
+                    "type": "Rigidbody"
                 }
             ],
             "name": "CoffeeMachine",
@@ -133,7 +182,83 @@
                 1.0,
                 1.0
             ]
+        },
+        {
+            "components": [
+                {
+                    "model_name": "Waiter",
+                    "type": "MeshRenderer"
+                },
+                {
+                    "bodyType": "STATIC",
+                    "collider": {
+                        "halfExtents": [
+                            0.20000000298023224,
+                            0.10000000149011612,
+                            0.20000000298023224
+                        ],
+                        "isTrigger": false,
+                        "offset": [
+                            4.699999809265137,
+                            1.0,
+                            5.159999847412109
+                        ],
+                        "shape": "Box"
+                    },
+                    "isGravityEnabled": false,
+                    "type": "Rigidbody"
+                }
+            ],
+            "name": "Waiter",
+            "position": [
+                -5.699999809265137,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "components": [
+                {
+                    "materialColorOverrides": [
+                        [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    ],
+                    "model_name": "Cup",
+                    "type": "MeshRenderer"
+                }
+            ],
+            "name": "Cup",
+            "position": [
+                9.0,
+                9.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ]
         }
     ],
-    "scene_name": "../Game/Assets/Days\\Cafe.json"
+    "scene_name": "../Game/Assets/Days\\Cafe.json",
+    "works": []
 }

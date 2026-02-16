@@ -59,10 +59,16 @@ void PipelineStateManager::CreatePipelineState(
     // パイプラインステートを作成
     auto pipelineState = std::make_shared<PipelineState>();
 
-    // Inputレイアウトを設定
+    // Inputレイアウトを設定（物理デバッグ用は POSITION+COLOR の専用レイアウト）
     if (useInputLayout)
     {
-        pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
+        if (name == "DebugPipelinePass")
+        {
+            pipelineState->SetInputLayout(SharedStruct::DebugVertex::InputLayout);
+            pipelineState->SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+        }
+        else
+            pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
     }
 
     // 色々設定
@@ -83,6 +89,13 @@ void PipelineStateManager::CreatePipelineState(
     else
     {
         pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
+    }
+
+    // デバッグアウトラインは視点に依存せず常に表示（深度テスト常に通過・深度書き込みなし）
+    if (name == "DebugPipelinePass")
+    {
+        pipelineState->SetDepthFunc(D3D12_COMPARISON_FUNC_ALWAYS);
+        pipelineState->SetDepthWriteMask(D3D12_DEPTH_WRITE_MASK_ZERO);
     }
 
     // グラフィックスパイプラインステートを生成
@@ -128,10 +141,16 @@ void PipelineStateManager::CreatePipelineState(
     // パイプラインステートを作成
     auto pipelineState = std::make_shared<PipelineState>();
 
-    // Inputレイアウトを設定
+    // Inputレイアウトを設定（物理デバッグ用は POSITION+COLOR の専用レイアウト）
     if (useInputLayout)
     {
-        pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
+        if (name == "DebugPipelinePass")
+        {
+            pipelineState->SetInputLayout(SharedStruct::DebugVertex::InputLayout);
+            pipelineState->SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+        }
+        else
+            pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
     }
 
     // 色々設定
@@ -152,6 +171,13 @@ void PipelineStateManager::CreatePipelineState(
     else
     {
         pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
+    }
+
+    // デバッグアウトラインは視点に依存せず常に表示（深度テスト常に通過・深度書き込みなし）
+    if (name == "DebugPipelinePass")
+    {
+        pipelineState->SetDepthFunc(D3D12_COMPARISON_FUNC_ALWAYS);
+        pipelineState->SetDepthWriteMask(D3D12_DEPTH_WRITE_MASK_ZERO);
     }
 
     // グラフィックスパイプラインステートを生成
@@ -189,10 +215,16 @@ void PipelineStateManager::CreatePipelineState(const std::string& name, const st
     // パイプラインステートを作成
     auto pipelineState = std::make_shared<PipelineState>();
 
-    // Inputレイアウトを設定
+    // Inputレイアウトを設定（物理デバッグ用は POSITION+COLOR の専用レイアウト）
     if (useInputLayout)
     {
-        pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
+        if (name == "DebugPipelinePass")
+        {
+            pipelineState->SetInputLayout(SharedStruct::DebugVertex::InputLayout);
+            pipelineState->SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+        }
+        else
+            pipelineState->SetInputLayout(SharedStruct::Vertex::InputLayout);
     }
 
     // 色々設定
@@ -213,6 +245,13 @@ void PipelineStateManager::CreatePipelineState(const std::string& name, const st
     else
     {
         pipelineState->SetDepthStencilFormat(DXGI_FORMAT_UNKNOWN);
+    }
+
+    // デバッグアウトラインは視点に依存せず常に表示（深度テスト常に通過・深度書き込みなし）
+    if (name == "DebugPipelinePass")
+    {
+        pipelineState->SetDepthFunc(D3D12_COMPARISON_FUNC_ALWAYS);
+        pipelineState->SetDepthWriteMask(D3D12_DEPTH_WRITE_MASK_ZERO);
     }
 
     // グラフィックスパイプラインステートを生成

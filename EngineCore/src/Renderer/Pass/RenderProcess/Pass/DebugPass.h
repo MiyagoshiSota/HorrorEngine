@@ -26,7 +26,7 @@ public:
         // DebugRenderer用の頂点バッファをフレーム数分作成する
         m_debugTriangleVertexBuffers.resize(kFrameBufferCount);
     
-        const UINT stride = sizeof(DebugConstants);
+        const UINT stride = sizeof(DebugInfo);
         const UINT vertexBufferSize = stride * kMaxDebugTriangleVertices;
 
         for (int i = 0; i < kFrameBufferCount; ++i)

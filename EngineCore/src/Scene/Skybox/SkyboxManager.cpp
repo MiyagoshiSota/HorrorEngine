@@ -73,10 +73,14 @@ void SkyboxManager::UpdateConstantBuffer(XMMATRIX viewProj)
     struct alignas(256) SkyboxCB
     {
         XMMATRIX ViewProj;
+        XMFLOAT3 Tint;
+        float Intensity;
     };
 
     auto pCB = m_constantBuffer->GetPtr<SkyboxCB>();
     pCB->ViewProj = XMMatrixTranspose(viewProj);
+    pCB->Tint = m_tint;
+    pCB->Intensity = m_intensity;
 }
 
 void SkyboxManager::CreateCubeMesh()
@@ -162,6 +166,8 @@ void SkyboxManager::CreateConstantBuffer()
     struct alignas(256) SkyboxCB
     {
         XMMATRIX ViewProj;
+        XMFLOAT3 Tint;
+        float Intensity;
     };
 
     m_constantBuffer = std::make_unique<ConstantBuffer>(sizeof(SkyboxCB));

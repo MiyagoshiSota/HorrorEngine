@@ -16,7 +16,9 @@ public:
 	void SetRenderTargetFormats(const std::vector<DXGI_FORMAT>& formats); // MRT用：複数のRTVフォーマットを設定
 	void SetDepthStencilFormat(DXGI_FORMAT format);
 	void SetDepthFunc(D3D12_COMPARISON_FUNC func); // 深度比較関数を設定
+	void SetDepthWriteMask(D3D12_DEPTH_WRITE_MASK mask); // 深度書き込みマスクを設定
 	void SetWireFrame(bool wireFrame);
+	void SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE type); // 線・三角形など描画プリミティブの種類
 	void SetVS(std::wstring filePath); // 頂点シェーダーを設定
 	void SetPS(std::wstring filePath); // ピクセルシェーダーを設定
 	void SetGS(std::wstring filePath); // ジオメトリシェーダーを設定

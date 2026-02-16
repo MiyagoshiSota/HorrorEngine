@@ -6,10 +6,16 @@
 #include "Core/Components/TriggerComponent.h"
 #include "Core/Components/TriggerFactory.h"
 #include "Core/Components/Reward/AddItemReward.h"
+#include "Core/Components/Reward/AddSceneObjectToItemListReward.h"
 #include "Core/Components/Reward/PlaySoundReward.h"
 #include "Core/Components/Reward/PrintHelloReward.h"
+#include "Core/Components/Reward/SetMaterialColorReward.h"
+#include "Core/Components/Reward/PlaceHeldItemReward.h"
 #include "Core/Components/Reward/SetObjectTransformReward.h"
 #include "Core/Components/Reward/StartWorkReward.h"
+#include "Core/Components/Reward/SetLightColorReward.h"
+#include "Core/Components/Reward/BlendPostProcessPresetReward.h"
+#include "Core/Components/Reward/SetSkyboxParamsReward.h"
 #include "Core/Components/Trigger/ClickOnObjectCondition.h"
 #include "Core/Components/Trigger/ClickWithItemCondition.h"
 #include "Core/Components/Trigger/CountDownCondition.h"
@@ -33,10 +39,20 @@ std::vector<std::shared_ptr<GameObject>> GameObjectLoader::LoadFromFile(const st
 		throw std::runtime_error("Could not open file: " + filePath);
 	}
 	nlohmann::json sceneJson = nlohmann::json::parse(file);
+	return LoadFromJson(sceneJson);
+}
 
-	// コンポーネントの初期化
-	// TODO:別のところに置こう。責務が違う
+std::vector<std::shared_ptr<GameObject>> GameObjectLoader::LoadFromJson(const nlohmann::json& sceneJson)
+{
+	auto gameObjects = std::vector<std::shared_ptr<GameObject>>();
+	ComponentFactory::Register<MeshRenderer>(ConstGameObjectSaveParamPref::kComponentMeshRenderer);
+	ComponentFactory::Register<Rigidbody>(ConstGameObjectSaveParamPref::kComponentRigidbody);
+	ComponentFactory::Register<TriggerComponent>(ConstGameObjectSaveParamPref::kComponentTrigger);
+	ComponentFactory::Register<PLayerController>(ConstGameObjectSaveParamPref::kComponentPlayerController);
 	ComponentsInitialize();
+
+	if (!sceneJson.contains(ConstGameObjectSaveParamPref::kGameObjects) || !sceneJson[ConstGameObjectSaveParamPref::kGameObjects].is_array())
+		return gameObjects;
 
 	for (const auto& objJson : sceneJson[ConstGameObjectSaveParamPref::kGameObjects])
 	{
@@ -91,11 +107,17 @@ void GameObjectLoader::ComponentsInitialize()
 	factory.RegisterCondition<ClickWithItemCondition>("ClickWithItemCondition");
 	factory.RegisterCondition<OnGameObjectEnterCondition>("OnGameObjectEnterCondition");
 	factory.RegisterCondition<CountDownCondition>("CountDownCondition");
-	// Actionを登録
-	factory.RegisterAction<AddItemReward>("AddItemReward");
-	factory.RegisterAction<PlaySoundReward>("PlaySoundReward");
-	factory.RegisterAction<PrintHelloReward>("PrintHelloReward");
+	// Actionを登録（登録名は GetName() の戻り値と一致させる。JSON には GetName() が保存されるため）
+		factory.RegisterAction<AddItemReward>("AddItemReward");
+		factory.RegisterAction<AddSceneObjectToItemListReward>("AddSceneObjectToItemListReward");
+	factory.RegisterAction<PlaySoundReward>("PlaySoundAction");
+	factory.RegisterAction<PrintHelloReward>("PrintHelloAction");
+	factory.RegisterAction<SetMaterialColorReward>("SetMaterialColorReward");
+	factory.RegisterAction<PlaceHeldItemReward>("PlaceHeldItemReward");
 	factory.RegisterAction<SetObjectTransformReward>("SetObjectTransformReward");
 	factory.RegisterAction<StartWorkReward>("StartWorkReward");
+	factory.RegisterAction<SetLightColorReward>("SetLightColorReward");
+	factory.RegisterAction<BlendPostProcessPresetReward>("BlendPostProcessPresetReward");
+	factory.RegisterAction<SetSkyboxParamsReward>("SetSkyboxParamsReward");
 }
 

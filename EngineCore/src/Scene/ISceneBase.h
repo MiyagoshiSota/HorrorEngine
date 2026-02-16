@@ -9,6 +9,7 @@
 
 #include "Renderer/Light/LightingManager.h"
 #include "Renderer/PipelineManager/IPipelineManager.h"
+#include <algorithm>
 
 class ISceneBase
 {
@@ -33,13 +34,14 @@ public:
 	/// 毎フレーム実行
 	/// </summary>
 	virtual void Update(float deltaTime) {
-		// GameObjectのUpdate処理
+		FlushPendingGameObjectChanges();
+		m_isInUpdateLoop = true;
 		for (auto& obj : m_GameObjects)
 		{
 			obj->TransformUpdate();
 			obj->ComponentUpdate(deltaTime);
 		}
-		
+		m_isInUpdateLoop = false;
 		// TimeManagerの更新
 		m_TimeManager->Update();
 	};
@@ -48,12 +50,13 @@ public:
 	/// Editorモード時の毎フレーム実行
 	/// </summary>
 	virtual void EditorUpdate(float deltaTime) {
-		// GameObjectのUpdate処理
+		FlushPendingGameObjectChanges();
+		m_isInUpdateLoop = true;
 		for (auto& obj : m_GameObjects)
 		{
 			obj->TransformUpdate();
 		}
-
+		m_isInUpdateLoop = false;
 		// TimeManagerの更新
 		m_TimeManager->Update();
 	};
@@ -79,7 +82,25 @@ public:
 
 	// Object
 	std::vector<std::shared_ptr <GameObject>> GetGameObjects() { return m_GameObjects; }
-	void AddGameObject(std::shared_ptr<GameObject> go) { m_GameObjects.push_back(go); }
+	void AddGameObject(std::shared_ptr<GameObject> go)
+	{
+		if (m_isInUpdateLoop)
+			m_pendingGameObjectsToAdd.push_back(std::move(go));
+		else
+			m_GameObjects.push_back(std::move(go));
+	}
+	void RemoveGameObject(std::shared_ptr<GameObject> go)
+	{
+		if (m_isInUpdateLoop)
+		{
+			m_pendingGameObjectsToRemove.push_back(go);
+			return;
+		}
+		const auto it = std::find_if(m_GameObjects.begin(), m_GameObjects.end(),
+			[&go](const std::shared_ptr<GameObject>& p) { return p == go; });
+		if (it != m_GameObjects.end())
+			m_GameObjects.erase(it);
+	}
 
 	//	Physics
 	reactphysics3d::PhysicsWorld* GetPhysicsWorld() const { return m_physicsWorld; }
@@ -102,9 +123,26 @@ protected:
 	std::shared_ptr<LightingManager> m_LightingManager;
 
 	// Object
-	// TODO:CameraはGameObjectにしようかな...
 	std::shared_ptr<SceneCamera> m_Camera;
 	std::vector<std::shared_ptr<GameObject>> m_GameObjects;
+	std::vector<std::shared_ptr<GameObject>> m_pendingGameObjectsToAdd;
+	std::vector<std::shared_ptr<GameObject>> m_pendingGameObjectsToRemove;
+	bool m_isInUpdateLoop = false;
+
+	void FlushPendingGameObjectChanges()
+	{
+		for (auto& go : m_pendingGameObjectsToRemove)
+		{
+			const auto it = std::find_if(m_GameObjects.begin(), m_GameObjects.end(),
+				[&go](const std::shared_ptr<GameObject>& p) { return p == go; });
+			if (it != m_GameObjects.end())
+				m_GameObjects.erase(it);
+		}
+		m_pendingGameObjectsToRemove.clear();
+		for (auto& go : m_pendingGameObjectsToAdd)
+			m_GameObjects.push_back(std::move(go));
+		m_pendingGameObjectsToAdd.clear();
+	}
 
 	// Physics
 	reactphysics3d::PhysicsCommon physics_common;

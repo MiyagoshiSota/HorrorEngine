@@ -44,9 +44,10 @@ public:
             
             if (g_sceneType == SceneType::EditorMode)
             {
+                // 先に一時保存してから Play に切り替える（保存失敗時は Play にしない）
+                if (!g_Scene->SerializeGameObjects(ConstPathPref::kDefaultTempGameObjectPath))
+                    return;
                 ChangeSceneType(SceneType::PlayMode);
-
-                g_Scene->SerializeGameObjects(ConstPathPref::kDefaultTempGameObjectPath); // 一時保存
             }
             else
             {

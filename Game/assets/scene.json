@@ -10,9 +10,9 @@
                     "bodyType": "KINEMATIC",
                     "collider": {
                         "halfExtents": [
-                            36.125,
-                            0.020000001415610313,
-                            15.125
+                            1.0,
+                            1.0,
+                            1.0
                         ],
                         "isTrigger": false,
                         "shape": "Box"
@@ -48,9 +48,9 @@
                     "bodyType": "DYNAMIC",
                     "collider": {
                         "halfExtents": [
-                            0.5,
-                            0.5,
-                            0.5
+                            1.0,
+                            1.0,
+                            1.0
                         ],
                         "isTrigger": false,
                         "shape": "Box"
@@ -81,5 +81,6 @@
             ]
         }
     ],
-    "scene_name": "Assets/scene.json"
+    "scene_name": "Assets/scene.json",
+    "works": []
 }

@@ -26,11 +26,16 @@
     <ClCompile Include="..\external\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="..\external\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Core\Components\TriggerComponent.cpp" />
     <ClCompile Include="src\Core\Components\TriggerFactory.cpp" />
     <ClCompile Include="src\Core\Components\WorkFlow\WorkFlow.cpp" />
+    <ClCompile Include="src\Core\Components\Reward\AddSceneObjectToItemListReward.cpp" />
+    <ClCompile Include="src\Core\Components\Reward\PlaceHeldItemReward.cpp" />
+    <ClCompile Include="src\Core\Components\Reward\StartWorkReward.cpp" />
     <ClCompile Include="src\Core\Components\Work\WorkManager.cpp" />
     <ClCompile Include="src\GUI\Windows\DrawWorkManagerWindow.cpp" />
     <ClCompile Include="src\GUI\Windows\DrawPlayerWindow.cpp" />
+    <ClCompile Include="src\GUI\Windows\DrawFpsWindow.cpp" />
     <ClCompile Include="src\GUI\Build\BuildManager.cpp" />
     <ClCompile Include="src\GUI\Managers\LayoutPresetManager.cpp" />
     <ClCompile Include="src\Input\InputDevice.cpp" />
@@ -50,6 +55,7 @@
     <ClCompile Include="src\Scene\Default\Scene\DefaultScene.cpp" />
     <ClCompile Include="src\Scene\Character\Player\Player.cpp" />
     <ClCompile Include="src\Scene\GameObject\Loader\GameObjectLoader.cpp" />
+    <ClCompile Include="src\Scene\GameObject\ItemSpawner.cpp" />
     <ClCompile Include="src\Renderer\Graphics\RootSignatureBuilder.cpp" />
     <ClCompile Include="src\Renderer\PipelineManager\PipelineStateManager.cpp" />
     <ClCompile Include="src\Modules\Renderer\RendereUtility.cpp" />
@@ -114,7 +120,12 @@
     <ClInclude Include="src\Core\Components\Reward\IReward.h" />
     <ClInclude Include="src\Core\Components\Reward\PlaySoundReward.h" />
     <ClInclude Include="src\Core\Components\Reward\PrintHelloReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\AddSceneObjectToItemListReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\PlaceHeldItemReward.h" />
     <ClInclude Include="src\Core\Components\Reward\StartWorkReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\SetLightColorReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\BlendPostProcessPresetReward.h" />
+    <ClInclude Include="src\Core\Components\Reward\SetSkyboxParamsReward.h" />
     <ClInclude Include="src\Core\Components\TriggerComponent.h" />
     <ClInclude Include="src\Core\Components\TriggerContext\TriggerContext.h" />
     <ClInclude Include="src\Core\Components\TriggerFactory.h" />
@@ -135,6 +146,7 @@
     <ClInclude Include="src\GUI\Windows\DrawTaskManagerWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawWorkManagerWindow.h" />
     <ClInclude Include="src\GUI\Windows\DrawPlayerWindow.h" />
+    <ClInclude Include="src\GUI\Windows\DrawFpsWindow.h" />
     <ClInclude Include="src\GUI\Build\BuildManager.h" />
     <ClInclude Include="src\GUI\Windows\DrawBuildWindow.h" />
     <ClInclude Include="src\GUI\Managers\LayoutPresetManager.h" />
@@ -183,6 +195,7 @@
     <ClInclude Include="src\Scene\GameObject\DefaultMesh\DefaultMeshes.h" />
     <ClInclude Include="src\Scene\GameObject\Find\GameObjectFInder.h" />
     <ClInclude Include="src\Scene\GameObject\Loader\GameObjectLoader.h" />
+    <ClInclude Include="src\Scene\GameObject\ItemSpawner.h" />
     <ClInclude Include="src\Scene\GameObject\Component\ComponentFactory.h" />
     <ClInclude Include="src\Scene\GameObject\Component\MeshRenderer.h" />
     <ClInclude Include="src\Renderer\Graphics\RootSignatureBuilder.h" />

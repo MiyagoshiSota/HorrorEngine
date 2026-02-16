@@ -49,10 +49,41 @@ public:
 
 	const std::vector<std::string>& GetInventory() const { return m_inventory; }
 
+	// --- 手持ちアイテム（GameObject インスタンス）---
+
+	/// <summary>
+	/// itemId（ModelWindow のモデル名）でアイテムを装備し、プレイヤー位置オフセットに表示する。
+	/// インベントリに無い場合は false。既に持っているアイテムは Unequip される。
+	/// </summary>
+	bool EquipItem(const std::string& itemId);
+
+	/// <summary>
+	/// 手持ちアイテムを外し、シーンから削除する。
+	/// </summary>
+	void UnequipItem();
+
+	/// <summary>
+	/// 手持ちアイテムを指定位置に置く。オブジェクトはシーンに残り、インベントリから削除される。
+	/// 何も持っていない場合は false。
+	/// </summary>
+	bool PlaceHeldItemAt(float x, float y, float z);
+
+	/// <summary>
+	/// 手持ちアイテムの Transform をプレイヤー位置＋オフセットに同期する。毎フレーム呼ぶ。
+	/// </summary>
+	void UpdateHeldItemTransform();
+
+	std::shared_ptr<GameObject> GetHeldItemInstance() const { return m_heldItemInstance; }
+
 private:
 	Player() = default;
 	~Player() = default;
 
 	std::shared_ptr<GameObject> m_playerGameObject = nullptr;
 	std::vector<std::string> m_inventory;
+
+	std::shared_ptr<GameObject> m_heldItemInstance = nullptr;
+	float m_holdOffsetX = 0.3f;
+	float m_holdOffsetY = -0.2f;
+	float m_holdOffsetZ = 0.5f;
 };

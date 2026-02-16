@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "Core/App.h"
+#include "Core/Components/Reward/IReward.h"
 #include "Core/Components/WorkFlow/WorkFlow.h"
 #include "Core/Components/Trigger/ITriggerCondition.h"
 

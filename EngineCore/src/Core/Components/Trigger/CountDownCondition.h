@@ -3,6 +3,7 @@
 #include "imgui.h"
 #endif // BUILD_STANDALONE
 #include "ITriggerCondition.h"
+#include <nlohmann/json.hpp>
 
 class CountDownCondition : public ITriggerCondition
 {
@@ -31,6 +32,16 @@ public:
     {
         return "CountDownCondition";
     };
+
+    void Serialize(nlohmann::json& j) const override
+    {
+        j["targetTimer"] = m_targetTimer;
+    }
+    void Deserialize(const nlohmann::json& j) override
+    {
+        if (j.contains("targetTimer"))
+            m_targetTimer = j["targetTimer"].get<float>();
+    }
 
 private:
     float m_nowTimer = 0.0f;

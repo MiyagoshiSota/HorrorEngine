@@ -145,7 +145,6 @@ void RayTracedShadowPass::Execute(RenderContext& context)
         *data.pShadowOutputState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
     }
 
-    // ClearUnorderedAccessViewFloat: GPU ハンドルはシェーダー可視ヒープ、CPU ハンドルは非シェーダー可視ヒープである必要がある。
     const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     if (data.clearUavCpuHandle.ptr != 0)
     {

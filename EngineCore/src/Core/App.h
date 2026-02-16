@@ -16,6 +16,8 @@ enum class SceneType { EditorMode, PlayMode };
 extern std::shared_ptr<ISceneBase> g_Scene;
 extern std::unique_ptr<ModelLoader> g_ModelLoader;
 extern std::chrono::steady_clock::time_point g_lastFrameTime;
+/** 前フレームの経過時間（秒）。FPS/ms表示用。MainLoop内で毎フレーム更新。 */
+extern float g_deltaTimeSeconds;
 #ifndef BUILD_STANDALONE
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif // BUILD_STANDALONE

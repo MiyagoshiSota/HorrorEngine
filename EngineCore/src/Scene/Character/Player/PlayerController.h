@@ -57,9 +57,7 @@ public:
                 rb->GetRigidbody()->setTransform(new_transform);
             }
             else
-            {
-                printf("Rigidbodyコンポーネントが見つかりません。\n");
-            }
+            { }
         }
     };
     

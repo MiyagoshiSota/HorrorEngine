@@ -30,6 +30,7 @@ public:
     // --- Getters ---
     reactphysics3d::Collider* GetCollider() const { return m_collider_; }
     ShapeType GetShapeType() const { return m_shapeType; }
+    reactphysics3d::Vector3 GetLocalPosition() const { return m_localPosition; }
     reactphysics3d::Vector3 GetBoxHalfExtents() const;
     float GetSphereRadius() const;
     float GetCapsuleRadius() const;
@@ -54,6 +55,7 @@ private:
     ShapeType m_shapeType = ShapeType::UNKNOWN;
 
     // パラメータ保持用（GUIでの再編集やシリアライズ用）
+    reactphysics3d::Vector3 m_localPosition = {0.0f, 0.0f, 0.0f}; // 剛体からのローカルオフセット
     reactphysics3d::Vector3 m_boxHalfExtents = {0.5f, 0.5f, 0.5f};
     float m_sphereRadius = 0.5f;
     float m_capsuleRadius = 0.5f;

@@ -9,6 +9,7 @@
 #include "Modules/PublicConst/ConstNamePref.h"
 #include "Modules/PublicConst/ConstPathPref.h"
 #include "Renderer/Engine.h"
+#include "Scene/GameObject/GameObject.h"
 #include "Scene/SceneManager.h"
 #include "Scene/ScenePicker.h"
 
@@ -19,6 +20,7 @@ std::shared_ptr<ISceneBase> g_Scene;
 std::unique_ptr<SceneManager> g_SceneManager;
 std::unique_ptr<ModelLoader> g_ModelLoader;
 std::chrono::steady_clock::time_point g_lastFrameTime;
+float g_deltaTimeSeconds = 0.0f;
 
 // WM_KEYUP遅延測定用の統計情報
 struct KeyUpDelayStats
@@ -152,6 +154,7 @@ void MainLoop() {
 
 			// 経過時間を秒単位で取得
 			const float deltaTimeFloat = deltaTime.count();
+			g_deltaTimeSeconds = deltaTimeFloat;
 
 			if (frameCount == 1)
 			{
@@ -160,7 +163,6 @@ void MainLoop() {
 
 			// 入力デバイスの更新
 			InputDevice::GetInstance().Update(deltaTimeFloat);
-			
 			if (frameCount == 1)
 			{
 				printf("[MainLoop] 入力デバイスの更新完了\n");
@@ -170,8 +172,10 @@ void MainLoop() {
 			// SceneTypeに応じて更新処理を分岐
 			if (g_sceneType == SceneType::PlayMode)
 			{
+				// シーンピッカーの更新
 				ScenePicker::GetInstance().Update();
-				// printf("%s\n",ScenePicker::GetInstance().GetPickedObject()->GetName().c_str());
+
+				// シーンの更新
 				if (frameCount == 1)
 				{
 					printf("[MainLoop] Scene->Update()を呼び出し\n");
@@ -285,6 +289,9 @@ void  StartApp(const TCHAR* appName, std::shared_ptr<ISceneBase> scene, const st
 
 		// SceneTypeの確認
 		printf("[StartApp] SceneType: %s\n", g_sceneType == SceneType::PlayMode ? "PlayMode" : "EditorMode");
+
+		// 初回フレーム用に最終フレーム時刻を設定
+		g_lastFrameTime = std::chrono::steady_clock::now();
 
 		// メイン処理のループ
 		printf("[StartApp] MainLoopを開始\n");

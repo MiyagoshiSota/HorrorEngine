@@ -31,7 +31,7 @@ void DebugPass::Collect(RenderContext& context)
         // Rigidbodyがあり、Colliderもある場合に追加
         if (rb && rb->GetColliderObject())
         {
-           // m_collidersToDraw.push_back(rb);
+            m_collidersToDraw.push_back(rb);
         }
     }
 
@@ -62,17 +62,19 @@ void DebugPass::Collect(RenderContext& context)
     D3D12_CPU_DESCRIPTOR_HANDLE sceneColorRTVHandle[] = {sceneColorRT->GetRTVHandle()};
     cmdList->OMSetRenderTargets(1, sceneColorRTVHandle, FALSE, &sceneDepthRHandle);
 
-    // プリミティブトポロジを設定
-    cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    // プリミティブトポロジを設定（線分リスト: 2頂点で1本の線）
+    cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 
 void DebugPass::Draw(RenderContext& context)
 {
     auto cmdList = context.CommandList;
 
-    if (m_collidersToDraw.empty())
+    // 表示フラグ（COLLIDER_AABB）は DefaultScene::Update/EditorUpdate で update 前に設定済み
+    const auto& lines = g_Scene->GetPhysicsWorld()->getDebugRenderer().getLines();
+    if (lines.size() == 0)
     {
-        return; // 描画対象がなければ終了
+        return; // デバッグ線がなければ終了
     }
 
     UINT frameIndex = g_Engine->CurrentBackBufferIndex();
@@ -85,73 +87,46 @@ void DebugPass::Draw(RenderContext& context)
                                                 context.Camera->GetUpward());
     // TAA有効時はジッター適用済みの投影行列を使用
     const auto proj = context.GetProjectionMatrix();
-    const auto world = view * proj;
-
-    // Debug
-    for (const auto & obj : g_Scene->GetGameObjects())
-    {
-        auto rb = obj->FindComponent<Rigidbody>();
-        if (rb && rb->GetRigidbody())
-        {
-         //   rb->GetRigidbody()->setIsDebugEnabled(true);
-        }
-    }
+    // HLSLは行ベクトル×行列で mul(pos, WorldViewProj) を使うため、転置して渡す（他パスと同様）
+    const auto world = DirectX::XMMatrixTranspose(view * proj);
 
     auto constantBuffer = m_debugConstantBuffer->GetPtr<DebugConstants>();
     constantBuffer->world = world;
     cmdList->SetGraphicsRootConstantBufferView(0, m_debugConstantBuffer->GetAddress());
-    
-    auto& debugRenderer = g_Scene->GetPhysicsWorld()->getDebugRenderer();
-    debugRenderer.setIsDebugItemDisplayed(reactphysics3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
 
-    const auto& lines = debugRenderer.getLines();
-    if (lines.size() == 0)  
     {
-        return;
-    }{
-        // ★★★ [FIX] メンバ変数の頂点バッファを使用
+        // メンバ変数の頂点バッファを使用
         m_debugTriangleVertices.clear();
         m_debugTriangleVertices.reserve(lines.size() * 2);
 
-        if(lines.size() * 2 > kMaxDebugTriangleVertices)
-        {
-            printf("Warning: Exceeded max debug line vertices!\n");
-            // 超えた分のラインは無視する
-        }
         UINT verticesToCopy = std::min(static_cast<UINT>(lines.size() * 2), kMaxDebugTriangleVertices);
         
-        // ★★★ [FIX] 三角形 (3頂点) を正しく m_debugTriangleVertices に詰める
+        // 三角形 (3頂点) を正しく m_debugTriangleVertices に詰める
         for (UINT i = 0; i < lines.size() && (i*2) < verticesToCopy; ++i)
         {
             const auto& tri = lines[i];
             
             m_debugTriangleVertices.push_back({
                 {tri.point1.x, tri.point1.y, tri.point1.z},
-                {1, 0, 0, 1} // 色 (例: 赤)
+                {1, 0, 0, 1}
             });
             m_debugTriangleVertices.push_back({
                 {tri.point2.x, tri.point2.y, tri.point2.z},
-                {1, 0, 0, 1} // 色 (例: 赤)
+                {1, 0, 0, 1}
             });
         }
 
-        // ★★★ [FIX] 頂点バッファのサイズ計算を修正
+        // 頂点バッファのサイズ計算を修正
         auto stride = sizeof(DebugInfo);
         auto vertexBufferSize = stride * m_debugTriangleVertices.size();
 
-        // ★★★ [FIX] 毎フレーム make_shared するのをやめる
-        // m_debugVertexBuffer = std::make_shared<VertexBuffer>(vertexBufferSize, stride, m_debugVertices.data());
-        
-        // ★★★ [ADD] 現在のフレーム用の頂点バッファを取得
-        auto currentVB = m_debugTriangleVertexBuffers[frameIndex];
+        // 現在のフレーム用の頂点バッファを取得（スワップチェーンが3バッファでもオーバーランしないよう % で参照）
+        const UINT vbIndex = frameIndex % kFrameBufferCount;
+        auto currentVB = m_debugTriangleVertexBuffers[vbIndex];
 
-        // ★★★ [ASSUMPTION] 
-        // VertexBuffer クラスに、データを Map/memcpy/Unmap するための
-        // CopyData のような関数があることを前提とします。
-        // (実装例: void VertexBuffer::CopyData(void* data, size_t size) { memcpy(m_mappedPtr, data, size); })
         currentVB->CopyData(vertexBufferSize, m_debugTriangleVertices.data());
         
-        // ★★★ [FIX] m_debugVertexBuffer ではなく currentVB を使う
+        // m_debugVertexBuffer ではなく currentVB を使う
         const auto vbView = currentVB->View();
         
         cmdList->IASetVertexBuffers(0, 1, &vbView);

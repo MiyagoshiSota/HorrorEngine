@@ -1,7 +1,15 @@
 #pragma once
+#include <list>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "Renderer/Pass/PostProcess/PostProcessPassBase.h"
 #include "Renderer/Pass/PostProcess/Preset/PostProcessPreset.h"
 #include "Renderer/RenderContext/RenderContext.h"
+
+class RenderTarget;
 
 class PostProcessManager
 {
@@ -18,7 +26,6 @@ public:
     void Update(float deltaTime);
 
     // 描画時に呼び出す
-    // optionalFinalOutputRT: 指定時は最後のパスの出力先に使用（FXAA 等の後段パス用）
     void ExecutePasses(RenderContext& context, std::shared_ptr<ITargetBase> optionalFinalOutputRT = nullptr);
 
 public:
@@ -29,7 +36,17 @@ public:
 		}
 		return names;
 	}
-	
+
+	/// 各パス出力のキャプチャを有効/無効にする
+	void SetCapturePassOutputsForDebug(bool capture) { m_CapturePassOutputsForDebug = capture; }
+	bool IsCapturePassOutputsForDebug() const { return m_CapturePassOutputsForDebug; }
+
+	/// 現在のプリセットで実行されるパス名の順序
+	const std::vector<std::string>& GetCurrentPresetOrder() const;
+
+	/// 指定パス名のキャプチャ済み出力テクスチャ
+	std::shared_ptr<ITargetBase> GetDebugPassOutput(const std::string& passName) const;
+
 private:
     std::map<std::string, PostProcessPreset> m_Presets; // ロードした全プリセット
 	std::map<std::string, std::shared_ptr<PostProcessPassBase>> m_AvailablePasses; // 利用可能な全ポストプロセスパス
@@ -44,4 +61,8 @@ private:
     // 現在のフレームで適用すべき、最終的なパラメータ
     PostProcessPassSettings m_CurrentSettings;
 	std::string m_CurrentPresetName;
+
+	// 各パス出力のキャプチャ
+	bool m_CapturePassOutputsForDebug = false;
+	std::map<std::string, std::shared_ptr<RenderTarget>> m_DebugPassOutputs;
 };

@@ -22,6 +22,18 @@ public:
         static const D3D12_INPUT_ELEMENT_DESC InputElements[InputElementCount];
     };
 
+    /// 物理デバッグ描画用（DebugPass）。POSITION + COLOR のみ。DebugInfo とメモリレイアウト一致。
+    struct DebugVertex
+    {
+        DirectX::XMFLOAT3 Position;
+        DirectX::XMFLOAT4 Color;
+        static const D3D12_INPUT_LAYOUT_DESC InputLayout;
+
+    private:
+        static const int InputElementCount = 2;
+        static const D3D12_INPUT_ELEMENT_DESC InputElements[InputElementCount];
+    };
+
     struct DirectionalLightForShader {
         DirectX::XMFLOAT4 Direction;
         DirectX::XMFLOAT4 ColorAndIntensity;

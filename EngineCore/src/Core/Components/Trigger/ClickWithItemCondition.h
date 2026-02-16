@@ -3,6 +3,7 @@
 #include "Core/Components/TriggerContext/TriggerContext.h"
 #include "Scene/ScenePicker.h"
 #include "Scene/Character/Player/Player.h"
+#include <nlohmann/json.hpp>
 #include <string>
 
 /// <summary>
@@ -38,6 +39,16 @@ public:
     std::string GetName() const override
     {
         return "ClickWithItemCondition";
+    }
+
+    void Serialize(nlohmann::json& j) const override
+    {
+        j["requiredItemId"] = m_requiredItemId;
+    }
+    void Deserialize(const nlohmann::json& j) override
+    {
+        if (j.contains("requiredItemId"))
+            m_requiredItemId = j["requiredItemId"].get<std::string>();
     }
 
     const std::string& GetRequiredItemId() const { return m_requiredItemId; }

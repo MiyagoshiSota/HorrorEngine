@@ -1,5 +1,6 @@
 #include "DrawWorkManagerWindow.h"
 #include "imgui.h"
+#include "Core/Components/TriggerComponent.h"
 #include "Core/Components/TriggerFactory.h" // TriggerFactoryシングルトン
 #include "Scene/GameObject/GameObject.h"
 #include <algorithm> // std::find
@@ -21,6 +22,9 @@ void DrawWorkManagerWindow::draw()
 {
     // HACK:全部のTriggerを毎フレーム取得しているが、パフォーマンス的に問題があれば改善する
     RefreshTriggerCache();
+
+    // Play→Edit 等でシーン再ロード時に WorkManager が再構築され、選択ポインタが無効になるため検証する
+    ValidateSelection();
 
     // 最小サイズ制限を設定（3カラムレイアウトが適切に表示されるサイズ）
     ImGui::SetNextWindowSizeConstraints(ImVec2(800.0f, 400.0f), ImVec2(FLT_MAX, FLT_MAX));
@@ -84,7 +88,7 @@ void DrawWorkManagerWindow::DrawWorkListColumn(float paneHeightY)
         // TODO:Web系のComponent指向を取り入れてもいいかもね
 
         ImGui::SameLine();
-        if (ImGui::Button("X", ImVec2(10, 10)))
+        if (ImGui::Button("X", ImVec2(15, 15)))
         {
             workToDelete = work.get();
         }
@@ -242,7 +246,7 @@ void DrawWorkManagerWindow::DrawWorkFlowColumn(float paneHeightY)
         }
         
         ImGui::SameLine();
-        if (ImGui::Button("X")) { wfToDelete = wf; }
+        if (ImGui::Button("X", ImVec2(20, 20))) { wfToDelete = wf; }
 
         ImGui::PopID();
     }
@@ -401,6 +405,26 @@ void DrawWorkManagerWindow::DrawTaskColumn()
     ImGui::EndChild();
 
     ImGui::EndChild();
+}
+
+void DrawWorkManagerWindow::ValidateSelection()
+{
+    const auto& works = WorkManager::GetInstance().GetAllWorks();
+    const bool workValid = m_selectedWork && std::find_if(works.begin(), works.end(),
+        [this](const std::unique_ptr<Work>& w) { return w.get() == m_selectedWork; }) != works.end();
+    if (!workValid)
+    {
+        m_selectedWork = nullptr;
+        m_selectedWorkflow = nullptr;
+        return;
+    }
+    if (m_selectedWorkflow)
+    {
+        const bool wfValid = std::find_if(m_selectedWork->m_workflows.begin(), m_selectedWork->m_workflows.end(),
+            [this](const std::unique_ptr<WorkFlow>& wf) { return wf.get() == m_selectedWorkflow; }) != m_selectedWork->m_workflows.end();
+        if (!wfValid)
+            m_selectedWorkflow = nullptr;
+    }
 }
 
 // ヘルパー：シーン内の全TriggerComponentをキャッシュに格納

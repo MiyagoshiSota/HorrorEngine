@@ -1,58 +1,62 @@
 {
-	"presets": {
-		"Normal": {
-			"comment": "通常時の、さりげない雰囲気作り用",
-			"order": [ "Vignette", "FilmGrain", "ChromaticAberration" ],
-			"settings": {
-				"Vignette": {
-					"intensity": 0.3,
-					"smoothness": 0.7
-				},
-				"FilmGrain": {
-					"intensity": 0.1
-				},
-				"ChromaticAberration": {
-					"offset": 0.001
-				}
-			}
-		},
-		"Scary": {
-			"comment": "脅威が近づいている時や、緊張感を高める用",
-			"order": [ "Vignette", "ChromaticAberration", "FilmGrain" ],
-			"settings": {
-				"Vignette": {
-					"intensity": 0.4,
-					"smoothness": 0.1
-				},
-				"ChromaticAberration": {
-					"offset": 0.008
-				},
-				"FilmGrain": {
-					"intensity": 0.1
-				}
-			}
-		},
-		"Flashback": {
-			"comment": "過去の回想シーン用",
-			"order": [ "Monochrome", "VHS", "Vignette" ],
-			"settings": {
-				"Monochrome": {
-					"intensity": 1.0
-				},
-				"VHS": {
-					"scanline_intensity": 0.1,
-					"noise_intensity": 0.3
-				},
-				"Vignette": {
-					"intensity": 0.4
-				}
-			}
-		},
-		"Debug": {
-			"comment": "過去の回想シーン用",
-			"order": [ "Bloom" ],
-			"settings": {
-			}
-		}
-	}
+  "presets": {
+    "Normal": {
+      "comment": "通常時の、さりげない雰囲気作り用",
+      "order": ["Vignette", "FilmGrain", "ChromaticAberration"],
+      "settings": {
+        "Vignette": {
+          "intensity": 0.25,
+          "smoothes": 0.75
+        },
+        "FilmGrain": {
+          "intensity": 0.08
+        },
+        "ChromaticAberration": {
+          "offset": 0.0008
+        }
+      }
+    },
+    "Scary": {
+      "comment": "敵が近づいている時や、緊張感を高める用",
+      "order": ["Vignette", "ChromaticAberration", "FilmGrain"],
+      "settings": {
+        "Vignette": {
+          "intensity": 0.2,
+          "smoothes": 0.08
+        },
+        "ChromaticAberration": {
+          "offset": 0.012
+        },
+        "FilmGrain": {
+          "intensity": 0.1
+        }
+      }
+    },
+    "Flashback": {
+      "comment": "過去の回想シーン用",
+      "order": ["Monochrome", "VHS", "Vignette"],
+      "settings": {
+        "Monochrome": {
+          "intensity": 1
+        },
+        "VHS": {
+          "g_ScanlineIntensity": 0.15,
+          "g_NoiseIntensity": 0.25
+        },
+        "Vignette": {
+          "intensity": 0.38,
+          "smoothes": 0.6
+        }
+      }
+    },
+    "Bloom": {
+      "comment": "デバッグ用（Bloomのみ）",
+      "order": ["Bloom"],
+      "settings": {
+        "Bloom": {
+          "g_Threshold": 0.8
+        }
+      }
+    }
+  }
 }

@@ -46,10 +46,27 @@ bool EngineCollider::AddColliderInternal(
         rb->removeCollider(m_collider_);
         m_collider_ = nullptr;
     }
-    if (m_shape_)
+    if (m_shape_ && g_Scene)
     {
-        // 古い形状はデストラクタに任せる（ここで破棄すると新しい形状も破棄されうる）
-        // PhysicsCommon::destroy...Shape を呼ぶのは ~engine_collider() で行う
+        // 既存の形状を PhysicsCommon で破棄してから差し替える（リーク防止）
+        reactphysics3d::PhysicsCommon& physicsCommon = g_Scene->GetPhysicsCommon();
+        switch (m_shapeType)
+        {
+        case ShapeType::BOX:
+            physicsCommon.destroyBoxShape(
+                dynamic_cast<reactphysics3d::BoxShape*>(m_shape_));
+            break;
+        case ShapeType::SPHERE:
+            physicsCommon.destroySphereShape(
+                dynamic_cast<reactphysics3d::SphereShape*>(m_shape_));
+            break;
+        case ShapeType::CAPSULE:
+            physicsCommon.destroyCapsuleShape(
+                dynamic_cast<reactphysics3d::CapsuleShape*>(m_shape_));
+            break;
+        default:
+            break;
+        }
         m_shape_ = nullptr;
         m_shapeType = ShapeType::UNKNOWN;
     }
@@ -67,17 +84,21 @@ DirectX::XMFLOAT3 goSize,
     if (!g_Scene)
         return false;
     auto size_v = reactphysics3d::Vector3(goSize.x, goSize.y, goSize.z);
+    // 物理形状はローカル半 extents × Scale で作成（見た目と一致）。保存はローカルのみで二重スケールを防ぐ
+    const reactphysics3d::Vector3 scaledHalfExtents(
+        halfExtents.x * size_v.x,
+        halfExtents.y * size_v.y,
+        halfExtents.z * size_v.z);
 
     reactphysics3d::BoxShape* shape =
-        g_Scene->GetPhysicsCommon().createBoxShape(halfExtents);
+        g_Scene->GetPhysicsCommon().createBoxShape(scaledHalfExtents);
     if (AddColliderInternal(rb, shape, transform))
     {
         m_shapeType = ShapeType::BOX;
-        m_boxHalfExtents = halfExtents * size_v; // パラメータを保存
+        m_boxHalfExtents = halfExtents; // ローカル値のみ保存（Apply/再読込で巨大化しない）
+        m_localPosition = transform.getPosition();
         return true;
     }
-    // 失敗した場合: add_collider_internal が古い形状をクリアしているので、
-    // 新しく作った形状だけ破棄する
     g_Scene->GetPhysicsCommon().destroyBoxShape(shape);
     return false;
 }
@@ -87,12 +108,17 @@ bool EngineCollider::CreateSphere(reactphysics3d::RigidBody* rb,DirectX::XMFLOAT
 {
     if (!g_Scene)
         return false;
+    auto size_v = reactphysics3d::Vector3(goSize.x, goSize.y, goSize.z);
+    const reactphysics3d::decimal avgScale = (size_v.x + size_v.y + size_v.z) / static_cast<reactphysics3d::decimal>(3);
+    const reactphysics3d::decimal scaledRadius = radius * avgScale;
+
     reactphysics3d::SphereShape* shape =
-        g_Scene->GetPhysicsCommon().createSphereShape(radius);
+        g_Scene->GetPhysicsCommon().createSphereShape(scaledRadius);
     if (AddColliderInternal(rb, shape, transform))
     {
         m_shapeType = ShapeType::SPHERE;
-        m_sphereRadius = radius; // パラメータを保存
+        m_sphereRadius = radius; // ローカル値のみ保存
+        m_localPosition = transform.getPosition();
         return true;
     }
     g_Scene->GetPhysicsCommon().destroySphereShape(shape);
@@ -105,13 +131,19 @@ bool EngineCollider::CreateCapsule(reactphysics3d::RigidBody* rb, DirectX::XMFLO
 {
     if (!g_Scene)
         return false;
+    auto size_v = reactphysics3d::Vector3(goSize.x, goSize.y, goSize.z);
+    const reactphysics3d::decimal avgScale = (size_v.x + size_v.y + size_v.z) / static_cast<reactphysics3d::decimal>(3);
+    const reactphysics3d::decimal scaledRadius = radius * avgScale;
+    const reactphysics3d::decimal scaledHeight = height * avgScale;
+
     reactphysics3d::CapsuleShape* shape =
-        g_Scene->GetPhysicsCommon().createCapsuleShape(radius, height);
+        g_Scene->GetPhysicsCommon().createCapsuleShape(scaledRadius, scaledHeight);
     if (AddColliderInternal(rb, shape, transform))
     {
         m_shapeType = ShapeType::CAPSULE;
-        m_capsuleRadius = radius; // パラメータを保存
+        m_capsuleRadius = radius;   // ローカル値のみ保存
         m_capsuleHeight = height;
+        m_localPosition = transform.getPosition();
         return true;
     }
     g_Scene->GetPhysicsCommon().destroyCapsuleShape(shape);
@@ -171,7 +203,11 @@ void EngineCollider::DrawShapeParamsGUI(DirectX::XMFLOAT3 goSize)
     bool paramsChanged = false;
     ImGui::Indent(); // パラメータを見やすくインデント
 
-                switch (m_shapeType)
+    // オフセット（剛体中心からのローカル位置）
+    if (ImGui::InputFloat3("Offset", &m_localPosition.x))
+        paramsChanged = true;
+
+    switch (m_shapeType)
     {
     case ShapeType::BOX:
         {
@@ -212,26 +248,23 @@ void EngineCollider::DrawShapeParamsGUI(DirectX::XMFLOAT3 goSize)
         // Applyボタンなどを表示して再作成を促す
         if (ImGui::Button("Apply Changes"))
         {
-            // 現在のRigidbodyを取得
             reactphysics3d::RigidBody* rb =
                 dynamic_cast<reactphysics3d::RigidBody*>(m_collider_->getBody());
             if (rb)
             {
-                // 現在のローカルトランスフォームを取得
-                reactphysics3d::Transform currentLocalTransform =
-                    m_collider_->getLocalToBodyTransform();
-                // 形状タイプに基づいて再作成
+                const reactphysics3d::Transform localTransform(
+                    m_localPosition,
+                    reactphysics3d::Quaternion::identity());
                 switch (m_shapeType)
                 {
                 case ShapeType::BOX:
-                    CreateBox(rb,goSize, m_boxHalfExtents, currentLocalTransform);
+                    CreateBox(rb, goSize, m_boxHalfExtents, localTransform);
                     break;
                 case ShapeType::SPHERE:
-                    CreateSphere(rb,goSize, m_sphereRadius, currentLocalTransform);
+                    CreateSphere(rb, goSize, m_sphereRadius, localTransform);
                     break;
                 case ShapeType::CAPSULE:
-                    CreateCapsule(rb,goSize, m_capsuleRadius, m_capsuleHeight,
-                                   currentLocalTransform);
+                    CreateCapsule(rb, goSize, m_capsuleRadius, m_capsuleHeight, localTransform);
                     break;
                 default:
                     break; // 何もしない

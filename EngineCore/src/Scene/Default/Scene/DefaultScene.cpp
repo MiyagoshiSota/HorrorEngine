@@ -4,7 +4,9 @@
 #include "Renderer/Assimp/AssimpLoader.h"
 #include  "../Renderer/PipelineManager/DefaultPipelineManager.h"
 #include "Core/Components/TriggerComponent.h"
+#include "Core/Components/Reward/PlaySoundReward.h"
 #include "Core/Components/Reward/StartWorkReward.h"
+#include "Core/Components/Work/WorkManager.h"
 #include "Modules/PublicConst/ConstPathPref.h"
 #include "Physics/MyCollisionListener.h"
 #include "Physics/Component/Rigidbody.h"
@@ -17,7 +19,8 @@
 #include "Scene/GameObject/Loader/GameObjectLoader.h"
 #include "Scene/Time/TimeManager.h"
 #include "Input/InputDevice.h"
-#include <cmath>
+#include <nlohmann/json.hpp>
+#include <fstream>
 
 using namespace DirectX;
 using json = nlohmann::json;
@@ -139,11 +142,15 @@ void DefaultScene::Update(float deltaTime)
 {
     ISceneBase::Update(deltaTime);
 
+    Player::GetInstance().UpdateHeldItemTransform();
+
     // ポストプロセスマネージャの更新
     m_defaultPipelineManager->GetPostProcessManager()->Update(deltaTime);
 
     GetPhysicsWorld()->setIsDebugRenderingEnabled(true);
-    
+    // デバッグ線（AABB等）を update 内で計算させるため、その前に表示フラグを設定する
+    auto& debugRenderer = GetPhysicsWorld()->getDebugRenderer();
+    debugRenderer.setIsDebugItemDisplayed(reactphysics3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
     // 物理演算の更新
     m_physicsWorld->update(deltaTime);
 
@@ -166,6 +173,22 @@ void DefaultScene::EditorUpdate(float deltaTime)
     m_Camera->Update(deltaTime);
 
     GetPhysicsWorld()->setIsDebugRenderingEnabled(true);
+    auto& debugRenderer = GetPhysicsWorld()->getDebugRenderer();
+    debugRenderer.setIsDebugItemDisplayed(reactphysics3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
+    // エディタでは物理シミュレーションを回さず、GameObject の位置で剛体を同期してからデバッグ用プリミティブのみ計算する（重力等がかからない）
+    for (const auto& obj : GetGameObjects())
+    {
+        const auto rb = obj->FindComponent<Rigidbody>();
+        if (rb && rb->GetRigidbody())
+        {
+            const auto pos = obj->GetPosition();
+            const reactphysics3d::Transform transform(
+                reactphysics3d::Vector3(pos.x, pos.y, pos.z),
+                reactphysics3d::Quaternion::identity());
+            rb->GetRigidbody()->setTransform(transform);
+        }
+    }
+    debugRenderer.computeDebugRenderingPrimitives(*GetPhysicsWorld());
 }
 
 void DefaultScene::Draw()
@@ -218,9 +241,6 @@ void DefaultScene::ApplyPlayModeCamera(float deltaTime)
 	const float posZ = pos.z;
 
 	const XMFLOAT3 rotDeg = playerGo->GetRotation();
-	// DEBUG: プレイヤーオブジェクトの位置と回転を出力
-	printf("[PlayModeCamera] Player pos=(%.3f, %.3f, %.3f) rot=(%.3f, %.3f, %.3f) deg\n",
-		posX, posY, posZ, rotDeg.x, rotDeg.y, rotDeg.z);
 
 	const float sens = config.GetRotationSensitivity() * 0.5f; // Free と同程度
 	auto& input = InputDevice::GetInstance();
@@ -297,14 +317,27 @@ void DefaultScene::ApplyPlayModeCamera(float deltaTime)
 
 void DefaultScene::InitializeGameObject(std::string filePath)
 {
+    std::ifstream file(filePath);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Could not open scene file: " + filePath);
+    }
+    const json sceneJson = json::parse(file);
+
     // ゲームオブジェクトの読み込み
-    m_GameObjects = GameObjectLoader::LoadFromFile(filePath);
+    m_GameObjects = GameObjectLoader::LoadFromJson(sceneJson);
 
     // ゲームオブジェクトのInitを実行
     for (auto& obj : m_GameObjects)
     {
         obj->Init();
     }
+
+    // Works/Task は Day(Scene) に紐づくため、同一JSONから復元する
+    WorkManager::GetInstance().LoadFromSceneJson(sceneJson, m_GameObjects);
+
+    // Trigger の StartWorkReward が持つ workName を Work* に解決する
+    TriggerComponent::ResolvePendingWorkReferencesInScene(m_GameObjects);
 }
 
 // TODO:SceneClassが持つべきか怪しい
@@ -347,8 +380,20 @@ bool DefaultScene::SerializeGameObjects(const std::string& goFilePath)
                 const auto* meshRenderer = dynamic_cast<MeshRenderer*>(comp.get());
                 if (meshRenderer)
                 {
-                    // キャスト成功確認
-                    compJson["model_name"] = meshRenderer->model_name; // "model_name" は定数クラスに追加しても良い
+                    compJson["model_name"] = meshRenderer->model_name;
+                    const auto& overrides = meshRenderer->GetMaterialColorOverrides();
+                    if (!overrides.empty())
+                    {
+                        json overridesJson = json::array();
+                        for (const auto& opt : overrides)
+                        {
+                            if (opt.has_value())
+                                overridesJson.push_back({opt->x, opt->y, opt->z, opt->w});
+                            else
+                                overridesJson.push_back(nullptr);
+                        }
+                        compJson[ConstGameObjectSaveParamPref::kMeshRendererMaterialColorOverrides] = overridesJson;
+                    }
                 }
             }
             else if (type == ConstGameObjectSaveParamPref::kComponentRigidbody)
@@ -406,9 +451,11 @@ bool DefaultScene::SerializeGameObjects(const std::string& goFilePath)
                         colliderJson[ConstGameObjectSaveParamPref::kColliderIsTrigger] = rp3dCollider->
                             getIsTrigger();
 
-                        // Colliderのローカルトランスフォームも保存 (必要なら)
-                        // reactphysics3d::Transform localTransform = rp3dCollider->getLocalToBodyTransform();
-                        // ... localTransform をJSONに保存する処理 ...
+                        // オフセット（剛体中心からのローカル位置）を保存
+                        const reactphysics3d::Vector3 offset = engineCollider->GetLocalPosition();
+                        colliderJson[ConstGameObjectSaveParamPref::kColliderOffset] = {
+                            offset.x, offset.y, offset.z
+                        };
 
                         compJson[ConstGameObjectSaveParamPref::kRigidbodyCollider] = colliderJson;
                     }
@@ -419,15 +466,14 @@ bool DefaultScene::SerializeGameObjects(const std::string& goFilePath)
                 auto* trigger_comp = dynamic_cast<TriggerComponent*>(comp.get());
                 if (trigger_comp)
                 {
-                    // キャスト成功確認
+                    // Task名（Workflow内での表示名）を保存
+                    compJson[ConstGameObjectSaveParamPref::kTriggerTaskName] = trigger_comp->GetTaskName();
                     // Condition
                     if (trigger_comp->Condition != nullptr)
                     {
-                        // JSON オブジェクトを作成して Condition の情報を格納
                         json conditionJson;
-                        conditionJson[ConstGameObjectSaveParamPref::kTriggerConditionName] = trigger_comp->Condition->
-                            GetName();
-                        // TODO: Condition にパラメータがあればここに追加
+                        conditionJson[ConstGameObjectSaveParamPref::kTriggerConditionName] = trigger_comp->Condition->GetName();
+                        trigger_comp->Condition->Serialize(conditionJson);
                         compJson[ConstGameObjectSaveParamPref::kTriggerCondition] = conditionJson;
                     }
 
@@ -442,13 +488,19 @@ bool DefaultScene::SerializeGameObjects(const std::string& goFilePath)
                                 json actionJson;
                                 actionJson[ConstGameObjectSaveParamPref::kTriggerActionName] = action->GetName();
 
-                                // TODO: Action ごとのパラメータを保存する処理
-                                if (action->GetName() == "StartWork")
+                                if (action->GetName() == "StartWorkReward")
                                 {
                                     auto* startWorkAction = dynamic_cast<StartWorkReward*>(action.get());
                                     if (startWorkAction && startWorkAction->GetWork())
-                                    {
                                         actionJson["workName"] = startWorkAction->GetWork()->m_name;
+                                }
+                                if (action->GetName() == "PlaySoundAction")
+                                {
+                                    auto* playSoundAction = dynamic_cast<PlaySoundReward*>(action.get());
+                                    if (playSoundAction)
+                                    {
+                                        actionJson[ConstGameObjectSaveParamPref::kRewardActionSoundName] = playSoundAction->GetSoundName();
+                                        actionJson[ConstGameObjectSaveParamPref::kRewardActionSoundUse3d] = playSoundAction->GetUse3d();
                                     }
                                 }
                                 actionsJson.push_back(actionJson);
@@ -478,6 +530,10 @@ bool DefaultScene::SerializeGameObjects(const std::string& goFilePath)
     }
 
     sceneJson[ConstGameObjectSaveParamPref::kGameObjects] = gameObjectsJson;
+
+    // Works/Task は Day(Scene) に紐づくため、同一JSONに保存する
+    sceneJson[ConstGameObjectSaveParamPref::kWorks] =
+        WorkManager::GetInstance().SerializeToSceneJson(this->GetGameObjects());
 
     // JSONを整形して文字列化
     std::string result_json = sceneJson.dump(4); // 4はインデント幅

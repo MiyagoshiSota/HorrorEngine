@@ -10,7 +10,7 @@
 #include <DirectXMath.h>
 
 #include "TempRenderTargetPool.h"
-#include "Renderer/Target/RenderTarget.h" 
+#include "Renderer/Target/RenderTarget.h"
 #include "Scene/Camera/SceneCamera.h"
 #include "Renderer/PipelineManager/PipelineStateManager.h"
 #include "Scene/GameObject/GameObject.h"
@@ -30,7 +30,6 @@ struct ID3D12GraphicsCommandList;
 class RenderContext
 {
 public:
-    // Deviceを追加 (リソース生成のため)
     RenderContext(
         ID3D12GraphicsCommandList* cmdList,
         std::shared_ptr<SceneCamera> camera,
@@ -40,7 +39,7 @@ public:
         float width,
         float height,
         std::shared_ptr<PipelineStateManager> pipelineStateManager,
-        std::shared_ptr<TempRenderTargetPool> persistentPool // <--- 追加！
+        std::shared_ptr<TempRenderTargetPool> persistentPool
     )
         : CommandList(cmdList)
         , Camera(camera)
@@ -50,7 +49,7 @@ public:
         , ScreenWidth(width)
         , ScreenHeight(height)
         , PipelineStateManager(pipelineStateManager)
-        , m_ExternalTempPool(persistentPool) // <--- 参照を保持
+        , m_ExternalTempPool(persistentPool)
         , m_taaJitter(0.0f, 0.0f)
         , m_taaEnabled(false)
         , m_useRayTracedShadow(false)
@@ -72,7 +71,7 @@ public:
     float ScreenHeight;
 
 public:
-    // --- 名前付きレンダーターゲット管理--
+    // 名前付きレンダーターゲット管理
     std::shared_ptr<ITargetBase> GetRenderTarget(const std::string& name)
     {
         if (m_TargetPool.count(name)) {
@@ -92,7 +91,7 @@ public:
     std::shared_ptr<ITargetBase> GetSourceRT() { return SourceRT; }
     std::shared_ptr<ITargetBase> GetDestRT() { return DestRT; }
 
-    // --- 一時レンダーターゲット管理 ---
+    // 一時レンダーターゲット管理
     std::shared_ptr<RenderTarget> GetTempRenderTarget(float width, float height, DXGI_FORMAT format)
     {
         if (m_ExternalTempPool) return m_ExternalTempPool->Get(width, height, format);
@@ -185,22 +184,19 @@ public:
         }
     }
 
-    // --- Ray Traced Shadowデータ管理 ---
+    // RT Shadowデータ管理
     void SetRayTracedShadowData(const RayTracedShadowRenderData& data)
     {
         m_rayTracedShadowData = data;
     }
-
     const RayTracedShadowRenderData& GetRayTracedShadowData() const
     {
         return m_rayTracedShadowData;
     }
-
     void SetRayTracedShadowUpdateCallback(std::function<void(const RayTracedShadowSceneConstants&, UINT)> callback)
     {
         m_rayTracedShadowUpdateCallback = callback;
     }
-
     void UpdateRayTracedShadowConstants(const RayTracedShadowSceneConstants& constants, UINT frameIndex)
     {
         if (m_rayTracedShadowUpdateCallback)
@@ -208,13 +204,12 @@ public:
             m_rayTracedShadowUpdateCallback(constants, frameIndex);
         }
     }
-
     void SetUseRayTracedShadow(bool use) { m_useRayTracedShadow = use; }
     bool UseRayTracedShadow() const { return m_useRayTracedShadow; }
     void SetInvRayTracedShadowMapSize(float invW, float invH) { m_invRayTracedShadowMapSize = DirectX::XMFLOAT2(invW, invH); }
     DirectX::XMFLOAT2 GetInvRayTracedShadowMapSize() const { return m_invRayTracedShadowMapSize; }
 
-    // --- Ray Traced AO データ管理 ---
+    // Ray Traced AO データ管理
     void SetRayTracedAOData(const RayTracedAORenderData& data) { m_rayTracedAOData = data; }
     const RayTracedAORenderData& GetRayTracedAOData() const { return m_rayTracedAOData; }
     void SetRayTracedAOUpdateCallback(std::function<void(const RayTracedAOConstants&, UINT)> callback) { m_rayTracedAOUpdateCallback = callback; }
@@ -223,7 +218,7 @@ public:
         if (m_rayTracedAOUpdateCallback) m_rayTracedAOUpdateCallback(constants, frameIndex);
     }
 
-    // --- Ray Traced GI データ管理 ---
+    // Ray Traced GI データ管理
     void SetRayTracedGIData(const RayTracedGIRenderData& data) { m_rayTracedGIData = data; }
     const RayTracedGIRenderData& GetRayTracedGIData() const { return m_rayTracedGIData; }
     void SetRayTracedGIUpdateCallback(std::function<void(const RayTracedGIConstants&, UINT)> callback) { m_rayTracedGIUpdateCallback = callback; }
@@ -268,31 +263,27 @@ public:
     DirectX::XMMATRIX GetProjectionMatrix() const
     {
         DirectX::XMMATRIX proj = Camera->GetProjectionMatrix();
-        
+
         // TAA無効時は通常の投影行列を返す
         if (!m_taaEnabled)
         {
             return proj;
         }
-        
-        // ジッターをNDC空間（[-1, 1]）に変換
-        // jitterはピクセル単位の[-0.5, 0.5]なので、スクリーン解像度で正規化して2倍
+
         float jitterX = (m_taaJitter.x / ScreenWidth) * 2.0f;
         float jitterY = (m_taaJitter.y / ScreenHeight) * 2.0f;
-        
+
         // 投影行列の平行移動成分にジッターを適用
-        // proj[2][0] = jitterX (X軸オフセット)
-        // proj[2][1] = jitterY (Y軸オフセット)
         DirectX::XMFLOAT4X4 projMatrix;
         DirectX::XMStoreFloat4x4(&projMatrix, proj);
         projMatrix._31 += jitterX;
         projMatrix._32 += jitterY;
-        
+
         return DirectX::XMLoadFloat4x4(&projMatrix);
     }
 
     /// <summary>
-    /// ジッターなしの純粋な投影行列（モーションベクター/カリング用）
+    /// ジッターなしの純粋な投影行列
     /// </summary>
     DirectX::XMMATRIX GetNonJitteredProjectionMatrix() const
     {

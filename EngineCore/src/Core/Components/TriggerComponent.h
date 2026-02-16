@@ -8,6 +8,8 @@
 #include "TriggerFactory.h"
 #include "Core/Components/Trigger/ITriggerCondition.h"
 #include "Core/Components/Reward/IReward.h"
+#include "Core/Components/Reward/PlaySoundReward.h"
+#include "Core/Components/Reward/StartWorkReward.h"
 #include "Core/Components/TriggerContext/TriggerContext.h"
 #include "Scene/GameObject/Component/Component.h"
 
@@ -54,22 +56,54 @@ public:
         context = TriggerContext();
         context.m_Owner = gameObject;
 
-        // Trigger
+        // Task名（Workflow内での表示名）
+        if (jsonData.contains("taskName"))
+            m_taskName = jsonData["taskName"].get<std::string>();
+
+        // Trigger (Condition)
         if (jsonData.contains("Trigger") && jsonData["Trigger"].contains("name"))
         {
-            std::string conditionName = jsonData["Trigger"]["name"];
-            // ファクトリに名前を渡して、対応するConditionのインスタンスを生成
+            std::string conditionName = jsonData["Trigger"]["name"].get<std::string>();
             Condition = TriggerFactory::GetInstance().CreateCondition(conditionName);
+            if (Condition)
+                Condition->Deserialize(jsonData["Trigger"]);
         }
 
-        // Action
-        if (jsonData.contains("Action") && jsonData["Action"].contains("name"))
+        // Actions（複数。保存キーは "Actions" 配列）
+        if (jsonData.contains("Actions") && jsonData["Actions"].is_array())
         {
-            const std::string action_name = jsonData["Action"]["name"];
-            // ファクトリに名前を渡して、対応するActionのインスタンスを生成
-            if (auto new_action = TriggerFactory::GetInstance().CreateAction(action_name)) {
-                Actions.push_back(std::move(new_action));
+            for (const auto& actionJson : jsonData["Actions"])
+            {
+                if (!actionJson.contains("name")) continue;
+                std::string actionType = actionJson["name"].get<std::string>();
+                if (auto action = TriggerFactory::GetInstance().CreateAction(actionType))
+                {
+                    if (actionType == "StartWorkReward" && actionJson.contains("workName"))
+                    {
+                        auto* sw = dynamic_cast<StartWorkReward*>(action.get());
+                        if (sw) sw->SetPendingWorkName(actionJson["workName"].get<std::string>());
+                    }
+                    if (actionType == "PlaySoundAction")
+                    {
+                        auto* ps = dynamic_cast<PlaySoundReward*>(action.get());
+                        if (ps)
+                        {
+                            if (actionJson.contains("soundName"))
+                                ps->SetSoundName(actionJson["soundName"].get<std::string>());
+                            if (actionJson.contains("use3d"))
+                                ps->SetUse3d(actionJson["use3d"].get<bool>());
+                        }
+                    }
+                    Actions.push_back(std::move(action));
+                }
             }
+        }
+        else if (jsonData.contains("Action") && jsonData["Action"].contains("name"))
+        {
+            // 旧形式: 単一 "Action"
+            std::string actionType = jsonData["Action"]["name"].get<std::string>();
+            if (auto action = TriggerFactory::GetInstance().CreateAction(actionType))
+                Actions.push_back(std::move(action));
         }
     };
     
@@ -78,6 +112,9 @@ public:
     {
         return "Trigger";
     };
+
+    /// シーンロード後、全 TriggerComponent の StartWorkReward の pending workName を解決する
+    static void ResolvePendingWorkReferencesInScene(const std::vector<std::shared_ptr<class GameObject>>& gameObjects);
 
     std::string get_trigger_name() const
     {
