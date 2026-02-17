@@ -107,50 +107,61 @@ void PostProcessManager::BlendToPreset(const std::string& presetName, float dura
 
 void PostProcessManager::Update(float deltaTime)
 {
-    if (!m_IsBlending) return;
-
-    m_BlendTimer += deltaTime;
-    float alpha = std::min(m_BlendTimer / m_BlendDuration, 1.0f);
-    
-    // ソースとターゲットに存在する全てのユニークなパス名を収集
-    std::set<std::string> allPassNames;
-    for (const auto& [passName, _] : m_SourcePreset.settings) {
-        allPassNames.insert(passName);
-    }
-    for (const auto& [passName, _] : m_TargetPreset.settings) {
-        allPassNames.insert(passName);
-    }
-
-    // 全てのパスに対してブレンド処理を行う
-    for (const auto& passName : allPassNames)
+    // ブレンド処理
+    if (m_IsBlending)
     {
-        // ターゲットに存在する全パラメータをループ
-        const auto& targetParams = m_TargetPreset.settings[passName];
-        for (const auto& [paramName, targetValue] : targetParams)
-        {
-            float sourceValue = 0.0f;
-            if (m_SourcePreset.settings.count(passName) && m_SourcePreset.settings.at(passName).count(paramName)) {
-                sourceValue = m_SourcePreset.settings.at(passName).at(paramName);
-            }
-            m_CurrentSettings[passName][paramName] = lerp(sourceValue, targetValue, alpha);
+        m_BlendTimer += deltaTime;
+        float alpha = std::min(m_BlendTimer / m_BlendDuration, 1.0f);
+
+        // ソースとターゲットに存在する全てのユニークなパス名を収集
+        std::set<std::string> allPassNames;
+        for (const auto& [passName, _] : m_SourcePreset.settings) {
+            allPassNames.insert(passName);
+        }
+        for (const auto& [passName, _] : m_TargetPreset.settings) {
+            allPassNames.insert(passName);
         }
 
-        // ソースにしか存在しないパラメータをフェードアウトさせる
-        const auto& sourceParams = m_SourcePreset.settings[passName];
-        for (const auto& [paramName, sourceValue] : sourceParams)
+        // 全てのパスに対してブレンド処理を行う
+        for (const auto& passName : allPassNames)
         {
-            if (!m_TargetPreset.settings.count(passName) || !m_TargetPreset.settings.at(passName).count(paramName))
+            // ターゲットに存在する全パラメータをループ
+            const auto& targetParams = m_TargetPreset.settings[passName];
+            for (const auto& [paramName, targetValue] : targetParams)
             {
-                // ターゲットに存在しないパラメータは0に向かって補間
-                m_CurrentSettings[passName][paramName] = lerp(sourceValue, 0.0f, alpha);
+                float sourceValue = 0.0f;
+                if (m_SourcePreset.settings.count(passName) && m_SourcePreset.settings.at(passName).count(paramName)) {
+                    sourceValue = m_SourcePreset.settings.at(passName).at(paramName);
+                }
+                m_CurrentSettings[passName][paramName] = lerp(sourceValue, targetValue, alpha);
             }
+
+            // ソースにしか存在しないパラメータをフェードアウトさせる
+            const auto& sourceParams = m_SourcePreset.settings[passName];
+            for (const auto& [paramName, sourceValue] : sourceParams)
+            {
+                if (!m_TargetPreset.settings.count(passName) || !m_TargetPreset.settings.at(passName).count(paramName))
+                {
+                    // ターゲットに存在しないパラメータは0に向かって補間
+                    m_CurrentSettings[passName][paramName] = lerp(sourceValue, 0.0f, alpha);
+                }
+            }
+        }
+
+        if (alpha >= 1.0f) {
+            m_IsBlending = false;
+            // ブレンド完了時は、ターゲットの状態を正確にコピー
+            m_CurrentSettings = m_TargetPreset.settings;
         }
     }
 
-    if (alpha >= 1.0f) {
-        m_IsBlending = false;
-        // ブレンド完了時は、ターゲットの状態を正確にコピー
-        m_CurrentSettings = m_TargetPreset.settings;
+    // 経過時間の更新（全ポストプロセス共通）
+    m_Time += deltaTime;
+
+    // "g_Time" を利用するパス向けに、現在の時間をパラメータとして流し込む
+    for (auto& [passName, params] : m_CurrentSettings)
+    {
+        params["g_Time"] = m_Time;
     }
 }
 

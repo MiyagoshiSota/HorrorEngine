@@ -9,9 +9,9 @@ SamplerState g_Sampler : register(s0);
 cbuffer TAAParams : register(b0)
 {
 	float2 g_InvScreenSize;   // 1/width, 1/height
-	float  g_BlendFactor;     // 履歴と現在フレームのブレンド係数 (例: 0.1-0.2)
-	float  g_HistoryWeight;   // 履歴の重み (例: 0.9-0.95)
-	float2 g_CurrentJitter;   // 現在フレームのジッター（ピクセル単位）
+	float  g_BlendFactor;     // 履歴と現在フレームのブレンド係数
+	float  g_HistoryWeight;   // 履歴の重み
+	float2 g_CurrentJitter;   // 現在フレームのジッター（px）
 };
 
 float4 main(float4 position : SV_POSITION, float2 texCoord : TEXCOORD0) : SV_TARGET
@@ -32,7 +32,7 @@ float4 main(float4 position : SV_POSITION, float2 texCoord : TEXCOORD0) : SV_TAR
 	
 	float3 history = g_HistoryBuffer.Sample(g_Sampler, historyUV).rgb;
 
-	// 3x3近傍で現在フレームの最小/最大を計算（カラークランピング）
+	// 3x3近傍で現在フレームの最小/最大を計算
 	float3 colorMin = current;
 	float3 colorMax = current;
 	float3 colorSum = current;
@@ -54,7 +54,7 @@ float4 main(float4 position : SV_POSITION, float2 texCoord : TEXCOORD0) : SV_TAR
 	// 履歴を現在フレームの近傍範囲内に制限
 	history = clamp(history, colorMin, colorMax);
 
-	// 時間的ブレンド（履歴の重みを高く設定）
+	// 時間的ブレンド
 	float3 result = lerp(current, history, g_HistoryWeight);
 
 	return float4(result, 1.0);

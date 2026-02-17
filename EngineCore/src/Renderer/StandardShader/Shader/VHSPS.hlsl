@@ -3,7 +3,6 @@
 Texture2D g_SceneTexture : register(t0);
 SamplerState g_Sampler : register(s0);
 
-// C++側の構造体と一致させる
 cbuffer VHSParams : register(b0)
 {
     float g_ScanlineIntensity;
@@ -22,12 +21,10 @@ float4 main(float4 position : SV_POSITION, float2 texCoord : TEXCOORD0) : SV_TAR
     // 元の色を取得
     float3 finalColor = g_SceneTexture.Sample(g_Sampler, texCoord).rgb;
 
-    // --- 1. スキャンライン効果 ---
     // Y座標に応じて周期的に色を暗くする
     float scanline = sin(texCoord.y * 700.0) * g_ScanlineIntensity;
     finalColor -= scanline;
 
-    // --- 2. ノイズ効果 ---
     // 時間で変化するランダムなノイズを加算
     float noise = (random(texCoord + g_Time) - 0.5) * g_NoiseIntensity;
     finalColor += noise;

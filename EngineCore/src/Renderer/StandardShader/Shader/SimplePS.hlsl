@@ -5,16 +5,11 @@ Texture2D g_AlbedoMap : register(t0);
 Texture2D g_NormalMap : register(t1);
 Texture2D g_MetallicRoughnessMap : register(t2);
 Texture2D g_EmissiveMap : register(t3);
-
-// Texture2DArray から Texture2D (単一テクスチャ) に変更
 Texture2D g_ShadowMap : register(t4);
 
 SamplerState g_Sampler : register(s0);
 SamplerComparisonState g_ShadowSampler : register(s1);
 
-// =========================================================
-// 定数バッファ定義
-// =========================================================
 cbuffer Transform : register(b0)
 {
     float4x4 World;
@@ -64,9 +59,7 @@ cbuffer MaterialParams : register(b2)
     float4 g_BaseColorFactor;
 }
 
-// =========================================================
 // 入力構造体
-// =========================================================
 struct PSInput
 {
     float4 svpos : SV_POSITION;
@@ -78,9 +71,7 @@ struct PSInput
     float4 prevPos : TEXCOORD5;  // 前フレームのクリップ空間座標
 };
 
-// =========================================================
 // 出力構造体（MRT: カラー + Motion Vector + 法線 + ワールド位置）
-// =========================================================
 struct PSOutput
 {
     float4 color : SV_TARGET0;         // カラー出力
@@ -89,10 +80,8 @@ struct PSOutput
     float4 worldPos : SV_TARGET3;     // レイトレ用：ワールド位置 (xyz), w=1
 };
 
-// =========================================================
 // 影判定関数 (0.0=影, 1.0=日向)
 // screenPosXY: レイトレ時のみ使用（SV_POSITION.xy）
-// =========================================================
 float CalculateShadow(float4 posLight, float2 screenPosXY)
 {
     // レイトレシャドウ（カメラ視点）：スクリーンUVでサンプル
@@ -126,9 +115,7 @@ float CalculateShadow(float4 posLight, float2 screenPosXY)
     return 1.0 - shadow;
 }
 
-// =========================================================
-// PBR ヘルパー関数 (変更なし)
-// =========================================================
+// PBR ヘルパー関数
 static const float PI = 3.14159265359;
 
 float DistributionGGX(float3 N, float3 H, float roughness)
@@ -188,9 +175,6 @@ float3 GetNormalFromMap(float2 uv, float3 worldPos, float3 faceNormal)
     return normalize(mul(tangentNormal, TBN));
 }
 
-// =========================================================
-// メインシェーダー
-// =========================================================
 PSOutput main(PSInput input)
 {
     PSOutput output = (PSOutput)0;

@@ -95,14 +95,14 @@ float CalculateShadow(float4 posLight, float2 screenPosXY)
 {
     if (ShadowMode == 0) return 1.0;
 
-    // レイトレシャドウ（カメラ視点）：スクリーンUVでサンプル（フォワードの SimplePS と同一）
+    // レイトレシャドウ スクリーンUVでサンプル（フォワードの SimplePS と同一）
     if (ShadowMode == 2)
     {
         float2 screenUV = screenPosXY * InvRayTracedShadowMapSize;
         return g_ShadowMap.Sample(g_Sampler, screenUV).r;
     }
 
-    // 射影変換 (w除算)
+    // 射影変換
     float3 projCoords = posLight.xyz / posLight.w;
     
     // NDC座標(-1~1) を UV座標(0~1) に変換

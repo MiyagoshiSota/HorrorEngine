@@ -1,17 +1,16 @@
 // FilmGrain_PS.hlsl
 
-Texture2D g_SceneTexture : register(t0); // ジオメトリパスで描画された元絵
+Texture2D g_SceneTexture : register(t0);
 SamplerState g_Sampler : register(s0);
 
-cbuffer FilmGrainParams : register(b0) // FilmGrain固有のパラメータ用定数バッファ
+cbuffer FilmGrainParams : register(b0)
 {
     float g_Intensity; // ノイズの強さ (0.0 - 1.0)
-    float g_Time; // 時間 (ノイズのシードとして使用)
-    float2 g_ScreenSize; // 画面サイズ (ノイズの解像度調整用、無くても良い)
+    float g_Time; // 時間 
+    float2 g_ScreenSize; // 画面サイズ 
 };
 
-// --- ノイズ生成用の関数 ---
-// (VHS_PS.hlslと同じものを再利用)
+// ノイズ生成用の関数
 float random(float2 uv)
 {
     return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453123);
@@ -34,18 +33,15 @@ float4 main(float4 position : SV_POSITION, float2 texCoord : TEXCOORD0) : SV_TAR
 {
     float4 finalColor = g_SceneTexture.Sample(g_Sampler, texCoord);
 
-    // ノイズのUV座標を調整 (画面サイズや時間を使うことでより自然に)
+    // ノイズのUV座標を調整
     float2 noiseUV = texCoord * g_ScreenSize / 100.0f; // ノイズのスケールを調整
     noiseUV += g_Time * 0.1f; // 時間でノイズをスクロールさせる
 
-    // ノイズ値を生成 (Perlinノイズ的なもの)
-    float grain = noise(noiseUV) - 0.5f; // -0.5 ~ 0.5の範囲にする
-    
+    // ノイズ値を生成
+    float grain = noise(noiseUV) - 0.5f; 
+
     // ノイズを適用
     finalColor.rgb += grain * g_Intensity;
-
-    // 彩度を少し落としたり、コントラストを上げたりする調整も加えられる
-    // finalColor.rgb = pow(saturate(finalColor.rgb), 1.05f);
 
     return finalColor;
 }

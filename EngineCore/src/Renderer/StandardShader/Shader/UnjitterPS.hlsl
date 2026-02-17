@@ -18,7 +18,6 @@ struct PSInput
 
 float4 main(PSInput input) : SV_TARGET
 {
-	// ジッターを逆適用：TAA結果は現フレームのジッター分ずれているので、
 	// 逆方向にサンプリングして「正しい位置」の色を取得
 	float2 unjitterOffset = -g_Jitter * g_InvScreenSize;
 	float2 sampleUV = input.TexCoord + unjitterOffset;

@@ -78,4 +78,7 @@ private:
 
     // 現在のプリセット設定に基づくアクティブパスキャッシュ
     mutable std::vector<std::shared_ptr<PostProcessPassBase>> m_ActivePassesCache;
+
+    // 全ポストプロセスで共有できる経過時間（秒）
+    float m_Time = 0.0f;
 };

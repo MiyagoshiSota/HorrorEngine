@@ -47,13 +47,12 @@ VSOutput main(VSInput input)
     output.svpos = projPos;
     output.uv = input.uv;
     
-    // 法線の変換 (回転のみ適用するため w=0)
+    // 法線の変換 
     output.normal = normalize(mul((float3x3) World, input.normal));
 
     output.worldPos = worldPos.xyz;
 
     // 単一の LightViewProj 行列を使って、ライト空間へ変換
-    // これにより、ピクセルシェーダーでテクスチャのどこを参照すればいいかが分かる
     output.posLight = mul(worldPos, LightViewProj);
     
     // Motion Vector用：現フレームと前フレームのクリップ空間座標

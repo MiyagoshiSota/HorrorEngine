@@ -2,42 +2,29 @@
   "presets": {
     "Normal": {
       "comment": "通常時の、さりげない雰囲気作り用",
-      "order": ["Vignette", "FilmGrain", "ChromaticAberration"],
+      "order": ["FilmGrain"],
       "settings": {
-        "Vignette": {
-          "intensity": 0.25,
-          "smoothes": 0.75
-        },
         "FilmGrain": {
           "intensity": 0.08
-        },
-        "ChromaticAberration": {
-          "offset": 0.0008
         }
       }
     },
     "Scary": {
       "comment": "敵が近づいている時や、緊張感を高める用",
-      "order": ["Vignette", "ChromaticAberration", "FilmGrain"],
+      "order": ["Vignette"],
       "settings": {
         "Vignette": {
           "intensity": 0.2,
           "smoothes": 0.08
-        },
-        "ChromaticAberration": {
-          "offset": 0.012
-        },
-        "FilmGrain": {
-          "intensity": 0.1
         }
       }
     },
     "Flashback": {
       "comment": "過去の回想シーン用",
-      "order": ["Monochrome", "VHS", "Vignette"],
+      "order": ["VHS", "Vignette"],
       "settings": {
         "Monochrome": {
-          "intensity": 1
+          "intensity": 1.0
         },
         "VHS": {
           "g_ScanlineIntensity": 0.15,
@@ -55,6 +42,69 @@
       "settings": {
         "Bloom": {
           "g_Threshold": 0.8
+        }
+      }
+    },
+    "Debug_Vignette": {
+      "comment": "デバッグ用（Vignette単体）",
+      "order": ["Vignette"],
+      "settings": {
+        "Vignette": {
+          "intensity": 0.4,
+          "smoothes": 0.5
+        }
+      }
+    },
+    "Debug_FilmGrain": {
+      "comment": "デバッグ用（FilmGrain単体）",
+      "order": ["FilmGrain"],
+      "settings": {
+        "FilmGrain": {
+          "intensity": 0.8
+        }
+      }
+    },
+    "Debug_ChromaticAberration": {
+      "comment": "デバッグ用（ChromaticAberration単体）",
+      "order": ["ChromaticAberration"],
+      "settings": {
+        "ChromaticAberration": {
+          "offset": 0.01
+        }
+      }
+    },
+    "Debug_Monochrome": {
+      "comment": "デバッグ用（Monochrome単体）",
+      "order": ["Monochrome"],
+      "settings": {
+        "Monochrome": {
+          "intensity": 1.0
+        }
+      }
+    },
+    "Debug_VHS": {
+      "comment": "デバッグ用（VHS単体）",
+      "order": ["VHS", "ChromaticAberration", "Vignette"],
+      "settings": {
+        "VHS": {
+          "g_ScanlineIntensity": 0.2,
+          "g_NoiseIntensity": 0.3
+        },
+        "ChromaticAberration": {
+          "offset": 0.01
+        },
+        "Vignette": {
+          "intensity": 0.4,
+          "smoothes": 0.5
+        }
+      }
+    },
+    "Debug_Bloom": {
+      "comment": "デバッグ用（Bloom単体・強め）",
+      "order": ["Bloom"],
+      "settings": {
+        "Bloom": {
+          "g_Threshold": 0.6
         }
       }
     }
