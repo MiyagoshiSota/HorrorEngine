@@ -21,18 +21,11 @@
     },
     "Flashback": {
       "comment": "過去の回想シーン用",
-      "order": ["VHS", "Vignette"],
+      "order": ["VHS"],
       "settings": {
-        "Monochrome": {
-          "intensity": 1.0
-        },
         "VHS": {
-          "g_ScanlineIntensity": 0.15,
-          "g_NoiseIntensity": 0.25
-        },
-        "Vignette": {
-          "intensity": 0.38,
-          "smoothes": 0.6
+          "g_ScanlineIntensity": 0.1,
+          "g_NoiseIntensity": 0.2
         }
       }
     },
@@ -69,7 +62,7 @@
       "order": ["ChromaticAberration"],
       "settings": {
         "ChromaticAberration": {
-          "offset": 0.01
+          "offset": 0.005
         }
       }
     },
@@ -84,14 +77,13 @@
     },
     "Debug_VHS": {
       "comment": "デバッグ用（VHS単体）",
-      "order": ["VHS", "ChromaticAberration", "Vignette"],
+      "order": ["Bloom", "ChromaticAberration", "Vignette"],
       "settings": {
-        "VHS": {
-          "g_ScanlineIntensity": 0.2,
-          "g_NoiseIntensity": 0.3
+        "Bloom": {
+          "g_Threshold": 0.8
         },
         "ChromaticAberration": {
-          "offset": 0.01
+          "offset": 0.005
         },
         "Vignette": {
           "intensity": 0.4,
@@ -104,7 +96,7 @@
       "order": ["Bloom"],
       "settings": {
         "Bloom": {
-          "g_Threshold": 0.6
+          "g_Threshold": 0.8
         }
       }
     }

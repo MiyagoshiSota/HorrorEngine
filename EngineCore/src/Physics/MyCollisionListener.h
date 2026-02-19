@@ -9,7 +9,7 @@ namespace rp3d = reactphysics3d;
 class MyCollisionListener : public rp3d::EventListener
 {
 public:
-    // 物理ワールドで接触(Contact)イベントが発生したときに自動的に呼び出される
+    // 物理ワールドで接触イベントが発生したときに自動的に呼び出される
     void onContact(const CollisionCallback::CallbackData& callbackData) override
     {
         // このフレームで発生した全ての接触ペアに対してループ
@@ -17,21 +17,21 @@ public:
         {
             CollisionCallback::ContactPair contactPair = callbackData.getContactPair(p);
 
-            // 1. 衝突した2つのGameObjectを取得
+            // 衝突した2つのGameObjectを取得
             GameObject* go1 = static_cast<GameObject*>(contactPair.getBody1()->getUserData());
             GameObject* go2 = static_cast<GameObject*>(contactPair.getBody2()->getUserData());
 
             // どちらかのポインタが無効なら、このペアの処理はスキップ
             if (go1 == nullptr || go2 == nullptr) continue;
 
-            // 2. 各GameObjectからRigidbodyコンポーネントを取得
+            // 各GameObjectからRigidbodyコンポーネントを取得
             auto rb1 = go1->FindComponent<Rigidbody>();
             auto rb2 = go2->FindComponent<Rigidbody>();
 
             // どちらかがRigidbodyを持っていなければスキップ
             if (rb1 == nullptr || rb2 == nullptr) continue;
 
-            // 3. イベントの種類に応じて、各コンポーネントに通知
+            // イベントの種類に応じて、各コンポーネントに通知
             switch (contactPair.getEventType())
             {
             case CollisionCallback::ContactPair::EventType::ContactStart:
@@ -48,7 +48,6 @@ public:
                 }
             case CollisionCallback::ContactPair::EventType::ContactStay:
                 {
-                    // 接触が継続している間、毎フレーム呼ばれる (必要に応じて処理を追加)
                     break;
                 }
             }

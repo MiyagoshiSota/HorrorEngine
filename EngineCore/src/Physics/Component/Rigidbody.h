@@ -35,13 +35,6 @@ public:
         auto fl_pos = gameObject->GetPosition();
         reactphysics3d::Vector3 pos = reactphysics3d::Vector3(fl_pos.x, fl_pos.y, fl_pos.z);
 
-        // ReactPhysics3DのTransform型を作成
-        // auto rot = gameObject->get_rotation();
-        // reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(
-        //     static_cast<reactphysics3d::decimal>(rot.x * static_cast<reactphysics3d::decimal>(M_PI) / 180.0),
-        //     static_cast<reactphysics3d::decimal>(rot.y * static_cast<reactphysics3d::decimal>(M_PI) / 180.0),
-        //     static_cast<reactphysics3d::decimal>(rot.z * static_cast<reactphysics3d::decimal>(M_PI) / 180.0)
-        // );
         auto quat = reactphysics3d::Quaternion::identity();
 
         reactphysics3d::Transform transform = reactphysics3d::Transform(pos, quat);
@@ -65,14 +58,6 @@ public:
         reactphysics3d::Quaternion v3rot = m_RigidBody->getTransform().getOrientation();
 
         gameObject->SetPosition(v3pos.x, v3pos.y, v3pos.z);
-
-        // オイラー角に変換
-        // reactphysics3d::Vector3 eulerAngles = v3rot.getVectorV();
-        // gameObject->set_rotation(
-        //     static_cast<float>(eulerAngles.x * 180.0 / M_PI),
-        //     static_cast<float>(eulerAngles.y * 180.0 / M_PI),
-        //     static_cast<float>(eulerAngles.z * 180.0 / M_PI)
-        // );
     }
 
     void Deserialize(const nlohmann::json& jsonData) override
@@ -277,7 +262,7 @@ public:
             ImGui::Spacing();
             if (ImGui::Button("Remove Collider##RBRemoveCollider"))
             {
-                // 1. RigidBodyからColliderを削除
+                // RigidBodyからColliderを削除
                 //    (EngineColliderのデストラクタがShapeを破棄するので、先にColliderを破棄)
                 if (m_collider->GetCollider())
                 {
@@ -285,7 +270,7 @@ public:
                     // destroyCollider は内部で Shape への参照を解除する
                     m_RigidBody->removeCollider(m_collider->GetCollider());
                 }
-                // 2. EngineColliderインスタンスをリセット
+                // EngineColliderインスタンスをリセット
                 m_collider.reset(); // shared_ptrをnullptrにする (~EngineCollider()が呼ばれる)
             }
         }

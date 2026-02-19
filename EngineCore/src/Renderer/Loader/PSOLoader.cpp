@@ -51,19 +51,19 @@ static std::wstring ResolveShaderPath(const std::wstring& shaderPath)
     // 試すパスのリスト（優先順位順）
     std::vector<std::filesystem::path> candidatePaths;
     
-    // 1. Assets/Shaders/ (ビルド済みexe用) - 最優先
+    // Assets/Shaders/ (ビルド済みexe用)
     candidatePaths.push_back(exeDir / L"Assets" / L"Shaders" / filename);
     
-    // 2. 実行ファイルのディレクトリ直下 (開発環境の場合、シェーダーが同じディレクトリにある)
+    // 実行ファイルのディレクトリ直下
     candidatePaths.push_back(exeDir / filename);
     
-    // 3. 実行ファイルのディレクトリの親/Assets/Shaders/ (開発環境の場合)
+    // 実行ファイルのディレクトリの親/Assets/Shaders/
     if (exeDir.has_parent_path())
     {
         candidatePaths.push_back(exeDir.parent_path() / L"Assets" / L"Shaders" / filename);
     }
     
-    // 4. 作業ディレクトリ/Assets/Shaders/ (開発環境の場合)
+    // 作業ディレクトリ/Assets/Shaders/ 
     // Visual Studioの作業ディレクトリがGameに設定されている場合
     wchar_t currentDir[MAX_PATH];
     if (GetCurrentDirectoryW(MAX_PATH, currentDir) > 0)
@@ -72,13 +72,12 @@ static std::wstring ResolveShaderPath(const std::wstring& shaderPath)
         candidatePaths.push_back(workDir / L"Assets" / L"Shaders" / filename);
     }
     
-    // 5. 元のパスをそのまま試す（../x64/Debug/など）- 開発環境用のフォールバック
+    // 元のパスをそのまま試す
     // 実行ファイルのディレクトリからの相対パスとして解決
     std::filesystem::path originalPath = exeDir / shaderPath;
     candidatePaths.push_back(originalPath);
     
-    // 6. 実行ファイルのディレクトリの親からの元のパス（開発環境の場合）
-    // 例: Game/x64/Debug/Game.exe の場合、Game/../x64/Debug/SimpleVS.cso = x64/Debug/SimpleVS.cso
+    // 実行ファイルのディレクトリの親からの元のパス
     if (exeDir.has_parent_path())
     {
         std::filesystem::path parentPath = exeDir.parent_path() / shaderPath;
@@ -96,7 +95,7 @@ static std::wstring ResolveShaderPath(const std::wstring& shaderPath)
         }
     }
     
-    // 7. 作業ディレクトリからの相対パス（開発環境の場合）
+    // 作業ディレクトリからの相対パス
     if (GetCurrentDirectoryW(MAX_PATH, currentDir) > 0)
     {
         std::filesystem::path workDir = currentDir;
@@ -122,12 +121,11 @@ static std::wstring ResolveShaderPath(const std::wstring& shaderPath)
         printf("  [%zu] %s\n", i + 1, pathBuffer);
     }
     
-    // 見つからない場合は最初の候補を返す（エラーはPipelineStateで処理）
+    // 見つからない場合は最初の候補を返す
     return candidatePaths[0].wstring();
 }
 
 // --- JSONの文字列をDirectXのenumに変換するヘルパー関数群 ---
-// (別のユーティリティファイルにまとめても良い)
 namespace JsonParserHelpers
 {
     D3D12_FILTER ParseFilter(const std::string& str) {

@@ -230,7 +230,7 @@ private:
         return corners;
     }
 
-    // ヘルパー: カスケード用の行列計算 (CSMの核心部分)
+    // カスケード用の行列計算
     void CalculateLightViewProj(
         XMVECTOR lightDir,
         float nearPlane,
@@ -240,7 +240,7 @@ private:
     {
         auto camera = g_Scene->GetSceneCamera();
 
-        // 1. サブ視錐台を作るためのカメラ行列を計算
+        // サブ視錐台を作るためのカメラ行列を計算
         float fov = camera->GetFOV();
         float aspect = camera->GetAspect();
         XMVECTOR eye = camera->GetEyePos();
@@ -251,10 +251,10 @@ private:
         XMMATRIX camProj = XMMatrixPerspectiveFovRH(fov, aspect, nearPlane, farPlane);
         XMMATRIX camViewProj = XMMatrixMultiply(camView, camProj);
 
-        // 2. サブ視錐台の8頂点(World)を取得
+        // サブ視錐台の8頂点(World)を取得
         std::vector<XMVECTOR> corners = GetFrustumCornersWorldSpace(camViewProj);
 
-        // 3. 8頂点の「中心点」を計算
+        //  8頂点の「中心点」を計算
         XMVECTOR center = XMVectorSet(0, 0, 0, 0);
         for (const auto& v : corners)
         {
@@ -262,12 +262,11 @@ private:
         }
         center = XMVectorScale(center, 1.0f / 8.0f);
 
-        // 4. ライトのView行列作成 (中心点を見るように配置)
-        // 中心からライト方向にバックした位置にカメラを置く
+        // ライトのView行列作成
         XMVECTOR lightPos = XMVectorSubtract(center, XMVectorScale(lightDir, 100.0f));
         outView = XMMatrixLookAtRH(lightPos, center, XMVectorSet(0, 1, 0, 0));
 
-        // 5. 8頂点をライト空間(View)に変換し、Bounding Box (Min/Max) を求める
+        // 8頂点をライト空間に変換し、Bounding Box (Min/Max) を求める
         float minX = std::numeric_limits<float>::max();
         float maxX = std::numeric_limits<float>::lowest();
         float minY = std::numeric_limits<float>::max();
@@ -286,7 +285,7 @@ private:
             minZ = std::min(minZ, fv.z); maxZ = std::max(maxZ, fv.z);
         }
 
-        // --- Texel Snapping (チラつき防止処理) ---
+        // --- Texel Snapping ---
         // 1テクセルがワールド空間でどれくらいの大きさかを計算
         float worldUnitsPerTexel = (maxX - minX) / kShadowMapSize;
 
@@ -297,21 +296,11 @@ private:
         // Max座標も同じ基準で丸める
         maxX = floor(maxX / worldUnitsPerTexel) * worldUnitsPerTexel;
         maxY = floor(maxY / worldUnitsPerTexel) * worldUnitsPerTexel;
-        // ------------------------------------
 
-        // 6. Ortho行列作成 (Bounding Boxに合わせる)
-        // Z範囲(Near/Far)は、手前のオブジェクトも影を落とせるように余裕を持たせる
-        //float zMult = 5.0f;
-        //// minZ, maxZ はライト空間で負の値になることもあるため注意して拡張
-        //if (minZ < 0) minZ *= zMult; else minZ /= zMult;
-        //if (maxZ > 0) maxZ *= zMult; else maxZ /= zMult;
-        maxZ += 1000.0f; // 手前側に1000m余裕を持たせる
-        minZ -= 1000.0f; // 奥側にも1000m余裕を持たせる
-
-        // RH (右手系) なので Near/Far の指定に注意
-        // 通常 OrthoRH(w, h, n, f) ですが、ここではMinMax指定なので OffCenter を使用
-        // Zは手前がプラス、奥がマイナスのケースなど系によりますが、
-        // ここでは -maxZ (Near), -minZ (Far) として設定します (視線方向が-Zの場合)
+        // Ortho行列作成
+        maxZ += 1000.0f;
+        minZ -= 1000.0f;
+        
         outProj = XMMatrixOrthographicOffCenterRH(minX, maxX, minY, maxY, -maxZ, -minZ);
     }
 };

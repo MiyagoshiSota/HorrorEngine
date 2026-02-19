@@ -146,16 +146,16 @@ void SceneCamera::Pan(float dx, float dy)
 
 void SceneCamera::Orbit(float dYaw, float dPitch)
 {
-    // オービット: m_TargetPos を中心にカメラ（m_EyePos）が周回する
+    // オービット: m_TargetPos を中心にカメラが周回する
 
     // TargetからEyeへのベクトル
     DirectX::XMVECTOR vToEye = DirectX::XMVectorSubtract(m_EyePos, m_TargetPos);
 
-    // 1. Yaw回転 (ワールドの上方向、Y軸周り)
+    // Yaw回転
     DirectX::XMMATRIX mRotYaw = DirectX::XMMatrixRotationAxis(m_WorldUp, dYaw);
     vToEye = DirectX::XMVector3Transform(vToEye, mRotYaw);
 
-    // 2. Pitch回転 (カメラの右方向、m_Right軸周り)
+    // Pitch回転
     DirectX::XMMATRIX mRotPitch = DirectX::XMMatrixRotationAxis(m_Right, dPitch);
     vToEye = DirectX::XMVector3Transform(vToEye, mRotPitch);
 
@@ -172,11 +172,11 @@ void SceneCamera::Rotate(float dYaw, float dPitch)
     DirectX::XMVECTOR vToTarget = DirectX::XMVectorSubtract(m_TargetPos, m_EyePos);
     float distance = DirectX::XMVectorGetX(DirectX::XMVector3Length(vToTarget));
 
-    // 1. Yaw回転 (ワールドの上方向、Y軸周り)
+    // Yaw回転
     DirectX::XMMATRIX mRotYaw = DirectX::XMMatrixRotationAxis(m_WorldUp, -dYaw);
     m_Forward = DirectX::XMVector3Normalize(DirectX::XMVector3Transform(m_Forward, mRotYaw));
 
-    // 2. Pitch回転 (カメラの右方向、m_Right軸周り)
+    // Pitch回転
     m_Right = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(m_WorldUp, m_Forward));
     
     DirectX::XMMATRIX mRotPitch = DirectX::XMMatrixRotationAxis(m_Right, dPitch);

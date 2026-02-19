@@ -3,70 +3,14 @@
         {
             "components": [
                 {
-                    "model_name": "primitive/cube",
+                    "model_name": "WorldEnvironment",
                     "type": "MeshRenderer"
-                },
-                {
-                    "bodyType": "KINEMATIC",
-                    "collider": {
-                        "halfExtents": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ],
-                        "isTrigger": false,
-                        "shape": "Box"
-                    },
-                    "isGravityEnabled": false,
-                    "type": "Rigidbody"
                 }
             ],
-            "name": "primitive/cube",
+            "name": "WorldEnvironment",
             "position": [
                 0.0,
                 0.0,
-                0.0
-            ],
-            "rotation": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "scale": [
-                8.5,
-                0.20000000298023224,
-                5.5
-            ]
-        },
-        {
-            "components": [
-                {
-                    "model_name": "primitive/cube",
-                    "type": "MeshRenderer"
-                },
-                {
-                    "bodyType": "DYNAMIC",
-                    "collider": {
-                        "halfExtents": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ],
-                        "isTrigger": false,
-                        "shape": "Box"
-                    },
-                    "isGravityEnabled": true,
-                    "type": "Rigidbody"
-                },
-                {
-                    "MoveSpeed": 5.0,
-                    "type": "PlayerController"
-                }
-            ],
-            "name": "PlayerCube",
-            "position": [
-                0.0,
-                2.0,
                 0.0
             ],
             "rotation": [

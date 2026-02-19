@@ -592,7 +592,7 @@ void Engine::CreateScissorRect()
 #ifndef BUILD_STANDALONE
 bool Engine::InitImGui()
 {
-    // 1. SRVヒープ作成
+    // SRVヒープ作成
     D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     heapDesc.NumDescriptors = 64; // ← フォント＋テクスチャ用に余裕を持たせる
@@ -880,22 +880,22 @@ void Engine::DrawImGui()
 
 void Engine::MoveToNextFrame()
 {
-    // 1. 今まさにGPUに投げた描画処理の完了を予約する
+    // GPUに投げた描画処理の完了を予約する
     const UINT64 currentFenceValue = m_fenceValue[m_CurrentBackBufferIndex];
     m_pQueue->Signal(m_pFence.Get(), currentFenceValue);
 
-    // 2. 次のフレームで使うバックバッファのインデックスを取得
+    // 次のフレームで使うバックバッファのインデックスを取得
     m_CurrentBackBufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
-    // 3. GPUが、"次のフレームで使うリソース"をまだ使い終わっているかチェック
+    // GPUが、次のフレームで使うリソースをまだ使い終わっているかチェック
     if (m_pFence->GetCompletedValue() < m_fenceValue[m_CurrentBackBufferIndex])
     {
-        // 4. もし終わっていなければ、完了するまで待機する
+        // もし終わっていなければ、完了するまで待機する
         m_pFence->SetEventOnCompletion(m_fenceValue[m_CurrentBackBufferIndex], m_fenceEvent);
         WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
     }
 
-    // 5. 次回、このバックバッファの完了をチェックするためのフェンス値を設定する
+    // 次回、このバックバッファの完了をチェックするためのフェンス値を設定する
     m_fenceValue[m_CurrentBackBufferIndex] = currentFenceValue + 1;
 }
 

@@ -272,9 +272,8 @@ void AssimpLoader::LoadTexture(const wchar_t* filename, SharedStruct::Mesh& dst,
 
      // Albedo Color (Base Color Factor)
      aiColor4D albedoColor(1.0f, 1.0f, 1.0f, 1.0f); // デフォルトは白
-     // 1. glTF PBR のキーを試す
+     //  glTF PBR のキーを試す
      if (src->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, albedoColor) != AI_SUCCESS) {
-         // 2. 従来のキー (DIFFUSE) を試す
          src->Get(AI_MATKEY_COLOR_DIFFUSE, albedoColor);
      }
      dst.albedoFactor = { albedoColor.r, albedoColor.g, albedoColor.b, albedoColor.a };

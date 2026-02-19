@@ -1,7 +1,7 @@
 {
   "models": {
     "WorldEnvironment": {
-      "model_path": "assets/glTF/Sponza.gltf",
+      "model_path": "assets/Sponza/Sponza.gltf",
       "model_name": "WorldEnvironment"
     },
     "Cafe":{
