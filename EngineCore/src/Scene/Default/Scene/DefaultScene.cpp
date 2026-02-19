@@ -56,7 +56,7 @@ bool DefaultScene::Init(std::string goFilePath)
     // Debug用のライトを追加
     m_LightingManager->AddDirectionalLight(
         LightType::Directional,
-        DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f),
+        DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),
         8.0f,
         DirectX::XMFLOAT3(-1.0f, -1.0f, 0.5f)
     );
