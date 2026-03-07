@@ -93,6 +93,17 @@ void SkyboxPass::Execute(RenderContext& context)
         return;
     }
 
+    // 前パスが SceneColorをSRVのまま終える場合があるため、RTV/DSV へ明示的に遷移する
+    auto barriers = std::make_shared<std::vector<D3D12_RESOURCE_BARRIER>>();
+    RendererUtility::simple_change_target_state(barriers, colorRT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    RendererUtility::simple_change_target_state(barriers, depthRT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    if (!barriers->empty())
+    {
+        cmdList->ResourceBarrier(static_cast<UINT>(barriers->size()), barriers->data());
+        colorRT->SetCurrentState(D3D12_RESOURCE_STATE_RENDER_TARGET);
+        depthRT->SetCurrentState(D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    }
+
     // Viewport & Scissor
     auto resourceDesc = colorRT->GetResource()->GetDesc();
     D3D12_VIEWPORT viewport = {};

@@ -574,11 +574,11 @@ void DefaultPipelineManager::ExecutePostProcessChain(RenderContext& context)
 			}
 
 			// HistoryBufferのTransition
-			if (m_historyBuffer->GetCurrentState() == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+			if (m_historyBuffer->GetCurrentState() != D3D12_RESOURCE_STATE_COPY_DEST)
 			{
 				D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
 					m_historyBuffer->GetResource(),
-					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+					m_historyBuffer->GetCurrentState(),
 					D3D12_RESOURCE_STATE_COPY_DEST);
 				context.CommandList->ResourceBarrier(1, &barrier);
 				m_historyBuffer->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
