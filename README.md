@@ -1,3 +1,5 @@
+[HorrorEngineについて - Google Slides](https://docs.google.com/presentation/d/1U7slBWk3Sa4mNSwr3i5KIp_b_1m52BrCXFcs5lhJ9po/edit?usp=sharing)
+
 ## チラズアート系ホラー体験をデータ駆動で構築するための3Dゲームエンジン
 
 HorrorEngine は、 チラズアート作品に代表される 「日常作業 × 怪異の崩壊」 を効率的に構築するための Task / WorkFlow / Work / Day 構造を備えたゲームエンジンです。
